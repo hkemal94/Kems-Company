@@ -9,6 +9,21 @@
   --font-serif: "Playfair Display", Georgia, serif;
   --font-space: "Space Grotesk", sans-serif;
   --font-outfit: "Outfit", sans-serif;
+
+  /* --- Kems Company marka paleti (marka briefi) ---
+     Ana palet */
+  --color-krem: #f3efe8;      /* Kültürel Krem — sessiz tuval */
+  --color-lacivert: #0e1c4f;  /* Kolej Laciverti — sessiz özgüven */
+  --color-kiremit: #d35057;   /* Dinamik Kiremit — paletin kalp atışı */
+  /* Alternatif palet */
+  --color-cam: #336659;       /* Derin Çam Yeşili */
+  --color-gri: #525252;       /* Şehir Grisi */
+  --color-bej: #bba591;       /* Sessiz Bej */
+
+  /* Yüzey tonları — krem ve laciverdin türevleri */
+  --color-krem-acik: #faf8f5;
+  --color-lacivert-800: #16295f;
+  --color-lacivert-600: #24397a;
 }
 
 /* Custom styled scrollbars */
