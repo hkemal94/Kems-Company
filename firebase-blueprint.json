@@ -1,0 +1,47 @@
+{
+  "entities": {
+    "Item": {
+      "title": "Item",
+      "description": "A creative universe item representing a character, location, club, event, merch, post, chapter, or proposal",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "area": { "type": "string" },
+        "type": { "type": "string" },
+        "status": { "type": "string" },
+        "priority": { "type": "string" },
+        "tags": { "type": "array" },
+        "links": { "type": "array" },
+        "notes": { "type": "string" },
+        "images": { "type": "array" },
+        "createdAt": { "type": "number" },
+        "updatedAt": { "type": "number" },
+        "archived": { "type": "boolean" },
+        "isProposal": { "type": "boolean" },
+        "userId": { "type": "string" },
+        "metadata": { "type": "object" }
+      },
+      "required": ["id", "title", "area", "type", "status", "priority", "archived", "isProposal", "userId"]
+    },
+    "UserSettings": {
+      "title": "UserSettings",
+      "description": "User profile settings like theme preference",
+      "type": "object",
+      "properties": {
+        "theme": { "type": "string" }
+      },
+      "required": ["theme"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}/items/{itemId}": {
+      "schema": "Item",
+      "description": "Creative universe items owned by a user"
+    },
+    "/users/{userId}/settings/general": {
+      "schema": "UserSettings",
+      "description": "User preference settings"
+    }
+  }
+}

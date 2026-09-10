@@ -1,0 +1,80 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Phase 3: Primitive Definitions & Hardened Helpers
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-çÇğĞıİöÖşŞüÜâÂîÎûÛ]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Validation Blueprint for Item Entity
+    function isValidItem(data) {
+      return data.keys().hasAll(['id', 'title', 'area', 'type', 'status', 'priority', 'archived', 'isProposal', 'userId'])
+        && data.id is string && data.id.size() <= 128
+        && data.title is string && data.title.size() <= 200
+        && data.area is string && data.area.size() <= 50
+        && data.type is string && data.type.size() <= 50
+        && data.status is string && data.status.size() <= 50
+        && data.priority is string && data.priority.size() <= 50
+        && data.archived is bool
+        && data.isProposal is bool
+        && data.userId is string && data.userId.size() <= 128;
+    }
+
+    // Validation Blueprint for UserSettings Entity
+    function isValidUserSettings(data) {
+      return data.keys().hasAll(['theme'])
+        && data.theme is string && data.theme.size() <= 50;
+    }
+
+    // Match blocks for users collection
+    match /users/{userId} {
+      
+      // Items subcollection
+      match /items/{itemId} {
+        allow read, delete: if isOwner(userId);
+        
+        allow create: if isOwner(userId)
+          && isValidId(itemId)
+          && incoming().id == itemId
+          && incoming().userId == userId
+          && isValidItem(incoming());
+
+        allow update: if isOwner(userId)
+          && incoming().id == existing().id
+          && incoming().userId == existing().userId
+          && isValidItem(incoming());
+      }
+
+      // Settings subcollection
+      match /settings/{docId} {
+        allow read: if isOwner(userId);
+        
+        allow write: if isOwner(userId)
+          && isValidId(docId)
+          && isValidUserSettings(incoming());
+      }
+    }
+  }
+}

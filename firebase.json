@@ -1,0 +1,8 @@
+{
+  "firestore": [
+    {
+      "database": "ai-studio-kemskomutamerkez-e87daa22-f667-4923-9ed3-924993c6e23e",
+      "rules": "firestore.rules"
+    }
+  ]
+}

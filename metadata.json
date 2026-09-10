@@ -1,0 +1,6 @@
+{
+  "name": "Kems Komuta Merkezi",
+  "description": "Kems Company bünyesindeki yaratıcı evrenleri organize eden, önceliklendiren ve takip eden özel kişisel komuta merkezi.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
