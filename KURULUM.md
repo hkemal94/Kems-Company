@@ -1,5 +1,4 @@
 # Düzada Viki — kurulum
-
 ## ÖNEMLİ — geçen yüklemede ne ters gitti
 
 Dosyalar repoya **`duzada-nihai/` klasörünün içine** düştü. Uygulama kök
