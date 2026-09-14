@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   auth, 
-  signInWithGoogle, 
-  logoutUser, 
   seedUserData, 
   subscribeToAllItemsWithArchived, 
   subscribeToSettings, 
@@ -10,7 +8,7 @@ import {
   saveItem, 
   deleteItemDoc 
 } from './lib/firebase';
-import { onAuthStateChanged, User } from 'firebase/auth';
+import { onAuthStateChanged } from 'firebase/auth';
 import { Item, UserSettings, AreaType, ItemType } from './types';
 import { 
   ShoppingBag, 
@@ -18,7 +16,6 @@ import {
   Sparkles, 
   Search, 
   Lightbulb, 
-  LogOut, 
   Sunset, 
   LayoutDashboard, 
   Compass, 
@@ -44,8 +41,15 @@ import HizliNotModal from './components/HizliNotModal';
 import AramaModal from './components/AramaModal';
 import { isEntityUnlinked, generateAiProposalsForUnlinked, cleanupRelationsOnDelete } from './utils/relations';
 
+export interface WorkspaceUser {
+  uid: string;
+  displayName?: string | null;
+  email?: string | null;
+  photoURL?: string | null;
+}
+
 export default function App() {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<WorkspaceUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState<Item[]>([]);
   const [settings, setSettings] = useState<UserSettings>({ theme: 'arşiv' });
@@ -60,14 +64,19 @@ export default function App() {
   const [isHizliNotOpen, setIsHizliNotOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // Authentication & Settings observer
+  // Authentication & Settings observer (Açık erişim modu: Google girişi zorunlu değil)
   useEffect(() => {
     let unsubItems: (() => void) | null = null;
     let unsubSettings: (() => void) | null = null;
 
-    const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser) => {
-      setUser(currentUser);
-      
+    const setupWorkspaceForUser = async (activeUid: string, profile?: { displayName?: string | null; email?: string | null; photoURL?: string | null }) => {
+      setUser({
+        uid: activeUid,
+        displayName: profile?.displayName || 'Açık Arşiv',
+        email: profile?.email || 'acik@kems.local',
+        photoURL: profile?.photoURL || null
+      });
+
       // Clean up previous subscriptions if any
       if (unsubItems) {
         unsubItems();
@@ -78,33 +87,52 @@ export default function App() {
         unsubSettings = null;
       }
 
+      try {
+        // Seed default items first if they don't exist
+        await seedUserData(activeUid);
+      } catch (error) {
+        console.error("Default veri tohumlama sirasinda hata olustu, devam ediliyor:", error);
+      }
+
+      try {
+        // Listen to Firestore real-time items updates
+        unsubItems = subscribeToAllItemsWithArchived(activeUid, (fetchedItems) => {
+          setItems(fetchedItems);
+        });
+
+        // Listen to Firestore settings
+        unsubSettings = subscribeToSettings(activeUid, (fetchedSettings) => {
+          setSettings(fetchedSettings);
+        });
+      } catch (error) {
+        console.error("Firestore abonelikleri baslatilirken hata olustu:", error);
+      }
+      
+      setLoading(false);
+    };
+
+    const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
         try {
-          // Seed default items first if they don't exist
-          await seedUserData(currentUser.uid);
-        } catch (error) {
-          console.error("Default veri tohumlama sirasinda hata olustu, devam ediliyor:", error);
-        }
-
-        try {
-          // Listen to Firestore real-time items updates
-          unsubItems = subscribeToAllItemsWithArchived(currentUser.uid, (fetchedItems) => {
-            setItems(fetchedItems);
-          });
-
-          // Listen to Firestore settings
-          unsubSettings = subscribeToSettings(currentUser.uid, (fetchedSettings) => {
-            setSettings(fetchedSettings);
-          });
-        } catch (error) {
-          console.error("Firestore abonelikleri baslatilirken hata olustu:", error);
-        }
-        
-        setLoading(false);
+          localStorage.setItem('kems_last_uid', currentUser.uid);
+        } catch (_) {}
+        await setupWorkspaceForUser(currentUser.uid, {
+          displayName: currentUser.displayName,
+          email: currentUser.email,
+          photoURL: currentUser.photoURL
+        });
       } else {
-        setItems([]);
-        setSettings({ theme: 'arşiv' });
-        setLoading(false);
+        // Açık erişim modu: Kullanıcı oturum açmamışsa da doğrudan erişim sağlanır
+        let storedUid: string | null = null;
+        try {
+          storedUid = localStorage.getItem('kems_last_uid');
+        } catch (_) {}
+        const publicUid = storedUid || 'kems_public';
+        await setupWorkspaceForUser(publicUid, {
+          displayName: 'Açık Erişim',
+          email: 'acik@kems.local',
+          photoURL: null
+        });
       }
     });
 
@@ -712,54 +740,12 @@ export default function App() {
     });
   };
 
-  if (loading) {
+  if (loading || !user) {
     return (
       <div className="min-h-screen bg-[#E4DCCD] flex items-center justify-center font-mono text-xs text-[#6A5E4C]">
         <div className="text-center space-y-2">
           <div className="w-6 h-6 border-2 border-[#D35057] border-t-transparent rounded-full animate-spin mx-auto" />
           <p>Kems Komuta Merkezi Yükleniyor...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // 1. SIGN-IN BARRIER LANDING VIEW
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-[#E4DCCD] dark:bg-[#0B132B] flex items-center justify-center p-6 relative overflow-hidden paper-grain font-sans">
-        
-        {/* Soft background glow */}
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#D35057]/10 dark:bg-[#D35057]/5 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[#1B2A4A]/10 dark:bg-[#3A506B]/5 rounded-full blur-3xl pointer-events-none" />
-
-        <div className="max-w-md w-full bg-[#F3EFE8]/95 dark:bg-[#13204A]/90 border-2 border-[#CFC5B4] dark:border-[#2C3C72] p-8 md:p-10 rounded-2xl shadow-2xl text-center space-y-6 relative z-10">
-          <div className="space-y-2">
-            <span className="text-[11px] font-mono uppercase tracking-widest text-[#6A5E4C] dark:text-[#A6B0C9] block">
-              KEMS COMPANY PRESENT
-            </span>
-            <h1 className="font-serif font-bold text-3xl md:text-4xl text-[#1B2A4A] dark:text-[#F3EFE8] tracking-tight italic">
-              Kems Komuta Merkezi
-            </h1>
-            <p className="text-xs text-[#6A5E4C] dark:text-[#8AA0D0] leading-relaxed max-w-sm mx-auto pt-1 font-mono">
-              Yaratıcı evreninizi organize edin, kurgusal projeleri, merch droplarını ve hikayeleri tek bir masaüstünde birleştirin.
-            </p>
-          </div>
-
-          <div className="pt-4 border-t border-[#CFC5B4]/50 dark:border-[#2C3C72]/50">
-            <button
-              onClick={signInWithGoogle}
-              className="w-full py-3 bg-[#D35057] hover:bg-[#B23A40] text-[#F3EFE8] font-mono text-sm rounded-xl font-semibold shadow-md hover:scale-[1.01] transition-all flex items-center justify-center gap-2 cursor-pointer"
-            >
-              <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                <path d="M12.24 10.285V14.4h6.887c-.275 1.565-1.88 4.604-6.887 4.604-4.33 0-7.859-3.579-7.859-8s3.529-8 7.859-8c2.46 0 4.105 1.025 5.047 1.926l3.227-3.11C18.281 1.09 15.42 0 12.24 0 5.58 0 0 5.37 0 12s5.58 12 12.24 12c6.96 0 11.57-4.83 11.57-11.78 0-.79-.085-1.4-.195-1.935H12.24z"/>
-              </svg>
-              <span>Google ile Giriş Yap</span>
-            </button>
-          </div>
-
-          <div className="text-[10px] text-[#9A8C76] dark:text-[#6E7CA0] font-mono">
-            * Giriş yaparak evreninizi kalıcı olarak senkronize edin.
-          </div>
         </div>
       </div>
     );
@@ -844,25 +830,12 @@ export default function App() {
             <Sunset className="w-4 h-4" />
           </button>
 
-          {/* User Profile & Signout */}
+          {/* Açık Erişim / Mod Durumu */}
           <div className="h-8 w-px bg-[#CFC5B4] dark:bg-[#2C3C72] mx-1 hidden sm:block" />
 
-          <div className="flex items-center gap-2">
-            {user.photoURL ? (
-              <img src={user.photoURL} alt={user.displayName || "User"} className="w-7 h-7 rounded-full border border-[#CFC5B4]" />
-            ) : (
-              <div className="w-7 h-7 bg-[#1B2A4A] text-[#F3EFE8] rounded-full flex items-center justify-center font-bold text-xs uppercase">
-                {user.email?.[0]}
-              </div>
-            )}
-            
-            <button
-              onClick={logoutUser}
-              className="p-2 bg-[#CFC5B4]/20 hover:bg-red-50 hover:text-red-600 rounded-lg transition-all cursor-pointer"
-              title="Çıkış yap"
-            >
-              <LogOut className="w-4 h-4" />
-            </button>
+          <div className="flex items-center gap-2 px-2.5 py-1 rounded-lg bg-[#6F6047]/10 dark:bg-[#2C3C72]/40 text-[#6F6047] dark:text-[#A6B0C9] text-xs font-mono select-none" title="Arşiv herkese açık modda">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span className="hidden sm:inline">Açık Erişim</span>
           </div>
 
         </div>
