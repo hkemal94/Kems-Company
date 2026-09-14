@@ -164,7 +164,7 @@ export default function Oyun({
         try {
           // Verify/seed hotel
           let hotelId = 'kemskoy_hotel';
-          const existingHotel = items.find(i => i.id === 'kemskoy_hotel' || i.title === 'The Imperial Kemskøy');
+          const existingHotel = items.find(i => i.id === 'kemskoy_hotel' || i.title === 'The Imperial Kemsköy');
           if (!existingHotel) {
             await onAddItem({
               ...KEMSKOY_HOTEL,
@@ -264,7 +264,7 @@ export default function Oyun({
             }
           }
 
-          console.log("6 Günlük Kemskøy lobi senaryoları ve odalar başarıyla otomatik olarak hazırlandı!");
+          console.log("6 Günlük Kemsköy lobi senaryoları ve odalar başarıyla otomatik olarak hazırlandı!");
         } catch (err) {
           console.error("Auto-seed error:", err);
         } finally {
@@ -298,7 +298,7 @@ export default function Oyun({
     try {
       // 1. Ensure KEMSKOY_HOTEL is added if not exists
       let hotelId = 'kemskoy_hotel';
-      const existingHotel = items.find(i => i.id === 'kemskoy_hotel' || i.title === 'The Imperial Kemskøy');
+      const existingHotel = items.find(i => i.id === 'kemskoy_hotel' || i.title === 'The Imperial Kemsköy');
       if (!existingHotel) {
         await onAddItem({
           ...KEMSKOY_HOTEL,
@@ -874,7 +874,7 @@ export default function Oyun({
           </div>
           <div>
             <h1 className="text-sm font-bold uppercase tracking-wider text-gray-900 dark:text-white flex items-center gap-2">
-              The Imperial Kemskøy • Senaryo & Oyun Editörü
+              The Imperial Kemsköy • Senaryo & Oyun Editörü
             </h1>
             <p className="text-xs text-gray-400">Week 1 & Week 2 senaryo kurgu, kural eşleştirme ve simülasyon kontrol kulesi.</p>
           </div>

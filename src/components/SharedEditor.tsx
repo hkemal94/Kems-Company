@@ -227,7 +227,7 @@ export default function SharedEditor({
       // Step 1: MATCH FIRST against existing entities (Kişi, Mekan, Marka) by name.
       const strippedText = localText.replace(/\[[^\]]+\](?:\([^)]+\))?/g, ' ');
       
-      // Sort entities by title length desc to match longer names (like "The Imperial Kemskøy") before shorter ones (like "Imperial")
+      // Sort entities by title length desc to match longer names (like "The Imperial Kemsköy") before shorter ones (like "Imperial")
       const sortedEnts = [...entities]
         .filter(e => !e.isProposal)
         .sort((a, b) => b.title.length - a.title.length);

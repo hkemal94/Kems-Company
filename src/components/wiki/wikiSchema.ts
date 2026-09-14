@@ -1,5 +1,5 @@
 import { Item, ItemType } from '../../types';
-import { DEFAULT_QUESTIONS_BY_CAT } from '../DuzadaWiki';
+import { DEFAULT_QUESTIONS_BY_CAT } from './kunyeSorulari';
 import { parseKunye } from './kunyeParser';
 
 /**
@@ -59,6 +59,9 @@ const GIZLI_ALANLAR = new Set(['secrets', 'clues']);
  */
 export const BOLGE_ADLARI: Record<string, string> = {
   eski_liman: 'İskele Mahallesi',
+  // Eski kayıtlarda bölge böyle yazılıydı; Kemal kararıyla İskele ile aynı yer
+  'eski liman / kemskoy': 'İskele Mahallesi',
+  'eski liman': 'İskele Mahallesi',
   iskele: 'İskele Mahallesi',
   kemskoy: 'Kemsköy Caddesi',
   merkez: 'Merkez Mahallesi',

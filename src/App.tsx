@@ -421,7 +421,7 @@ export default function App() {
     }
   }, [items, user]);
 
-  // Import and merge 76 Kemskøy characters as proposals / enriched entries
+  // Import and merge 76 Kemsköy characters as proposals / enriched entries
   useEffect(() => {
     if (!user || items.length === 0) return;
     const storageKey = `kemskoy_characters_imported_v3_${user.uid}`;

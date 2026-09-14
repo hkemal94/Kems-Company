@@ -283,7 +283,7 @@ export function resolveAllRelations(item: Item, allItems: Item[]): Bidirectional
 export function generateAiProposalsForUnlinked(allItems: Item[]): { itemId: string; proposals: Relation[] }[] {
   const result: { itemId: string; proposals: Relation[] }[] = [];
 
-  // Find the target main Yer (The Imperial Kemskøy hotel)
+  // Find the target main Yer (The Imperial Kemsköy hotel)
   const kemskoyHotel = allItems.find(
     i => !i.archived && (i.id === 'kemskoy_hotel' || i.title.toLowerCase().includes('imperial kemskøy'))
   );
@@ -325,7 +325,7 @@ export function generateAiProposalsForUnlinked(allItems: Item[]): { itemId: stri
       );
     };
 
-    // 1. Kemskøy staff/guests suggestions to the hotel "The Imperial Kemskøy"
+    // 1. Kemsköy staff/guests suggestions to the hotel "The Imperial Kemsköy"
     if (kemskoyHotel && item.id !== kemskoyHotel.id) {
       if (item.tags.includes('kemskoy') || item.tags.includes('personel') || item.tags.includes('misafir') || notesLower.includes('kemskøy') || notesLower.includes('otelde')) {
         const isStaff = item.tags.includes('personel') || notesLower.includes('personel') || titleLower.includes('cemal') || titleLower.includes('nusret');
@@ -336,8 +336,8 @@ export function generateAiProposalsForUnlinked(allItems: Item[]): { itemId: stri
             type: relType,
             isProposal: true,
             reason: isStaff 
-              ? 'Kemskøy personeli olarak otel kadrosuna ait.'
-              : 'Kemskøy misafiri olarak otel konaklama listesinde yer alıyor.'
+              ? 'Kemsköy personeli olarak otel kadrosuna ait.'
+              : 'Kemsköy misafiri olarak otel konaklama listesinde yer alıyor.'
           });
         }
       }

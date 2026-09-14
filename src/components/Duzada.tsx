@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useEffect, useRef, lazy, Suspense } from 'react';
 import { MapPin, Shield, Users, Compass, Store, ShoppingBag, Calendar, BookOpen, ChevronDown, ChevronUp, Sparkles, Plus, Check, Trash2, Edit3, Save, Eye, EyeOff, MoreVertical, Database, Trash, AlertTriangle, Link } from 'lucide-react';
 import { Item, ItemType, WikiSection, BrandKit, AreaType } from '../types';
 import { 
@@ -9,8 +9,14 @@ import { CHARACTERS_IMPORT_DATA } from '../data/charactersImportData';
 import { compressImageBase64 } from '../lib/imageCompressor';
 import { resolveAllRelations, getRelationLabels, cleanupRelationsOnDelete } from '../utils/relations';
 import ConsistencyChecker from './ConsistencyChecker';
-import DuzadaWiki from './DuzadaWiki';
+import { WikiShell } from './wiki/WikiShell';
 import DuzadaDirectory from './DuzadaDirectory';
+
+// MapLibre haritası ~1 MB'lık bir paket (motor + arazi verisi). Sekme
+// açılmadan indirilmesin diye tembel yükleniyor.
+const DuzadaHarita = lazy(() =>
+  import('./harita/DuzadaHarita').then(m => ({ default: m.DuzadaHarita }))
+);
 
 interface DuzadaProps {
   items: Item[];
@@ -270,9 +276,9 @@ export function getCharacterKunye(activeEntity: any) {
 
   if (!summaryText) {
     if (rol) {
-      summaryText = `${ad}, The Imperial Kemskøy bünyesinde ${rol.toLowerCase()} olarak görev almaktadır.`;
+      summaryText = `${ad}, The Imperial Kemsköy bünyesinde ${rol.toLowerCase()} olarak görev almaktadır.`;
     } else {
-      summaryText = `${ad}, Düzada sakinlerinden ve The Imperial Kemskøy misafirlerinden biridir.`;
+      summaryText = `${ad}, Düzada sakinlerinden ve The Imperial Kemsköy misafirlerinden biridir.`;
     }
   }
 
@@ -395,13 +401,18 @@ export default function Duzada({
   }, [items, mapPins]);
   
   const mahalleler = useMemo(() => {
+    // Kemal kararı (14 Eylül 2026): beş mahalle — Merkez, Liman, İskele,
+    // Stadyum, Çiftlik. Eski Liman / Kemsköy ile İskele aynı yer; Fener ayrı
+    // bir mahalle değil, Liman Mahallesi içinde bir mevki.
+    //
+    // Kimlikler eski hâliyle bırakıldı (eski_liman, stad): kayıtlı maddelerin
+    // metadata.region alanı bunlara bakıyor, kimliği değiştirmek bağı koparırdı.
     return mapSettingsItem?.metadata?.mahalleler || [
-      { id: 'merkez', name: 'Merkez', summary: "Düzada'nın tam ortasında yer alan, sokak ağları ve yerel dükkanlarla kaplı hareketli şehir merkezi. İdari binalar, köy meydanı ve sosyal hayatın merkez üssüdür." },
-      { id: 'liman', name: 'Liman', summary: "Adanın batı kıyısındaki korunaklı koyda yer alan modern liman alanı. Ticaret gemileri, balıkçı tekneleri, Kems ticaret gemileri ve kıyı kahveleriyle hareketli, adanın dış dünyaya açılan kapısıdır." },
-      { id: 'fener', name: 'Fener', summary: "Düzada'nın en kuzey ucundaki sarp kayalıklarda yükselen tarihi deniz feneri bölgesi. Adanın simgelerinden biridir ve sert rüzgarları, hırçın dalgaları ve izole atmosferiyle bilinir." },
-      { id: 'stad', name: 'Stad', summary: "Adanın kuzeydoğu ucundaki düzlük burunda konumlanmış modern spor sahası ve stadyumu. Adadaki kültürel, sportif ve sosyal rekreasyon etkinliklerinin odağıdır." },
-      { id: 'çiftlik', name: 'Çiftlik', summary: "Adanın verimli doğu ve güneydoğu düzlüklerinde uzanan geniş tarım arazileri, zeytinlikler ve yerel çiftlik evleri. Adanın tarımsal üretim kalbidir." },
-      { id: 'eski_liman', name: 'Eski Liman', summary: "Adanın güneybatı kıyısındaki tarihi yerleşim ve rıhtım bölgesi. Görkemli 'The Imperial Kemskøy' oteline, rıhtımlara ve gizemli tarihi kalıntılara ev sahipliği yapar. EST. 1954 kuruluş tarihiyle adanın en prestijli bölgesidir." }
+      { id: 'merkez', name: 'Merkez Mahallesi', summary: "Adanın ortasındaki mahalle; eski adıyla Düzada Köyü. Ada büyüdükçe köy merkez mahallesi olarak anılmaya başlamış. Kamu binaları, apartmanlar ve küçük işletmeler burada." },
+      { id: 'liman', name: 'Liman Mahallesi', summary: "İskele operasyonel olarak yetersiz kalınca inşa edilen yeni limanı ve çevresini kapsar. Adanın deniz trafiği buradan yürür. Mahallenin kuzeyinde, limana yukarıdan bakan bir burnun ucunda Fener mevkii bulunur." },
+      { id: 'eski_liman', name: 'İskele Mahallesi', summary: "Eskiden Düzada Köyünün iskelesi olan, Kemsköy diye anılan mahalle. Liman caddesi ve eski limanı, adanın eğlence mekânları ve ilk oteli The Imperial Kemsköy burada. (Eski Liman / Kemsköy aynı yerdir.)" },
+      { id: 'stad', name: 'Stadyum Mahallesi', summary: "Dirlik Stadı ve kulüp tesislerinin çevresinde gelişen mahalle. Adanın spor hayatı burada toplanır; maç günleri dışında sakindir." },
+      { id: 'çiftlik', name: 'Çiftlik Mahallesi', summary: "Adanın tarım ve hayvancılık yapılan kesimi. Zeytinlikler, ağıllar ve Küçükçetmi Sürek Kulübü bu mahallede; nüfusu en seyrek bölge." }
     ];
   }, [mapSettingsItem]);
 
@@ -410,7 +421,7 @@ export default function Duzada({
       { id: 'sok_1', name: 'Kuvayi Milliye Caddesi', mahalleId: 'merkez' },
       { id: 'sok_2', name: 'Çarşı Sokak', mahalleId: 'merkez' },
       { id: 'sok_3', name: 'Liman Kordonu', mahalleId: 'liman' },
-      { id: 'sok_4', name: 'Fener Yolu', mahalleId: 'fener' },
+      { id: 'sok_4', name: 'Fener Yolu', mahalleId: 'liman' },
       { id: 'sok_5', name: 'Stadyum Caddesi', mahalleId: 'stad' },
       { id: 'sok_6', name: 'Zeytinlik Yolu', mahalleId: 'çiftlik' },
       { id: 'sok_7', name: 'Kems Rıhtımı', mahalleId: 'eski_liman' }
@@ -430,13 +441,8 @@ export default function Duzada({
     mahalleler.forEach(m => {
       summaries[m.id] = m.summary || `${m.name} bölgesi hakkında henüz bir açıklama yazılmadı.`;
     });
-    // Add legacy key if missing, for backwards compatibility
-    if (!summaries['eski liman / kemskoy']) {
-      const eskiLiman = mahalleler.find(m => m.id === 'eski_liman' || m.id === 'eski liman / kemskoy');
-      if (eskiLiman) {
-        summaries['eski liman / kemskoy'] = eskiLiman.summary || '';
-      }
-    }
+    // Eski "eski liman / kemskoy" anahtarı bilerek eklenmiyor: Kemal kararıyla
+    // İskele Mahallesi ile aynı yer sayıldı, ikinci bir mahalle üretmemeli.
     return summaries;
   }, [mahalleler]);
 
@@ -472,10 +478,36 @@ export default function Duzada({
   const [linkingMekanSokakId, setLinkingMekanSokakId] = useState<string | null>(null);
   const [selectedMekanToLink, setSelectedMekanToLink] = useState('');
 
+  /**
+   * Haritadaki bir yapı/mahalle tıklandığında ilgili arşiv maddesini açar.
+   *
+   * Bina `wikiId`'leri madde kimlikleriyle birebir aynı (kemskoy_hotel gibi).
+   * Mahalleler ise haritada `yer_merkez`, arşivde `region_merkez` diye
+   * geçiyor; o yüzden kimlik tutmazsa bölge anahtarı üzerinden aranıyor.
+   */
+  const sadelestir = (s: string) =>
+    s
+      .toLocaleLowerCase('tr')
+      .replace(/[çğıöşü]/g, c => 'cgiosu'['çğıöşü'.indexOf(c)])
+      .replace(/[^a-z0-9]/g, '');
+
+  const haritaMaddesiniAc = (wikiId: string) => {
+    let hedef = items.find(it => it.id === wikiId);
+    if (!hedef && wikiId.startsWith('yer_')) {
+      const anahtar = wikiId.slice(4); // merkez, liman, iskele, ciftlik, stadyum
+      const bolgeler = items.filter(it => it.area === 'duzada' && it.type === 'yer');
+      hedef =
+        bolgeler.find(it => sadelestir(it.metadata?.region || '') === anahtar) ||
+        bolgeler.find(it => sadelestir(it.id) === `region${anahtar}`) ||
+        bolgeler.find(it => sadelestir(it.title).startsWith(anahtar.slice(0, 4)));
+    }
+    if (hedef) {
+      setActiveTab('liste');
+      onSelectItem(hedef.id);
+    }
+  };
+
   // NEW Interactive Map Pin & Structure States
-  const [selectedPinId, setSelectedPinId] = useState<string | null>(null);
-  const [isAddingPinMode, setIsAddingPinMode] = useState(false);
-  const [newPinCoords, setNewPinCoords] = useState<{ x: number, y: number } | null>(null);
   
   // New Pin form fields
   const [newPinTitle, setNewPinTitle] = useState('');
@@ -485,8 +517,6 @@ export default function Duzada({
   const [newPinNotes, setNewPinNotes] = useState('');
 
   // Drag states for pin
-  const [draggingPinId, setDraggingPinId] = useState<string | null>(null);
-  const [dragCoords, setDragCoords] = useState<{ x: number, y: number } | null>(null);
 
   // Simple, editable structures
   const [showAddNeighborhoodForm, setShowAddNeighborhoodForm] = useState(false);
@@ -552,7 +582,9 @@ export default function Duzada({
       regionsCreatedRef.current = true;
       console.log("Auto-creating missing region items as 'yer':", missingKeys);
       missingKeys.forEach(async (key) => {
-        const title = key === 'eski liman / kemskoy' ? 'Eski Liman / Kemsköy' : key.charAt(0).toUpperCase() + key.slice(1);
+        // Başlık anahtardan türetilirse "Eski_liman" gibi çirkin adlar çıkıyordu
+        const title = mahalleler.find(m => m.id === key)?.name
+          || key.charAt(0).toLocaleUpperCase('tr') + key.slice(1);
         const id = `region_${key.replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '')}`;
         const description = activeRegionSummaries[key] || "";
         
@@ -599,7 +631,7 @@ export default function Duzada({
         priority: 'yüksek' as const,
         tags: ['evren', 'rehber', 'şemsiye-konteyner'],
         links: [],
-        notes: `Düzada, Ege Denizi'nin serin sularında saklanmış, zamanın daha yavaş aktığı bir takımadanın kalbidir. Tarihi zeytinlikleri, sarp kayalıkların ucunda yükselen deniz feneri, balıkçı teknelerinin sığındığı limanı ve dar sokaklarıyla kendine has melankolik bir atmosfere sahiptir.\n\nAda, özellikle 1954 kuruluş tarihli görkemli "The Imperial Kemskøy" oteli ve çevresindeki sırlar ile bilinir. Ekim 2003 ("Sezon Sonu") dönemi, rüzgarın sertleştiği, turistlerin elini eteğini çektiği ve adanın kendi iç hesaplaşmalarıyla baş başa kaldığı gizemli bir zaman dilimini temsil eder.`,
+        notes: `Düzada, Ege Denizi'nin serin sularında saklanmış, zamanın daha yavaş aktığı bir takımadanın kalbidir. Tarihi zeytinlikleri, sarp kayalıkların ucunda yükselen deniz feneri, balıkçı teknelerinin sığındığı limanı ve dar sokaklarıyla kendine has melankolik bir atmosfere sahiptir.\n\nAda, özellikle 1954 kuruluş tarihli görkemli "The Imperial Kemsköy" oteli ve çevresindeki sırlar ile bilinir. Ekim 2003 ("Sezon Sonu") dönemi, rüzgarın sertleştiği, turistlerin elini eteğini çektiği ve adanın kendi iç hesaplaşmalarıyla baş başa kaldığı gizemli bir zaman dilimini temsil eder.`,
         images: ["https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=512&auto=format&fit=crop"],
         isProposal: false,
         archived: false,
@@ -608,7 +640,7 @@ export default function Duzada({
           climate: 'Ege / Akdeniz Mikrokliması - Rüzgarlı, Sert',
           atmosphere: 'Melankolik, Sezon Sonu, Sisli ve Gizemli',
           wikiSections: [
-            { id: 'sec_1', title: 'Tarihçe', content: "Düzada yerleşimi antik çağlara uzanmakla birlikte, modern hüviyetini 20. yüzyılın ortalarında kazanmıştır. 1954 yılında açılan The Imperial Kemskøy, adanın güneyindeki Eski Liman bölgesini canlandırmış ve adayı seçkin misafirlerin uğrak noktası haline getirmiştir.", status: 'resmi' as const },
+            { id: 'sec_1', title: 'Tarihçe', content: "Düzada yerleşimi antik çağlara uzanmakla birlikte, modern hüviyetini 20. yüzyılın ortalarında kazanmıştır. 1954 yılında açılan The Imperial Kemsköy, adanın güneyindeki Eski Liman bölgesini canlandırmış ve adayı seçkin misafirlerin uğrak noktası haline getirmiştir.", status: 'resmi' as const },
             { id: 'sec_2', title: 'Adaya Ulaşım', content: "Düzada'ya ulaşım yalnızca haftada iki kez kalkan nostaljik Kems ticaret gemileri ve kıyı şeridindeki limandan kalkan özel balıkçı tekneleriyle sağlanır. Fırtınalı sonbahar günlerinde adanın dış dünya ile olan tüm deniz bağı kesilebilir.", status: 'resmi' as const }
           ]
         }
@@ -671,7 +703,7 @@ export default function Duzada({
   // Import Kemskoy Lore to Wiki (as actual entities)
   const handleImportKemskoyLore = async () => {
     setIsImporting(true);
-    setImportFeedback("Kemskøy verileri hazırlanıyor...");
+    setImportFeedback("Kemsköy verileri hazırlanıyor...");
     try {
       const existingIds = new Set(items.map(i => i.id));
       const toImport: any[] = [];
@@ -700,7 +732,7 @@ export default function Duzada({
       }
 
       if (toImport.length === 0) {
-        setImportFeedback("Kemskøy verileri zaten aktarılmış durumda (0 yeni veri eklendi).");
+        setImportFeedback("Kemsköy verileri zaten aktarılmış durumda (0 yeni veri eklendi).");
         setTimeout(() => setImportFeedback(null), 5000);
         return;
       }
@@ -714,7 +746,7 @@ export default function Duzada({
         await Promise.all(chunk.map(item => onAddItem(item)));
       }
 
-      setImportFeedback(`Başarıyla ${toImport.length} adet Kemskøy Lore verisi aktarıldı!`);
+      setImportFeedback(`Başarıyla ${toImport.length} adet Kemsköy Lore verisi aktarıldı!`);
       setTimeout(() => setImportFeedback(null), 6000);
     } catch (err) {
       console.error(err);
@@ -871,123 +903,9 @@ export default function Duzada({
     }
   };
 
-  const handleSvgClick = (e: React.MouseEvent<SVGSVGElement>) => {
-    if (draggingPinId) return; // ignore click when dragging ends
-    
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = Math.round(((e.clientX - rect.left) / rect.width) * 100);
-    const y = Math.round(((e.clientY - rect.top) / rect.height) * 100);
-
-    const boundedX = Math.max(0, Math.min(100, x));
-    const boundedY = Math.max(0, Math.min(100, y));
-
-    setNewPinCoords({ x: boundedX, y: boundedY });
-    setSelectedPinId(null);
-    setIsAddingPinMode(false);
-    
-    // Autofill title or clear
-    setNewPinTitle('');
-    setNewPinNotes('');
-    setNewPinLinkedId('');
-  };
-
-  const handleSvgMouseMove = (e: React.MouseEvent<SVGSVGElement>) => {
-    if (!draggingPinId) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = Math.round(((e.clientX - rect.left) / rect.width) * 100);
-    const y = Math.round(((e.clientY - rect.top) / rect.height) * 100);
-    
-    setDragCoords({
-      x: Math.max(0, Math.min(100, x)),
-      y: Math.max(0, Math.min(100, y))
-    });
-  };
-
-  const handleSvgMouseUp = async () => {
-    if (!draggingPinId || !dragCoords) {
-      setDraggingPinId(null);
-      setDragCoords(null);
-      return;
-    }
-    const pin = items.find(i => i.id === draggingPinId);
-    if (pin) {
-      await onUpdateItem({
-        ...pin,
-        metadata: {
-          ...pin.metadata,
-          haritaKonum: dragCoords
-        }
-      });
-    }
-    setDraggingPinId(null);
-    setDragCoords(null);
-  };
-
-  const handleSaveNewPin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newPinLinkedId || !newPinTitle.trim() || !newPinCoords) return;
-
-    await onAddItem({
-      title: newPinTitle.trim(),
-      area: 'duzada',
-      type: 'map_pin',
-      status: 'Yayında',
-      priority: 'orta',
-      tags: ['harita-pin', newPinCategory],
-      links: [newPinLinkedId],
-      notes: newPinNotes || '',
-      images: [],
-      isProposal: false,
-      archived: false,
-      metadata: {
-        category: newPinCategory,
-        linkedEntityId: newPinLinkedId,
-        haritaKonum: newPinCoords,
-        region: newPinRegion || 'merkez'
-      }
-    });
-
-    // Update the linked entity so that its own metadata stays perfectly in sync
-    const linkedEntity = items.find(i => i.id === newPinLinkedId);
-    if (linkedEntity) {
-      await onUpdateItem({
-        ...linkedEntity,
-        metadata: {
-          ...linkedEntity.metadata,
-          haritaKonum: newPinCoords,
-          region: newPinRegion || 'merkez'
-        }
-      });
-    }
-
-    setNewPinTitle('');
-    setNewPinCategory('lokasyon');
-    setNewPinLinkedId('');
-    setNewPinNotes('');
-    setNewPinCoords(null);
-  };
-
-  // Draggable or Clickable pin selection on Map (legacy, kept for fallback)
-  const handleMapClick = async (e: React.MouseEvent<SVGSVGElement>) => {
-    // Falls back to handleSvgClick if no active entity selected
-    if (!activeEntity) {
-      handleSvgClick(e);
-      return;
-    }
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = Math.round(((e.clientX - rect.left) / rect.width) * 100);
-    const y = Math.round(((e.clientY - rect.top) / rect.height) * 100);
-
-    // Save pin location
-    await onUpdateItem({
-      ...activeEntity,
-      metadata: {
-        ...activeEntity.metadata,
-        haritaKonum: { x, y },
-        region: selectedRegion
-      }
-    });
-  };
+  // Eski parşömen pin haritası kaldırıldı; pin sürükleme, pin kaydetme ve
+  // SVG tıklama işleyicileri onunla birlikte gitti. Konum artık haritanın
+  // kendi coğrafyasından geliyor (src/components/harita).
 
   // AI Sections generator based on entity type
   const handleAiGenerateWikiSections = async () => {
@@ -1720,739 +1638,34 @@ export default function Duzada({
       {activeTab === 'harita' && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           
-          {/* Visual SVG Parchment map */}
+          {/* 3B arazi haritası — gen/duzada.py + gen/dem.py üretimi */}
           <div className="lg:col-span-2 bg-[#E7EBE6] border border-[#B9C7BD] rounded-xl p-4 archive-shadow relative paper-grain">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] font-mono uppercase text-[#4A5E68] font-bold">
-                EGE HARİTA ARAYÜZÜ v1
-              </span>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsAddingPinMode(!isAddingPinMode);
-                    setNewPinCoords(null);
-                    setSelectedPinId(null);
-                  }}
-                  className={`px-2.5 py-1 text-xs font-mono font-bold rounded-md border cursor-pointer transition-all ${isAddingPinMode ? 'bg-[#D35057] text-white border-transparent animate-pulse' : 'bg-white hover:bg-stone-50 text-[#1B2A4A] border-stone-300'}`}
-                >
-                  {isAddingPinMode ? '📍 Haritaya Tıklayın...' : '＋ Pin Ekle'}
-                </button>
-                <span className="text-xs text-[#6A5E4C] max-w-[200px] truncate sm:max-w-none">
-                  {draggingPinId ? "Pini bırakmak için fareyi bırakın." : "Yeni pin için boş bir yere tıklayın."}
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[10px] font-mono uppercase text-[#4A5E68] font-bold">
+                  DÜZADA ARAZİ HARİTASI
                 </span>
               </div>
-            </div>
-
-            {/* Hand-drawn SVG Map */}
-            <div className="border-4 border-double border-[#856C4A]/60 rounded-xl overflow-hidden bg-[#E2D6BE] dark:bg-[#182330] relative shadow-md">
-              <svg 
-                viewBox="0 0 500 400" 
-                onClick={(e) => {
-                  if (e.target === e.currentTarget) {
-                    handleSvgClick(e);
-                  }
-                }}
-                onMouseMove={handleSvgMouseMove}
-                onMouseUp={handleSvgMouseUp}
-                onMouseLeave={handleSvgMouseUp}
-                className="w-full h-auto cursor-crosshair opacity-95 select-none transition-all duration-300"
+              <Suspense
+                fallback={
+                  <div className="h-[70vh] flex items-center justify-center rounded-lg border border-[#B9C7BD] bg-[#F3EFE8] font-mono text-xs text-[#6A5E4C]">
+                    Harita yükleniyor…
+                  </div>
+                }
               >
-                {/* Custom Map Image Overlay */}
-                {mapSettingsItem?.notes && (
-                  <image 
-                    href={mapSettingsItem.notes} 
-                    x="0" 
-                    y="0" 
-                    width="500" 
-                    height="400" 
-                    preserveAspectRatio="none" 
-                    referrerPolicy="no-referrer"
-                  />
-                )}
-
-                {/* Sea lines / waves & gorgeous antique map detailing (Only draw if no custom image is loaded) */}
-                {!mapSettingsItem?.notes && (
-                  <>
-                    {/* Background Parchment Grid Overlay */}
-                    <path 
-                      d="M 0,50 L 500,50 M 0,100 L 500,100 M 0,150 L 500,150 M 0,200 L 500,200 M 0,250 L 500,250 M 0,300 L 500,300 M 0,350 L 500,350 M 50,0 L 50,400 M 100,0 L 100,400 M 150,0 L 150,400 M 200,0 L 200,400 M 250,0 L 250,400 M 300,0 L 300,400 M 350,0 L 350,400 M 400,0 L 400,400 M 450,0 L 450,400" 
-                      stroke="#C9BCA3" 
-                      strokeWidth="0.5" 
-                      strokeDasharray="2,3" 
-                      opacity="0.5" 
-                    />
-
-                    {/* Concentric Coastal Waves (Classic Cartography Wave Ripples) */}
-                    <path 
-                      d="M 120 140 C 130 90, 200 70, 290 85 C 380 100, 420 70, 440 120 C 460 170, 470 230, 430 270 C 390 310, 410 360, 360 380 C 310 400, 230 380, 160 350 C 100 320, 60 270, 70 210 C 75 170, 110 190, 120 140 Z" 
-                      fill="none" 
-                      stroke="#C9BCA3" 
-                      strokeWidth="15" 
-                      opacity="0.15" 
-                      strokeLinejoin="round" 
-                    />
-                    <path 
-                      d="M 120 140 C 130 90, 200 70, 290 85 C 380 100, 420 70, 440 120 C 460 170, 470 230, 430 270 C 390 310, 410 360, 360 380 C 310 400, 230 380, 160 350 C 100 320, 60 270, 70 210 C 75 170, 110 190, 120 140 Z" 
-                      fill="none" 
-                      stroke="#C9BCA3" 
-                      strokeWidth="8" 
-                      opacity="0.3" 
-                      strokeLinejoin="round" 
-                    />
-
-                    {/* Secondary Islet coastal ripples */}
-                    <path 
-                      d="M 60 65 C 75 55, 95 65, 85 85 C 70 95, 50 85, 60 65 Z" 
-                      fill="none" 
-                      stroke="#C9BCA3" 
-                      strokeWidth="6" 
-                      opacity="0.25" 
-                      strokeLinejoin="round" 
-                    />
-
-                    {/* Beautiful landmass fills */}
-                    {/* Main Island: Düzada */}
-                    <path 
-                      d="M 120 140 C 130 90, 200 70, 290 85 C 380 100, 420 70, 440 120 C 460 170, 470 230, 430 270 C 390 310, 410 360, 360 380 C 310 400, 230 380, 160 350 C 100 320, 60 270, 70 210 C 75 170, 110 190, 120 140 Z" 
-                      fill="#FFFBF0" 
-                      stroke="#856C4A" 
-                      strokeWidth="2" 
-                      strokeLinejoin="round" 
-                    />
-
-                    {/* Lighthouse Islet */}
-                    <path 
-                      d="M 60 65 C 75 55, 95 65, 85 85 C 70 95, 50 85, 60 65 Z" 
-                      fill="#FFFBF0" 
-                      stroke="#856C4A" 
-                      strokeWidth="1.5" 
-                      strokeLinejoin="round" 
-                    />
-
-                    {/* Bottom Reef Islet */}
-                    <path 
-                      d="M 410 320 C 430 315, 440 330, 425 340 C 410 345, 405 325, 410 320 Z" 
-                      fill="#FFFBF0" 
-                      stroke="#856C4A" 
-                      strokeWidth="1.5" 
-                      strokeLinejoin="round" 
-                    />
-
-                    {/* Sailboat Illustration in upper sea */}
-                    <g transform="translate(140, 100) scale(0.65)" className="pointer-events-none">
-                      <path d="M -25,12 C -15,10 15,10 25,12" stroke="#A99B83" strokeWidth="1" fill="none" opacity="0.6" />
-                      <path d="M -15 8 C -10 14, 10 14, 15 8 L 18 0 L -18 0 Z" fill="#8C7355" stroke="#4A3B2C" strokeWidth="1.2" />
-                      <rect x="-8" y="-4" width="14" height="4" fill="#F4EFE6" stroke="#4A3B2C" strokeWidth="0.8" />
-                      <line x1="2" y1="0" x2="2" y2="-22" stroke="#4A3B2C" strokeWidth="1.5" />
-                      <path d="M 2 -22 C 10 -15, 12 -5, 2 -2 Z" fill="#FFFBF0" stroke="#856C4A" strokeWidth="1" />
-                      <path d="M 1 -20 C -6 -14, -8 -6, 1 -3 Z" fill="#FFFBF0" stroke="#856C4A" strokeWidth="1" />
-                      <polygon points="2,-22 -4,-20 2,-18" fill="#D35057" />
-                    </g>
-
-                    {/* Sea Monster Splashing in lower right corner */}
-                    <g transform="translate(380, 335) scale(0.7)" opacity="0.8" className="pointer-events-none">
-                      <path d="M -30,10 C -15,5 15,5 30,10" stroke="#A99B83" strokeWidth="1.2" fill="none" strokeDasharray="2 2" />
-                      <path d="M -15,8 Q -10,-12 -5,8" fill="none" stroke="#856C4A" strokeWidth="2.5" strokeLinecap="round" />
-                      <path d="M 0,8 Q 5,-18 10,8" fill="none" stroke="#856C4A" strokeWidth="2.5" strokeLinecap="round" />
-                      <path d="M 15,8 Q 20,-8 25,8" fill="none" stroke="#856C4A" strokeWidth="2.5" strokeLinecap="round" />
-                      <path d="M 30,8 Q 36,-14 42,-18 Q 38,-8 35,8" fill="#856C4A" stroke="#4A3B2C" strokeWidth="1" />
-                    </g>
-
-                    {/* Mountain Ranges Detail */}
-                    <g stroke="#856C4A" strokeWidth="1.2" fill="#EADCC1" strokeLinejoin="round" className="pointer-events-none">
-                      {/* Central Peaks */}
-                      <polygon points="240,140 255,115 270,140" />
-                      <polygon points="255,115 270,140 255,140" fill="#D2BE9B" opacity="0.8" />
-                      <line x1="255" y1="115" x2="255" y2="140" />
-                      
-                      <polygon points="215,150 230,125 245,150" />
-                      <polygon points="230,125 245,150 230,150" fill="#D2BE9B" opacity="0.8" />
-                      <line x1="230" y1="125" x2="230" y2="150" />
-
-                      <polygon points="260,145 275,120 290,145" />
-                      <polygon points="275,120 290,145 275,145" fill="#D2BE9B" opacity="0.8" />
-                      <line x1="275" y1="120" x2="275" y2="145" />
-                    </g>
-
-                    {/* Pine Forest Vegetation Icons */}
-                    <g stroke="#5C6F52" strokeWidth="0.8" fill="#7E9273" opacity="0.9" className="pointer-events-none">
-                      {/* Forest near Çiftlik */}
-                      <path d="M 310 220 L 314 212 L 318 220 Z" />
-                      <path d="M 315 224 L 319 216 L 323 224 Z" />
-                      <path d="M 305 226 L 309 218 L 313 226 Z" />
-
-                      {/* Forest near Merkez */}
-                      <path d="M 180 180 L 184 172 L 188 180 Z" />
-                      <path d="M 185 184 L 189 176 L 193 184 Z" />
-                      <path d="M 175 186 L 179 178 L 183 186 Z" />
-                      
-                      {/* Forest near Eski Liman */}
-                      <path d="M 150 290 L 154 282 L 158 290 Z" />
-                      <path d="M 155 294 L 159 286 L 163 294 Z" />
-                      <path d="M 145 296 L 149 288 L 153 296 Z" />
-                    </g>
-
-                    {/* Lighthouse (FENER) Tower Graphics */}
-                    <g transform="translate(68, 70) scale(0.6)" className="pointer-events-none">
-                      <polygon points="10,-25 150,-50 145,5 10,-20" fill="#FCD34D" opacity="0.22" />
-                      <polygon points="-10,-25 -150,-50 -145,5 -10,-20" fill="#FCD34D" opacity="0.12" />
-                      <path d="M -15 15 C -10 10, 10 10, 15 15 Z" fill="#A1A1AA" stroke="#856C4A" strokeWidth="1" />
-                      <path d="M -8 15 L -4 -25 L 4 -25 L 8 15 Z" fill="#FFF" stroke="#856C4A" strokeWidth="1.2" />
-                      <path d="M -6 -5 L -5 -15 L 5 -15 L 6 -5 Z" fill="#D35057" stroke="#856C4A" strokeWidth="1" />
-                      <rect x="-6" y="-29" width="12" height="4" fill="#3F3F46" stroke="#856C4A" strokeWidth="1" />
-                      <rect x="-3" y="-35" width="6" height="6" fill="#F59E0B" opacity="0.9" stroke="#856C4A" strokeWidth="1" />
-                      <path d="M -4 -35 L 0 -43 L 4 -35 Z" fill="#3F3F46" stroke="#856C4A" strokeWidth="1" />
-                    </g>
-
-                    {/* Harbor Jetty at Liman */}
-                    <path d="M 104 180 L 125 170 L 120 162 L 98 172 Z" fill="#E4D5B7" stroke="#856C4A" strokeWidth="1.2" className="pointer-events-none" />
-                    <g transform="translate(130, 162) scale(0.35) rotate(-30)" className="pointer-events-none">
-                      <path d="M -15 0 Q 0 8 15 0 L 10 -5 L -10 -5 Z" fill="#8C7355" stroke="#4A3B2C" strokeWidth="1.5" />
-                      <path d="M 0 -5 L 0 -18 Q 8 -12 0 -5 Z" fill="#FFFBF0" stroke="#856C4A" />
-                    </g>
-
-                    {/* Windmill / Farm structure at Çiftlik */}
-                    <g transform="translate(370, 235) scale(0.6)" className="pointer-events-none">
-                      <path d="M -6 10 L -4 -12 L 4 -12 L 6 10 Z" fill="#F4EFE6" stroke="#856C4A" strokeWidth="1.2" />
-                      <path d="M -4 -12 C -4 -17, 4 -17, 4 -12 Z" fill="#D35057" stroke="#856C4A" strokeWidth="1" />
-                      <g transform="rotate(30)">
-                        <line x1="-20" y1="0" x2="20" y2="0" stroke="#856C4A" strokeWidth="1.2" />
-                        <line x1="0" y1="-20" x2="0" y2="20" stroke="#856C4A" strokeWidth="1.2" />
-                        <polygon points="-20,0 -12,-3 -12,0" fill="#FFF" stroke="#856C4A" strokeWidth="0.8" />
-                        <polygon points="20,0 12,3 12,0" fill="#FFF" stroke="#856C4A" strokeWidth="0.8" />
-                        <polygon points="0,-20 -3,-12 0,-12" fill="#FFF" stroke="#856C4A" strokeWidth="0.8" />
-                        <polygon points="0,20 3,12 0,12" fill="#FFF" stroke="#856C4A" strokeWidth="0.8" />
-                      </g>
-                    </g>
-
-                    {/* Antik Arena structure at Stad */}
-                    <g transform="translate(395, 92) scale(0.5)" className="pointer-events-none">
-                      <ellipse cx="0" cy="5" rx="16" ry="10" fill="#E4D5B7" stroke="#856C4A" strokeWidth="1.2" />
-                      <ellipse cx="0" cy="2" rx="14" ry="8" fill="#D8C5A4" stroke="#856C4A" strokeWidth="0.8" />
-                      <path d="M -16 5 L -16 0 M -12 6 L -12 1 M -8 7 L -8 2 M -4 8 L -4 3 M 0 8 L 0 3 M 4 8 L 4 3 M 8 7 L 8 2 M 12 6 L 12 1 M 16 5 L 16 0" stroke="#856C4A" strokeWidth="1" />
-                    </g>
-
-                    {/* Beautifully Crafted Geographic Text Labels */}
-                    <text x="80" y="112" className="fill-[#5c4a37] dark:fill-[#C9BCA3] font-serif italic text-[9px] font-bold" stroke="#FFFBF0" strokeWidth="3" paintOrder="stroke" textAnchor="middle">
-                      FENER ADASI
-                    </text>
-
-                    <text x="110" y="196" className="fill-[#5c4a37] dark:fill-[#C9BCA3] font-serif italic text-[9px] font-bold" stroke="#FFFBF0" strokeWidth="3" paintOrder="stroke" textAnchor="middle">
-                      LİMAN KOYU
-                    </text>
-
-                    <text x="135" y="325" className="fill-[#5c4a37] dark:fill-[#C9BCA3] font-serif italic text-[9px] font-bold" stroke="#FFFBF0" strokeWidth="3" paintOrder="stroke" textAnchor="middle">
-                      KEMSKÖY / ESKİ LİMAN
-                    </text>
-
-                    <text x="245" y="192" className="fill-[#1B2A4A] dark:fill-[#FFFBF0] font-serif italic text-[11px] font-bold tracking-wider" stroke="#FFFBF0" strokeWidth="3.5" paintOrder="stroke" textAnchor="middle">
-                      DÜZADA MERKEZ
-                    </text>
-
-                    <text x="365" y="262" className="fill-[#5c4a37] dark:fill-[#C9BCA3] font-serif italic text-[10px] font-bold" stroke="#FFFBF0" strokeWidth="3" paintOrder="stroke" textAnchor="middle">
-                      ÇİFTLİK / DEĞİRMEN
-                    </text>
-
-                    <text x="395" y="115" className="fill-[#5c4a37] dark:fill-[#C9BCA3] font-serif italic text-[9px] font-bold" stroke="#FFFBF0" strokeWidth="3" paintOrder="stroke" textAnchor="middle">
-                      ANTİK ARENA
-                    </text>
-                  </>
-                )}
-
-                {/* Stunning Classical Compass Rose */}
-                <g transform="translate(435, 70) scale(0.65)" className="pointer-events-none">
-                  <circle cx="0" cy="0" r="30" stroke="#856C4A" strokeWidth="1" fill="none" />
-                  <circle cx="0" cy="0" r="27" stroke="#856C4A" strokeWidth="0.6" strokeDasharray="2,2" fill="none" />
-                  
-                  <polygon points="0,0 -4,-4 0,-24 4,-4" fill="#D8C5A4" stroke="#856C4A" strokeWidth="0.8" />
-                  <polygon points="0,0 -4,4 0,24 4,4" fill="#D8C5A4" stroke="#856C4A" strokeWidth="0.8" />
-                  <polygon points="0,0 -4,-4 -24,0 -4,4" fill="#D8C5A4" stroke="#856C4A" strokeWidth="0.8" />
-                  <polygon points="0,0 4,-4 24,0 4,4" fill="#D8C5A4" stroke="#856C4A" strokeWidth="0.8" />
-                  
-                  {/* Main Points */}
-                  <polygon points="0,0 -6,-6 0,-32" fill="#D35057" stroke="#856C4A" strokeWidth="0.8" />
-                  <polygon points="0,0 6,-6 0,-32" fill="#856C4A" stroke="#856C4A" strokeWidth="0.8" />
-                  <polygon points="0,0 -6,6 0,32" fill="#D8C5A4" stroke="#856C4A" strokeWidth="0.8" />
-                  <polygon points="0,0 6,6 0,32" fill="#856C4A" stroke="#856C4A" strokeWidth="0.8" />
-                  <polygon points="0,0 6,-6 32,0" fill="#D35057" stroke="#856C4A" strokeWidth="0.8" />
-                  <polygon points="0,0 6,6 32,0" fill="#856C4A" stroke="#856C4A" strokeWidth="0.8" />
-                  <polygon points="0,0 -6,-6 -32,0" fill="#D8C5A4" stroke="#856C4A" strokeWidth="0.8" />
-                  <polygon points="0,0 -6,6 -32,0" fill="#856C4A" stroke="#856C4A" strokeWidth="0.8" />
-                  
-                  <circle cx="0" cy="0" r="4" fill="#FCF8F0" stroke="#856C4A" strokeWidth="1.2" />
-                  <text x="0" y="-36" className="fill-[#1B2A4A] font-serif text-[10px] font-bold" textAnchor="middle">N</text>
-                </g>
-
-                {/* Render Interactive Map Pins */}
-                {mapPins.map(p => {
-                  const isDragging = draggingPinId === p.id;
-                  const pos = isDragging ? (dragCoords || p.metadata?.haritaKonum) : p.metadata?.haritaKonum;
-                  if (!pos) return null;
-                  
-                  const isSelected = p.id === selectedPinId || (activeEntity && p.metadata?.linkedEntityId === activeEntity.id);
-                  
-                  return (
-                    <g 
-                      key={p.id}
-                      transform={`translate(${(pos.x / 100) * 500}, ${(pos.y / 100) * 400})`}
-                      className="cursor-pointer group"
-                      onMouseDown={(evt) => {
-                        evt.stopPropagation();
-                        setDraggingPinId(p.id);
-                        setDragCoords(p.metadata?.haritaKonum || { x: 50, y: 50 });
-                      }}
-                      onClick={(evt) => {
-                        evt.stopPropagation();
-                        if (draggingPinId && draggingPinId !== p.id) return;
-                        setSelectedPinId(p.id);
-                        setNewPinCoords(null);
-                        setIsAddingPinMode(false);
-                        if (p.metadata?.linkedEntityId) {
-                          onSelectItem(p.metadata.linkedEntityId);
-                        } else {
-                          onSelectItem(null);
-                        }
-                      }}
-                    >
-                      <circle 
-                        r={isSelected ? "10" : "7"} 
-                        fill={getCategoryColor(p.metadata?.category)} 
-                        className="animate-pulse opacity-30" 
-                      />
-                      <circle 
-                        r={isSelected ? "7.5" : "5"} 
-                        fill={getCategoryColor(p.metadata?.category)} 
-                        stroke="#FFF" 
-                        strokeWidth="1.5" 
-                      />
-                      
-                      {/* Name Label Pop up */}
-                      <g transform="translate(0, -14)" className="opacity-90 pointer-events-none transition-opacity">
-                        <rect 
-                          x="-45" 
-                          y="-10" 
-                          width="90" 
-                          height="16" 
-                          rx="3" 
-                          fill="#1B2A4A" 
-                        />
-                        <text 
-                          className="fill-[#F3EFE8] font-sans text-[8px] font-bold" 
-                          textAnchor="middle" 
-                          y="1"
-                        >
-                          {p.title}
-                        </text>
-                      </g>
-                    </g>
-                  );
-                })}
-              </svg>
-            </div>
-
-            {/* Custom Map Upload Controls (Section 3) */}
-            <div className="mt-3.5 bg-white/50 dark:bg-[#13204A]/30 border border-[#B9C7BD]/80 rounded-lg p-3.5 space-y-2.5 font-mono text-xs">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                <span className="font-bold text-[#1B2A4A] dark:text-[#F3EFE8] uppercase text-[10px] tracking-wider">
-                  🗺️ Kendi Harita Görselinizi Yükleyin
-                </span>
-                {mapSettingsItem?.notes && (
-                  <button
-                    onClick={() => {
-                      triggerConfirm(
-                        "Haritayı Sıfırla",
-                        "Kendi harita görselinizi kaldırıp varsayılan haritaya dönmek istediğinize emin misiniz?",
-                        async () => {
-                          await onDeleteItem(mapSettingsItem.id);
-                        }
-                      );
-                    }}
-                    className="text-[10px] cursor-pointer font-bold text-red-500 hover:underline"
-                  >
-                    Kendi Haritamı Kaldır / Sıfırla
-                  </button>
-                )}
-              </div>
-              <p className="text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9]">
-                Adanızın el çizimi haritasını veya tasarım görselini yükleyerek karakter konumlarını onun üzerine iğneleyebilirsiniz.
+                <DuzadaHarita
+                  className="h-[70vh] rounded-lg overflow-hidden border border-[#B9C7BD]"
+                  onSelect={haritaMaddesiniAc}
+                />
+              </Suspense>
+              <p className="mt-2 text-[10px] font-mono text-[#6A5E4C] dark:text-[#A6B0C9] leading-relaxed">
+                Sağ tuşla sürükleyerek eğ ve döndür · Bir yapıya ya da mahalleye
+                tıklayıp “Viki maddesini aç” ile arşive geç.
               </p>
-
-              <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
-                <div className="flex-1 flex gap-2">
-                  <input
-                    type="text"
-                    placeholder="Görsel URL adresi yapıştırın..."
-                    className="flex-1 text-xs bg-white dark:bg-[#17345A] text-[#1B2A4A] dark:text-[#F3EFE8] border border-[#B9C7BD] rounded p-2 focus:outline-hidden"
-                    onKeyDown={async (e) => {
-                      if (e.key === 'Enter' && e.currentTarget.value.trim()) {
-                        const val = e.currentTarget.value.trim();
-                        if (mapSettingsItem) {
-                          await onUpdateItem({
-                            ...mapSettingsItem,
-                            notes: val
-                          });
-                        } else {
-                          await onAddItem({
-                            title: 'Düzada Özel Haritası',
-                            area: 'duzada',
-                            type: 'map_settings',
-                            status: 'Yayında',
-                            priority: 'orta',
-                            tags: ['harita'],
-                            links: [],
-                            notes: val,
-                            images: [],
-                            isProposal: false,
-                            archived: false,
-                            metadata: {}
-                          });
-                        }
-                        e.currentTarget.value = '';
-                        alert("Harita görseli güncellendi!");
-                      }
-                    }}
-                  />
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] text-[#9A8C76]">veya</span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={async (e) => {
-                      const file = e.target.files?.[0];
-                      if (!file) return;
-                      const reader = new FileReader();
-                      reader.onload = async (evt) => {
-                        if (evt.target?.result) {
-                          const base64 = evt.target.result as string;
-                          const compressed = await compressImageBase64(base64);
-                          if (mapSettingsItem) {
-                            await onUpdateItem({
-                              ...mapSettingsItem,
-                              notes: compressed
-                            });
-                          } else {
-                            await onAddItem({
-                              title: 'Düzada Özel Haritası',
-                              area: 'duzada',
-                              type: 'map_settings',
-                              status: 'Yayında',
-                              priority: 'orta',
-                              tags: ['harita'],
-                              links: [],
-                              notes: compressed,
-                              images: [],
-                              isProposal: false,
-                              archived: false,
-                              metadata: {}
-                            });
-                          }
-                          alert("Özel harita görseliniz başarıyla yüklendi!");
-                        }
-                      };
-                      reader.readAsDataURL(file);
-                    }}
-                    className="text-[10px] font-mono text-[#6A5E4C] dark:text-[#A6B0C9]"
-                  />
-                </div>
-              </div>
-            </div>
           </div>
 
           {/* Region side bar lore & selected pin card */}
           <div className="space-y-4">
             
-            {/* New Pin creation form card */}
-            {newPinCoords && (
-              <div className="bg-[#FFFDF9] dark:bg-[#13204A] border-2 border-dashed border-[#856C4A]/50 p-5 rounded-xl shadow-md paper-grain space-y-4">
-                <div className="flex items-center gap-2 border-b border-stone-200 dark:border-[#2C3C72] pb-2">
-                  <MapPin className="w-5 h-5 text-[#D35057]" />
-                  <h4 className="font-serif font-bold text-sm text-[#1B2A4A] dark:text-[#F3EFE8]">
-                    Yeni Pin Konumlandır
-                  </h4>
-                </div>
-                <div className="text-[11px] font-mono text-stone-500 bg-stone-100 dark:bg-stone-800 p-1.5 rounded inline-block">
-                  Koordinat: X: {newPinCoords.x}% / Y: {newPinCoords.y}%
-                </div>
-                
-                <form onSubmit={handleSaveNewPin} className="space-y-4 text-xs">
-                  <div>
-                    <label className="block text-[10px] font-mono text-stone-500 dark:text-stone-300 mb-1 font-bold text-[#D35057]">
-                      📍 Konumlandırılacak Viki Maddesi *
-                    </label>
-                    {unpinnedEntities.length === 0 ? (
-                      <p className="text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 p-3 rounded border border-amber-200 dark:border-amber-900/50 leading-relaxed">
-                        Haritaya yerleştirilebilecek boşta Viki maddesi kalmadı! Önce Dizin sekmesinden yeni bir madde oluşturun, ardından haritaya tıklayarak buraya yerleştirin.
-                      </p>
-                    ) : (
-                      <select
-                        required
-                        value={newPinLinkedId}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          setNewPinLinkedId(val);
-                          const chosen = unpinnedEntities.find(ent => ent.id === val);
-                          if (chosen) {
-                            setNewPinTitle(chosen.title);
-                            // Pre-fill notes if they exist, or use a default
-                            setNewPinNotes(chosen.notes || '');
-                            
-                            // Pre-fill region if it exists
-                            if (chosen.metadata?.region) {
-                              setNewPinRegion(chosen.metadata.region);
-                            }
-
-                            // Smart category mapping based on entity type
-                            if (chosen.type === 'kisi' || chosen.type === 'karakter') {
-                              setNewPinCategory('kişi');
-                            } else if (chosen.type === 'mekân' || chosen.type === 'dükkân') {
-                              setNewPinCategory('işletme');
-                            } else if (chosen.type === 'yer') {
-                              setNewPinCategory('coğrafi');
-                            } else {
-                              setNewPinCategory('lokasyon');
-                            }
-                          } else {
-                            setNewPinTitle('');
-                            setNewPinNotes('');
-                          }
-                        }}
-                        className="w-full p-2 border border-stone-300 dark:border-[#2C3C72] bg-white dark:bg-stone-900 rounded font-sans text-xs focus:ring-[#D35057] focus:border-[#D35057]"
-                      >
-                        <option value="">-- Bir Viki Maddesi Seçin --</option>
-                        {unpinnedEntities.map(ent => (
-                          <option key={ent.id} value={ent.id}>
-                            [{ent.type.toUpperCase()}] {ent.title}
-                          </option>
-                        ))}
-                      </select>
-                    )}
-                  </div>
-
-                  {newPinLinkedId && (
-                    <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
-                      <div>
-                        <label className="block text-[10px] font-mono text-stone-500 dark:text-stone-300 mb-1">Kategori / Görünüm Simgesi</label>
-                        <select
-                          value={newPinCategory}
-                          onChange={(e) => setNewPinCategory(e.target.value as any)}
-                          className="w-full p-2 border border-stone-300 dark:border-[#2C3C72] bg-white dark:bg-stone-900 rounded"
-                        >
-                          <option value="lokasyon">🔴 Lokasyon (Kırmızı)</option>
-                          <option value="coğrafi">🟠 Coğrafi Nokta (Turuncu)</option>
-                          <option value="kişi">🔵 Kişi/Sakin Evi (İndigo)</option>
-                          <option value="işletme">🟢 İşletme/Dükkan (Zümrüt)</option>
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="block text-[10px] font-mono text-stone-500 dark:text-stone-300 mb-1">Bağlı Olduğu Bölge</label>
-                        <select
-                          value={newPinRegion}
-                          onChange={(e) => setNewPinRegion(e.target.value)}
-                          className="w-full p-2 border border-stone-300 dark:border-[#2C3C72] bg-white dark:bg-stone-900 rounded capitalize"
-                        >
-                          {activeRegionList.map(r => (
-                            <option key={r} value={r}>{r}</option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="block text-[10px] font-mono text-stone-500 dark:text-stone-300 mb-1">Harita Açıklaması (İsteğe Bağlı)</label>
-                        <textarea
-                          placeholder="Harita iğnesi üzerine tıklandığında gösterilecek ek notlar..."
-                          value={newPinNotes}
-                          onChange={(e) => setNewPinNotes(e.target.value)}
-                          className="w-full p-2 border border-stone-300 dark:border-[#2C3C72] bg-white dark:bg-stone-900 rounded h-16"
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="flex justify-end gap-1.5 pt-2">
-                    <button
-                      type="button"
-                      onClick={() => setNewPinCoords(null)}
-                      className="px-3 py-1.5 bg-stone-100 dark:bg-stone-800 border border-stone-300 dark:border-[#2C3C72] rounded text-stone-700 dark:text-stone-200 cursor-pointer hover:bg-stone-200 dark:hover:bg-stone-700"
-                    >
-                      Vazgeç
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={!newPinLinkedId}
-                      className={`px-3 py-1.5 text-white rounded font-bold cursor-pointer transition-colors ${newPinLinkedId ? 'bg-[#D35057] hover:bg-[#b04046]' : 'bg-stone-300 dark:bg-stone-700 cursor-not-allowed text-stone-500'}`}
-                    >
-                      Pini Kaydet
-                    </button>
-                  </div>
-                </form>
-              </div>
-            )}
-
-            {/* Selected Pin Details / Editing Panel */}
-            {selectedPinId && items.find(i => i.id === selectedPinId) && (() => {
-              const selectedPin = items.find(i => i.id === selectedPinId)!;
-              return (
-                <div className="bg-[#FBF9F5] dark:bg-[#13204A] border border-[#CFC5B4] dark:border-[#2C3C72] p-5 rounded-xl archive-shadow paper-grain space-y-4">
-                  <div className="flex items-center justify-between border-b border-[#CFC5B4]/50 pb-2">
-                    <div className="flex items-center gap-1.5">
-                      <div 
-                        className="w-3 h-3 rounded-full animate-pulse" 
-                        style={{ backgroundColor: getCategoryColor(selectedPin.metadata?.category) }} 
-                      />
-                      <h4 className="font-serif font-bold text-sm text-[#1B2A4A] dark:text-[#F3EFE8]">
-                        📍 Seçili Pin Detayları
-                      </h4>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        triggerConfirm(
-                          "Pini Sil",
-                          `"${selectedPin.title}" pinini haritadan tamamen kaldırmak istediğinize emin misiniz? Bağımlı ansiklopedi varlığı SİLİNMEYECEKTİR.`,
-                          async () => {
-                            await onDeleteItem(selectedPin.id);
-                            setSelectedPinId(null);
-                          }
-                        );
-                      }}
-                      className="text-red-500 hover:text-red-700 text-xs font-mono font-bold flex items-center gap-0.5 cursor-pointer"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" /> Pini Sil
-                    </button>
-                  </div>
-
-                  <div className="space-y-3 text-xs">
-                    <div>
-                      <label className="block text-[10px] font-mono text-stone-500 dark:text-stone-300 mb-1">Pin Adı</label>
-                      <input 
-                        type="text" 
-                        value={selectedPin.title}
-                        onChange={async (e) => {
-                          await onUpdateItem({ ...selectedPin, title: e.target.value });
-                        }}
-                        className="w-full p-2 border border-stone-300 dark:border-[#2C3C72] bg-white dark:bg-stone-900 rounded font-serif font-bold"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-[10px] font-mono text-stone-500 dark:text-stone-300 mb-1">Kategori</label>
-                      <select
-                        value={selectedPin.metadata?.category || 'lokasyon'}
-                        onChange={async (e) => {
-                          await onUpdateItem({
-                            ...selectedPin,
-                            metadata: { ...selectedPin.metadata, category: e.target.value }
-                          });
-                        }}
-                        className="w-full p-2 border border-stone-300 dark:border-[#2C3C72] bg-white dark:bg-stone-900 rounded"
-                      >
-                        <option value="lokasyon">📍 Lokasyon (Kırmızı)</option>
-                        <option value="coğrafi">🌄 Coğrafi Nokta (Turuncu)</option>
-                        <option value="kişi">👤 Kişi/Sakin Evi (İndigo)</option>
-                        <option value="işletme">💼 İşletme/Dükkan (Zümrüt)</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-[10px] font-mono text-stone-500 dark:text-stone-300 mb-1">Bölge</label>
-                      <select
-                        value={selectedPin.metadata?.region || 'merkez'}
-                        onChange={async (e) => {
-                          await onUpdateItem({
-                            ...selectedPin,
-                            metadata: { ...selectedPin.metadata, region: e.target.value }
-                          });
-                        }}
-                        className="w-full p-2 border border-stone-300 dark:border-[#2C3C72] bg-white dark:bg-stone-900 rounded capitalize"
-                      >
-                        {activeRegionList.map(r => (
-                          <option key={r} value={r}>{r}</option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-[10px] font-mono text-stone-500 dark:text-stone-300 mb-1">İlişkili Ansiklopedi Varlığı</label>
-                      <select
-                        value={selectedPin.metadata?.linkedEntityId || ''}
-                        onChange={async (e) => {
-                          await onUpdateItem({
-                            ...selectedPin,
-                            metadata: { ...selectedPin.metadata, linkedEntityId: e.target.value || null },
-                            links: e.target.value ? [e.target.value] : []
-                          });
-                        }}
-                        className="w-full p-2 border border-stone-300 dark:border-[#2C3C72] bg-white dark:bg-stone-900 rounded"
-                      >
-                        <option value="">-- Bağlantı Yok --</option>
-                        {entities.filter(ent => ent.type !== 'map_pin').map(ent => (
-                          <option key={ent.id} value={ent.id}>[{ent.type.toUpperCase()}] {ent.title}</option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-[10px] font-mono text-stone-500 dark:text-stone-300 mb-1">Pin Açıklaması</label>
-                      <textarea
-                        placeholder="Pin lore detayları..."
-                        value={selectedPin.notes || ''}
-                        onChange={async (e) => {
-                          await onUpdateItem({ ...selectedPin, notes: e.target.value });
-                        }}
-                        className="w-full p-2 border border-stone-300 dark:border-[#2C3C72] bg-white dark:bg-stone-900 rounded h-16 text-xs"
-                      />
-                    </div>
-
-                    <div className="pt-2 flex justify-between items-center text-[11px] font-mono text-stone-400">
-                      <span>Koordinat: X: {selectedPin.metadata?.haritaKonum?.x || 0} / Y: {selectedPin.metadata?.haritaKonum?.y || 0}</span>
-                      <button
-                        type="button"
-                        onClick={() => setSelectedPinId(null)}
-                        className="text-[#D35057] hover:underline cursor-pointer font-bold"
-                      >
-                        Seçimi Kapat
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              );
-            })()}
-
-            {/* Active Pin mini card (If no direct pin selected, shows entity's pin) */}
-            {!selectedPinId && activeEntity && activeEntity.metadata?.haritaKonum && (
-              <div className="bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] dark:border-[#2C3C72] p-4 rounded-xl archive-shadow paper-grain space-y-3">
-                <div className="flex items-center gap-2">
-                  <MapPin className="w-5 h-5 text-[#D35057]" />
-                  <div>
-                    <span className="text-[9px] font-mono uppercase bg-[#1B2A4A]/15 dark:bg-[#2C3C72] px-1.5 py-0.5 rounded-sm">
-                      {activeEntity.type}
-                    </span>
-                    <h4 className="font-serif font-bold text-sm text-[#1B2A4A] dark:text-[#F3EFE8]">
-                      {activeEntity.title}
-                    </h4>
-                  </div>
-                </div>
-                <p className="text-xs text-[#6A5E4C] dark:text-[#A6B0C9] line-clamp-3">
-                  {activeEntity.notes || "Bu konum için bir not veya wiki içeriği henüz girilmedi."}
-                </p>
-                
-                <div className="flex justify-between items-center text-[10px] font-mono text-[#9A8C76]">
-                  <span>Bölge: <span className="capitalize text-[#1B2A4A] dark:text-[#F3EFE8] font-bold">{activeEntity.metadata?.region || 'Bilinmiyor'}</span></span>
-                  <span>X: {activeEntity.metadata?.haritaKonum.x} / Y: {activeEntity.metadata?.haritaKonum.y}</span>
-                </div>
-
-                <button
-                  onClick={() => setActiveTab('liste')}
-                  className="w-full text-center text-xs font-mono py-1.5 border border-[#CFC5B4] hover:bg-[#CFC5B4]/10 rounded-lg transition-colors cursor-pointer"
-                >
-                  Detaylı Sayfaya Git
-                </button>
-              </div>
-            )}
 
             {/* Düzada Coğrafi Yerleşim Ağacı (Hierarchy Tree) */}
             <div className="bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] dark:border-[#2C3C72] p-5 rounded-xl archive-shadow paper-grain space-y-4">
@@ -2909,17 +2122,16 @@ export default function Duzada({
         </div>
       )}
 
-      {/* VIEW 1.5: WIKI MODU (Düzada World Wikipedia Hub) */}
+      {/* VIEW 1.5: WIKI MODU — yeni wiki katmanı (src/components/wiki) */}
       {activeTab === 'wiki' && (
-        <DuzadaWiki
+        <WikiShell
           items={items}
-          onUpdateItem={onUpdateItem}
-          onAddItem={onAddItem}
-          onSelectItem={onSelectItem}
-          setActiveTab={setActiveTab}
-          setSelectedCategory={setSelectedCategory}
-          mahalleler={mahalleler}
-          sokaklar={sokaklar}
+          selectedId={activeItemId}
+          onSelect={onSelectItem}
+          onEdit={(id) => {
+            setActiveTab('liste');
+            onSelectItem(id);
+          }}
         />
       )}
 
@@ -3502,7 +2714,7 @@ export default function Duzada({
                                   ];
                                 case '302':
                                   return [
-                                    { dates: '12-22 Eylül 2003', guestName: 'İgor V.', status: 'Ayrıldı', notes: 'The Imperial Kemskøy\'un en sadık ve en gizemli daimi misafirlerinden biri.' },
+                                    { dates: '12-22 Eylül 2003', guestName: 'İgor V.', status: 'Ayrıldı', notes: 'The Imperial Kemsköy\'un en sadık ve en gizemli daimi misafirlerinden biri.' },
                                     { dates: '28 Eylül - 3 Ekim 2003', guestName: 'Melis Doğan', status: 'Ayrıldı', notes: 'Kısa iş seyahati.' },
                                   ];
                                 case '303':
@@ -3910,7 +3122,7 @@ export default function Duzada({
 
                           {/* 5. Lore */}
                           {(() => {
-                            const isHotel = activeEntity.id === 'kemskoy_hotel' || activeEntity.title === 'The Imperial Kemskøy' || activeEntity.tags?.includes('otel') || activeEntity.tags?.includes('hotel');
+                            const isHotel = activeEntity.id === 'kemskoy_hotel' || activeEntity.title === 'The Imperial Kemsköy' || activeEntity.tags?.includes('otel') || activeEntity.tags?.includes('hotel');
                             const hotelRooms = isHotel ? items.filter(i => 
                               i.area === 'duzada' && 
                               !i.archived && 
@@ -3928,7 +3140,7 @@ export default function Duzada({
                                 </div>
 
                                 <p className="text-xs text-stone-500 font-serif">
-                                  The Imperial Kemskøy bünyesindeki aktif odalar ve odaların genel durumları. İncelemek istediğiniz odanın üzerine tıklayarak ilgili odayı seçebilirsiniz.
+                                  The Imperial Kemsköy bünyesindeki aktif odalar ve odaların genel durumları. İncelemek istediğiniz odanın üzerine tıklayarak ilgili odayı seçebilirsiniz.
                                 </p>
 
                                 <div className="space-y-4 pt-1">
@@ -4689,7 +3901,7 @@ export default function Duzada({
                                       profile: { ...(activeEntity.metadata?.profile || {}), origin: e.target.value }
                                     }
                                   })}
-                                  placeholder="Örn: Isola, Kemskøy Hanedanı..."
+                                  placeholder="Örn: Isola, Kemsköy Hanedanı..."
                                   className="w-full text-xs bg-white dark:bg-[#13204A] border border-stone-300 dark:border-[#2C3C72] text-[#1B2A4A] dark:text-[#F3EFE8] rounded p-2"
                                 />
                               </div>

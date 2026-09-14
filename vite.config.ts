@@ -6,9 +6,27 @@ import {defineConfig} from 'vite';
 export default defineConfig(() => {
   return {
     plugins: [react(), tailwindcss()],
+    // MapLibre işini bir Web Worker'da yapar. Vite'ın bağımlılık
+    // ön-derlemesinden geçtiğinde bu worker açılır açılmaz kapanıyor ve
+    // harita hiç yüklenmiyor. Ön-derlemenin dışında bırakınca düzeliyor.
+    optimizeDeps: {
+      exclude: ['maplibre-gl'],
+    },
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),
+      },
+    },
+    build: {
+      rollupOptions: {
+        input: {
+          // Uygulamanın kendisi
+          index: path.resolve(__dirname, 'index.html'),
+          // Sınır/yol düzenleyici — ayrı bir sayfa, uygulamaya bağlı değil.
+          // Derlemeye dahil ki yayına alınan sitede de /harita-duzenle.html
+          // adresinden açılabilsin.
+          'harita-duzenle': path.resolve(__dirname, 'harita-duzenle.html'),
+        },
       },
     },
     server: {

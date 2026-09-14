@@ -758,7 +758,7 @@ export default function DuzadaDirectory({
                                   {isSokExpanded && (
                                     <div className="pl-3 space-y-1 border-l border-stone-200 dark:border-stone-800">
                                       {streetMekans.map(mekan => {
-                                        const isHotel = mekan.id === 'kemskoy_hotel' || mekan.title === 'The Imperial Kemskøy';
+                                        const isHotel = mekan.id === 'kemskoy_hotel' || mekan.title === 'The Imperial Kemsköy';
                                         
                                         return (
                                           <div key={mekan.id} className="space-y-1">
@@ -924,7 +924,7 @@ export default function DuzadaDirectory({
             <div className="space-y-1.5">
               <div className="bg-[#FAF8F5] dark:bg-[#12224A]/20 p-2 border border-[#CFC5B4]/30 rounded-lg text-xs">
                 <span className="font-serif font-bold text-[#1B2A4A] dark:text-white">🔑 Imperial Odaları</span>
-                <p className="text-[10px] text-stone-500 font-sans mt-0.5">The Imperial Kemskøy bünyesindeki tüm odalar.</p>
+                <p className="text-[10px] text-stone-500 font-sans mt-0.5">The Imperial Kemsköy bünyesindeki tüm odalar.</p>
               </div>
               <div className="space-y-1 pl-1">
                 {sortedEntities.map(ent => renderEntityRow(ent, 0))}

@@ -11,8 +11,8 @@ import { motion, AnimatePresence } from 'motion/react';
 // Düzada Lore Secrets Album
 const DUZADA_SECRETS = [
   "Duman'ın Tasması: Kedinin boynundaki gümüş tasmanın içinde 'Liman 54 Deposu - Şifre: 1954' yazmaktadır. Bu kasanın içinde adanın kamulaştırılmadan önceki tapu kayıtları saklıdır.",
-  "Sari El-Hassan'ın Kimliği: Sari El-Hassan, adada aslında Kemskøy ailesinin 1954'te gömdüğü altın külçelerin yerini gösteren eski Osmanlı tapu haritasını aramaktadır.",
-  "Oda 203 Klima Fısıltıları: Oda 203'ün klima borularından gelen sesler rüzgardan ibaret değil; fırtınalı gecelerde 'Kemskøy' adını tekrarlayan eski bir mors alfabesi yayını duyulmaktadır.",
+  "Sari El-Hassan'ın Kimliği: Sari El-Hassan, adada aslında Kemsköy ailesinin 1954'te gömdüğü altın külçelerin yerini gösteren eski Osmanlı tapu haritasını aramaktadır.",
+  "Oda 203 Klima Fısıltıları: Oda 203'ün klima borularından gelen sesler rüzgardan ibaret değil; fırtınalı gecelerde 'Kemsköy' adını tekrarlayan eski bir mors alfabesi yayını duyulmaktadır.",
   "Cemal Müdürü'nün Geçmişi: Cemal Salda, otel müdürü olmadan önce Ankara'da gizli servis arşiv görevlisiydi. Buraya adadaki yabancı istihbarat hareketlerini izlemek için yerleştirilmiştir.",
   "Lodos Fırtınası Şişesi: Lodos fırtınaları sırasında kıyıya vuran yeşil şişelerin içinde, 1954 yılında yarım kalmış 'Düzada Sürgünü' adlı yasaklı bir el yazmasının sayfaları rulo halinde çıkmaktadır.",
   "Erdal Sönmez'in Siyah Çantası: Erdal Sönmez'in odasında unuttuğu deri çantada, Düzada'nın altındaki antik tünel şebekesinin giriş noktalarını (biri otel mahzenine bağlanıyor) gösteren kroki bulunmaktadır.",
@@ -562,7 +562,7 @@ export default function OyunSimulasyon({
       case 5:
         return "Oda 304'te elektrik tesisatı arızası tespit edildi. Boya tadilatı ve elektrik bakımında. Odayı kesinlikle boş tutun. Gözünüzü lobi telefonlarından ayırmayın.";
       default:
-        return "Kemskøy kuralları her zaman geçerlidir. Giriş, çıkış, walk-in ve kurye teslimatlarında kimlik veya imza almadan asla anahtar teslimi yapmayın.";
+        return "Kemsköy kuralları her zaman geçerlidir. Giriş, çıkış, walk-in ve kurye teslimatlarında kimlik veya imza almadan asla anahtar teslimi yapmayın.";
     }
   };
 
@@ -957,7 +957,7 @@ export default function OyunSimulasyon({
                 <div className="bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-xl text-xs text-emerald-800 dark:text-emerald-400 leading-relaxed flex items-start gap-2">
                   <BookMarked className="w-4 h-4 shrink-0 mt-0.5" />
                   <p>
-                    <strong>Düzada Roman Kanonu Sırları:</strong> Kemskøy otelinin ve adanın derin geçmişine dair arşiv belgeleri. Her vardiya sonunda başarılı işlemleriniz doğrultusunda bu belgelerin kilidi sırayla açılır.
+                    <strong>Düzada Roman Kanonu Sırları:</strong> Kemsköy otelinin ve adanın derin geçmişine dair arşiv belgeleri. Her vardiya sonunda başarılı işlemleriniz doğrultusunda bu belgelerin kilidi sırayla açılır.
                   </p>
                 </div>
 
@@ -1029,7 +1029,7 @@ export default function OyunSimulasyon({
                 <FileText className="w-4 h-4" />
               </button>
               <div className="border-l border-[#EAD2AC]/30 h-4 mx-1"></div>
-              <span className="font-serif font-bold tracking-wider uppercase text-[11px]">THE IMPERIAL Kemskøy</span>
+              <span className="font-serif font-bold tracking-wider uppercase text-[11px]">THE IMPERIAL Kemsköy</span>
             </div>
 
             {/* Game stats and score counters */}
@@ -1544,7 +1544,7 @@ export default function OyunSimulasyon({
               <div className="p-4 bg-stone-100 dark:bg-stone-950/40 rounded-lg space-y-1.5 border border-stone-200 dark:border-stone-800/60 text-xs">
                 <span className="font-mono text-[9px] text-stone-400 font-bold uppercase tracking-wider block">CEMAL SALDA DEĞERLENDİRMESİ</span>
                 <p className="font-serif italic text-stone-700 dark:text-stone-300">
-                  {errors === 0 && '"Mükemmel iş çıkardın resepsiyonist. Siciline tek bir leke bile geçmedi. Kemskøy ailesi adına teşekkür ederim."'}
+                  {errors === 0 && '"Mükemmel iş çıkardın resepsiyonist. Siciline tek bir leke bile geçmedi. Kemsköy ailesi adına teşekkür ederim."'}
                   {errors === 1 && '"Kabul edilebilir bir performans. Ufak bir hatan oldu ancak lobi nizamı bozulmadı. Devam et."'}
                   {errors === 2 && '"Dikkat et! İki büyük idari prosedür hatası yaptın. Kendine çeki düzen vermezsen müdür odasında görüşmek zorunda kalırız."'}
                   {errors >= 3 && '"Rezalet bir idari kayıt! Lobi nizamı darmadağın oldu. Soruşturma açılabilir."'}
@@ -1627,7 +1627,7 @@ export default function OyunSimulasyon({
                   {gameProgress.cumulativeErrors > 7 && "⚠️ SİCİLİ LEKELİ STAJYER"}
                 </h4>
                 <p className="text-xs text-stone-600 dark:text-stone-400 leading-relaxed max-w-sm mx-auto font-sans">
-                  The Imperial Kemskøy idari komitesi tarafından onaylanmıştır. Düzada sürgün senaryolarındaki başarı dereceniz devlet arşivine kaydedilmiştir.
+                  The Imperial Kemsköy idari komitesi tarafından onaylanmıştır. Düzada sürgün senaryolarındaki başarı dereceniz devlet arşivine kaydedilmiştir.
                 </p>
               </div>
 

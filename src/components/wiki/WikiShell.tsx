@@ -33,10 +33,16 @@ export const WikiShell: React.FC<WikiShellProps> = ({
   const [q, setQ] = useState('');
   const [typeFilter, setTypeFilter] = useState<ItemType | 'hepsi' | null>(null);
 
+  /**
+   * Gezinme her hâlükârda kendi durumunu günceller; onSelect yalnızca
+   * dışarıya haber verir. (Önceden onSelect verilince iç durum
+   * güncellenmiyordu ve `selectedId` da verilmediyse sayfa hiç açılmıyordu.)
+   * Dışarıdan `selectedId` verilirse kontrol tamamen dışarıdadır.
+   */
   const selectedId = controlledId !== undefined ? controlledId : internalId;
   const navigate = (id: string | null) => {
-    if (onSelect) onSelect(id);
-    else setInternalId(id);
+    setInternalId(id);
+    onSelect?.(id);
   };
 
   /**
@@ -47,6 +53,8 @@ export const WikiShell: React.FC<WikiShellProps> = ({
     () =>
       items.filter(
         i => !i.archived && WIKI_TYPES.includes(i.type) && !OYUN_VAKA_IDLERI.has(i.id)
+             // Adanın çatı kaydı bir madde değil, kapsayıcı
+             && i.id !== 'duzada_world_details'
       ),
     [items]
   );
