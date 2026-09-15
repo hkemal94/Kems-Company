@@ -276,9 +276,15 @@ export function hattinEgrisi(id: string, kontrol: Nokta[]): Nokta[] {
 export function bolgeleriKur(
   hatlar: SinirHatlari,
   kiyi: Nokta[],
-  mahalleSirasi: string[]
+  mahalleSirasi: string[],
+  /**
+   * Hazır eğriler. Verilen hat için kontrol noktalarından eğri kurulmaz,
+   * bu kullanılır — dokunulmamış sınırlar üretecin kendi çizgisiyle kalsın.
+   */
+  hazirEgri: SinirHatlari = {}
 ): Bolge[] {
-  const cember = hatlar[CEMBER_ID] && hattinEgrisi(CEMBER_ID, hatlar[CEMBER_ID]);
+  const egri = (id: string) => hazirEgri[id] ?? hattinEgrisi(id, hatlar[id]);
+  const cember = (hazirEgri[CEMBER_ID] || hatlar[CEMBER_ID]) && egri(CEMBER_ID);
   if (!cember || cember.length < 3 || kiyi.length < 3) return [];
 
   const bolgeler: Bolge[] = [
@@ -292,9 +298,9 @@ export function bolgeleriKur(
   for (let i = 0; i < RADYAL_SIRASI.length; i++) {
     const aId = RADYAL_SIRASI[i];
     const bId = RADYAL_SIRASI[(i + 1) % RADYAL_SIRASI.length];
-    if (!hatlar[aId] || !hatlar[bId]) continue;
-    const a = hattinEgrisi(aId, hatlar[aId]);
-    const b = hattinEgrisi(bId, hatlar[bId]);
+    if ((!hatlar[aId] && !hazirEgri[aId]) || (!hatlar[bId] && !hazirEgri[bId])) continue;
+    const a = egri(aId);
+    const b = egri(bId);
     if (a.length < 2 || b.length < 2) continue;
 
     const aKiyi = enYakinKose(kiyiTers, a[a.length - 1]);

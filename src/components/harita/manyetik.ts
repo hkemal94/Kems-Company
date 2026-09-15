@@ -1,3 +1,4 @@
+import type { FeatureCollection } from 'geojson';
 import { DUZADA_GEO } from '../../data/duzadaGeo';
 import type { Nokta } from './sinirBolgeleri';
 
@@ -17,26 +18,33 @@ export type ManyetikTur = 'yol' | 'esyukselti' | 'kiyi';
 
 export interface ManyetikHedef {
   tur: ManyetikTur;
+  /** Özelliğin kimliği — düzenlenen yolun kendine yapışmaması için */
+  id: string;
   ad: string;
   /** Ardışık nokta çiftleri — çizgi parçaları */
   nokta: Nokta[];
   kapali: boolean;
 }
 
-let onbellek: ManyetikHedef[] | null = null;
+// Veri başına bir kez toplanır. Düzenleyici, kayıtlı/canlı harita düzeni
+// uygulanmış veriyi veriyor (H1) — mıknatıs üreteçteki eski yola değil,
+// yolun şimdiki hâline yapışsın.
+const onbellek = new WeakMap<FeatureCollection, ManyetikHedef[]>();
 
-/** Haritadaki bütün mıknatıs hedeflerini bir kez toplar */
-export function manyetikHedefler(): ManyetikHedef[] {
-  if (onbellek) return onbellek;
+/** Haritadaki bütün mıknatıs hedeflerini toplar */
+export function manyetikHedefler(geo: FeatureCollection = DUZADA_GEO): ManyetikHedef[] {
+  const var_ = onbellek.get(geo);
+  if (var_) return var_;
   const hedefler: ManyetikHedef[] = [];
 
-  for (const f of DUZADA_GEO.features) {
+  for (const f of geo.features) {
     const p = (f.properties ?? {}) as Record<string, unknown>;
     const katman = String(p.katman ?? '');
 
     if (katman === 'yol' && f.geometry.type === 'LineString') {
       hedefler.push({
         tur: 'yol',
+        id: String(p.id ?? ''),
         ad: String(p.ad ?? p.id ?? 'yol'),
         nokta: f.geometry.coordinates as Nokta[],
         kapali: false
@@ -48,6 +56,7 @@ export function manyetikHedefler(): ManyetikHedef[] {
       for (const halka of f.geometry.coordinates as Nokta[][]) {
         hedefler.push({
           tur: 'esyukselti',
+          id: String(p.id ?? ''),
           ad: `${p.esik} m`,
           nokta: halka,
           kapali: true
@@ -58,6 +67,7 @@ export function manyetikHedefler(): ManyetikHedef[] {
     if (katman === 'ada' && f.geometry.type === 'Polygon') {
       hedefler.push({
         tur: 'kiyi',
+        id: String(p.id ?? ''),
         ad: 'kıyı',
         nokta: f.geometry.coordinates[0] as Nokta[],
         kapali: true
@@ -65,7 +75,7 @@ export function manyetikHedefler(): ManyetikHedef[] {
     }
   }
 
-  onbellek = hedefler;
+  onbellek.set(geo, hedefler);
   return hedefler;
 }
 
@@ -95,14 +105,18 @@ export interface ManyetikSonuc {
 export function manyetikCek(
   nokta: Nokta,
   esik: number,
-  acikTurler: Set<ManyetikTur>
+  acikTurler: Set<ManyetikTur>,
+  geo: FeatureCollection = DUZADA_GEO,
+  /** Bu kimlikli hedef atlanır (sürüklenen yolun kendisi) */
+  haricId?: string | null
 ): ManyetikSonuc | null {
   if (!acikTurler.size) return null;
   let en: ManyetikSonuc | null = null;
   let enMesafe = esik;
 
-  for (const hedef of manyetikHedefler()) {
+  for (const hedef of manyetikHedefler(geo)) {
     if (!acikTurler.has(hedef.tur)) continue;
+    if (haricId && hedef.id === haricId) continue;
     const dizi = hedef.nokta;
     const son = hedef.kapali ? dizi.length : dizi.length - 1;
     for (let i = 0; i < son; i++) {

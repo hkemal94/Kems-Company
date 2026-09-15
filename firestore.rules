@@ -48,6 +48,20 @@ service cloud.firestore {
         && data.theme is string && data.theme.size() <= 50;
     }
 
+    // Harita düzeni (H1) — dünyaya ait, kullanıcıya değil. Tek belge:
+    // duzada/haritaDuzeni. Uygulama açık erişimli olduğu için giriş şartı yok
+    // (users altındaki isOwner da oturumsuz erişime izin veriyor).
+    match /duzada/{docId} {
+      allow read: if docId == 'haritaDuzeni';
+      allow create, update: if docId == 'haritaDuzeni'
+        && incoming().keys().hasAll(['surum', 'guncelleme', 'hatlar', 'yollar'])
+        && incoming().surum is number
+        && incoming().guncelleme is number
+        && incoming().hatlar is map
+        && incoming().yollar is map;
+      allow delete: if false;
+    }
+
     // Match blocks for users collection
     match /users/{userId} {
       

@@ -11,6 +11,7 @@ import { PusulaGulu, OlcekCubugu, KagitDoku } from './haritaSusleri';
 import {
   araziProtokolunuKur, araziKaynagi, ARAZI_KAYNAK, ARAZI_ABARTI
 } from './duzadaArazi';
+import { duzeniUygula, type HaritaDuzeni } from './duzenKatmani';
 
 /**
  * Düzada haritası.
@@ -52,6 +53,8 @@ interface DuzadaHaritaProps {
   /** Bir binaya veya mahalleye tıklandığında ilgili wiki maddesini açar */
   onSelect?: (wikiId: string) => void;
   className?: string;
+  /** Elle yapılmış düzenlemeler (H1) — üretilmiş verinin üstüne biner */
+  duzen?: HaritaDuzeni | null;
 }
 
 interface SecimBilgisi {
@@ -97,13 +100,15 @@ function etiketElemani(p: Record<string, unknown>): {
   return { kok, ic };
 }
 
-export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className }) => {
+export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className, duzen }) => {
   const kapsayici = useRef<HTMLDivElement | null>(null);
   const harita = useRef<MLMap | null>(null);
   const [secim, setSecim] = useState<SecimBilgisi | null>(null);
   const [hazir, setHazir] = useState(false);
   const [yon, setYon] = useState(BASLANGIC.bearing);
   const [zoom, setZoom] = useState(BASLANGIC.zoom);
+  // Kurulumda da düzenli hâlle başlasın (harita bir kez kuruluyor)
+  const ilkDuzen = useRef(duzen ?? null);
 
   useEffect(() => {
     if (!kapsayici.current || harita.current) return;
@@ -118,7 +123,11 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className 
         // glyphs tanımlanmıyor: harita üzerinde metin katmanı yok, etiketler
         // HTML işaretçisi olarak çiziliyor. Böylece dışarıdan font çekilmiyor.
         sources: {
-          duzada: { type: 'geojson', data: DUZADA_GEO as never, promoteId: 'id' },
+          duzada: {
+            type: 'geojson',
+            data: duzeniUygula(DUZADA_GEO, ilkDuzen.current) as never,
+            promoteId: 'id'
+          },
           [ARAZI_KAYNAK]: araziKaynagi()
         },
         layers: [{ id: 'deniz', type: 'background', paint: { 'background-color': DENIZ.orta } }]
@@ -535,6 +544,14 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className 
       harita.current = null;
     };
   }, []);
+
+  // Düzen değişince (buluttan geldi ya da düzenleyiciden kaydedildi) yeniden çiz
+  useEffect(() => {
+    const map = harita.current;
+    if (!map || !hazir) return;
+    (map.getSource('duzada') as maplibregl.GeoJSONSource | undefined)
+      ?.setData(duzeniUygula(DUZADA_GEO, duzen ?? null) as never);
+  }, [duzen, hazir]);
 
   const gorunumuSifirla = () => {
     harita.current?.easeTo({ center: DUZADA_MERKEZ, ...BASLANGIC, duration: 1000 });

@@ -17,18 +17,8 @@ export default defineConfig(() => {
         '@': path.resolve(__dirname, '.'),
       },
     },
-    build: {
-      rollupOptions: {
-        input: {
-          // Uygulamanın kendisi
-          index: path.resolve(__dirname, 'index.html'),
-          // Sınır/yol düzenleyici — ayrı bir sayfa, uygulamaya bağlı değil.
-          // Derlemeye dahil ki yayına alınan sitede de /harita-duzenle.html
-          // adresinden açılabilsin.
-          'harita-duzenle': path.resolve(__dirname, 'harita-duzenle.html'),
-        },
-      },
-    },
+    // Harita düzenleyici artık ayrı sayfa değil: Düzada Haritası sekmesindeki
+    // "Düzenle" düğmesiyle açılıyor (H2).
     server: {
       // HMR is disabled in AI Studio via DISABLE_HMR env var.
       // Do not modifyâfile watching is disabled to prevent flickering during agent edits.

@@ -10,8 +10,8 @@ Doğrusu: zip'i aç, **klasörün kendisini değil, içindekileri** sürükle.
 YANLIŞ                          DOĞRU
 repo/                           repo/
 └── duzada-nihai/               ├── src/
-    ├── src/                    ├── gen/
-    ├── gen/                    ├── harita-duzenle/
+    ├── src/                    ├── src/
+    ├── gen/                    ├── gen/
     └── ...                     └── ...
 ```
 
@@ -83,9 +83,8 @@ blokta patlıyordu. Artık çalışıyor.
    | Ne | Niye |
    |---|---|
    | `src/` | Uygulama — harita bileşenleri, üretilmiş ada verisi, düzenleyici |
-   | `harita-duzenle/` + `harita-duzenle.html` | Sınır/yol düzenleyici sayfası |
    | `package.json` | `maplibre-gl` bağımlılığı — bu olmadan harita açılmaz |
-   | `vite.config.ts` | Düzenleyici sayfasını derlemeye ekler, MapLibre worker ayarı |
+   | `vite.config.ts` | MapLibre worker ayarı |
    | `gen/` | Ada üretici Python betikleri (çalıştırman gerekmiyor, arşiv) |
    | `KURULUM.md` | Bu dosya |
 
@@ -302,7 +301,7 @@ varsayılan arazi haritası.
 Yan sütun (mahalle ağacı, pin kartları, bölge özetleri) olduğu gibi duruyor.
 
 Haritada bir yapıya ya da mahalleye tıklayınca çıkan **“Viki maddesini aç”**
-düğmesi Varlık Arşivi'ne geçip o maddeyi seçiyor. Bina kimlikleri madde
+düğmesi Düzada Wiki'ye geçip o maddeyi seçiyor (Varlık Arşivi K1 ile kaldırıldı). Bina kimlikleri madde
 kimlikleriyle birebir aynı (`kemskoy_hotel`); mahalleler haritada `yer_merkez`,
 arşivde `region_merkez` diye geçtiği için bölge anahtarı üzerinden eşleşiyor.
 Karşılığı olmayan bir mahalleye tıklanırsa sekme değişmiyor, kart açık kalıyor.
@@ -315,16 +314,20 @@ MapLibre paketi (~1,3 MB) sekmeye girilene kadar indirilmiyor — bileşen
 Çizgileri anlatmak yerine elinle oynatman için bir düzenleyici var —
 **iki sekme: Sınırlar ve Yollar.**
 
-```
-cd Kems-Company
-npx vite
-```
-sonra tarayıcıda: **`http://localhost:5173/harita-duzenle.html`**
+**Düzada → Düzada Haritası → “Haritayı düzenle”.** Düzenleyici aynı panelde
+açılır; işin bitince sağ üstteki **“Bitti”** ile haritaya dönersin.
+(Eskiden ayrı bir `/harita-duzenle.html` sayfası vardı — H2 ile kaldırıldı.)
 
-AI Studio'da çalışıyorsan bilgisayarında hiçbir şey kurmana gerek yok:
-önizleme adresinin sonuna **`/harita-duzenle.html`** ekle. Sayfa artık
-derlemeye de dahil, yani yayına aldığın sitede de aynı adreste duruyor
-(uygulamadan bağlantı verilmedi — sen bilirsen açılır).
+**Kaydet düğmesiyle kaydedilir** (Ctrl+S), yanında **Geri al** var.
+Otomatik kayıt yok. Panelin üstünde durum yazar (“Kaydedilmemiş değişiklik
+var”, “Kaydediliyor…”, “Kaydedildi”). Kaydedilmemiş değişiklikle “Bitti”ye
+basınca sorar: kaydet ve çık / kaydetmeden çık / vazgeç. Kaydetmeden sekme
+değiştirir ya da sayfayı yenilersen iş taslak olarak tarayıcıda kalır;
+düzenleyiciyi tekrar açınca “Geri yükle / At” diye sorar.
+
+Kayıt önce bu tarayıcıya, sonra Firestore'a yazılır. Buluta ulaşılamazsa
+kırmızı “Buluta yazılamadı — bu tarayıcıda saklandı” yazar; kayıt
+kaybolmaz, bir sonraki açılışta yeniden gönderilir.
 
 | Ne yapıyorsun | Nasıl |
 |---|---|
@@ -363,12 +366,20 @@ görüntüsünü tarayıcıda çözüyor).
 
 35 sokak listede yok — hepsi kısa ve listeyi boğuyorlardı.
 
-### Dosya
+### Harita düzeni kaydı (H1)
 
-**"Dosyayı indir"** → `sinir-duzenleme.json`. Tek dosya hem sınırları hem
-yolları taşıyor. Bana yolla ya da `gen/` klasörüne aynı adla koy; üreteç
-bir daha çalıştığında kendi hesapladıklarının yerine seninkini kullanır.
-Yarım bıraktığına dönmek için **"Düzenleme yükle"**.
+Elle yaptığın düzeltmeler `duzadaGeo.ts`'e yazılmaz. Firestore'da tek bir
+belgede durur: `duzada/haritaDuzeni`. Yol sabit — kullanıcıya değil
+dünyaya ait, hangi cihazdan ya da tarayıcıdan girersen gir aynı düzeni
+görürsün. Harita açılırken üretilmiş veri
+yüklenir, düzen onun üstüne bindirilir. Yalnız **değiştirdiğin** hatlar
+kaydedilir — dokunmadığın bir yol üreteç ne derse onu izler, dokunduğun
+yol üreteç yeniden çalışsa da senin hâlinde kalır. Bir sınırı oynatınca
+yalnız o sınıra komşu mahalleler yeniden hesaplanır. Düzenleyicideki
+arka plan yolları ve mıknatıs da yolların kayıtlı hâlini kullanır.
+
+**Yedek indir / Yedek yükle** yalnızca istersen: düzeni JSON olarak
+bilgisayarına alır ya da geri yükler. Kayıt için gerekmez.
 
 Düzenlenmiş yollarda denetimler (karada mı, eğim, ağ bütünlüğü) çalışmaya
 devam ediyor ama **hata değil uyarı** veriyorlar: senin dosyan yüzünden

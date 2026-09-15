@@ -18,15 +18,24 @@ import {
 } from './sinirBolgeleri';
 import { manyetikCek, type ManyetikTur } from './manyetik';
 import { kotlariYukle, yoluOlc, denizeTasiyorMu } from './duzadaKot';
+import {
+  birlesikHatlar, birlesikYollar, duzeniCikar, duzenBosMu, duzeniUygula,
+  type HaritaDuzeni
+} from './duzenKatmani';
+import type { FeatureCollection } from 'geojson';
+import type { KayitDurumu } from '../../lib/haritaDuzeni';
 
 /**
  * Düzada harita düzenleyicisi — sınırlar ve yollar.
  *
  * Amaç tek şey: Kemal'in çizgileri kendi eliyle oynatabilmesi. Anlatması
  * zor olan "şurası biraz aşağı insin" türü düzeltmeler burada iki saniyede
- * yapılıyor, sonra tek JSON dosyası olarak dışarı aktarılıyor. Dosya
- * `gen/sinir-duzenleme.json` olarak üretecin yanına konunca üreteç kendi
- * hesapladıklarının yerine onu kullanıyor.
+ * yapılıyor.
+ *
+ * Kayıt (H1): "Kaydet" düğmesiyle (Ctrl+S) "harita düzeni" kaydına yazılır
+ * (önce tarayıcıya, sonra Firestore'a). Otomatik kayıt yok — bu Kemal'in
+ * kararı. Yalnızca üreteçten farklı olan hatlar yazılır; görüntüleme
+ * haritası açılışta bunları üretilmiş verinin üstüne bindirir.
  *
  * İki şey düzenleme sırasında ANINDA güncelleniyor:
  *   - mahalleler yeniden boyanıyor (neyi neye kattığın görünsün)
@@ -90,7 +99,55 @@ function halkayaYapistir(halka: Nokta[], nokta: Nokta): Nokta {
 
 interface Secim { hatId: string; sira: number; }
 
-export const HaritaDuzenleyici: React.FC = () => {
+export interface HaritaDuzenleyiciProps {
+  /** Açılıştaki kayıtlı düzen — bileşen yalnızca yüklendikten sonra kurulmalı */
+  duzen: HaritaDuzeni | null;
+  kaydet: (duzen: HaritaDuzeni) => Promise<void>;
+  durum: KayitDurumu;
+  hata?: string | null;
+  /** Verilirse üstte "Bitti" düğmesi çıkar */
+  onKapat?: () => void;
+  className?: string;
+}
+
+const DURUM_METNI: Record<KayitDurumu, string> = {
+  yukleniyor: 'Yükleniyor…',
+  hazir: 'Kayıtlı',
+  kaydediliyor: 'Kaydediliyor…',
+  kaydedildi: 'Kaydedildi',
+  yerelde: 'Buluta yazılamadı — bu tarayıcıda saklandı'
+};
+
+/** Klavye kısayolları bir metin kutusuna yazarken tetiklenmesin */
+function yaziAlaninda(e: KeyboardEvent): boolean {
+  const el = e.target as HTMLElement | null;
+  if (!el) return false;
+  const etiket = el.tagName;
+  return etiket === 'INPUT' || etiket === 'TEXTAREA' || etiket === 'SELECT'
+    || el.isContentEditable;
+}
+
+const TASLAK_ANAHTARI = 'kems_harita_taslak';
+
+function taslakYaz(d: HaritaDuzeni) {
+  try { localStorage.setItem(TASLAK_ANAHTARI, JSON.stringify({ ...d, guncelleme: Date.now() })); }
+  catch { /* depolama kapalı */ }
+}
+function taslakOku(): HaritaDuzeni | null {
+  try {
+    const ham = localStorage.getItem(TASLAK_ANAHTARI);
+    if (!ham) return null;
+    const v = JSON.parse(ham);
+    return v && v.hatlar && v.yollar ? v as HaritaDuzeni : null;
+  } catch { return null; }
+}
+function taslakSil() {
+  try { localStorage.removeItem(TASLAK_ANAHTARI); } catch { /* yok */ }
+}
+
+export const HaritaDuzenleyici: React.FC<HaritaDuzenleyiciProps> = ({
+  duzen, kaydet, durum: kayitDurumu, hata, onKapat, className
+}) => {
   const kapsayici = useRef<HTMLDivElement | null>(null);
   const harita = useRef<MLMap | null>(null);
   const [hazir, setHazir] = useState(false);
@@ -100,10 +157,8 @@ export const HaritaDuzenleyici: React.FC = () => {
   const yolKayitlari = useMemo(() => baslangicYollari(), []);
 
   const [sekme, setSekme] = useState<Sekme>('sinir');
-  const [hatlar, setHatlar] = useState<SinirHatlari>(() => baslangicHatlari());
-  const [yollar, setYollar] = useState<SinirHatlari>(() =>
-    Object.fromEntries(baslangicYollari().map(y => [y.id, y.kontrol]))
-  );
+  const [hatlar, setHatlar] = useState<SinirHatlari>(() => birlesikHatlar(duzen));
+  const [yollar, setYollar] = useState<SinirHatlari>(() => birlesikYollar(duzen));
   const [seciliYol, setSeciliYol] = useState<string | null>(null);
   const [secim, setSecim] = useState<Secim | null>(null);
   const [gecmis, setGecmis] = useState<Array<{
@@ -119,11 +174,24 @@ export const HaritaDuzenleyici: React.FC = () => {
 
   // Fare olayları React durumunu okuyamıyor (harita bir kez kuruluyor),
   // güncel hâli ref'te tutuyoruz.
+  // Arka plandaki yollar ve mıknatıs, yolların ŞİMDİKİ hâlini kullansın
+  // (kayıtlı düzen + bu oturumdaki değişiklikler), üreteçteki eskisini değil.
+  const yolDuzeni = useMemo(
+    () => ({ ...duzeniCikar({}, yollar), hatlar: {} }),
+    [yollar]
+  );
+  const canliGeo = useMemo<FeatureCollection>(
+    () => duzeniUygula(DUZADA_GEO, yolDuzeni),
+    [yolDuzeni]
+  );
+
   const durum = useRef({
-    sekme, hatlar, yollar, seciliYol, manyetik, manyetikTur
+    sekme, hatlar, yollar, seciliYol, manyetik, manyetikTur, canliGeo
   });
-  durum.current = { sekme, hatlar, yollar, seciliYol, manyetik, manyetikTur };
+  durum.current = { sekme, hatlar, yollar, seciliYol, manyetik, manyetikTur, canliGeo };
   const surukleme = useRef<Secim | null>(null);
+  // Ctrl+S klavye dinleyicisi aşağıda tanımlanan kaydetme işlevine buradan ulaşır
+  const kaydetRef = useRef<() => Promise<void>>(async () => {});
 
   const yolBilgisi = useMemo(
     () => Object.fromEntries(yolKayitlari.map(y => [y.id, y])),
@@ -177,7 +245,7 @@ export const HaritaDuzenleyici: React.FC = () => {
       style: {
         version: 8,
         sources: {
-          [KAYNAK]: { type: 'geojson', data: DUZADA_GEO as never },
+          [KAYNAK]: { type: 'geojson', data: durum.current.canliGeo as never },
           [ARAZI_KAYNAK]: araziKaynagi(),
           [BOLGE_KAYNAK]: { type: 'geojson', data: bolgeGeoJSON([]) as never },
           [HAT_KAYNAK]: {
@@ -359,7 +427,10 @@ export const HaritaDuzenleyici: React.FC = () => {
       // Mıknatıs önce: yola/eşyükseltiye yapış
       let yapisan: string | null = null;
       if (d.manyetik) {
-        const cekim = manyetikCek(yeni, dereceEsigi(13), d.manyetikTur);
+        const cekim = manyetikCek(
+          yeni, dereceEsigi(13), d.manyetikTur, d.canliGeo,
+          d.sekme === 'yol' ? hatId : null
+        );
         if (cekim) {
           yeni = cekim.nokta;
           yapisan = `${cekim.tur === 'yol' ? 'yol' :
@@ -444,6 +515,17 @@ export const HaritaDuzenleyici: React.FC = () => {
     } as never);
   }, [aktifHatlar, bolgeler, secim, hazir, sekme, yolBilgisi, kotHazir]);
 
+  // Arka plan yollarını güncelle — sürükleme bitince, sık değil
+  useEffect(() => {
+    const map = harita.current;
+    if (!map || !hazir) return;
+    const z = setTimeout(() => {
+      (map.getSource(KAYNAK) as maplibregl.GeoJSONSource | undefined)
+        ?.setData(canliGeo as never);
+    }, 300);
+    return () => clearTimeout(z);
+  }, [canliGeo, hazir]);
+
   // Mıknatıs işareti
   useEffect(() => {
     const map = harita.current;
@@ -462,6 +544,10 @@ export const HaritaDuzenleyici: React.FC = () => {
   // ---- klavye -------------------------------------------------------------
   useEffect(() => {
     const tus = (e: KeyboardEvent) => {
+      if (yaziAlaninda(e)) return;
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+        e.preventDefault(); void kaydetRef.current(); return;
+      }
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
         e.preventDefault(); geriAl(); return;
       }
@@ -524,11 +610,95 @@ export const HaritaDuzenleyici: React.FC = () => {
     return () => { map.off('dblclick', ciftTik); };
   }, [hazir, gecmiseYaz, hattiYaz, yolBilgisi]);
 
-  // ---- dışa / içe aktarma -------------------------------------------------
+  // ---- kayıt: Kaydet düğmesi (H1) -----------------------------------------
+  // Karar: otomatik kayıt yok. Değişiklik Kaydet'e basınca kalıcı olur.
+  // Kaydedilmemiş iş kaybolmasın diye yalnızca bir TASLAK tutulur: düzenleyici
+  // kaydedilmeden kapanırsa (sekme değişti, sayfa yenilendi) tarayıcıya
+  // yazılır, bir sonraki açılışta "geri yükle / at" diye sorulur.
+  const imzasi = (d: HaritaDuzeni) =>
+    JSON.stringify(d, (k, v) => (k === 'guncelleme' ? undefined : v));
+
+  const [kayitliImza, setKayitliImza] = useState(() =>
+    imzasi(duzeniCikar(birlesikHatlar(duzen), birlesikYollar(duzen)))
+  );
+  const simdiki = useMemo(() => duzeniCikar(hatlar, yollar), [hatlar, yollar]);
+  const kaydedilmemis = imzasi(simdiki) !== kayitliImza;
+  const [cikisSor, setCikisSor] = useState(false);
+
+  const [taslak, setTaslak] = useState<HaritaDuzeni | null>(() => {
+    const t = taslakOku();
+    if (!t) return null;
+    const kayitli = imzasi(duzeniCikar(birlesikHatlar(duzen), birlesikYollar(duzen)));
+    if (imzasi(t) === kayitli) { taslakSil(); return null; }
+    return t;
+  });
+
+  const kaydetDugmesi = useCallback(async () => {
+    const d = duzeniCikar(hatlar, yollar);
+    setKayitliImza(imzasi(d));
+    taslakSil();
+    setTaslak(null);
+    await kaydet(d);
+  }, [hatlar, yollar, kaydet]);
+  kaydetRef.current = kaydetDugmesi;
+
+  // Kapanırken ya da sayfa giderken kaydedilmemiş iş varsa taslağa yaz
+  const kapanisDurumu = useRef({ kaydedilmemis, simdiki });
+  const bilerekVazgecti = useRef(false);
+  kapanisDurumu.current = { kaydedilmemis, simdiki };
+  useEffect(() => {
+    const gidiyor = (e: BeforeUnloadEvent) => {
+      if (!kapanisDurumu.current.kaydedilmemis || bilerekVazgecti.current) return;
+      taslakYaz(kapanisDurumu.current.simdiki);
+      e.preventDefault();
+      e.returnValue = '';
+    };
+    window.addEventListener('beforeunload', gidiyor);
+    return () => {
+      window.removeEventListener('beforeunload', gidiyor);
+      if (kapanisDurumu.current.kaydedilmemis && !bilerekVazgecti.current) {
+        taslakYaz(kapanisDurumu.current.simdiki);
+      }
+    };
+  }, []);
+
+  const taslagiYukle = () => {
+    if (!taslak) return;
+    gecmiseYaz();
+    setHatlar(birlesikHatlar(taslak));
+    setYollar(birlesikYollar(taslak));
+    setTaslak(null);
+    setIleti('Taslak yüklendi — kalıcı olması için Kaydet.');
+  };
+  const taslagiAt = () => { taslakSil(); setTaslak(null); };
+
+  const kapat = () => {
+    if (kaydedilmemis) { setCikisSor(true); return; }
+    onKapat?.();
+  };
+  const kaydetVeKapat = async () => {
+    setCikisSor(false);
+    await kaydetDugmesi();
+    onKapat?.();
+  };
+  const kaydetmedenKapat = () => {
+    // Bilerek vazgeçti: taslak da tutulmasın
+    bilerekVazgecti.current = true;
+    taslakSil();
+    setCikisSor(false);
+    onKapat?.();
+  };
+
+  const kayitliDuzen = !duzenBosMu(simdiki);
+  const durumMetni = kaydedilmemis && kayitDurumu !== 'kaydediliyor'
+    ? 'Kaydedilmemiş değişiklik var'
+    : DURUM_METNI[kayitDurumu];
+
+  // ---- dışa / içe aktarma (yedek) -----------------------------------------
   const paketle = useCallback(() => ({
     surum: 2,
     olusturma: new Date().toISOString(),
-    not: 'Düzada düzenlemesi — gen/sinir-duzenleme.json olarak kaydet',
+    not: 'Düzada harita düzeni — yedek',
     hatlar: Object.fromEntries(
       (Object.entries(hatlar) as Array<[string, Nokta[]]>).map(([id, n]) => [
         id, n.map(p => [Number(p[0].toFixed(6)), Number(p[1].toFixed(6))])
@@ -546,19 +716,10 @@ export const HaritaDuzenleyici: React.FC = () => {
       { type: 'application/json' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = 'sinir-duzenleme.json';
+    a.download = 'duzada-harita-duzeni.json';
     a.click();
     URL.revokeObjectURL(a.href);
-    setIleti('sinir-duzenleme.json indirildi.');
-  }, [paketle]);
-
-  const panoyaKopyala = useCallback(async () => {
-    try {
-      await navigator.clipboard.writeText(JSON.stringify(paketle()));
-      setIleti('JSON panoya kopyalandı.');
-    } catch {
-      setIleti('Pano kullanılamadı — "Dosyayı indir" düğmesini kullan.');
-    }
+    setIleti('Yedek indirildi.');
   }, [paketle]);
 
   const iceAktar = useCallback((dosya: File) => {
@@ -572,7 +733,7 @@ export const HaritaDuzenleyici: React.FC = () => {
         if (veri.yollar) setYollar(y => ({ ...y, ...veri.yollar }));
         setIleti('Düzenleme yüklendi.');
       } catch {
-        setIleti('Dosya okunamadı — sinir-duzenleme.json olmalı.');
+        setIleti('Dosya okunamadı — harita düzeni yedeği olmalı.');
       }
     };
     okuyucu.readAsText(dosya);
@@ -641,7 +802,7 @@ export const HaritaDuzenleyici: React.FC = () => {
   );
 
   return (
-    <div className="w-screen h-screen flex bg-krem">
+    <div className={`flex bg-krem ${className ?? 'w-screen h-screen'}`}>
       <div className="relative flex-1">
         <div ref={kapsayici} className="duzada-harita w-full h-full" />
         {yapisti && (
@@ -655,9 +816,93 @@ export const HaritaDuzenleyici: React.FC = () => {
 
       <aside className="w-80 shrink-0 border-l border-[#bba591] bg-[#f4efe4]
                         overflow-y-auto text-[13px] text-[#3a2f22]">
-        <div className="px-4 pt-4">
-          <h1 className="font-serif text-lg text-lacivert">Harita düzenleyici</h1>
+        <div className="px-4 pt-4 flex items-start gap-2">
+          <div className="flex-1">
+            <h1 className="font-serif text-lg text-lacivert">Harita düzenleyici</h1>
+            <p className={`mt-0.5 font-mono text-[11px] ${
+              kayitDurumu === 'yerelde' || kaydedilmemis ? 'text-kiremit' : 'text-[#6f6047]'}`}
+              title={hata ?? undefined}>
+              {durumMetni}
+              {kayitliDuzen && !kaydedilmemis && kayitDurumu !== 'yerelde'
+                ? ' · elle düzenleme var' : ''}
+            </p>
+          </div>
+          {onKapat && (
+            <button
+              onClick={kapat}
+              className="shrink-0 px-3 py-1.5 rounded-sm border border-[#bba591]
+                         text-[12px] hover:bg-[#e8dfcc]"
+            >
+              Bitti
+            </button>
+          )}
         </div>
+
+        <div className="px-4 mt-3 flex gap-2">
+          <button
+            onClick={() => void kaydetDugmesi()}
+            disabled={!kaydedilmemis}
+            className="flex-1 py-2 rounded-sm bg-lacivert text-krem font-medium
+                       hover:bg-lacivert-800 disabled:opacity-40
+                       disabled:cursor-default"
+            title="Ctrl+S"
+          >
+            Kaydet
+          </button>
+          <button
+            onClick={geriAl}
+            disabled={!gecmis.length}
+            className="px-3 py-2 rounded-sm border border-[#bba591]
+                       hover:bg-[#e8dfcc] disabled:opacity-40 disabled:cursor-default"
+            title="Ctrl+Z"
+          >
+            Geri al
+          </button>
+        </div>
+
+        {cikisSor && (
+          <div className="mx-4 mt-3 p-3 rounded-sm border border-kiremit/50 bg-kiremit/10">
+            <p className="text-[12px] leading-snug">
+              Kaydedilmemiş değişiklik var. Ne yapalım?
+            </p>
+            <div className="mt-2 flex flex-col gap-1.5">
+              <button onClick={() => void kaydetVeKapat()}
+                className="py-1.5 rounded-sm bg-lacivert text-krem text-[12px]
+                           hover:bg-lacivert-800">
+                Kaydet ve çık
+              </button>
+              <button onClick={kaydetmedenKapat}
+                className="py-1.5 rounded-sm border border-[#bba591] text-[12px]
+                           hover:bg-[#e8dfcc]">
+                Kaydetmeden çık
+              </button>
+              <button onClick={() => setCikisSor(false)}
+                className="py-1 text-[12px] text-[#6f6047] hover:underline">
+                Vazgeç, düzenlemeye devam
+              </button>
+            </div>
+          </div>
+        )}
+
+        {taslak && (
+          <div className="mx-4 mt-3 p-3 rounded-sm border border-[#bba591] bg-[#efe7d6]">
+            <p className="text-[12px] leading-snug">
+              Geçen sefer kaydedilmeden kalmış bir taslak var.
+            </p>
+            <div className="mt-2 flex gap-2">
+              <button onClick={taslagiYukle}
+                className="flex-1 py-1.5 rounded-sm bg-lacivert text-krem text-[12px]
+                           hover:bg-lacivert-800">
+                Geri yükle
+              </button>
+              <button onClick={taslagiAt}
+                className="flex-1 py-1.5 rounded-sm border border-[#bba591] text-[12px]
+                           hover:bg-[#e8dfcc]">
+                At
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className="flex mt-3 border-b border-[#bba591]">
           {sekmeDugmesi('sinir', 'Sınırlar')}
@@ -830,40 +1075,39 @@ export const HaritaDuzenleyici: React.FC = () => {
             </>
           )}
 
-          {/* --- dosya --- */}
+          {/* --- sıfırlama ve yedek --- */}
           <div className="mt-5 space-y-2">
-            <button onClick={disaAktar}
-              className="w-full py-2 rounded-sm bg-lacivert text-krem
-                         font-medium hover:bg-lacivert-800">
-              Dosyayı indir
-            </button>
-            <button onClick={panoyaKopyala}
-              className="w-full py-1.5 rounded-sm border border-[#bba591]
-                         hover:bg-[#e8dfcc]">
-              JSON'u panoya kopyala
-            </button>
-            <label className="block w-full py-1.5 rounded-sm border
-                              border-[#bba591] hover:bg-[#e8dfcc] text-center
-                              cursor-pointer">
-              Düzenleme yükle
-              <input type="file" accept="application/json,.json" className="hidden"
-                onChange={e => {
-                  const f = e.target.files?.[0];
-                  if (f) iceAktar(f);
-                  e.currentTarget.value = '';
-                }} />
-            </label>
             <button onClick={sifirla}
               className="w-full py-1.5 rounded-sm border border-[#bba591]
                          text-[#6f6047] hover:bg-[#e8dfcc]">
               {sekme === 'sinir' ? 'Sınırları başa döndür' : 'Yolları başa döndür'}
             </button>
+            <p className="text-[11px] leading-snug text-[#6f6047]">
+              Kaydet'e basana kadar kalıcı olmaz. Yanlışlıkla bastıysan Geri al.
+            </p>
+            <div className="flex gap-2 pt-1">
+              <button onClick={disaAktar}
+                className="flex-1 py-1.5 rounded-sm border border-[#bba591]
+                           hover:bg-[#e8dfcc] text-[12px]">
+                Yedek indir
+              </button>
+              <label className="flex-1 py-1.5 rounded-sm border border-[#bba591]
+                                hover:bg-[#e8dfcc] text-center cursor-pointer
+                                text-[12px]">
+                Yedek yükle
+                <input type="file" accept="application/json,.json" className="hidden"
+                  onChange={e => {
+                    const f = e.target.files?.[0];
+                    if (f) iceAktar(f);
+                    e.currentTarget.value = '';
+                  }} />
+              </label>
+            </div>
           </div>
 
           <p className="mt-4 text-[11px] leading-snug text-[#6f6047]">
-            İndirdiğin dosya hem sınırları hem yolları taşır.
-            <code className="font-mono"> gen/</code> klasörüne
-            <code className="font-mono"> sinir-duzenleme.json</code> adıyla koy.
+            Kalıcı olması için Kaydet (Ctrl+S). Dosya indirmen gerekmez —
+            yedek düğmeleri yalnızca istersen.
           </p>
 
           {ileti && (
