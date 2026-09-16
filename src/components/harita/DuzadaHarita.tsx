@@ -12,6 +12,8 @@ import {
   araziProtokolunuKur, araziKaynagi, ARAZI_KAYNAK, ARAZI_ABARTI
 } from './duzadaArazi';
 import { duzeniUygula, type HaritaDuzeni } from './duzenKatmani';
+import type { FeatureCollection } from 'geojson';
+import { yolEtiketleri } from './yolEtiketleri';
 
 /**
  * Düzada haritası.
@@ -46,7 +48,12 @@ const ETIKET_ARALIK: Record<string, [number, number]> = {
   zirve: [10.9, 15.6],
   yapi: [13.2, 22],
   // otel yerleşkesindeki ikincil yapılar en son açılır
-  yerleske: [16.7, 22]
+  yerleske: [16.7, 22],
+  // yol adları (H6): kalabalık yapmasın diye kademeli açılır —
+  // önce ana yol, sonra cadde, en son sokak ve merdiven
+  anayol: [12.6, 22],
+  cadde: [14.2, 22],
+  sokak: [16.2, 22]
 };
 
 interface DuzadaHaritaProps {
@@ -103,6 +110,8 @@ function etiketElemani(p: Record<string, unknown>): {
 export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className, duzen }) => {
   const kapsayici = useRef<HTMLDivElement | null>(null);
   const harita = useRef<MLMap | null>(null);
+  /** Düzen değişince etiketleri yeniden kuran işlev — kurulum sırasında dolar */
+  const etiketleriKurRef = useRef<((geo: FeatureCollection) => void) | null>(null);
   const [secim, setSecim] = useState<SecimBilgisi | null>(null);
   const [hazir, setHazir] = useState(false);
   const [yon, setYon] = useState(BASLANGIC.bearing);
@@ -160,8 +169,17 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
       });
     };
 
-    const etiketleriKur = () => {
-      DUZADA_GEO.features
+    /*
+     * Etiketler HTML işaretçisi olduğu için harita kaynağıyla birlikte
+     * kendiliğinden güncellenmiyor. Düzen değişince (mekân eklendi, adı
+     * değişti, taşındı) yeniden kurulmaları gerekiyor — bu yüzden dışarıdan
+     * çağrılabilir ve eskileri temizleyerek başlıyor.
+     */
+    const etiketleriKur = (geo: FeatureCollection = DUZADA_GEO) => {
+      isaretciler.forEach(m => m.remove());
+      isaretciler.length = 0;
+      etiketKayitlari.length = 0;
+      geo.features
         .filter(f => f.properties?.katman === 'etiket')
         .forEach(f => {
           const p = f.properties as Record<string, unknown>;
@@ -192,8 +210,29 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
           etiketKayitlari.push({ el: ic, tur });
         });
 
+      // ---- yol adları (H6) ----
+      // Üreteçte yok, çizim anında yoldan hesaplanıyor. Yazı yola paralel
+      // dursun diye döndürülüyor; eğik haritada okunaklı kalsın diye
+      // eğim hizası ekran düzleminde bırakılıyor.
+      for (const y of yolEtiketleri(geo)) {
+        const { kok, ic } = etiketElemani({ ad: y.ad, tur: y.tur });
+        ic.style.transition = 'opacity 240ms ease';
+        const m = new maplibregl.Marker({
+          element: kok,
+          anchor: 'center',
+          rotation: y.aci,
+          rotationAlignment: 'map',
+          pitchAlignment: 'viewport'
+        })
+          .setLngLat(y.konum)
+          .addTo(map);
+        isaretciler.push(m);
+        etiketKayitlari.push({ el: ic, tur: y.tur });
+      }
+
       etiketGorunurluk(map.getZoom());
     };
+    etiketleriKurRef.current = etiketleriKur;
 
     const katmanlariKur = () => {
       if (map.getLayer('ada')) return;
@@ -549,8 +588,11 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
   useEffect(() => {
     const map = harita.current;
     if (!map || !hazir) return;
+    const uygulanan = duzeniUygula(DUZADA_GEO, duzen ?? null);
     (map.getSource('duzada') as maplibregl.GeoJSONSource | undefined)
-      ?.setData(duzeniUygula(DUZADA_GEO, duzen ?? null) as never);
+      ?.setData(uygulanan as never);
+    // Etiketler işaretçi olduğu için kaynakla birlikte güncellenmiyor
+    etiketleriKurRef.current?.(uygulanan);
   }, [duzen, hazir]);
 
   const gorunumuSifirla = () => {

@@ -12,6 +12,37 @@ import type { SinirHatlari } from './sinirBolgeleri';
  */
 export const DUZEN_SURUMU = 1;
 
+/**
+ * Bir mekânın elle yapılmış düzeltmesi (H3).
+ *
+ * İki ayrı işi görür:
+ *   - üreteçten gelen bir yapının taşınması, adının değişmesi, silinmesi
+ *   - haritaya elle eklenen yeni bir mekân (`yeni: true`)
+ *
+ * Yalnız değişen alanlar yazılır; dokunulmayanlar üreteçten gelmeye devam
+ * eder. Böylece `gen/duzada.py` yeniden çalıştığında elle yapılan iş durur.
+ */
+export interface MekanKaydi {
+  /** Üretilmiş bir yapının düzeltmesi değil, elle eklenmiş mekân */
+  yeni?: boolean;
+  ad?: string;
+  tur?: string;
+  /** Taşındıysa tabanın yeni merkezi — [boylam, enlem] */
+  konum?: [number, number];
+  /** Haritadan kaldırıldı. Üretilmiş yapı silinmez, gizlenir. */
+  silindi?: boolean;
+  /** Konumdan bulunan mahalle — bilgi amaçlı, wiki eşleşmesi için */
+  mahalle?: string | null;
+  wikiId?: string | null;
+  /** Yeni mekânlar: taban kotu ve kat yüksekliği (metre) */
+  taban?: number;
+  yukseklik?: number;
+  /** Yeni mekânlar: taban kenarının yarısı (derece) */
+  yaricap?: number;
+}
+
+export type MekanDuzeni = Record<string, MekanKaydi>;
+
 export interface HaritaDuzeni {
   surum: number;
   /** ms cinsinden son değişiklik zamanı */
@@ -20,4 +51,10 @@ export interface HaritaDuzeni {
   hatlar: SinirHatlari;
   /** Yollar — yalnız üreteçten farklı olanların kontrol noktaları */
   yollar: SinirHatlari;
+  /**
+   * Mekânlar (H3). Eski kayıtlarda yok — okurken boş kabul edilir, bu yüzden
+   * isteğe bağlı. Firestore kuralı yalnız ilk dört alanın varlığına bakıyor,
+   * bu alan kuralı bozmuyor.
+   */
+  mekanlar?: MekanDuzeni;
 }

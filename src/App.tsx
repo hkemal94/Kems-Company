@@ -37,6 +37,7 @@ import Brainstorm from './components/Brainstorm';
 import Markalar from './components/Markalar';
 import { CHARACTERS_IMPORT_DATA } from './data/charactersImportData';
 import DuzadaDirectory from './components/DuzadaDirectory';
+import { Yedekleme } from './components/Yedekleme';
 import HizliNotModal from './components/HizliNotModal';
 import AramaModal from './components/AramaModal';
 import { isEntityUnlinked, generateAiProposalsForUnlinked, cleanupRelationsOnDelete } from './utils/relations';
@@ -829,6 +830,15 @@ export default function App() {
           >
             <Sunset className="w-4 h-4" />
           </button>
+
+          {/* Yedekleme (K2) */}
+          {user && (
+            <Yedekleme
+              items={items}
+              settings={settings}
+              onKayit={async kayit => { await saveItem(user.uid, kayit); }}
+            />
+          )}
 
           {/* Açık Erişim / Mod Durumu */}
           <div className="h-8 w-px bg-[#CFC5B4] dark:bg-[#2C3C72] mx-1 hidden sm:block" />

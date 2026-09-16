@@ -17,10 +17,11 @@ import {
   type Nokta, type SinirHatlari, type YolKaydi
 } from './sinirBolgeleri';
 import { manyetikCek, type ManyetikTur } from './manyetik';
-import { kotlariYukle, yoluOlc, denizeTasiyorMu } from './duzadaKot';
+import { kotlariYukle, kotOku, yoluOlc, denizeTasiyorMu } from './duzadaKot';
 import {
   birlesikHatlar, birlesikYollar, duzeniCikar, duzenBosMu, duzeniUygula,
-  type HaritaDuzeni
+  poligonMerkezi, yeniMekanId, MEKAN_YARICAP, MEKAN_YUKSEKLIK,
+  type HaritaDuzeni, type MekanDuzeni
 } from './duzenKatmani';
 import type { FeatureCollection } from 'geojson';
 import type { KayitDurumu } from '../../lib/haritaDuzeni';
@@ -48,7 +49,13 @@ const HAT_KAYNAK = 'duzenleme-hat';
 const KOSE_KAYNAK = 'duzenleme-kose';
 const MANYETIK_KAYNAK = 'duzenleme-manyetik';
 
-type Sekme = 'sinir' | 'yol';
+/** Elle eklenebilen mekân türleri — açılır listede çıkar */
+const MEKAN_TURLERI = [
+  'kafe', 'meyhane', 'restoran', 'dükkân', 'konut', 'apartman', 'otel',
+  'kamu binası', 'okul', 'pazar', 'tesis', 'kulüp', 'iskele', 'yapı'
+];
+
+type Sekme = 'sinir' | 'yol' | 'mekan';
 
 const SINIR_ADI: Record<string, string> = {
   sinir_cember: 'Çember Sınırı',
@@ -96,6 +103,9 @@ function halkayaYapistir(halka: Nokta[], nokta: Nokta): Nokta {
   }
   return en;
 }
+
+/** Mekân sürüklemesinde `sira` yerine kullanılan işaret */
+const MEKAN_SIRA = -1;
 
 interface Secim { hatId: string; sira: number; }
 
@@ -160,11 +170,28 @@ export const HaritaDuzenleyici: React.FC<HaritaDuzenleyiciProps> = ({
   const [hatlar, setHatlar] = useState<SinirHatlari>(() => birlesikHatlar(duzen));
   const [yollar, setYollar] = useState<SinirHatlari>(() => birlesikYollar(duzen));
   const [seciliYol, setSeciliYol] = useState<string | null>(null);
+  const [mekanlar, setMekanlar] = useState<MekanDuzeni>(
+    () => duzen?.mekanlar ?? {}
+  );
+  const [seciliMekan, setSeciliMekan] = useState<string | null>(null);
+  /** Açıkken haritaya tıklamak yeni mekân koyar */
+  const [ekleKipi, setEkleKipi] = useState(false);
+  /** Mekân listesindeki arama kutusu */
+  const [mekanArama, setMekanArama] = useState('');
+  /** Toplu işlem için işaretlenen mekânlar */
+  const [isaretli, setIsaretli] = useState<Set<string>>(() => new Set());
   const [secim, setSecim] = useState<Secim | null>(null);
   const [gecmis, setGecmis] = useState<Array<{
     sekme: Sekme; hatlar: SinirHatlari; yollar: SinirHatlari;
+    mekanlar: MekanDuzeni;
   }>>([]);
   const [ileti, setIleti] = useState<string | null>(null);
+
+  /**
+   * Tam ekran. Sekme içindeki panel sınır çizmek için dar kalıyor; bu kip
+   * düzenleyiciyi pencerenin tamamına yayar. Esc ile kapanır.
+   */
+  const [tamEkran, setTamEkran] = useState(false);
 
   const [manyetik, setManyetik] = useState(true);
   const [manyetikTur, setManyetikTur] = useState<Set<ManyetikTur>>(
@@ -177,8 +204,8 @@ export const HaritaDuzenleyici: React.FC<HaritaDuzenleyiciProps> = ({
   // Arka plandaki yollar ve mıknatıs, yolların ŞİMDİKİ hâlini kullansın
   // (kayıtlı düzen + bu oturumdaki değişiklikler), üreteçteki eskisini değil.
   const yolDuzeni = useMemo(
-    () => ({ ...duzeniCikar({}, yollar), hatlar: {} }),
-    [yollar]
+    () => ({ ...duzeniCikar({}, yollar, mekanlar), hatlar: {} }),
+    [yollar, mekanlar]
   );
   const canliGeo = useMemo<FeatureCollection>(
     () => duzeniUygula(DUZADA_GEO, yolDuzeni),
@@ -186,9 +213,13 @@ export const HaritaDuzenleyici: React.FC<HaritaDuzenleyiciProps> = ({
   );
 
   const durum = useRef({
-    sekme, hatlar, yollar, seciliYol, manyetik, manyetikTur, canliGeo
+    sekme, hatlar, yollar, seciliYol, manyetik, manyetikTur, canliGeo,
+    mekanlar, ekleKipi
   });
-  durum.current = { sekme, hatlar, yollar, seciliYol, manyetik, manyetikTur, canliGeo };
+  durum.current = {
+    sekme, hatlar, yollar, seciliYol, manyetik, manyetikTur, canliGeo,
+    mekanlar, ekleKipi
+  };
   const surukleme = useRef<Secim | null>(null);
   // Ctrl+S klavye dinleyicisi aşağıda tanımlanan kaydetme işlevine buradan ulaşır
   const kaydetRef = useRef<() => Promise<void>>(async () => {});
@@ -214,7 +245,8 @@ export const HaritaDuzenleyici: React.FC<HaritaDuzenleyiciProps> = ({
     setGecmis(g => [...g.slice(-40), {
       sekme: durum.current.sekme,
       hatlar: durum.current.hatlar,
-      yollar: durum.current.yollar
+      yollar: durum.current.yollar,
+      mekanlar: durum.current.mekanlar
     }]);
   }, []);
 
@@ -225,6 +257,7 @@ export const HaritaDuzenleyici: React.FC<HaritaDuzenleyiciProps> = ({
       setSekme(son.sekme);
       setHatlar(son.hatlar);
       setYollar(son.yollar);
+      setMekanlar(son.mekanlar);
       return g.slice(0, -1);
     });
   }, []);
@@ -327,11 +360,42 @@ export const HaritaDuzenleyici: React.FC<HaritaDuzenleyiciProps> = ({
 
       map.addLayer({
         id: 'yollar', type: 'line', source: KAYNAK,
-        filter: ['==', ['get', 'katman'], 'yol'],
+        filter: ['==', ['get', 'id'], '__yok__'],
         layout: { 'line-cap': 'round', 'line-join': 'round' },
         paint: {
           'line-color': YOL.kaplama, 'line-opacity': 0.5,
           'line-width': ['interpolate', ['linear'], ['zoom'], 10, 0.7, 16, 4]
+        }
+      });
+
+      // Mekânlar (H3) — düzenleyicide binalar 2B çizilir; amaç görünürlük
+      // değil, tutulup taşınabilmeleri. Üç boyutlu hâli görüntüleme
+      // haritasında.
+      map.addLayer({
+        id: 'mekanlar-dolgu', type: 'fill', source: KAYNAK,
+        filter: ['==', ['get', 'katman'], 'bina'],
+        paint: {
+          'fill-color': [
+            'case', ['boolean', ['get', 'elle'], false], '#336659', '#8a7a5e'
+          ],
+          'fill-opacity': 0.55
+        }
+      });
+      map.addLayer({
+        id: 'mekan-secili', type: 'line', source: KAYNAK,
+        filter: ['==', ['get', 'id'], '__yok__'],
+        paint: { 'line-color': '#d35057', 'line-width': 2.5 }
+      });
+
+      // Seçili yol — tıklayınca hangisini seçtiğin belli olsun
+      map.addLayer({
+        id: 'yol-secili', type: 'line', source: KAYNAK,
+        filter: ['==', ['get', 'id'], '__yok__'],
+        layout: { 'line-cap': 'round', 'line-join': 'round' },
+        paint: {
+          'line-color': '#d35057', 'line-opacity': 0.55,
+          'line-width': ['interpolate', ['linear'], ['zoom'], 10, 7, 16, 20],
+          'line-blur': 1.5
         }
       });
 
@@ -383,6 +447,17 @@ export const HaritaDuzenleyici: React.FC<HaritaDuzenleyiciProps> = ({
 
     // ---- sürükleme ----
     const yakinKose = (e: MapMouseEvent): Secim | null => {
+      // Mekânlar sekmesinde sürüklenen şey bir köşe değil, binanın kendisi.
+      // Aynı sürükleme düzeneğini kullanabilmek için sıra = -1 veriyoruz.
+      if (durum.current.sekme === 'mekan') {
+        const bina = map.queryRenderedFeatures(
+          [[e.point.x - 4, e.point.y - 4], [e.point.x + 4, e.point.y + 4]],
+          { layers: ['mekanlar-dolgu'] }
+        )[0];
+        if (!bina) return null;
+        const bp = bina.properties as Record<string, unknown>;
+        return { hatId: String(bp.id), sira: MEKAN_SIRA };
+      }
       const vurulan = map.queryRenderedFeatures(
         [[e.point.x - 9, e.point.y - 9], [e.point.x + 9, e.point.y + 9]],
         { layers: ['sinir-kose'] }
@@ -405,7 +480,8 @@ export const HaritaDuzenleyici: React.FC<HaritaDuzenleyiciProps> = ({
       if (!k) return;
       e.preventDefault();
       surukleme.current = k;
-      setSecim(k);
+      if (k.sira === MEKAN_SIRA) { setSeciliMekan(k.hatId); setSecim(null); }
+      else setSecim(k);
       gecmiseYaz();
       map.dragPan.disable();
       map.getCanvas().style.cursor = 'grabbing';
@@ -418,6 +494,21 @@ export const HaritaDuzenleyici: React.FC<HaritaDuzenleyiciProps> = ({
       }
       const { hatId, sira } = surukleme.current;
       const d = durum.current;
+
+      // Mekân taşıma: bina merkezi imleci izler
+      if (sira === MEKAN_SIRA) {
+        const konum: Nokta = [e.lngLat.lng, e.lngLat.lat];
+        setMekanlar(m => ({
+          ...m,
+          [hatId]: {
+            ...(m[hatId] ?? {}),
+            konum,
+            taban: Number(kotOku(konum[0], konum[1]).toFixed(1))
+          }
+        }));
+        return;
+      }
+
       const mevcut = d.sekme === 'sinir' ? d.hatlar[hatId] : d.yollar[hatId];
       if (!mevcut) return;
 
@@ -541,6 +632,39 @@ export const HaritaDuzenleyici: React.FC<HaritaDuzenleyiciProps> = ({
     } as never);
   }, [yapisti, secim, aktifHatlar, hazir]);
 
+  /**
+   * Seçili köşeyi siler.
+   *
+   * Hem Delete tuşu hem panelin "Köşeyi sil" düğmesi buraya bağlı — klavye
+   * kısayolu tek yol olarak kalırsa kimse bulamıyor.
+   *
+   * @returns silinebildi mi (düğmenin sebebi göstermesi için)
+   */
+  const koseyiSil = useCallback((): boolean => {
+    if (!secim) return false;
+    const hat = aktifHatlar[secim.hatId];
+    if (!hat || hat.length <= 4) {
+      setIleti('Hat en az dört köşeli kalmalı.');
+      return false;
+    }
+    if (ucTuru(sekme, secim.hatId, secim.sira, hat.length) !== 'serbest') {
+      setIleti('Uç köşe silinemez — çembere ve kıyıya bağlı kalmalı.');
+      return false;
+    }
+    gecmiseYaz();
+    hattiYaz(secim.hatId, hat.filter((_, i) => i !== secim.sira));
+    setSecim(null);
+    return true;
+  }, [secim, aktifHatlar, sekme, gecmiseYaz, hattiYaz]);
+
+  /** Seçili köşe silinebilir mi — düğmenin açık/soluk olması için */
+  const silinebilir = useMemo(() => {
+    if (!secim) return false;
+    const hat = aktifHatlar[secim.hatId];
+    if (!hat || hat.length <= 4) return false;
+    return ucTuru(sekme, secim.hatId, secim.sira, hat.length) === 'serbest';
+  }, [secim, aktifHatlar, sekme]);
+
   // ---- klavye -------------------------------------------------------------
   useEffect(() => {
     const tus = (e: KeyboardEvent) => {
@@ -552,24 +676,15 @@ export const HaritaDuzenleyici: React.FC<HaritaDuzenleyiciProps> = ({
         e.preventDefault(); geriAl(); return;
       }
       if (e.key === 'm' || e.key === 'M') { setManyetik(m => !m); return; }
+      if (e.key === 'Escape') { setTamEkran(false); return; }
       if ((e.key === 'Delete' || e.key === 'Backspace') && secim) {
-        const hat = aktifHatlar[secim.hatId];
-        if (!hat || hat.length <= 4) {
-          setIleti('Hat en az dört köşeli kalmalı.'); return;
-        }
-        if (ucTuru(sekme, secim.hatId, secim.sira, hat.length) !== 'serbest') {
-          setIleti('Uç köşe silinemez — çembere ve kıyıya bağlı kalmalı.');
-          return;
-        }
         e.preventDefault();
-        gecmiseYaz();
-        hattiYaz(secim.hatId, hat.filter((_, i) => i !== secim.sira));
-        setSecim(null);
+        koseyiSil();
       }
     };
     window.addEventListener('keydown', tus);
     return () => window.removeEventListener('keydown', tus);
-  }, [secim, aktifHatlar, sekme, geriAl, gecmiseYaz, hattiYaz]);
+  }, [secim, geriAl, koseyiSil]);
 
   // ---- köşe ekleme: hatta çift tık ---------------------------------------
   useEffect(() => {
@@ -610,6 +725,285 @@ export const HaritaDuzenleyici: React.FC<HaritaDuzenleyiciProps> = ({
     return () => { map.off('dblclick', ciftTik); };
   }, [hazir, gecmiseYaz, hattiYaz, yolBilgisi]);
 
+  // ---- mekânlar (H3) ------------------------------------------------------
+
+  /** Haritadaki bütün mekânlar: üreteçten gelenler + elle eklenenler */
+  const mekanListesi = useMemo(() => {
+    const cikti: Array<{
+      id: string; ad: string; tur: string; mahalle: string | null;
+      elle: boolean; silindi: boolean;
+    }> = [];
+    for (const f of DUZADA_GEO.features) {
+      const p = f.properties as Record<string, unknown> | null;
+      if (!p || p.katman !== 'bina') continue;
+      const id = String(p.id);
+      const d = mekanlar[id];
+      cikti.push({
+        id,
+        ad: String(d?.ad ?? p.ad ?? id),
+        tur: String(d?.tur ?? p.tur ?? 'yapı'),
+        mahalle: (d?.mahalle ?? p.mahalle ?? null) as string | null,
+        elle: false,
+        silindi: Boolean(d?.silindi)
+      });
+    }
+    for (const [id, d] of Object.entries(mekanlar) as Array<
+      [string, MekanDuzeni[string]]
+    >) {
+      if (!d.yeni) continue;
+      cikti.push({
+        id, ad: d.ad ?? 'Adsız mekân', tur: d.tur ?? 'yapı',
+        mahalle: d.mahalle ?? null, elle: true, silindi: Boolean(d.silindi)
+      });
+    }
+    return cikti.sort((a, b) => a.ad.localeCompare(b.ad, 'tr'));
+  }, [mekanlar]);
+
+  /** Bir mekânın haritadaki konumu — taşınmışsa yeni, değilse üreteçteki */
+  const mekanKonumu = useCallback((id: string): Nokta | null => {
+    const d = mekanlar[id];
+    if (d?.konum) return d.konum;
+    for (const f of DUZADA_GEO.features) {
+      const p = f.properties as Record<string, unknown> | null;
+      if (!p || String(p.id) !== id || f.geometry.type !== 'Polygon') continue;
+      return poligonMerkezi((f.geometry.coordinates as Nokta[][])[0]);
+    }
+    return null;
+  }, [mekanlar]);
+
+  /**
+   * Listeden seçilen mekâna git. Binalar ada ölçeğinde görünmeyecek kadar
+   * küçük; seçip de haritada bulamamak en can sıkıcı yanıydı.
+   */
+  const mekanaGit = useCallback((id: string) => {
+    setSeciliMekan(id);
+    setSecim(null);
+    const k = mekanKonumu(id);
+    const map = harita.current;
+    if (!k || !map) return;
+    map.easeTo({
+      center: k, zoom: Math.max(map.getZoom(), 17), duration: 700
+    });
+  }, [mekanKonumu]);
+
+  const seciliMekanKaydi = useMemo(
+    () => mekanListesi.find(m => m.id === seciliMekan) ?? null,
+    [mekanListesi, seciliMekan]
+  );
+
+  /** Konumun hangi mahalleye düştüğü — mekân eklerken kendiliğinden bulunur */
+  const mahalleBul = useCallback((nokta: Nokta): string | null => {
+    for (const b of bolgeler) {
+      const h = b.halka;
+      let icinde = false;
+      for (let i = 0, j = h.length - 1; i < h.length; j = i++) {
+        const [xi, yi] = h[i]; const [xj, yj] = h[j];
+        if ((yi > nokta[1]) !== (yj > nokta[1])
+          && nokta[0] < ((xj - xi) * (nokta[1] - yi)) / (yj - yi) + xi) {
+          icinde = !icinde;
+        }
+      }
+      if (icinde) return b.id;
+    }
+    return null;
+  }, [bolgeler]);
+
+  /** Haritada tıklanan yere yeni bir mekân koyar */
+  const mekanEkle = useCallback((nokta: Nokta) => {
+    const id = yeniMekanId(durum.current.mekanlar);
+    gecmiseYaz();
+    setMekanlar(m => ({
+      ...m,
+      [id]: {
+        yeni: true, ad: 'Yeni mekân', tur: 'yapı', konum: nokta,
+        mahalle: mahalleBul(nokta),
+        taban: Number(kotOku(nokta[0], nokta[1]).toFixed(1)),
+        yukseklik: MEKAN_YUKSEKLIK, yaricap: MEKAN_YARICAP
+      }
+    }));
+    setSeciliMekan(id);
+    setEkleKipi(false);
+    setIleti('Mekân eklendi — adını ve türünü panelden yaz.');
+  }, [gecmiseYaz, mahalleBul]);
+
+  /** Seçili mekânın bir alanını değiştirir */
+  const mekaniGuncelle = useCallback((id: string, yama: Record<string, unknown>) => {
+    setMekanlar(m => ({ ...m, [id]: { ...(m[id] ?? {}), ...yama } }));
+  }, []);
+
+  /** Elle eklenen mekân tamamen silinir; üretilmiş yapı gizlenir */
+  const mekaniSil = useCallback((id: string) => {
+    gecmiseYaz();
+    setMekanlar(m => {
+      const kopya = { ...m };
+      if (kopya[id]?.yeni) delete kopya[id];
+      else kopya[id] = { ...(kopya[id] ?? {}), silindi: true };
+      return kopya;
+    });
+    setSeciliMekan(null);
+  }, [gecmiseYaz]);
+
+  /** Arama kutusuna uyan mekânlar */
+  const suzulmusMekanlar = useMemo(() => {
+    const a = mekanArama.trim().toLocaleLowerCase('tr');
+    if (!a) return mekanListesi;
+    return mekanListesi.filter(
+      m => m.ad.toLocaleLowerCase('tr').includes(a)
+        || m.tur.toLocaleLowerCase('tr').includes(a)
+    );
+  }, [mekanListesi, mekanArama]);
+
+  const isaretiCevir = useCallback((id: string) => {
+    setIsaretli(s => {
+      const y = new Set(s);
+      if (y.has(id)) y.delete(id); else y.add(id);
+      return y;
+    });
+  }, []);
+
+  /** Süzülmüş listenin tamamını işaretler ya da işareti kaldırır */
+  const hepsiniIsaretle = useCallback(() => {
+    setIsaretli(s => {
+      const gorunen = suzulmusMekanlar.filter(m => !m.silindi).map(m => m.id);
+      const hepsiVar = gorunen.length > 0 && gorunen.every(id => s.has(id));
+      const y = new Set(s);
+      gorunen.forEach(id => { if (hepsiVar) y.delete(id); else y.add(id); });
+      return y;
+    });
+  }, [suzulmusMekanlar]);
+
+  /** İşaretli mekânları tek hamlede kaldırır — tek Ctrl+Z ile geri gelir */
+  const isaretlileriSil = useCallback(() => {
+    if (!isaretli.size) return;
+    gecmiseYaz();
+    setMekanlar(m => {
+      const kopya = { ...m };
+      isaretli.forEach(id => {
+        if (kopya[id]?.yeni) delete kopya[id];
+        else kopya[id] = { ...(kopya[id] ?? {}), silindi: true };
+      });
+      return kopya;
+    });
+    setIleti(`${isaretli.size} mekân haritadan kaldırıldı — Ctrl+Z geri alır.`);
+    setIsaretli(new Set());
+    setSeciliMekan(null);
+  }, [isaretli, gecmiseYaz]);
+
+  /** Gizlenmiş bir yapıyı geri getirir */
+  const mekaniGeriGetir = useCallback((id: string) => {
+    gecmiseYaz();
+    setMekanlar(m => {
+      const kayit = { ...(m[id] ?? {}) };
+      delete kayit.silindi;
+      const kopya = { ...m };
+      if (Object.keys(kayit).length === 0) delete kopya[id];
+      else kopya[id] = kayit;
+      return kopya;
+    });
+  }, [gecmiseYaz]);
+
+  // Mekân katmanları yalnız Mekânlar sekmesinde görünsün
+  useEffect(() => {
+    const map = harita.current;
+    if (!map || !hazir || !map.getLayer('mekanlar-dolgu')) return;
+    const gorunur = sekme === 'mekan' ? 'visible' : 'none';
+    map.setLayoutProperty('mekanlar-dolgu', 'visibility', gorunur);
+    map.setLayoutProperty('mekan-secili', 'visibility', gorunur);
+    map.setFilter('mekan-secili', [
+      '==', ['get', 'id'], sekme === 'mekan' && seciliMekan ? seciliMekan : '__yok__'
+    ]);
+  }, [hazir, sekme, seciliMekan]);
+
+  // Ekleme kipinde haritaya tıklayınca mekân koy
+  useEffect(() => {
+    const map = harita.current;
+    if (!map || !hazir || !ekleKipi) return;
+    map.getCanvas().style.cursor = 'crosshair';
+    const tik = (e: MapMouseEvent) => {
+      mekanEkle([e.lngLat.lng, e.lngLat.lat]);
+    };
+    map.on('click', tik);
+    return () => {
+      map.off('click', tik);
+      const c = map.getCanvas();
+      if (c.style.cursor === 'crosshair') c.style.cursor = '';
+    };
+  }, [hazir, ekleKipi, mekanEkle]);
+
+  // Seçili yolu haritada vurgula
+  useEffect(() => {
+    const map = harita.current;
+    if (!map || !hazir || !map.getLayer('yol-secili')) return;
+    map.setFilter('yol-secili', [
+      '==', ['get', 'id'], sekme === 'yol' && seciliYol ? seciliYol : '__yok__'
+    ]);
+  }, [hazir, sekme, seciliYol]);
+
+  // Tam ekrana girip çıkınca tuval yeniden ölçülmeli
+  useEffect(() => {
+    const map = harita.current;
+    if (!map) return;
+    const z = setTimeout(() => map.resize(), 60);
+    return () => clearTimeout(z);
+  }, [tamEkran]);
+
+  // ---- yol seçimi: haritada yola tıkla ------------------------------------
+  /*
+   * Yollar sekmesinde bir yol, listeden seçilene kadar düzenlenebilir hâle
+   * gelmiyordu; haritada düz bir çizgi gibi duruyordu. Sınırlar sekmesinde
+   * köşeler kendiliğinden göründüğü için bu tutarsızlık "yollar düzenlenemiyor"
+   * izlenimi veriyor. Artık yolun üstüne tıklamak da seçiyor.
+   */
+  useEffect(() => {
+    const map = harita.current;
+    if (!map || !hazir) return;
+
+    const duzenlenebilirIdler = new Set(yolKayitlari.map(y => y.id));
+
+    /** Tıklanan noktadaki düzenlenebilir yol */
+    const yoluBul = (e: MapMouseEvent): string | null => {
+      const vurulan = map.queryRenderedFeatures(
+        [[e.point.x - 7, e.point.y - 7], [e.point.x + 7, e.point.y + 7]],
+        { layers: ['yollar'] }
+      );
+      for (const f of vurulan) {
+        const id = String((f.properties as Record<string, unknown>)?.id ?? '');
+        if (duzenlenebilirIdler.has(id)) return id;
+      }
+      // Düzenlenemeyen bir şeye (sokak) tıklandıysa sebebini söyle
+      if (vurulan.length) return '';
+      return null;
+    };
+
+    const tik = (e: MapMouseEvent) => {
+      if (durum.current.sekme !== 'yol') return;
+      // Köşe sürüklemesi kendi olayını çalıştırdıysa karışma
+      if (surukleme.current) return;
+      const id = yoluBul(e);
+      if (id === null) return;
+      if (id === '') {
+        setIleti('Bu yol düzenlenmiyor — sokaklar listede yok.');
+        return;
+      }
+      setSeciliYol(id);
+      setSecim(null);
+    };
+
+    const imlec = (e: MapMouseEvent) => {
+      if (durum.current.sekme !== 'yol' || surukleme.current) return;
+      const canvas = map.getCanvas();
+      // Köşe imleci (grab) önceliklidir, ona dokunma
+      if (canvas.style.cursor === 'grab' || canvas.style.cursor === 'grabbing') return;
+      const id = yoluBul(e);
+      canvas.style.cursor = id ? 'pointer' : '';
+    };
+
+    map.on('click', tik);
+    map.on('mousemove', imlec);
+    return () => { map.off('click', tik); map.off('mousemove', imlec); };
+  }, [hazir, yolKayitlari]);
+
+
   // ---- kayıt: Kaydet düğmesi (H1) -----------------------------------------
   // Karar: otomatik kayıt yok. Değişiklik Kaydet'e basınca kalıcı olur.
   // Kaydedilmemiş iş kaybolmasın diye yalnızca bir TASLAK tutulur: düzenleyici
@@ -619,27 +1013,29 @@ export const HaritaDuzenleyici: React.FC<HaritaDuzenleyiciProps> = ({
     JSON.stringify(d, (k, v) => (k === 'guncelleme' ? undefined : v));
 
   const [kayitliImza, setKayitliImza] = useState(() =>
-    imzasi(duzeniCikar(birlesikHatlar(duzen), birlesikYollar(duzen)))
+    imzasi(duzeniCikar(birlesikHatlar(duzen), birlesikYollar(duzen), duzen?.mekanlar ?? {}))
   );
-  const simdiki = useMemo(() => duzeniCikar(hatlar, yollar), [hatlar, yollar]);
+  const simdiki = useMemo(
+    () => duzeniCikar(hatlar, yollar, mekanlar), [hatlar, yollar, mekanlar]
+  );
   const kaydedilmemis = imzasi(simdiki) !== kayitliImza;
   const [cikisSor, setCikisSor] = useState(false);
 
   const [taslak, setTaslak] = useState<HaritaDuzeni | null>(() => {
     const t = taslakOku();
     if (!t) return null;
-    const kayitli = imzasi(duzeniCikar(birlesikHatlar(duzen), birlesikYollar(duzen)));
+    const kayitli = imzasi(duzeniCikar(birlesikHatlar(duzen), birlesikYollar(duzen), duzen?.mekanlar ?? {}));
     if (imzasi(t) === kayitli) { taslakSil(); return null; }
     return t;
   });
 
   const kaydetDugmesi = useCallback(async () => {
-    const d = duzeniCikar(hatlar, yollar);
+    const d = duzeniCikar(hatlar, yollar, mekanlar);
     setKayitliImza(imzasi(d));
     taslakSil();
     setTaslak(null);
     await kaydet(d);
-  }, [hatlar, yollar, kaydet]);
+  }, [hatlar, yollar, mekanlar, kaydet]);
   kaydetRef.current = kaydetDugmesi;
 
   // Kapanırken ya da sayfa giderken kaydedilmemiş iş varsa taslağa yaz
@@ -802,9 +1198,24 @@ export const HaritaDuzenleyici: React.FC<HaritaDuzenleyiciProps> = ({
   );
 
   return (
-    <div className={`flex bg-krem ${className ?? 'w-screen h-screen'}`}>
+    <div className={
+      tamEkran
+        ? 'fixed inset-0 z-50 flex bg-krem'
+        : `flex bg-krem ${className ?? 'w-screen h-screen'}`
+    }>
       <div className="relative flex-1">
         <div ref={kapsayici} className="duzada-harita w-full h-full" />
+
+        <button
+          onClick={() => setTamEkran(t => !t)}
+          title={tamEkran ? 'Tam ekrandan çık (Esc)' : 'Tam ekran'}
+          className="absolute top-3 left-3 px-3 py-1.5 rounded-sm text-[12px]
+                     border border-[#bba591] bg-[#f4efe4]/90 text-[#3a2f22]
+                     hover:bg-[#e8dfcc] backdrop-blur-sm"
+        >
+          {tamEkran ? 'Tam ekrandan çık' : 'Tam ekran'}
+        </button>
+
         {yapisti && (
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-3 py-1
                           rounded-sm bg-[#336659] text-krem text-[12px]
@@ -907,19 +1318,52 @@ export const HaritaDuzenleyici: React.FC<HaritaDuzenleyiciProps> = ({
         <div className="flex mt-3 border-b border-[#bba591]">
           {sekmeDugmesi('sinir', 'Sınırlar')}
           {sekmeDugmesi('yol', 'Yollar')}
+          {sekmeDugmesi('mekan', 'Mekânlar')}
         </div>
 
         <div className="p-4">
           <ul className="list-disc pl-4 space-y-1 leading-snug text-[#6f6047]">
-            <li>Köşeyi <b className="text-[#3a2f22]">sürükle</b></li>
-            <li>Hatta <b className="text-[#3a2f22]">çift tıkla</b> — köşe ekler</li>
-            <li>Köşeyi seçip <b className="text-[#3a2f22]">Delete</b></li>
-            <li><b className="text-[#3a2f22]">Ctrl+Z</b> geri alır,
-              <b className="text-[#3a2f22]"> M</b> mıknatısı açıp kapar</li>
+            {sekme === 'mekan' ? (
+              <>
+                <li><b className="text-[#3a2f22]">Binaya tıkla</b> — seçer</li>
+                <li>Binayı <b className="text-[#3a2f22]">sürükle</b> — taşır</li>
+                <li>Listeden seçince harita oraya gider</li>
+                <li><b className="text-[#3a2f22]">Ctrl+Z</b> geri alır</li>
+              </>
+            ) : (
+              <>
+                {sekme === 'yol' && (
+                  <li><b className="text-[#3a2f22]">Yola tıkla</b> — düzenlemek
+                    için seçer</li>
+                )}
+                <li>Köşeyi <b className="text-[#3a2f22]">sürükle</b></li>
+                <li>Hatta <b className="text-[#3a2f22]">çift tıkla</b> — köşe ekler</li>
+                <li>Köşeyi seçip <b className="text-[#3a2f22]">Delete</b> —
+                  ya da aşağıdaki düğme</li>
+                <li><b className="text-[#3a2f22]">Ctrl+Z</b> geri alır,
+                  <b className="text-[#3a2f22]"> M</b> mıknatısı açıp kapar</li>
+              </>
+            )}
           </ul>
 
-          {/* --- mıknatıs --- */}
-          <div className="mt-4 p-2.5 rounded-sm border border-[#bba591]
+          {sekme !== 'mekan' && <button
+            onClick={() => koseyiSil()}
+            disabled={!secim}
+            title={
+              !secim ? 'Önce bir köşe seç'
+                : silinebilir ? 'Delete tuşu da aynı işi yapar'
+                  : 'Bu köşe silinemez'
+            }
+            className={`mt-3 w-full py-2 rounded-sm border text-[13px]
+              ${secim && silinebilir
+                ? 'border-kiremit text-kiremit hover:bg-[#f0e3e0]'
+                : 'border-[#bba591] text-[#6f6047] opacity-50 cursor-default'}`}
+          >
+            {secim ? 'Seçili köşeyi sil' : 'Köşeyi sil — önce bir köşe seç'}
+          </button>}
+
+          {/* --- mıknatıs: yalnız hat düzenlerken anlamlı --- */}
+          {sekme !== 'mekan' && <div className="mt-4 p-2.5 rounded-sm border border-[#bba591]
                           bg-[#efe7d6]">
             <label className="flex items-center gap-2 cursor-pointer">
               <input
@@ -952,10 +1396,175 @@ export const HaritaDuzenleyici: React.FC<HaritaDuzenleyiciProps> = ({
                 </label>
               ))}
             </div>
-          </div>
+          </div>}
 
           {/* --- sekmeye özel --- */}
-          {sekme === 'sinir' ? (
+          {sekme === 'mekan' ? (
+            <>
+              <button
+                onClick={() => setEkleKipi(k => !k)}
+                className={`mt-4 w-full py-2 rounded-sm text-[13px] border
+                  ${ekleKipi
+                    ? 'bg-[#336659] text-krem border-[#336659]'
+                    : 'border-[#bba591] hover:bg-[#e8dfcc]'}`}
+              >
+                {ekleKipi ? 'Haritada bir yere tıkla — vazgeç' : '+ Yeni mekân ekle'}
+              </button>
+
+              {seciliMekanKaydi ? (
+                <div className="mt-4 p-3 rounded-sm border border-[#bba591]
+                                bg-[#efe7d6] space-y-2.5">
+                  <div className="font-mono text-[11px] uppercase tracking-wider
+                                  text-[#6f6047]">
+                    {seciliMekanKaydi.elle ? 'Elle eklenen mekân' : 'Üretilmiş yapı'}
+                  </div>
+
+                  <label className="block">
+                    <span className="text-[11px] text-[#6f6047]">Ad</span>
+                    <input
+                      type="text"
+                      value={seciliMekanKaydi.ad}
+                      onChange={e =>
+                        mekaniGuncelle(seciliMekanKaydi.id, { ad: e.target.value })}
+                      className="mt-0.5 w-full px-2 py-1 rounded-sm border
+                                 border-[#bba591] bg-krem text-[13px]"
+                    />
+                  </label>
+
+                  <label className="block">
+                    <span className="text-[11px] text-[#6f6047]">Tür</span>
+                    <select
+                      value={seciliMekanKaydi.tur}
+                      onChange={e =>
+                        mekaniGuncelle(seciliMekanKaydi.id, { tur: e.target.value })}
+                      className="mt-0.5 w-full px-2 py-1 rounded-sm border
+                                 border-[#bba591] bg-krem text-[13px]"
+                    >
+                      {[...new Set([seciliMekanKaydi.tur, ...MEKAN_TURLERI])]
+                        .map(t => <option key={t} value={t}>{t}</option>)}
+                    </select>
+                  </label>
+
+                  <p className="text-[11px] text-[#6f6047] leading-snug">
+                    Mahalle: <b className="text-[#3a2f22]">
+                      {seciliMekanKaydi.mahalle
+                        ? seciliMekanKaydi.mahalle.replace('yer_', '')
+                        : 'konumdan bulunamadı'}
+                    </b><br />
+                    Taşımak için binayı haritada sürükle.
+                  </p>
+
+                  {seciliMekanKaydi.silindi ? (
+                    <button
+                      onClick={() => mekaniGeriGetir(seciliMekanKaydi.id)}
+                      className="w-full py-1.5 rounded-sm border border-[#bba591]
+                                 text-[12px] hover:bg-[#e8dfcc]"
+                    >
+                      Geri getir
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => mekaniSil(seciliMekanKaydi.id)}
+                      className="w-full py-1.5 rounded-sm border border-kiremit
+                                 text-kiremit text-[12px] hover:bg-[#f0e3e0]"
+                    >
+                      {seciliMekanKaydi.elle ? 'Mekânı sil' : 'Haritadan kaldır'}
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <p className="mt-3 text-[11px] leading-snug text-[#6f6047]">
+                  Düzenlemek için <b className="text-[#3a2f22]">haritada bir
+                  binaya tıkla</b> ya da aşağıdaki listeden seç. Yeşil olanlar
+                  senin elinle eklediklerin.
+                </p>
+              )}
+
+              <div className="mt-4">
+                <div className="font-mono text-[11px] uppercase tracking-wider
+                                text-[#6f6047] mb-1.5">
+                  Mekânlar · {mekanListesi.filter(m => !m.silindi).length}
+                </div>
+
+                <input
+                  type="text"
+                  value={mekanArama}
+                  onChange={e => setMekanArama(e.target.value)}
+                  placeholder="Ara — örn. Kemsköy"
+                  className="w-full px-2 py-1 rounded-sm border border-[#bba591]
+                             bg-krem text-[12px]"
+                />
+
+                <div className="mt-1.5 flex items-center gap-2 text-[11px]">
+                  <button
+                    onClick={hepsiniIsaretle}
+                    className="px-2 py-1 rounded-sm border border-[#bba591]
+                               hover:bg-[#e8dfcc]"
+                  >
+                    {mekanArama ? 'Görünenleri seç' : 'Tümünü seç'}
+                  </button>
+                  {isaretli.size > 0 && (
+                    <>
+                      <button
+                        onClick={isaretlileriSil}
+                        className="px-2 py-1 rounded-sm border border-kiremit
+                                   text-kiremit hover:bg-[#f0e3e0]"
+                      >
+                        {isaretli.size} tanesini kaldır
+                      </button>
+                      <button
+                        onClick={() => setIsaretli(new Set())}
+                        className="text-[#6f6047] underline"
+                      >
+                        vazgeç
+                      </button>
+                    </>
+                  )}
+                </div>
+
+                <div className="mt-1.5 max-h-64 overflow-y-auto pr-1">
+                  {suzulmusMekanlar.map(m => (
+                    <div
+                      key={m.id}
+                      className={`flex items-center gap-2 px-2 py-1 rounded-sm
+                        mb-0.5 border text-[12px]
+                        ${seciliMekan === m.id
+                          ? 'border-kiremit bg-[#f0e3e0]'
+                          : 'border-transparent hover:bg-[#e8dfcc]'}`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isaretli.has(m.id)}
+                        disabled={m.silindi}
+                        onChange={() => isaretiCevir(m.id)}
+                        title="Toplu kaldırmak için işaretle"
+                        className="shrink-0 cursor-pointer disabled:opacity-30"
+                      />
+                      <button
+                        onClick={() => mekanaGit(m.id)}
+                        className="flex-1 text-left flex items-center
+                                   justify-between gap-2 min-w-0"
+                      >
+                        <span className={`truncate ${
+                          m.silindi ? 'line-through opacity-50' : ''}`}>
+                          {m.elle && <span className="text-[#336659]">• </span>}
+                          {m.ad}
+                        </span>
+                        <span className="shrink-0 text-[10px] text-[#6f6047]">
+                          {m.tur}
+                        </span>
+                      </button>
+                    </div>
+                  ))}
+                  {!suzulmusMekanlar.length && (
+                    <p className="px-2 py-2 text-[11px] text-[#6f6047]">
+                      Aramaya uyan mekân yok.
+                    </p>
+                  )}
+                </div>
+              </div>
+            </>
+          ) : sekme === 'sinir' ? (
             <>
               <div className="mt-4">
                 <div className="font-mono text-[11px] uppercase tracking-wider
@@ -1068,8 +1677,9 @@ export const HaritaDuzenleyici: React.FC<HaritaDuzenleyiciProps> = ({
 
               {!seciliYol && (
                 <p className="mt-2 text-[11px] leading-snug text-[#6f6047]">
-                  Düzenlemek için listeden bir yol seç. Sokaklar listede yok —
-                  35 tanesi var ve hepsi kısa.
+                  Düzenlemek için <b className="text-[#3a2f22]">haritada bir
+                  yola tıkla</b> ya da yukarıdaki listeden seç. Sokaklar listede
+                  yok — 35 tanesi var ve hepsi kısa.
                 </p>
               )}
             </>

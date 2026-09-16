@@ -4,9 +4,11 @@ import {
   baslangicHatlari, baslangicYollari, bolgeleriKur, catmullRom, kiyiHalkasi,
   CEMBER_ID, RADYAL_SIRASI, type Nokta, type SinirHatlari
 } from './sinirBolgeleri';
-import { DUZEN_SURUMU, type HaritaDuzeni } from './duzenTipi';
+import {
+  DUZEN_SURUMU, type HaritaDuzeni, type MekanDuzeni, type MekanKaydi
+} from './duzenTipi';
 
-export { DUZEN_SURUMU, type HaritaDuzeni };
+export { DUZEN_SURUMU, type HaritaDuzeni, type MekanDuzeni, type MekanKaydi };
 
 /**
  * Harita düzeni katmanı (H1).
@@ -22,7 +24,7 @@ export { DUZEN_SURUMU, type HaritaDuzeni };
  */
 
 export const bosDuzen = (): HaritaDuzeni => ({
-  surum: DUZEN_SURUMU, guncelleme: 0, hatlar: {}, yollar: {}
+  surum: DUZEN_SURUMU, guncelleme: 0, hatlar: {}, yollar: {}, mekanlar: {}
 });
 
 // ---- üretilmiş taban (bir kez hesaplanır) ---------------------------------
@@ -96,7 +98,9 @@ function yuvarla(hat: Nokta[]): Nokta[] {
 }
 
 /** Düzenleyicideki tam hâlden yalnızca üreteçten farklı olanları ayırır */
-export function duzeniCikar(hatlar: SinirHatlari, yollar: SinirHatlari): HaritaDuzeni {
+export function duzeniCikar(
+  hatlar: SinirHatlari, yollar: SinirHatlari, mekanlar: MekanDuzeni = {}
+): HaritaDuzeni {
   const t = taban();
   const fark = (hepsi: SinirHatlari, tabanHat: SinirHatlari) =>
     Object.fromEntries(
@@ -108,13 +112,52 @@ export function duzeniCikar(hatlar: SinirHatlari, yollar: SinirHatlari): HaritaD
     surum: DUZEN_SURUMU,
     guncelleme: Date.now(),
     hatlar: fark(hatlar, t.hatlar),
-    yollar: fark(yollar, t.yollar)
+    yollar: fark(yollar, t.yollar),
+    mekanlar
   };
 }
 
 export function duzenBosMu(duzen: HaritaDuzeni | null): boolean {
   return !duzen
-    || (Object.keys(duzen.hatlar).length === 0 && Object.keys(duzen.yollar).length === 0);
+    || (Object.keys(duzen.hatlar).length === 0
+      && Object.keys(duzen.yollar).length === 0
+      && Object.keys(duzen.mekanlar ?? {}).length === 0);
+}
+
+// ---- mekânlar (H3) --------------------------------------------------------
+
+/** Yeni eklenen mekânların varsayılan ölçüleri */
+export const MEKAN_YARICAP = 0.00012;   // ~13 m, üreteçteki küçük yapılar kadar
+export const MEKAN_YUKSEKLIK = 6;       // iki kat
+
+/** Bir çokgenin köşe ortalaması — taban merkezi olarak yeterli */
+export function poligonMerkezi(halka: Nokta[]): Nokta {
+  // Kapalı halkanın tekrar eden son noktasını sayma
+  const n = halka.length > 1
+    && halka[0][0] === halka[halka.length - 1][0]
+    && halka[0][1] === halka[halka.length - 1][1]
+    ? halka.length - 1 : halka.length;
+  let x = 0, y = 0;
+  for (let i = 0; i < n; i++) { x += halka[i][0]; y += halka[i][1]; }
+  return [x / n, y / n];
+}
+
+/** Merkeze oturan kare taban */
+export function mekanPoligonu(merkez: Nokta, yaricap: number): Nokta[] {
+  const [x, y] = merkez;
+  // Boylamda derece daha kısa; kare görünsün diye enleme göre düzeltiyoruz
+  const d = yaricap / Math.max(0.2, Math.cos((y * Math.PI) / 180));
+  return [
+    [x - d, y - yaricap], [x + d, y - yaricap],
+    [x + d, y + yaricap], [x - d, y + yaricap], [x - d, y - yaricap]
+  ];
+}
+
+/** Elle eklenen mekânlar için çakışmayan kimlik */
+export function yeniMekanId(mevcut: MekanDuzeni): string {
+  let n = 1;
+  while (mevcut[`mekan_ek_${n}`]) n++;
+  return `mekan_ek_${n}`;
 }
 
 // ---- uygulama: üretilmiş veri + düzen → çizilecek veri --------------------
@@ -139,6 +182,7 @@ export function duzeniUygula(
 
   const sinirDegisti = Object.keys(d.hatlar).length > 0;
   const yollar = d.yollar;
+  const mekanlar: MekanDuzeni = d.mekanlar ?? {};
   const { kapaliYol } = taban();
 
   let bolgeHalkasi: Record<string, { halka: Nokta[]; alan: number }> = {};
@@ -169,7 +213,7 @@ export function duzeniUygula(
     );
   }
 
-  const features: Feature[] = geo.features.map(f => {
+  const features: Feature[] = geo.features.map((f): Feature | null => {
     const p = f.properties as Record<string, unknown> | null;
     if (!p) return f;
     const id = String(p.id ?? '');
@@ -209,8 +253,80 @@ export function duzeniUygula(
       };
     }
 
+    // ---- mekânlar (H3): taşınan, adı değişen, gizlenen yapılar ----
+    if ((p.katman === 'bina' || p.katman === 'zemin') && mekanlar[id]) {
+      const m = mekanlar[id];
+      if (m.silindi) return null;
+
+      let geometri = f.geometry;
+      if (m.konum && f.geometry.type === 'Polygon') {
+        const halka = (f.geometry.coordinates as Nokta[][])[0];
+        const merkez = poligonMerkezi(halka);
+        const dx = m.konum[0] - merkez[0];
+        const dy = m.konum[1] - merkez[1];
+        geometri = {
+          type: 'Polygon',
+          coordinates: (f.geometry.coordinates as Nokta[][]).map(
+            h => h.map(k => [k[0] + dx, k[1] + dy] as Nokta)
+          )
+        };
+      }
+
+      const ozellik: Record<string, unknown> = { ...p };
+      if (m.ad !== undefined) ozellik.ad = m.ad;
+      if (m.tur !== undefined) ozellik.tur = m.tur;
+      if (m.mahalle !== undefined) ozellik.mahalle = m.mahalle;
+      if (m.wikiId !== undefined) ozellik.wikiId = m.wikiId;
+      if (m.taban !== undefined) ozellik.taban = m.taban;
+      return { ...f, properties: ozellik, geometry: geometri };
+    }
+
+    // Gizlenen yapının etiketi de gitsin
+    if (p.katman === 'etiket' && id.startsWith('etk_')) {
+      const yapiId = id.slice(4);
+      const m = mekanlar[yapiId];
+      if (m?.silindi) return null;
+      if (m && (m.ad !== undefined || m.konum)) {
+        return {
+          ...f,
+          properties: m.ad !== undefined ? { ...p, ad: m.ad } : p,
+          geometry: m.konum
+            ? { type: 'Point', coordinates: [m.konum[0], m.konum[1]] }
+            : f.geometry
+        };
+      }
+    }
+
     return f;
-  });
+  }).filter((f): f is Feature => f !== null);
+
+  // ---- elle eklenen mekânlar ----
+  for (const [id, m] of Object.entries(mekanlar)) {
+    if (!m.yeni || m.silindi || !m.konum) continue;
+    const yaricap = m.yaricap ?? MEKAN_YARICAP;
+    features.push({
+      type: 'Feature',
+      properties: {
+        katman: 'bina', id, ad: m.ad ?? 'Adsız mekân',
+        tur: m.tur ?? 'yapı', mahalle: m.mahalle ?? null,
+        wikiId: m.wikiId ?? null,
+        yukseklik: m.yukseklik ?? MEKAN_YUKSEKLIK,
+        taban: m.taban ?? 0, kat: 1, elle: true
+      },
+      geometry: {
+        type: 'Polygon',
+        coordinates: [mekanPoligonu(m.konum, yaricap)]
+      }
+    });
+    features.push({
+      type: 'Feature',
+      properties: {
+        katman: 'etiket', id: `etk_${id}`, ad: m.ad ?? 'Adsız mekân',
+        tur: 'yapi', oncelik: 3, wikiId: m.wikiId ?? null, elle: true
+      },
+      geometry: { type: 'Point', coordinates: [m.konum[0], m.konum[1]] }
+    });
+  }
 
   return { ...geo, features };
 }

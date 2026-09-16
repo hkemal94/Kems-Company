@@ -191,3 +191,20 @@
 .dark .archive-shadow {
   box-shadow: 1px 2px 0px 0px rgba(0, 0, 0, 0.3);
 }
+
+/* yol adları (H6): yola paralel, ince, sakin — kâğıt harita dili */
+.duzada-etiket[data-tur='anayol'] .duzada-etiket-ad,
+.duzada-etiket[data-tur='cadde'] .duzada-etiket-ad,
+.duzada-etiket[data-tur='sokak'] .duzada-etiket-ad {
+  font-family: var(--font-mono);
+  color: #6b5b42;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.duzada-etiket[data-tur='anayol'] .duzada-etiket-ad { font-size: 10px; }
+.duzada-etiket[data-tur='cadde'] .duzada-etiket-ad { font-size: 9px; }
+.duzada-etiket[data-tur='sokak'] .duzada-etiket-ad {
+  font-size: 8px;
+  letter-spacing: 0.05em;
+  color: #8a7a60;
+}

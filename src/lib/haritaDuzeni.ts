@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { doc, onSnapshot, setDoc } from 'firebase/firestore';
 import { db } from './firebase';
-import { DUZEN_SURUMU, type HaritaDuzeni } from '../components/harita/duzenTipi';
+import {
+  DUZEN_SURUMU, type HaritaDuzeni, type MekanDuzeni, type MekanKaydi
+} from '../components/harita/duzenTipi';
 import type { Nokta, SinirHatlari } from '../components/harita/sinirBolgeleri';
 
 /**
@@ -36,6 +38,8 @@ interface Belge {
   guncelleme: number;
   hatlar: DuzHatlar;
   yollar: DuzHatlar;
+  /** Mekânlar (H3). Eski kayıtlarda yok. */
+  mekanlar: MekanDuzeni;
 }
 
 const duzle = (h: SinirHatlari): DuzHatlar =>
@@ -57,11 +61,58 @@ const coz = (h: unknown): SinirHatlari => {
   return cikti;
 };
 
+/**
+ * Firestore tanımsız (undefined) alan kabul etmiyor; tek bir tanımsız alan
+ * bütün yazmayı düşürür. Mekân kaydındaki alanların çoğu isteğe bağlı
+ * olduğu için yazmadan önce ayıklanıyor.
+ */
+const mekanlariTemizle = (m: MekanDuzeni | undefined): MekanDuzeni => {
+  const cikti: MekanDuzeni = {};
+  for (const [id, kayit] of Object.entries(m ?? {})) {
+    const temiz: Record<string, unknown> = {};
+    for (const [alan, deger] of Object.entries(kayit ?? {})) {
+      if (deger !== undefined) temiz[alan] = deger;
+    }
+    cikti[id] = temiz as MekanKaydi;
+  }
+  return cikti;
+};
+
+const mekanlariCoz = (m: unknown): MekanDuzeni => {
+  if (!m || typeof m !== 'object') return {};
+  const cikti: MekanDuzeni = {};
+  for (const [id, ham] of Object.entries(m as Record<string, unknown>)) {
+    if (!ham || typeof ham !== 'object') continue;
+    const k = ham as Record<string, unknown>;
+    const kayit: MekanKaydi = {};
+    if (typeof k.yeni === 'boolean') kayit.yeni = k.yeni;
+    if (typeof k.ad === 'string') kayit.ad = k.ad;
+    if (typeof k.tur === 'string') kayit.tur = k.tur;
+    if (typeof k.silindi === 'boolean') kayit.silindi = k.silindi;
+    if (typeof k.mahalle === 'string' || k.mahalle === null) {
+      kayit.mahalle = k.mahalle as string | null;
+    }
+    if (typeof k.wikiId === 'string' || k.wikiId === null) {
+      kayit.wikiId = k.wikiId as string | null;
+    }
+    for (const sayi of ['taban', 'yukseklik', 'yaricap'] as const) {
+      if (Number.isFinite(k[sayi])) kayit[sayi] = Number(k[sayi]);
+    }
+    if (Array.isArray(k.konum) && k.konum.length >= 2
+      && Number.isFinite(Number(k.konum[0])) && Number.isFinite(Number(k.konum[1]))) {
+      kayit.konum = [Number(k.konum[0]), Number(k.konum[1])];
+    }
+    if (Object.keys(kayit).length) cikti[id] = kayit;
+  }
+  return cikti;
+};
+
 const belgeye = (d: HaritaDuzeni): Belge => ({
   surum: DUZEN_SURUMU,
   guncelleme: d.guncelleme,
   hatlar: duzle(d.hatlar),
-  yollar: duzle(d.yollar)
+  yollar: duzle(d.yollar),
+  mekanlar: mekanlariTemizle(d.mekanlar)
 });
 
 const belgeden = (b: unknown): HaritaDuzeni | null => {
@@ -71,7 +122,8 @@ const belgeden = (b: unknown): HaritaDuzeni | null => {
     surum: Number(v.surum ?? DUZEN_SURUMU),
     guncelleme: Number(v.guncelleme ?? 0),
     hatlar: coz(v.hatlar),
-    yollar: coz(v.yollar)
+    yollar: coz(v.yollar),
+    mekanlar: mekanlariCoz(v.mekanlar)
   };
 };
 
@@ -197,4 +249,30 @@ export function useHaritaDuzeni() {
   }, []);
 
   return { duzen: duzen ?? null, durum, hata, ilkYukleme, kaydet };
+}
+
+// ---- yedekleme (K2) -------------------------------------------------------
+
+/**
+ * Harita düzeninin yedeğe girecek hâli.
+ *
+ * Yerel kopyadan okunuyor: her kayıt önce oraya yazıldığı için buluttakiyle
+ * aynı ya da ondan yeni. Böylece yedek almak için ağ gerekmiyor.
+ */
+export function haritaDuzeniniYedekIcinOku(): unknown {
+  try {
+    const ham = localStorage.getItem(YEREL_ANAHTAR);
+    return ham ? JSON.parse(ham) : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Yedekten gelen harita düzenini geri yazar — önce yerele, sonra buluta */
+export async function haritaDuzeniniYedektenYaz(ham: unknown): Promise<void> {
+  const d = belgeden(ham);
+  if (!d) return;
+  const belge = belgeye({ ...d, guncelleme: Date.now() });
+  try { localStorage.setItem(YEREL_ANAHTAR, JSON.stringify(belge)); } catch { /* yok */ }
+  await setDoc(belgeYolu(), belge);
 }
