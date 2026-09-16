@@ -4,6 +4,7 @@ import { Item, ItemType } from '../../types';
 import { isEntityUnlinked } from '../../utils/relations';
 import { buildLinkIndex } from './autoLink';
 import { WikiArticle } from './WikiArticle';
+import { WikiGiris } from './WikiGiris';
 import { WIKI_TYPES, TYPE_LABELS, isStub, bolgeAdi } from './wikiSchema';
 import { OYUN_VAKA_IDLERI } from '../../data/kemskoyVenues';
 
@@ -276,8 +277,14 @@ export const WikiShell: React.FC<WikiShellProps> = ({
                 )}
               </>
             ) : (
-              /* --- Ada sayfası: coğrafyadan giriş --- */
+              /* --- Ada sayfası: önce giriş paneli, sonra coğrafya --- */
               <div className="space-y-8">
+                <WikiGiris
+                  maddeler={wikiItems}
+                  hepsi={items}
+                  onNavigate={navigate}
+                  onTipSec={t => setTypeFilter(t)}
+                />
                 <section>
                   <h2 className="font-mono text-[10px] uppercase tracking-[0.14em] text-gri dark:text-bej/60 mb-3">
                     Mahalleler
@@ -349,27 +356,11 @@ export const WikiShell: React.FC<WikiShellProps> = ({
                   </section>
                 )}
 
-                <section>
-                  <h2 className="font-mono text-[10px] uppercase tracking-[0.14em] text-gri dark:text-bej/60 mb-3">
-                    Dizinler
-                  </h2>
-                  <ul className="flex flex-wrap gap-1.5">
-                    {INDEX_TYPES.filter(t => (typeCounts.get(t) || 0) > 0).map(t => (
-                      <li key={t}>
-                        <button
-                          type="button"
-                          onClick={() => setTypeFilter(t)}
-                          className="text-[13px] px-3 py-1.5 rounded-full border border-bej/55 dark:border-lacivert-600/55 hover:border-lacivert/45 dark:hover:border-bej/45 transition-colors"
-                        >
-                          {TYPE_LABELS[t] || t}
-                          <span className="ml-1.5 text-[11px] font-mono opacity-60">
-                            {typeCounts.get(t)}
-                          </span>
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                </section>
+                {/*
+                  "Dizinler" buradaydı — sayfanın en altında, katlamanın
+                  altında kalıyordu. Aynı iş artık en üstteki "Nereden
+                  girilir" bloğunda; iki kere göstermeye gerek yok.
+                */}
 
                 {admin && (health.unlinked > 0 || health.stubs > 0) && (
                   <section className="pt-5 border-t border-bej/40 dark:border-lacivert-600/40">

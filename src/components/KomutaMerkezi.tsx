@@ -37,6 +37,21 @@ import {
 import { Item, AreaType, ItemType } from '../types';
 import { isEntityUnlinked, resolveAllRelations } from '../utils/relations';
 import { Eksikler } from './Eksikler';
+import { SayfaRayi, type RayBolumu } from './SayfaRayi';
+
+/**
+ * Komuta Merkezi'nin bölümleri. Sayfa dokuz bölümlük tek bir uzun
+ * kaydırmaydı; aşağıda ne olduğunu görmek için sonuna kadar inmek
+ * gerekiyordu. Bu liste ana rayın altındaki sayfa rayını besliyor.
+ */
+const RAY_BOLUMLERI: RayBolumu[] = [
+  { id: 'km-durum', label: 'Neyin eksik' },
+  { id: 'km-projeler', label: 'Projeler' },
+  { id: 'km-bu-hafta', label: 'Bu hafta' },
+  { id: 'km-son', label: 'Son dokunulan' },
+  { id: 'km-evren', label: 'Evren özeti' },
+  { id: 'km-yayinlar', label: 'Yayınlar' }
+];
 
 interface KomutaMerkeziProps {
   items: Item[];
@@ -413,11 +428,16 @@ export default function KomutaMerkezi({
       </div>
 
 
+      {/* Sayfanın kendi rayı — ana rayın altına basılır */}
+      <SayfaRayi baslik="Komuta Merkezi" bolumler={RAY_BOLUMLERI} />
+
       {/* A1 · Neyin eksik — sayı değil, yapılacak iş */}
-      <Eksikler items={items} onSelectArea={onSelectArea} onUpdateItem={onUpdateItem} />
+      <section id="km-durum" className="scroll-mt-24">
+        <Eksikler items={items} onSelectArea={onSelectArea} onUpdateItem={onUpdateItem} />
+      </section>
 
       {/* 4. PROJELER (Folder Cards per area, click to go, auto progress %) */}
-      <div className="mb-6">
+      <div id="km-projeler" className="mb-6 scroll-mt-24">
         <h2 className="text-[12px] font-bold text-[#6A5E4C] dark:text-[#A6B0C9] uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
           <FolderOpen className="w-4 h-4 text-[#D35057]" /> PROJELER
         </h2>
@@ -583,7 +603,7 @@ export default function KomutaMerkezi({
       </div>
 
       {/* Side-by-side grid container for "BU HAFTA ÖNCELİK" and "BEKLEYEN AI ÖNERİLERİ" */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start mb-6">
+      <div id="km-bu-hafta" className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start mb-6 scroll-mt-24">
 
       {/* 2. BU HAFTA ÖNCELİK */}
       <div className="bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] dark:border-[#2C3C72] rounded-xl p-6 archive-shadow paper-grain flex flex-col">
@@ -1069,7 +1089,7 @@ export default function KomutaMerkezi({
 
 
       {/* 5. SON DOKUNULAN VARLIKLAR */}
-      <div>
+      <div id="km-son" className="scroll-mt-24">
         <h3 className="text-xs font-mono uppercase tracking-widest text-[#6A5E4C] dark:text-[#A6B0C9] mb-3 flex items-center gap-1.5 font-bold">
           <Bookmark className="w-4 h-4 text-[#D35057]" />
           Son dokunulan varlıklar
@@ -1098,7 +1118,7 @@ export default function KomutaMerkezi({
 
 
       {/* 6. EVREN ÖZETİ (Live Stats Panel, Clickable Counters) */}
-      <div className="bg-white/80 dark:bg-[#13204A]/40 border border-[#CFC5B4]/80 dark:border-[#2C3C72]/80 rounded-xl p-6 archive-shadow paper-grain">
+      <div id="km-evren" className="bg-white/80 dark:bg-[#13204A]/40 border border-[#CFC5B4]/80 dark:border-[#2C3C72]/80 rounded-xl p-6 archive-shadow paper-grain scroll-mt-24">
         <h2 className="text-[12px] font-bold text-[#6A5E4C] dark:text-[#A6B0C9] uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
           <CheckSquare className="w-4 h-4 text-[#D35057]" /> EVREN ÖZETİ (Varlık Sayımları)
         </h2>
@@ -1283,7 +1303,7 @@ export default function KomutaMerkezi({
 
 
       {/* 8. KANALLAR (Dashed Strip, Label Kanallar (NOT Analitik), External Links, Editable) */}
-      <div className="border-2 border-dashed border-[#CFC5B4] dark:border-[#2C3C72] bg-[#FAF8F5]/80 dark:bg-[#13204A]/30 rounded-xl p-6 space-y-4 paper-grain archive-shadow">
+      <div id="km-yayinlar" className="border-2 border-dashed border-[#CFC5B4] dark:border-[#2C3C72] bg-[#FAF8F5]/80 dark:bg-[#13204A]/30 rounded-xl p-6 space-y-4 paper-grain archive-shadow scroll-mt-24">
         <div className="flex justify-between items-start">
           <div className="space-y-1">
             <h4 className="text-xs font-mono uppercase tracking-widest text-[#1B2A4A] dark:text-[#F3EFE8] font-bold flex items-center gap-1.5">

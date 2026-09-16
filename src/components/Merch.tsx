@@ -3,6 +3,17 @@ import { ShoppingBag, Sparkles, FolderDot, Bookmark, ChevronRight, ChevronLeft, 
 import { Item, ItemType, AreaType } from '../types';
 import { compressImageBase64 } from '../lib/imageCompressor';
 import ConsistencyChecker from './ConsistencyChecker';
+import { DropKunyesi } from './DropKunyesi';
+import { SayfaRayi, type RayBolumu } from './SayfaRayi';
+
+/** Merch ekranının bölümleri — bunlar sekme, kaydırma değil */
+const RAY_BOLUMLERI: RayBolumu[] = [
+  { id: 'home', label: 'Genel bakış' },
+  { id: 'temalar', label: 'Temalar' },
+  { id: 'droplar', label: 'Dropler' },
+  { id: 'urunler', label: 'Ürünler' },
+  { id: 'arsiv', label: 'Arşiv' }
+];
 
 interface MerchProps {
   items: Item[];
@@ -539,6 +550,13 @@ export default function Merch({
   return (
     <div className="space-y-6">
       
+      <SayfaRayi
+        baslik="Merch Atölyesi"
+        bolumler={RAY_BOLUMLERI}
+        aktifId={activeTab}
+        onSec={id => { setActiveTab(id as typeof activeTab); onSelectItem(null); }}
+      />
+
       {/* Header breadcrumb & view switches */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#CFC5B4]">
         <div>
@@ -1563,7 +1581,19 @@ export default function Merch({
           </div>
 
           <div className="p-6 space-y-6">
-            
+
+            {/* MR1 · Drop künyesi — yıl, edisyon, beden seti, bakım etiketi */}
+            {activeItem.type === 'drop' && (
+              <DropKunyesi
+                drop={activeItem}
+                urunler={items.filter(
+                  i => i.type === 'merch_urun' && !i.archived
+                    && i.metadata?.dropId === activeItem.id
+                )}
+                onUpdateItem={onUpdateItem}
+              />
+            )}
+
             {/* VIEW TAB SELECTOR - GÖSTERİM VE EDİTÖR SEKMELERİ */}
             <div className="flex border-b border-[#CFC5B4] pb-px justify-between items-center gap-4">
               <div className="flex gap-2">

@@ -6,6 +6,12 @@ import { Item } from '../types';
 import {
   ORNEK_PROJE_ID, ornekProje, ornekBolumler
 } from '../data/hikayeOrnekleri';
+import { SayfaRayi, type RayBolumu } from './SayfaRayi';
+
+const RAY_BOLUMLERI: RayBolumu[] = [
+  { id: 'blog', label: 'Blog & İçerik' },
+  { id: 'kitap', label: 'Kitap & Roman' }
+];
 
 interface YaziAtolyesiProps {
   items: Item[];
@@ -55,6 +61,13 @@ export default function YaziAtolyesi({
 
   return (
     <div className="space-y-6">
+
+      <SayfaRayi
+        baslik="Yazı İşleri"
+        bolumler={RAY_BOLUMLERI}
+        aktifId={subTab}
+        onSec={id => { setSubTab(id as typeof subTab); onSelectItem(null); }}
+      />
 
       {/* Sub-tab switcher to unite blog and books in a single hub */}
       <div className="flex gap-2 border-b border-[#CFC5B4] pb-1">

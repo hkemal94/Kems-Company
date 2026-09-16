@@ -27,6 +27,7 @@ import ConsistencyChecker from './ConsistencyChecker';
 import {
   MARKA_KUNYELERI, markayiBul, kunyeyiBirlestir, kunyedenYeni
 } from '../data/markaKunyeleri';
+import { SayfaRayi } from './SayfaRayi';
 
 interface MarkalarProps {
   items: Item[];
@@ -481,6 +482,18 @@ export default function Markalar({
           </button>
         </div>
       </div>
+
+      {/*
+        Sayfa rayı: burada "bölüm" markanın kendisi. Markalar ekranında
+        gezinilecek başka bir şey yok — hangi markadaysan ana rayın altında
+        görünür, oradan da geçilir.
+      */}
+      <SayfaRayi
+        baslik="Markalar"
+        bolumler={brands.map(b => ({ id: b.id, label: b.title }))}
+        aktifId={activeBrandId ?? undefined}
+        onSec={id => setSelectedBrandId(id)}
+      />
 
       {kunyeDurumu === 'bitti' && kunyeRaporu.length > 0 && (
         <div className="mb-5 flex items-start gap-3 px-4 py-3 rounded-lg border border-[#CFC5B4] dark:border-[#2C3C72] bg-[#FAF8F5] dark:bg-[#13204A]">

@@ -15,6 +15,13 @@ import { useHaritaDuzeni } from '../lib/haritaDuzeni';
 import {
   haritadaAra, maddeTohumu, kunyeSatiri, type HaritaKunyesi
 } from '../lib/haritaMaddesi';
+import { SayfaRayi, type RayBolumu } from './SayfaRayi';
+
+/** Düzada'nın iki yüzü — sekme, kaydırma değil */
+const RAY_BOLUMLERI: RayBolumu[] = [
+  { id: 'wiki', label: 'Düzada Wiki' },
+  { id: 'harita', label: 'Düzada Haritası' }
+];
 
 // MapLibre haritası ~1 MB'lık bir paket (motor + arazi verisi). Sekme
 // açılmadan indirilmesin diye tembel yükleniyor.
@@ -1662,6 +1669,13 @@ export default function Duzada({
           </button>
         </div>
       </div>
+
+      <SayfaRayi
+        baslik="Düzada & Lore"
+        bolumler={RAY_BOLUMLERI}
+        aktifId={activeTab}
+        onSec={id => setActiveTab(id as typeof activeTab)}
+      />
 
       {/* HARİTA — DÜZENLEME (H2) */}
       {activeTab === 'harita' && haritaDuzenleniyor && (

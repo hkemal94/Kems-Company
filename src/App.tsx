@@ -11,6 +11,7 @@ import {
 import { onAuthStateChanged } from 'firebase/auth';
 import { Item, UserSettings, AreaType, ItemType } from './types';
 import {
+  AlertTriangle,
   ChevronLeft,
   ChevronRight, 
   ShoppingBag, 
@@ -32,6 +33,10 @@ import KomutaMerkezi from './components/KomutaMerkezi';
 import Duzada from './components/Duzada';
 import Merch from './components/Merch';
 import YaziAtolyesi from './components/YaziAtolyesi';
+import { SAYFA_RAYI_YUVASI } from './components/SayfaRayi';
+import {
+  aiGozcusunuKur, aiDurumunuDinle, aiDurumu, aiUyarisiniKapat, type AiDurum
+} from './lib/aiGozcusu';
 import Blog from './components/Blog';
 import Kitap from './components/Kitap';
 import Oyun from './components/Oyun';
@@ -713,6 +718,16 @@ export default function App() {
     [items]
   );
 
+  /**
+   * Yapay zekâ ucunun durumu. 20 ayrı çağrı yeri hatayı sessizce yutuyordu;
+   * gözcü onları izliyor, sonucu tek bir şeritte gösteriyoruz.
+   */
+  const [aiHal, setAiHal] = useState<AiDurum>(() => aiDurumu());
+  useEffect(() => {
+    aiGozcusunuKur();
+    return aiDurumunuDinle(setAiHal);
+  }, []);
+
   const handleSelectArea = (area: AreaType, itemId?: string) => {
     // 'blog' ve 'kitap' artık tek sekme: Yazı İşleri
     const sekme = area === 'blog' || area === 'kitap' ? 'yazi' : area;
@@ -889,6 +904,24 @@ export default function App() {
         </div>
       </header>
 
+      {/* AI ucu ulaşılamıyorsa tek yerden söyle — düğmeler sessiz kalmasın */}
+      {(aiHal.hal === 'sunucu-yok' || aiHal.hal === 'hata') && (
+        <div className="max-w-[1400px] w-full mx-auto px-4 md:px-8 pt-4">
+          <div className="flex items-start gap-3 px-4 py-3 rounded-xl border border-[#D35057]/45 bg-[#D35057]/8">
+            <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0 text-[#D35057]" />
+            <p className="flex-1 text-[12px] leading-snug text-[#B23A40]">
+              {aiHal.mesaj}
+            </p>
+            <button
+              onClick={aiUyarisiniKapat}
+              className="shrink-0 text-[#B23A40] hover:opacity-70 cursor-pointer text-xs font-mono"
+            >
+              kapat
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Primary Workspace Navigation Grid */}
       <div className="flex-1 max-w-[1400px] w-full mx-auto px-4 md:px-8 py-6 flex flex-col lg:flex-row gap-6">
         
@@ -955,6 +988,12 @@ export default function App() {
             })}
           </nav>
           
+          {/*
+            Sayfanın kendi rayı buraya basılıyor (SayfaRayi, portal ile).
+            Ana rayın altında durur; ray daraltılınca gizlenir.
+          */}
+          {!rayDar && <div id={SAYFA_RAYI_YUVASI} />}
+
           {/*
             Varlık sayısı. Eskiden ham `items.length` yazılıyordu: arşivlenmişi,
             öneriyi, harita ayarını, kanal kaydını, günlük notu — hepsini
