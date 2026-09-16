@@ -114,7 +114,7 @@ _GUNE_YON = 219.0
 _GUNE_TEPE = (-5250.0, -4350.0)
 
 ZIRVELER = [
-    ("tepe_ana",     "Düzada Tepesi", (1400, -2500), 742, 2700, 1450,  28),
+    ("tepe_ana",     "Ada Tepesi", (1400, -2500), 742, 2700, 1450,  28),
     ("tepe_kuzey",   "Kuzey Sırtı",   (2300,  3000), 386, 2000,  900, -18),
     ("tepe_ciftlik", "Çetmi Sırtı",   (5600, -2600), 254, 1600,  820,  62),
     ("tepe_bati",    "Fener Burnu",   (-5100, 4200), 118,  760,  460,  35),
@@ -1026,7 +1026,15 @@ binalar = []
 
 def bina(bid, ad, geom, yukseklik, tur, mahalle, wiki_id=None, kat=None,
          taban=None):
-    """Yapıyı kaydeder. `taban`, yapının oturduğu arazi kotu — verilmezse
+    """Yapıyı kaydeder.
+
+    `wiki_id` VERİLMEZSE yapının wiki maddesi yok demektir (null). Eskiden
+    kimliğin kendisi wikiId olarak yazılıyordu; o yüzden haritada bir
+    apartmana tıklayınca var olmayan bir maddeye gidiliyor, hiçbir şey
+    açılmıyordu. Kemal'in 16 Eylül kararı (H8): madde alacak yapı açıkça
+    işaretlenir, geri kalanı bilerek bağlantısızdır.
+
+    `taban`, yapının oturduğu arazi kotu — verilmezse
     ağırlık merkezindeki rakımdan örneklenir. Prizma bu kottan yükselir,
     böylece yamaçtaki yapı havada durmuyor."""
     if not ada.contains(geom):
@@ -1036,7 +1044,7 @@ def bina(bid, ad, geom, yukseklik, tur, mahalle, wiki_id=None, kat=None,
         taban = float(yukselti(c.x, c.y))
     binalar.append({
         "id": bid, "ad": ad, "geom": geom, "yukseklik": yukseklik,
-        "tur": tur, "mahalle": mahalle, "wikiId": wiki_id or bid, "kat": kat,
+        "tur": tur, "mahalle": mahalle, "wikiId": wiki_id, "kat": kat,
         "taban": round(taban, 1),
     })
 
@@ -1282,17 +1290,20 @@ bina("bina_surek", "Küçükçetmi Sürek Kulübü", dikdortgen(6320, -2320, 54,
 # Merkez Mahallesi — kamu binaları ve apartmanlar
 # Kasaba ~310 m kotta bir sırtın üstünde. Ege kasabaları kıyıda değil,
 # içerideki sırtın üstünde kurulur; konum MERKEZ_KASABA'da tanımlı.
+# Son sütun: wiki maddesi. Belediye, Okul ve Pazar madde alacak (H8);
+# apartmanlar bilerek bağlantısız — adaya doku katıyorlar, anlatacak
+# hikâyeleri yok.
 merkez_yapilar = [
-    ("bina_belediye", "Belediye Binası", (-100, 220), 44, 24, 12, 3),
-    ("bina_okul", "Düzada İlkokulu", (220, -50), 52, 20, 9, 2),
-    ("bina_pazar", "Merkez Pazarı", (-260, -140), 36, 30, 7, 1),
-    ("bina_apt1", "Çarşı Apartmanı", (120, 270), 22, 18, 15, 5),
-    ("bina_apt2", "Zeytinli Apartmanı", (-200, 50), 20, 20, 12, 4),
+    ("bina_belediye", "Belediye Binası", (-100, 220), 44, 24, 12, 3, "mekan_belediye"),
+    ("bina_okul", "Düzada İlkokulu", (220, -50), 52, 20, 9, 2, "mekan_okul"),
+    ("bina_pazar", "Merkez Pazarı", (-260, -140), 36, 30, 7, 1, "mekan_pazar"),
+    ("bina_apt1", "Çarşı Apartmanı", (120, 270), 22, 18, 15, 5, None),
+    ("bina_apt2", "Zeytinli Apartmanı", (-200, 50), 20, 20, 12, 4, None),
 ]
-for bid, ad, (dx, dy), w, h, yuk, kat in merkez_yapilar:
+for bid, ad, (dx, dy), w, h, yuk, kat, wid in merkez_yapilar:
     bina(bid, ad,
          dikdortgen(MERKEZ_KASABA[0] + dx, MERKEZ_KASABA[1] + dy, w, h, 12),
-         yuk, "yapı", "yer_merkez", kat=kat)
+         yuk, "yapı", "yer_merkez", wiki_id=wid, kat=kat)
 
 # Kemsköy Caddesi boyunca sıra yapılar (İskele Mahallesi).
 # Cadde koyun kuzey kıyısını izler; otel koyun karşı kolunda kalır.
@@ -1316,7 +1327,7 @@ for i in range(7):
 # Tarihi Meyhane — otelin yanında, otele ait değil.
 # Kemal: "otel ile homojen bir bağı yok ama yıllardır birlikte anılıyorlar."
 # Yerleşkenin karaya bakan ucunda, bahçenin gerisinde ayrı bir kütle.
-bina("bina_meyhane", "Tarihi Meyhane",
+bina("bina_meyhane", "Sade Meze",
      yerlesim_dikdortgen(-150, 96, 26, 14, 18.0), 7, "meyhane", "yer_iskele",
      wiki_id="mekan_meyhane", kat=1)
 
@@ -1327,10 +1338,10 @@ bina("bina_liman_depo", "Liman Deposu", dikdortgen(lx, ly, 46, 22, -28), 8,
 lx2, ly2 = kara(149, 0.82)
 bina("bina_liman_ofis", "Liman İdare Binası", dikdortgen(lx2, ly2, 24, 20, -28), 11,
      "yapı", "yer_liman", kat=3)
-# Liman Kafesi: önce otelin iskelesindeydi, Kemal Liman Mahallesine taşıdı.
-# Adı şimdilik jenerik.
+# Dondurmacı Kızlar: önce otelin iskelesindeydi, Kemal Liman Mahallesine
+# taşıdı. Adını 16 Eylül'de koydu.
 lx3, ly3 = kara(155, 0.86)
-bina("bina_liman_kafe", "Liman Kafesi", dikdortgen(lx3, ly3, 18, 14, -24), 5,
+bina("bina_liman_kafe", "Dondurmacı Kızlar", dikdortgen(lx3, ly3, 18, 14, -24), 5,
      "kafe", "yer_liman", wiki_id="mekan_liman_kafe", kat=1)
 
 assert (ox, oy) == OTEL_MERKEZ, "ox/oy gölgelendi — yerleske() bozulur"
@@ -1813,6 +1824,14 @@ for b in binalar:
         c = b["geom"].centroid
         etiketler.append({"id": f"etk_{b['id']}", "ad": b["ad"], "tur": "yapi",
                           "xy": (c.x, c.y), "wikiId": b["wikiId"], "oncelik": 2})
+    elif b["wikiId"]:
+        # Maddesi olan ama simge yapı olmayanlar: Sade Meze, Dondurmacı
+        # Kızlar, Belediye, Okul, Pazar. Adları haritada görünmüyordu, o
+        # yüzden Kemal koyduğu adları haritada bulamıyordu. "mekan" türü
+        # yaklaşınca açılır — kalabalık yapmaz.
+        c = b["geom"].centroid
+        etiketler.append({"id": f"etk_{b['id']}", "ad": b["ad"], "tur": "mekan",
+                          "xy": (c.x, c.y), "wikiId": b["wikiId"], "oncelik": 3})
 
 # Otel yerleşkesindeki ikincil yapılar — yalnızca iyice yaklaşınca görünür
 YERLESKE_ETIKET = {

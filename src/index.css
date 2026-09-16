@@ -172,6 +172,20 @@
   text-shadow: none;
 }
 
+/* maddesi olan küçük mekânlar: aynı dil, bir tık daha sakin ki
+   yakınlaşınca simge yapılarla yarışmasınlar */
+.duzada-etiket[data-tur='mekan'] .duzada-etiket-ad {
+  font-family: var(--font-serif);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: #2a3a63;
+  background: rgba(244, 239, 228, 0.76);
+  padding: 1px 4px;
+  border: 1px solid rgba(138, 119, 87, 0.28);
+  border-radius: 2px;
+  text-shadow: none;
+}
+
 /* MapLibre denetimlerini kâğıt paletine çek */
 .duzada-harita .maplibregl-ctrl-group {
   background: rgba(244, 239, 228, 0.94);

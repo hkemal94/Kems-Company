@@ -12,6 +12,8 @@ interface WikiShellProps {
   selectedId?: string | null;
   onSelect?: (id: string | null) => void;
   onEdit?: (id: string) => void;
+  /** W3 · maddeden haritaya geçiş */
+  onHaritayaGit?: (binaId: string) => void;
   readOnly?: boolean;
 }
 
@@ -26,6 +28,7 @@ export const WikiShell: React.FC<WikiShellProps> = ({
   selectedId: controlledId,
   onSelect,
   onEdit,
+  onHaritayaGit,
   readOnly = false
 }) => {
   const [internalId, setInternalId] = useState<string | null>(null);
@@ -210,6 +213,7 @@ export const WikiShell: React.FC<WikiShellProps> = ({
             onNavigate={navigate}
             mode={mode}
             onEdit={onEdit}
+            onHaritayaGit={onHaritayaGit}
           />
         ) : (
           <>

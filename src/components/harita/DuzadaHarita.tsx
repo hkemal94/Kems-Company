@@ -47,6 +47,9 @@ const ETIKET_ARALIK: Record<string, [number, number]> = {
   su: [10.8, 14.4],
   zirve: [10.9, 15.6],
   yapi: [13.2, 22],
+  // maddesi olan küçük mekânlar: Sade Meze, Dondurmacı Kızlar, Belediye…
+  // Mahalle adları söndükten (15.2) hemen sonra açılır.
+  mekan: [15.2, 22],
   // otel yerleşkesindeki ikincil yapılar en son açılır
   yerleske: [16.7, 22],
   // yol adları (H6): kalabalık yapmasın diye kademeli açılır —
@@ -165,7 +168,9 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
         const aralik = ETIKET_ARALIK[tur];
         const gorunur = !aralik || (z >= aralik[0] && z <= aralik[1]);
         el.style.opacity = gorunur ? '1' : '0';
-        el.style.pointerEvents = gorunur && tur === 'yapi' ? 'auto' : 'none';
+        el.style.pointerEvents =
+          gorunur && (tur === 'yapi' || tur === 'mekan' || tur === 'yerleske')
+            ? 'auto' : 'none';
       });
     };
 
@@ -189,7 +194,8 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
           const { kok, ic } = etiketElemani(p);
           ic.style.transition = 'opacity 240ms ease';
 
-          if (p.wikiId && tur === 'yapi') {
+          // 'mekan' ve 'yerleske' etiketleri de tıklanabilir olsun
+          if (p.wikiId && (tur === 'yapi' || tur === 'mekan' || tur === 'yerleske')) {
             ic.style.cursor = 'pointer';
             ic.addEventListener('click', ev => {
               ev.stopPropagation();
@@ -200,8 +206,10 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
           // Yapı adı binanın üstünde dursun, üzerine binmesin
           const m = new maplibregl.Marker({
             element: kok,
-            anchor: tur === 'yapi' ? 'bottom' : 'center',
-            offset: tur === 'yapi' ? [0, -14] : [0, 0]
+            // yapı ve mekân adları kendi binalarının üstünde dursun,
+            // üzerine binip küçük kütleyi gizlemesin
+            anchor: tur === 'yapi' || tur === 'mekan' ? 'bottom' : 'center',
+            offset: tur === 'yapi' ? [0, -14] : tur === 'mekan' ? [0, -10] : [0, 0]
           })
             .setLngLat(koordinat)
             .addTo(map);
@@ -563,7 +571,10 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
           : p.alanKm2 ? `${p.alanKm2} km²` : undefined;
 
       setSecim({
-        wikiId: String(p.wikiId || p.id || ''),
+        // H8: wikiId yoksa yoktur. Eskiden kimliğe düşülüyordu; o yüzden
+        // apartmana tıklayınca "Maddeye git" çıkıyor, basınca hiçbir şey
+        // olmuyordu. Artık düğme yalnız gerçek madde varsa görünüyor.
+        wikiId: typeof p.wikiId === 'string' && p.wikiId ? p.wikiId : '',
         ad: String(p.ad || ''),
         tur: p.katman === 'bina' ? String(p.tur || 'yapı') : 'Mahalle',
         detay

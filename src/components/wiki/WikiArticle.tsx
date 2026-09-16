@@ -5,6 +5,7 @@ import { resolveAllRelations, getRelationLabels, isEntityUnlinked } from '../../
 import { AutoLinkedText, LinkIndexEntry } from './autoLink';
 import { WikiRooms } from './WikiRooms';
 import { WikiPeople } from './WikiPeople';
+import { WikiHarita, haritaKarsiligiVar } from './WikiHarita';
 import {
   getKunyeFields,
   getArticleBody,
@@ -70,6 +71,8 @@ interface WikiArticleProps {
   /** 'okuma' ziyaretçi yüzü, 'yonetim' Kemal'in yüzü */
   mode: 'okuma' | 'yonetim';
   onEdit?: (id: string) => void;
+  /** W3 · "Haritada göster" — verilmezse düğme çıkmaz */
+  onHaritayaGit?: (binaId: string) => void;
 }
 
 export const WikiArticle: React.FC<WikiArticleProps> = ({
@@ -78,7 +81,8 @@ export const WikiArticle: React.FC<WikiArticleProps> = ({
   linkIndex,
   onNavigate,
   mode,
-  onEdit
+  onEdit,
+  onHaritayaGit
 }) => {
   const admin = mode === 'yonetim';
 
@@ -89,6 +93,8 @@ export const WikiArticle: React.FC<WikiArticleProps> = ({
   );
   const body = useMemo(() => getArticleBody(item), [item]);
   const completeness = useMemo(() => kunyeCompleteness(item), [item]);
+  /** W3: yan sütun künye boş olsa da harita kartı için açılabilir */
+  const haritada = useMemo(() => haritaKarsiligiVar(item), [item]);
 
   /** Bu mekâna bağlı odalar — ayrı ve katlanmış gösterilir */
   const rooms = useMemo(
@@ -361,8 +367,8 @@ export const WikiArticle: React.FC<WikiArticleProps> = ({
           )}
         </div>
 
-        {/* --- Künye --- */}
-        {kunye.length > 0 && (
+        {/* --- Künye + Haritada --- */}
+        {(kunye.length > 0 || haritada) && (
           <aside
             className={
               body.length > 0
@@ -370,6 +376,7 @@ export const WikiArticle: React.FC<WikiArticleProps> = ({
                 : 'order-2 mt-2'
             }
           >
+            {kunye.length > 0 && (
             <div className="border border-bej/50 dark:border-lacivert-600/50 rounded-lg overflow-hidden bg-krem-acik/70 dark:bg-lacivert-800/40 archive-shadow">
               <h2 className="px-4 py-2.5 font-mono text-[10px] uppercase tracking-[0.14em] text-gri dark:text-bej/70 border-b border-bej/40 dark:border-lacivert-600/40 bg-bej/12 dark:bg-lacivert-600/25">
                 Künye
@@ -415,6 +422,13 @@ export const WikiArticle: React.FC<WikiArticleProps> = ({
                 </div>
               )}
             </div>
+            )}
+
+            <WikiHarita
+              item={item}
+              onNavigate={onNavigate}
+              onHaritayaGit={onHaritayaGit}
+            />
           </aside>
         )}
       </div>

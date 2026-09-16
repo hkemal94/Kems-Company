@@ -24,6 +24,9 @@ import { Item, ItemType, BrandKit, AreaType, WikiSection } from '../types';
 import { compressImageBase64 } from '../lib/imageCompressor';
 import { resolveAllRelations, cleanupRelationsOnDelete } from '../utils/relations';
 import ConsistencyChecker from './ConsistencyChecker';
+import {
+  MARKA_KUNYELERI, markayiBul, kunyeyiBirlestir, kunyedenYeni
+} from '../data/markaKunyeleri';
 
 interface MarkalarProps {
   items: Item[];
@@ -44,6 +47,44 @@ export default function Markalar({
 }: MarkalarProps) {
   const [selectedBrandId, setSelectedBrandId] = useState<string | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+
+  /**
+   * M1 · Canva künyelerini uygula.
+   *
+   * Dirlik ve Küçükçetmi'nin armaları, renkleri ve tipografisi Canva'da
+   * duruyordu; uygulamada boş kayıtlardı. Bu düğme ikisini birleştiriyor.
+   * Birleştirme eksiltmez: yüklenmiş logo, moodboard ve notlar korunur.
+   * Tek istisna renk paleti — Kemal'in kararı gereği Canva kazanır.
+   */
+  const [kunyeDurumu, setKunyeDurumu] =
+    useState<'bos' | 'calisiyor' | 'bitti'>('bos');
+  const [kunyeRaporu, setKunyeRaporu] = useState<string[]>([]);
+
+  const kunyeleriUygula = async () => {
+    if (kunyeDurumu === 'calisiyor') return;
+    setKunyeDurumu('calisiyor');
+    const rapor: string[] = [];
+    try {
+      for (const kunye of MARKA_KUNYELERI) {
+        const mevcut = markayiBul(items, kunye);
+        if (mevcut) {
+          await onUpdateItem(kunyeyiBirlestir(mevcut, kunye));
+          rapor.push(`${kunye.ad} · künye birleştirildi`);
+        } else {
+          await onAddItem(kunyedenYeni(kunye));
+          rapor.push(`${kunye.ad} · kuruldu`);
+        }
+      }
+      setKunyeRaporu(rapor);
+      setKunyeDurumu('bitti');
+    } catch (e) {
+      setKunyeRaporu([
+        `Hata: ${e instanceof Error ? e.message : 'bilinmeyen'}`,
+        ...rapor
+      ]);
+      setKunyeDurumu('bitti');
+    }
+  };
   
   // Brand creation states
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -419,6 +460,18 @@ export default function Markalar({
             onAddItem={onAddItem}
             buttonClassName="flex items-center gap-1.5 text-xs font-mono px-3.5 py-2 bg-[#FAF8F5] hover:bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] text-[#6A5E4C] dark:text-[#A6B0C9] rounded-lg cursor-pointer transition-all"
           />
+          {/* M1 · Canva'daki gerçek künyeleri uygulamaya birleştir */}
+          <button
+            onClick={kunyeleriUygula}
+            disabled={kunyeDurumu === 'calisiyor'}
+            title="Canva'daki arma, palet ve tipografi bilgilerini markalara işler. Yüklenmiş logolar korunur."
+            className="flex items-center gap-1.5 text-xs font-mono px-3.5 py-2 bg-[#FAF8F5] hover:bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] text-[#6A5E4C] dark:text-[#A6B0C9] rounded-lg cursor-pointer transition-all disabled:opacity-40"
+          >
+            <Palette className="w-4 h-4" />
+            <span>
+              {kunyeDurumu === 'calisiyor' ? 'İşleniyor…' : 'Canva künyelerini uygula'}
+            </span>
+          </button>
           <button
             onClick={() => setShowCreateForm(true)}
             className="flex items-center gap-1.5 text-xs font-mono px-3.5 py-2 bg-[#D35057] text-white rounded-lg hover:bg-[#B23A40] transition-colors cursor-pointer"
@@ -429,8 +482,29 @@ export default function Markalar({
         </div>
       </div>
 
+      {kunyeDurumu === 'bitti' && kunyeRaporu.length > 0 && (
+        <div className="mb-5 flex items-start gap-3 px-4 py-3 rounded-lg border border-[#CFC5B4] dark:border-[#2C3C72] bg-[#FAF8F5] dark:bg-[#13204A]">
+          <Palette className="w-4 h-4 mt-0.5 shrink-0 text-[#6A5E4C] dark:text-[#A6B0C9]" />
+          <div className="min-w-0">
+            <p className="text-[11px] font-mono text-[#6A5E4C] dark:text-[#A6B0C9]">
+              {kunyeRaporu.join(' · ')}
+            </p>
+            <p className="mt-1 text-[11px] text-[#9A8C76] dark:text-[#6E7CA0]">
+              Renk paleti Canva'daki marka kitine göre güncellendi. Yüklediğin
+              logolar ve moodboard'lar olduğu gibi duruyor.
+            </p>
+          </div>
+          <button
+            onClick={() => { setKunyeDurumu('bos'); setKunyeRaporu([]); }}
+            className="ml-auto shrink-0 text-[#6A5E4C] dark:text-[#A6B0C9] hover:text-[#D35057] cursor-pointer"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        
+
         {/* LEFT BAR: BRAND NAVIGATION */}
         <div className="lg:col-span-1 space-y-4">
           <div className="bg-[#FAF8F5] dark:bg-[#13204A] border border-[#CFC5B4] dark:border-[#2C3C72] rounded-xl p-4 archive-shadow paper-grain space-y-3">

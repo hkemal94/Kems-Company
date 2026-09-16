@@ -12,6 +12,9 @@ import ConsistencyChecker from './ConsistencyChecker';
 import { WikiShell } from './wiki/WikiShell';
 
 import { useHaritaDuzeni } from '../lib/haritaDuzeni';
+import {
+  haritadaAra, maddeTohumu, kunyeSatiri, type HaritaKunyesi
+} from '../lib/haritaMaddesi';
 
 // MapLibre haritası ~1 MB'lık bir paket (motor + arazi verisi). Sekme
 // açılmadan indirilmesin diye tembel yükleniyor.
@@ -501,6 +504,10 @@ export default function Duzada({
       .replace(/[çğıöşü]/g, c => 'cgiosu'['çğıöşü'.indexOf(c)])
       .replace(/[^a-z0-9]/g, '');
 
+  /** Haritadan gelip madde bulunamayınca açılan kutu (W1) */
+  const [eksikMadde, setEksikMadde] = useState<HaritaKunyesi | null>(null);
+  const [maddeKuruluyor, setMaddeKuruluyor] = useState(false);
+
   const haritaMaddesiniAc = (wikiId: string) => {
     let hedef = items.find(it => it.id === wikiId);
     if (!hedef && wikiId.startsWith('yer_')) {
@@ -514,6 +521,24 @@ export default function Duzada({
     if (hedef) {
       setActiveTab('wiki');
       onSelectItem(hedef.id);
+      return;
+    }
+    // W1: madde yok. Eskiden burada sessizce hiçbir şey olmuyordu.
+    // Haritada karşılığı varsa maddeyi kurmayı teklif et.
+    const kunye = haritadaAra(wikiId);
+    if (kunye) setEksikMadde(kunye);
+  };
+
+  const eksikMaddeyiKur = async () => {
+    if (!eksikMadde || maddeKuruluyor) return;
+    setMaddeKuruluyor(true);
+    try {
+      await onAddItem(maddeTohumu(eksikMadde));
+      setActiveTab('wiki');
+      onSelectItem(eksikMadde.wikiId);
+      setEksikMadde(null);
+    } finally {
+      setMaddeKuruluyor(false);
     }
   };
 
@@ -2177,6 +2202,7 @@ export default function Duzada({
             setActiveTab('wiki');
             onSelectItem(id);
           }}
+          onHaritayaGit={() => setActiveTab('harita')}
         />
       )}
 
@@ -2209,6 +2235,50 @@ export default function Duzada({
                 className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-semibold font-mono cursor-pointer transition-colors"
               >
                 Eminim, Devam Et
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* W1 · Haritadaki yapının maddesi yok — kurmayı teklif et */}
+      {eksikMadde && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs font-sans"
+          onClick={() => setEksikMadde(null)}
+        >
+          <div
+            className="bg-white dark:bg-[#12224A] border-2 border-[#CFC5B4] dark:border-[#2C3C72] max-w-md w-full rounded-2xl p-6 space-y-4 shadow-xl"
+            onClick={e => e.stopPropagation()}
+          >
+            <div>
+              <h3 className="font-serif font-bold text-lg text-stone-800 dark:text-[#F3EFE8]">
+                {eksikMadde.ad}
+              </h3>
+              <p className="mt-1 font-mono text-[11px] text-stone-500 dark:text-[#6E7CA0]">
+                {kunyeSatiri(eksikMadde)}
+              </p>
+            </div>
+
+            <p className="text-sm text-stone-600 dark:text-stone-300 leading-relaxed">
+              Bu yapının henüz wiki maddesi yok. Haritadaki bilgilerle boş bir
+              künye açayım mı? Ad, mahalle, kat ve rakım haritadan gelir;
+              metni sen yazarsın.
+            </p>
+
+            <div className="flex justify-end gap-2.5 pt-1">
+              <button
+                onClick={() => setEksikMadde(null)}
+                className="px-4 py-2 bg-stone-100 hover:bg-stone-200 dark:bg-[#17345A] dark:hover:bg-[#17345A]/80 text-stone-700 dark:text-[#A6B0C9] rounded-lg text-xs font-semibold font-mono cursor-pointer transition-colors"
+              >
+                Şimdi değil
+              </button>
+              <button
+                onClick={eksikMaddeyiKur}
+                disabled={maddeKuruluyor}
+                className="px-4 py-2 bg-[#1B2A4A] hover:opacity-90 disabled:opacity-40 text-[#F3EFE8] rounded-lg text-xs font-semibold font-mono cursor-pointer transition-opacity"
+              >
+                {maddeKuruluyor ? 'Kuruluyor…' : 'Maddeyi aç'}
               </button>
             </div>
           </div>
