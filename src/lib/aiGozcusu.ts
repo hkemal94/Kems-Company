@@ -65,32 +65,55 @@ export function aiGozcusunuKur() {
   if (kuruldu || typeof window === 'undefined') return;
   kuruldu = true;
 
-  const asil = window.fetch.bind(window);
+  try {
+    const asil = window.fetch ? window.fetch.bind(window) : undefined;
+    if (!asil) return;
 
-  window.fetch = async (girdi: RequestInfo | URL, ayar?: RequestInit) => {
-    if (!aiIstegiMi(girdi)) return asil(girdi, ayar);
+    const sariliFetch = async (girdi: RequestInfo | URL, ayar?: RequestInit) => {
+      if (!aiIstegiMi(girdi)) return asil(girdi, ayar);
 
-    try {
-      const yanit = await asil(girdi, ayar);
-      if (yanit.status === 404) {
+      try {
+        const yanit = await asil(girdi, ayar);
+        if (yanit.status === 404) {
+          yay({
+            hal: 'sunucu-yok',
+            mesaj: 'Yapay zekâ ucu (/api/ai) bu ortamda yayında değil — '
+              + 'önizlemede yalnız arayüz çalışıyor, sunucu ayrıca başlatılmalı. '
+              + 'AI düğmeleri bu yüzden bir şey yapmıyor.'
+          });
+        } else if (!yanit.ok) {
+          yay({ hal: 'hata', mesaj: `Yapay zekâ sunucusu ${yanit.status} döndü.` });
+        } else if (durum.hal !== 'calisiyor') {
+          yay({ hal: 'calisiyor' });
+        }
+        return yanit;
+      } catch (e) {
         yay({
           hal: 'sunucu-yok',
-          mesaj: 'Yapay zekâ ucu (/api/ai) bu ortamda yayında değil — '
-            + 'önizlemede yalnız arayüz çalışıyor, sunucu ayrıca başlatılmalı. '
-            + 'AI düğmeleri bu yüzden bir şey yapmıyor.'
+          mesaj: 'Yapay zekâ sunucusuna ulaşılamadı. AI düğmeleri çalışmayacak.'
         });
-      } else if (!yanit.ok) {
-        yay({ hal: 'hata', mesaj: `Yapay zekâ sunucusu ${yanit.status} döndü.` });
-      } else if (durum.hal !== 'calisiyor') {
-        yay({ hal: 'calisiyor' });
+        throw e;
       }
-      return yanit;
-    } catch (e) {
-      yay({
-        hal: 'sunucu-yok',
-        mesaj: 'Yapay zekâ sunucusuna ulaşılamadı. AI düğmeleri çalışmayacak.'
+    };
+
+    // Bazı tarayıcılarda / iframe ortamlarında window.fetch getter-only'dir.
+    // Doğrudan window.fetch = ... ataması TypeError fırlatır.
+    // Object.defineProperty ile own property olarak tanımlanır.
+    try {
+      Object.defineProperty(window, 'fetch', {
+        value: sariliFetch,
+        writable: true,
+        configurable: true,
+        enumerable: true
       });
-      throw e;
+    } catch {
+      try {
+        (window as any).fetch = sariliFetch;
+      } catch {
+        // fetch değiştirilemiyorsa sessizce geç
+      }
     }
-  };
+  } catch (err) {
+    console.warn('aiGozcusu kurulamadı:', err);
+  }
 }

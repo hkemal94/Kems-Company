@@ -32,9 +32,26 @@
         "theme": { "type": "string" }
       },
       "required": ["theme"]
+    },
+    "HaritaDuzeni": {
+      "title": "HaritaDuzeni",
+      "description": "Düzada map layout adjustments (boundaries, roads, places)",
+      "type": "object",
+      "properties": {
+        "surum": { "type": "number" },
+        "guncelleme": { "type": "number" },
+        "hatlar": { "type": "object" },
+        "yollar": { "type": "object" },
+        "mekanlar": { "type": "object" }
+      },
+      "required": ["surum", "guncelleme", "hatlar", "yollar"]
     }
   },
   "firestore": {
+    "/duzada/{docId}": {
+      "schema": "HaritaDuzeni",
+      "description": "World map layout modifications for Düzada"
+    },
     "/users/{userId}/items/{itemId}": {
       "schema": "Item",
       "description": "Creative universe items owned by a user"

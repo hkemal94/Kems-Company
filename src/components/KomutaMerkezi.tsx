@@ -32,7 +32,8 @@ import {
   FileText, 
   Calendar,
   Gamepad2,
-  Users
+  Users,
+  RefreshCw
 } from 'lucide-react';
 import { Item, AreaType, ItemType } from '../types';
 import { isEntityUnlinked, resolveAllRelations } from '../utils/relations';
@@ -67,6 +68,11 @@ interface KomutaMerkeziProps {
   onOpenHizliNot?: () => void;
   onToggleTheme?: () => void;
   currentTheme?: 'arşiv' | 'dark';
+
+  // Canlı veri çekim kontrolleri
+  onRefreshLive?: () => Promise<void>;
+  lastSyncTime?: Date;
+  isSyncing?: boolean;
 }
 
 export default function KomutaMerkezi({
@@ -80,7 +86,10 @@ export default function KomutaMerkezi({
   onOpenSearch,
   onOpenHizliNot,
   onToggleTheme,
-  currentTheme = 'arşiv'
+  currentTheme = 'arşiv',
+  onRefreshLive,
+  lastSyncTime,
+  isSyncing = false
 }: KomutaMerkeziProps) {
   // General priority state
   const [newPriorityText, setNewPriorityText] = useState('');
@@ -279,15 +288,26 @@ export default function KomutaMerkezi({
   const statsSummary = useMemo(() => {
     return {
       karakter: items.filter(i => !i.archived && !i.isProposal && (i.type === 'karakter' || i.type === 'kisi')).length,
-      yer: items.filter(i => !i.archived && !i.isProposal && (i.type === 'mekân' || i.type === 'yer' || i.type === 'dükkân')).length,
-      marka: items.filter(i => !i.archived && !i.isProposal && i.type === 'marka').length,
+      yer: items.filter(i => !i.archived && !i.isProposal && (i.type === 'mekân' || i.type === 'yer' || i.type === 'dükkân' || i.type === 'oda' || i.type === 'kulüp')).length,
+      marka: items.filter(i => !i.archived && !i.isProposal && (i.type === 'marka' || i.area === 'markalar')).length,
       olay: items.filter(i => !i.archived && !i.isProposal && i.type === 'olay').length,
       tema: items.filter(i => !i.archived && !i.isProposal && i.type === 'tema').length,
       drop: items.filter(i => !i.archived && !i.isProposal && i.type === 'drop').length,
-      urun: items.filter(i => !i.archived && !i.isProposal && i.type === 'merch_urun').length,
+      urun: items.filter(i => !i.archived && !i.isProposal && (i.type === 'merch_urun' || i.type === 'ürün')).length,
       yazi: items.filter(i => !i.archived && !i.isProposal && i.type === 'blog_post').length,
-      bolum: items.filter(i => !i.archived && !i.isProposal && i.type === 'kitap_bolum' && !i.tags.includes('oyun-tasarimi')).length,
+      bolum: items.filter(i => !i.archived && !i.isProposal && (i.type === 'kitap_bolum' || i.type === 'kitap_proje') && !i.tags?.includes('oyun-tasarimi')).length,
+      fikir: items.filter(i => !i.archived && !i.isProposal && (i.type === 'fikir' || i.area === 'brainstorm')).length,
+      ilham: items.filter(i => !i.archived && !i.isProposal && (i.type === 'ilham_gorsel' || i.area === 'ilham')).length,
     };
+  }, [items]);
+
+  const totalAktifVarlik = useMemo(() => {
+    const SAYILMAZ_TIP = new Set(['map_settings', 'channel']);
+    return items.filter(
+      i => !i.archived && !i.isProposal
+        && !SAYILMAZ_TIP.has(i.type)
+        && !i.tags?.includes('gunluk-not')
+    ).length;
   }, [items]);
 
   // 7. GÜNLÜK NOT / BUGÜNÜN DÜŞÜNCESİ
@@ -1119,15 +1139,46 @@ export default function KomutaMerkezi({
 
       {/* 6. EVREN ÖZETİ (Live Stats Panel, Clickable Counters) */}
       <div id="km-evren" className="bg-white/80 dark:bg-[#13204A]/40 border border-[#CFC5B4]/80 dark:border-[#2C3C72]/80 rounded-xl p-6 archive-shadow paper-grain scroll-mt-24">
-        <h2 className="text-[12px] font-bold text-[#6A5E4C] dark:text-[#A6B0C9] uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-          <CheckSquare className="w-4 h-4 text-[#D35057]" /> EVREN ÖZETİ (Varlık Sayımları)
-        </h2>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+          <h2 className="text-[12px] font-bold text-[#6A5E4C] dark:text-[#A6B0C9] uppercase tracking-[0.2em] flex items-center gap-2">
+            <CheckSquare className="w-4 h-4 text-[#D35057]" /> EVREN ÖZETİ (Varlık Sayımları)
+          </h2>
+          
+          {/* Canlı Veri Göstergesi ve Yenile Butonu */}
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <div 
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 text-[11px] font-mono text-emerald-700 dark:text-emerald-300"
+              title="Firestore canlı veri akışı aktif"
+            >
+              <span className={`w-2 h-2 rounded-full bg-emerald-500 ${isSyncing ? 'animate-ping' : 'animate-pulse'}`} />
+              <span className="font-medium">{isSyncing ? 'Canlı Çekiliyor...' : 'Canlı Akış'}</span>
+              {lastSyncTime && (
+                <span className="opacity-75 text-[10px] ml-0.5">
+                  ({lastSyncTime.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })})
+                </span>
+              )}
+            </div>
+
+            {onRefreshLive && (
+              <button
+                type="button"
+                onClick={() => onRefreshLive()}
+                disabled={isSyncing}
+                title="Veritabanından en güncel sayıları anında çek"
+                className="flex items-center gap-1.5 px-3 py-1 bg-white dark:bg-[#17345A] border border-[#CFC5B4] dark:border-[#2C3C72] text-[#6A5E4C] dark:text-[#A6B0C9] hover:text-[#D35057] hover:border-[#D35057] rounded-lg text-xs font-mono transition-all cursor-pointer shadow-xs disabled:opacity-50"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin text-[#D35057]' : ''}`} />
+                <span>{isSyncing ? 'Çekiliyor...' : 'Şimdi Yenile'}</span>
+              </button>
+            )}
+          </div>
+        </div>
         
         <p className="text-xs text-[#6A5E4C] dark:text-[#A6B0C9] mb-5">
-          Kems Company kurgusal evreninde kayıtlı olan toplam <strong className="text-[#D35057] font-bold">{items.length}</strong> varlığın canlı dağılımı. İlgili listeye gitmek için sayımlara tıklayın.
+          Kems Company kurgusal evreninde kayıtlı olan toplam <strong className="text-[#D35057] font-bold">{totalAktifVarlik}</strong> aktif varlığın canlı dağılımı ({items.length} toplam kayıt). İlgili listeye gitmek için sayımlara tıklayın.
         </p>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-9 gap-4 text-center font-mono">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-11 gap-3 text-center font-mono">
           
           {/* Kişi */}
           <div 
@@ -1144,7 +1195,7 @@ export default function KomutaMerkezi({
             className="p-3 bg-[#FAF8F5] hover:bg-[#F3EFE8] dark:bg-[#17345A]/40 border border-[#CFC5B4]/50 rounded-lg cursor-pointer transition-all hover:scale-[1.03] shadow-3xs"
           >
             <span className="text-2xl font-bold text-[#1B2A4A] dark:text-[#F3EFE8] block">{statsSummary.yer}</span>
-            <span className="text-[9px] text-[#6A5E4C] dark:text-[#A6B0C9] uppercase font-bold block mt-1">Yer / Mekân</span>
+            <span className="text-[9px] text-[#6A5E4C] dark:text-[#A6B0C9] uppercase font-bold block mt-1">Yer / Mekân / Oda</span>
           </div>
 
           {/* Marka */}
@@ -1207,7 +1258,25 @@ export default function KomutaMerkezi({
             className="p-3 bg-[#FAF8F5] hover:bg-[#F3EFE8] dark:bg-[#17345A]/40 border border-[#CFC5B4]/50 rounded-lg cursor-pointer transition-all hover:scale-[1.03] shadow-3xs"
           >
             <span className="text-2xl font-bold text-[#1B2A4A] dark:text-[#F3EFE8] block">{statsSummary.bolum}</span>
-            <span className="text-[9px] text-[#6A5E4C] dark:text-[#A6B0C9] uppercase font-bold block mt-1">Kitap Bölümü</span>
+            <span className="text-[9px] text-[#6A5E4C] dark:text-[#A6B0C9] uppercase font-bold block mt-1">Kitap / Bölüm</span>
+          </div>
+
+          {/* Fikir Havuzu */}
+          <div 
+            onClick={() => onSelectArea('brainstorm')}
+            className="p-3 bg-[#FAF8F5] hover:bg-[#F3EFE8] dark:bg-[#17345A]/40 border border-[#CFC5B4]/50 rounded-lg cursor-pointer transition-all hover:scale-[1.03] shadow-3xs"
+          >
+            <span className="text-2xl font-bold text-[#1B2A4A] dark:text-[#F3EFE8] block">{statsSummary.fikir}</span>
+            <span className="text-[9px] text-[#6A5E4C] dark:text-[#A6B0C9] uppercase font-bold block mt-1">Fikir Havuzu</span>
+          </div>
+
+          {/* Görsel İlham */}
+          <div 
+            onClick={() => onSelectArea('ilham')}
+            className="p-3 bg-[#FAF8F5] hover:bg-[#F3EFE8] dark:bg-[#17345A]/40 border border-[#CFC5B4]/50 rounded-lg cursor-pointer transition-all hover:scale-[1.03] shadow-3xs"
+          >
+            <span className="text-2xl font-bold text-[#1B2A4A] dark:text-[#F3EFE8] block">{statsSummary.ilham}</span>
+            <span className="text-[9px] text-[#6A5E4C] dark:text-[#A6B0C9] uppercase font-bold block mt-1">Görsel İlham</span>
           </div>
 
         </div>

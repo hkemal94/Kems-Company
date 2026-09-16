@@ -440,6 +440,23 @@ export const subscribeToItems = (userId: string, callback: (items: Item[]) => vo
   });
 };
 
+export const fetchAllItemsDirect = async (userId: string): Promise<Item[]> => {
+  const path = `users/${userId}/items`;
+  try {
+    const q = query(collection(db, "users", userId, "items"));
+    const snapshot = await getDocs(q);
+    const items: Item[] = [];
+    snapshot.forEach((doc) => {
+      items.push({ id: doc.id, ...doc.data() } as Item);
+    });
+    items.sort((a, b) => b.updatedAt - a.updatedAt);
+    return items;
+  } catch (error) {
+    console.error("Firestore doğrudan çekim hatası:", error);
+    return [];
+  }
+};
+
 export const subscribeToAllItemsWithArchived = (userId: string, callback: (items: Item[]) => void) => {
   const path = `users/${userId}/items`;
   const q = query(collection(db, "users", userId, "items"));
@@ -452,8 +469,7 @@ export const subscribeToAllItemsWithArchived = (userId: string, callback: (items
     items.sort((a, b) => b.updatedAt - a.updatedAt);
     callback(items);
   }, (error) => {
-    console.error("Firestore arşivli abonelik hatası:", error);
-    handleFirestoreError(error, OperationType.GET, path);
+    console.warn("Firestore arşivli abonelik uyarısı:", error);
   });
 };
 

@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { 
   auth, 
   seedUserData, 
+  fetchAllItemsDirect,
   subscribeToAllItemsWithArchived, 
   subscribeToSettings, 
   saveSettings, 
@@ -61,6 +62,8 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState<Item[]>([]);
   const [settings, setSettings] = useState<UserSettings>({ theme: 'arşiv' });
+  const [lastSyncTime, setLastSyncTime] = useState<Date>(() => new Date());
+  const [isSyncing, setIsSyncing] = useState<boolean>(false);
   
   // A ref lock to prevent infinite loops of room de-duplication on items real-time updates
   const deduplicationLockRef = useRef<boolean>(false);
@@ -118,9 +121,21 @@ export default function App() {
       }
 
       try {
+        // Doğrudan ilk çekim (snapshot ilk tetiklenene kadar beklemeden anında yükler)
+        const directItems = await fetchAllItemsDirect(activeUid);
+        if (directItems.length > 0) {
+          setItems(directItems);
+          setLastSyncTime(new Date());
+        }
+      } catch (err) {
+        console.warn("İlk doğrudan veri çekiminde hata:", err);
+      }
+
+      try {
         // Listen to Firestore real-time items updates
         unsubItems = subscribeToAllItemsWithArchived(activeUid, (fetchedItems) => {
           setItems(fetchedItems);
+          setLastSyncTime(new Date());
         });
 
         // Listen to Firestore settings
@@ -165,6 +180,49 @@ export default function App() {
       if (unsubSettings) unsubSettings();
     };
   }, []);
+
+  // Manuel ve periyodik canlı veri çekimi
+  const handleRefreshLive = useCallback(async () => {
+    if (!user) return;
+    setIsSyncing(true);
+    try {
+      const fresh = await fetchAllItemsDirect(user.uid);
+      if (fresh && fresh.length > 0) {
+        setItems(fresh);
+      }
+      setLastSyncTime(new Date());
+    } catch (err) {
+      console.warn("Canlı veri çekimi sırasında hata:", err);
+    } finally {
+      setIsSyncing(false);
+    }
+  }, [user]);
+
+  // Sekmeye dönüldüğünde ve 15 saniyede bir otomatik canlı çekim
+  useEffect(() => {
+    if (!user) return;
+    const interval = setInterval(() => {
+      handleRefreshLive();
+    }, 15000);
+
+    const onFocus = () => {
+      handleRefreshLive();
+    };
+
+    window.addEventListener('focus', onFocus);
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        handleRefreshLive();
+      }
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', onFocus);
+      document.removeEventListener('visibilitychange', onVisibility);
+    };
+  }, [user, handleRefreshLive]);
 
   // Theme support
   useEffect(() => {
@@ -333,17 +391,24 @@ export default function App() {
       .replace(/ü/g, 'u')
       .replace(/[^a-zA-Z0-9_\-]/g, '');
 
-    const newItem: Omit<Item, 'userId'> = {
+    const newItem: Item = {
       ...itemData,
       id,
+      userId: user.uid,
       createdAt: Date.now(),
       updatedAt: Date.now()
     };
+    // İyimser anlık güncelleme: Sayılar ve liste sunucu turunu beklemeden anında yenilenir
+    setItems(prev => [newItem, ...prev.filter(i => i.id !== id)]);
+    setLastSyncTime(new Date());
     await saveItem(user.uid, newItem);
   };
 
   const handleUpdateItem = async (updatedItem: Item) => {
     if (!user) return;
+    // İyimser anlık güncelleme
+    setItems(prev => prev.map(i => i.id === updatedItem.id ? { ...updatedItem, updatedAt: Date.now() } : i));
+    setLastSyncTime(new Date());
     await saveItem(user.uid, updatedItem);
   };
 
@@ -373,6 +438,10 @@ export default function App() {
         }
       }
     }
+
+    // İyimser anlık silme: Sayılar anında güncellenir
+    setItems(prev => prev.filter(i => !deletedIds.has(i.id)));
+    setLastSyncTime(new Date());
 
     // Exclude all deleted items from the relation-cleanup cycle so we don't accidentally update and resurrect them
     const activeItemsRemaining = items.filter(i => !deletedIds.has(i.id));
@@ -1029,6 +1098,9 @@ export default function App() {
               onOpenHizliNot={() => setIsHizliNotOpen(true)}
               onToggleTheme={handleToggleTheme}
               currentTheme={settings.theme}
+              onRefreshLive={handleRefreshLive}
+              lastSyncTime={lastSyncTime}
+              isSyncing={isSyncing}
             />
           )}
 
