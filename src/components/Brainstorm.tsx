@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Sparkles, Archive, Plus, Lightbulb, Trash2, ArrowRight, ArrowLeft } from 'lucide-react';
+import { aiCagir, AiHatasi } from '../lib/aiCagir';
 import { Item, ItemType, AreaType } from '../types';
 
 interface BrainstormProps {
@@ -22,6 +23,7 @@ export default function Brainstorm({
   const [isGeneratedOpen, setIsGeneratedOpen] = useState(true);
   const [contextInput, setContextInput] = useState('');
   const [loadingAi, setLoadingAi] = useState(false);
+  const [aiHata, setAiHata] = useState<string | null>(null);
   const [ideas, setIdeas] = useState<{ title: string; notes: string; type: string }[]>([]);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
@@ -42,23 +44,20 @@ export default function Brainstorm({
     setLoadingAi(true);
     setIdeas([]);
     try {
-      const response = await fetch('/api/ai', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          task: 'fikir-uret',
-          data: {
-            context: contextInput,
-            mode: brainstormMode
-          }
-        })
+      // Hata artık yutulmuyor: düğme "çalışmıyor" gibi görünmesin
+      const sonuc = await aiCagir<string>('fikir-uret', {
+        context: contextInput,
+        mode: brainstormMode
       });
-      const data = await response.json();
-      if (data.result) {
-        setIdeas(JSON.parse(data.result));
-      }
+      setIdeas(JSON.parse(sonuc));
+      setAiHata(null);
     } catch (err) {
       console.error(err);
+      setAiHata(
+        err instanceof AiHatasi
+          ? err.message
+          : 'Fikirler üretilemedi — beklenmeyen bir hata oldu.'
+      );
     } finally {
       setLoadingAi(false);
     }
@@ -231,6 +230,12 @@ export default function Brainstorm({
                   <Sparkles className="w-4 h-4" />
                   {loadingAi ? "Fikirler Damıtılıyor..." : "Yaratıcı Fikir Havuzunu Tetikle"}
                 </button>
+
+                {aiHata && (
+                  <p className="text-[11px] leading-snug px-3 py-2 rounded-lg border border-[#D35057]/40 bg-[#D35057]/8 text-[#B23A40]">
+                    {aiHata}
+                  </p>
+                )}
               </form>
             </>
           )}

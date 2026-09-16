@@ -56,6 +56,14 @@ export const Yedekleme: React.FC<YedeklemeProps> = ({ items, settings, onKayit }
   const [sonYedek, setSonYedek] = useState<number | null>(() => sonYedekZamani());
   const dosyaGirdisi = useRef<HTMLInputElement | null>(null);
 
+  // Esc ile çıkış — düğme kırpılsa bile bir yolu kalsın
+  React.useEffect(() => {
+    if (!acik) return;
+    const tus = (e: KeyboardEvent) => { if (e.key === 'Escape') setAcik(false); };
+    window.addEventListener('keydown', tus);
+    return () => window.removeEventListener('keydown', tus);
+  }, [acik]);
+
   const indir = () => {
     const yedek: YedekDosyasi = {
       uygulama: 'Kems Komuta Merkezi',
@@ -138,14 +146,22 @@ export const Yedekleme: React.FC<YedeklemeProps> = ({ items, settings, onKayit }
       </button>
 
       {acik && (
+        /*
+         * Pencere küçük bir çerçeve içinde açılınca üstü kesiliyor, kapatma
+         * çarpısı ekranın dışında kalıyordu: Kemal "işlemsiz çıkış imkânsız"
+         * dedi, haklıydı. Üç şey değişti — pencere ekran boyunu aşmıyor,
+         * aşarsa kendi içinde kayıyor, ve en altta her zaman görünen bir
+         * "Kapat" var. Esc de kapatıyor.
+         */
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4
-                     bg-black/40"
+          className="fixed inset-0 z-50 flex items-start sm:items-center
+                     justify-center p-3 sm:p-4 bg-black/40 overflow-y-auto"
           onClick={() => setAcik(false)}
         >
           <div
-            className="w-full max-w-md rounded-xl bg-[#FAF8F5] dark:bg-[#13204A]
-                       border border-[#CFC5B4] dark:border-[#2C3C72] p-5"
+            className="w-full max-w-md my-auto rounded-xl bg-[#FAF8F5]
+                       dark:bg-[#13204A] border border-[#CFC5B4]
+                       dark:border-[#2C3C72] p-5 max-h-[90vh] overflow-y-auto"
             onClick={e => e.stopPropagation()}
           >
             <div className="flex items-start justify-between gap-3">
@@ -225,6 +241,17 @@ export const Yedekleme: React.FC<YedeklemeProps> = ({ items, settings, onKayit }
                 {durum}
               </p>
             )}
+
+            {/* Üstteki çarpı kırpılsa bile buradan çıkılır */}
+            <button
+              onClick={() => setAcik(false)}
+              className="mt-4 w-full py-2 rounded-lg border border-[#CFC5B4]
+                         dark:border-[#2C3C72] text-[#6A5E4C] dark:text-[#A6B0C9]
+                         text-xs font-mono hover:bg-[#F3EFE8]
+                         dark:hover:bg-[#17345A] cursor-pointer"
+            >
+              Kapat
+            </button>
           </div>
         </div>
       )}

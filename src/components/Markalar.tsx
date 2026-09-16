@@ -856,7 +856,10 @@ export default function Markalar({
                                   Alternatif Fikir Logoları
                                 </span>
                                 <div className="flex gap-2.5 overflow-x-auto pb-1">
-                                  {(bk.ideaLogos || []).map((idea, idx) => (
+                                  {(bk.ideaLogos || [])
+                                    .filter(l => typeof l === 'string'
+                                      && (l.startsWith('data:') || l.startsWith('http')))
+                                    .map((idea, idx) => (
                                     <div 
                                       key={idx} 
                                       className="w-14 h-14 bg-stone-50 border border-stone-200 rounded flex items-center justify-center shrink-0 relative group/idea cursor-pointer overflow-hidden hover:border-[#D35057]"
@@ -883,10 +886,32 @@ export default function Markalar({
                                       </div>
                                     </div>
                                   ))}
-                                  {(bk.ideaLogos || []).length === 0 && (
+                                  {(bk.ideaLogos || []).filter(l => typeof l === 'string'
+                                    && (l.startsWith('data:') || l.startsWith('http'))).length === 0 && (
                                     <span className="text-[10px] text-stone-400 italic font-sans py-1">Alternatif tasarım taslağı bulunmuyor.</span>
                                   )}
                                 </div>
+
+                                {/*
+                                  Armanın sözle tarifi. Görsel alanına metin
+                                  yazınca kırık görsel çıkıyordu; tarif artık
+                                  kendi yerinde, metin olarak duruyor.
+                                */}
+                                {Array.isArray(activeBrand.metadata?.armaTarifi)
+                                  && activeBrand.metadata.armaTarifi.length > 0 && (
+                                  <div className="mt-3 pt-3 border-t border-stone-200 dark:border-[#2C3C72]">
+                                    <span className="block text-[9px] font-mono uppercase tracking-widest text-stone-400 mb-1.5">
+                                      Arma Tarifi
+                                    </span>
+                                    <ul className="space-y-1">
+                                      {activeBrand.metadata.armaTarifi.map((t: string) => (
+                                        <li key={t} className="text-[11px] leading-snug text-[#6A5E4C] dark:text-[#A6B0C9]">
+                                          · {t}
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                )}
                               </div>
                             </div>
                           ) : (

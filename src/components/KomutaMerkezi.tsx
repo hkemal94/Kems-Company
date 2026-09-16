@@ -414,7 +414,7 @@ export default function KomutaMerkezi({
 
 
       {/* A1 · Neyin eksik — sayı değil, yapılacak iş */}
-      <Eksikler items={items} onSelectArea={onSelectArea} />
+      <Eksikler items={items} onSelectArea={onSelectArea} onUpdateItem={onUpdateItem} />
 
       {/* 4. PROJELER (Folder Cards per area, click to go, auto progress %) */}
       <div className="mb-6">

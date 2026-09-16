@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { 
   auth, 
   seedUserData, 
@@ -10,7 +10,9 @@ import {
 } from './lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { Item, UserSettings, AreaType, ItemType } from './types';
-import { 
+import {
+  ChevronLeft,
+  ChevronRight, 
   ShoppingBag, 
   BookOpen, 
   Sparkles, 
@@ -59,11 +61,26 @@ export default function App() {
   const deduplicationLockRef = useRef<boolean>(false);
   
   // Navigation & interaction states
-  const [activeTab, setActiveTab] = useState<'komuta' | 'markalar' | 'duzada' | 'merch' | 'blog' | 'kitap' | 'oyun' | 'brainstorm'>('komuta');
+  const [activeTab, setActiveTab] = useState<'komuta' | 'markalar' | 'duzada' | 'merch' | 'yazi' | 'oyun' | 'brainstorm'>('komuta');
   const [activeItemId, setActiveItemId] = useState<string | null>(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isHizliNotOpen, setIsHizliNotOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  /**
+   * Ray daraltma (masaüstü). Kemal: "ray açılır kapanır olmalı, sayfanın
+   * rayı onun altında olmalı." Daraltılınca ray simge şeridine iner,
+   * ekranın kalanı çalışma alanına kalır. Tercih hatırlanır.
+   */
+  const [rayDar, setRayDar] = useState<boolean>(() => {
+    try { return localStorage.getItem('kems_ray_dar') === '1'; } catch { return false; }
+  });
+  const rayiDegistir = () => {
+    setRayDar(d => {
+      const y = !d;
+      try { localStorage.setItem('kems_ray_dar', y ? '1' : '0'); } catch { /* yok */ }
+      return y;
+    });
+  };
 
   // Authentication & Settings observer (Açık erişim modu: Google girişi zorunlu değil)
   useEffect(() => {
@@ -677,8 +694,29 @@ export default function App() {
     }
   };
 
+  /**
+   * Sayılabilir varlıklar: arşivlenmemiş, öneri olmayan, ve gerçekten bir
+   * "varlık" olanlar. Harita ayarı, kanal kaydı ve günlük not varlık değil —
+   * bunlar uygulamanın kendi iç kayıtları.
+   */
+  const SAYILMAZ_TIP = new Set(['map_settings', 'channel']);
+  const varlikSayisi = useMemo(
+    () => items.filter(
+      i => !i.archived && !i.isProposal
+        && !SAYILMAZ_TIP.has(i.type)
+        && !i.tags?.includes('gunluk-not')
+    ).length,
+    [items]
+  );
+  const oneriSayisi = useMemo(
+    () => items.filter(i => !i.archived && i.isProposal).length,
+    [items]
+  );
+
   const handleSelectArea = (area: AreaType, itemId?: string) => {
-    setActiveTab(area as any);
+    // 'blog' ve 'kitap' artık tek sekme: Yazı İşleri
+    const sekme = area === 'blog' || area === 'kitap' ? 'yazi' : area;
+    setActiveTab(sekme as any);
     if (itemId) {
       setActiveItemId(itemId);
     } else {
@@ -868,10 +906,22 @@ export default function App() {
         </div>
 
         {/* SIDEBAR NAVIGATION - LOOKS LIKE ARCHIVE RAIL */}
-        <aside className={`w-full lg:w-64 shrink-0 flex flex-col gap-2.5 ${isMenuOpen ? 'block' : 'hidden lg:flex'}`}>
-          <span className="text-[10px] font-mono uppercase tracking-wider text-[#6A5E4C] dark:text-[#A6B0C9] font-bold px-1 block">
-            Çalışma Masası Rayı
-          </span>
+        <aside className={`w-full shrink-0 flex flex-col gap-2.5 transition-all duration-200 ${rayDar ? 'lg:w-16' : 'lg:w-64'} ${isMenuOpen ? 'block' : 'hidden lg:flex'}`}>
+          <div className="flex items-center gap-1 px-1">
+            {!rayDar && (
+              <span className="text-[10px] font-mono uppercase tracking-wider text-[#6A5E4C] dark:text-[#A6B0C9] font-bold block">
+                Çalışma Masası Rayı
+              </span>
+            )}
+            <button
+              type="button"
+              onClick={rayiDegistir}
+              title={rayDar ? 'Rayı genişlet' : 'Rayı daralt'}
+              className="hidden lg:flex ml-auto items-center justify-center w-6 h-6 rounded-md text-[#9A8C76] hover:text-[#D35057] hover:bg-[#F3EFE8] dark:hover:bg-[#17345A] transition-colors cursor-pointer"
+            >
+              {rayDar ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronLeft className="w-3.5 h-3.5" />}
+            </button>
+          </div>
 
           <nav className="space-y-1 font-mono text-xs">
             {[
@@ -879,8 +929,9 @@ export default function App() {
               { id: 'markalar', label: 'Markalar', icon: Shield },
               { id: 'duzada', label: 'Düzada & Lore', icon: Compass },
               { id: 'merch', label: 'Merch Atölyesi', icon: ShoppingBag },
-              { id: 'blog', label: 'Blog & İçerik', icon: PenTool },
-              { id: 'kitap', label: 'Kitap Atölyesi', icon: BookOpen },
+              // Blog ve Kitap tek çatı altında: YaziAtolyesi bunları
+              // birleştirmek için yazılmıştı ama raya hiç bağlanmamıştı.
+              { id: 'yazi', label: 'Yazı İşleri', icon: PenTool },
               { id: 'oyun', label: 'Oyun Projeleri', icon: Gamepad2 },
               { id: 'brainstorm', label: 'Brainstorm', icon: Sparkles }
             ].map(item => {
@@ -894,22 +945,34 @@ export default function App() {
                     setActiveItemId(null); // Clear selected item to return to parent lists
                     setIsMenuOpen(false); // Close mobile menu after select
                   }}
-                  className={`w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 cursor-pointer transition-all ${isActive ? 'bg-[#1B2A4A] dark:bg-[#D35057] text-[#F3EFE8] font-bold shadow-md' : 'bg-white dark:bg-[#13204A]/55 hover:bg-[#F6F1E7] hover:text-[#1B2A4A] dark:hover:bg-[#202E5C] dark:hover:text-[#F3EFE8] border border-[#CFC5B4]/40 text-[#6A5E4C] dark:text-[#A6B0C9]'}`}
+                  title={item.label}
+                  className={`w-full text-left rounded-xl flex items-center cursor-pointer transition-all ${rayDar ? 'lg:justify-center lg:px-0 px-4 py-3 gap-3 lg:gap-0' : 'px-4 py-3 gap-3'} ${isActive ? 'bg-[#1B2A4A] dark:bg-[#D35057] text-[#F3EFE8] font-bold shadow-md' : 'bg-white dark:bg-[#13204A]/55 hover:bg-[#F6F1E7] hover:text-[#1B2A4A] dark:hover:bg-[#202E5C] dark:hover:text-[#F3EFE8] border border-[#CFC5B4]/40 text-[#6A5E4C] dark:text-[#A6B0C9]'}`}
                 >
-                  <Icon className={`w-4 h-4 ${isActive ? 'text-[#D35057] dark:text-amber-200' : 'text-[#9A8C76]'}`} />
-                  <span>{item.label}</span>
+                  <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-[#D35057] dark:text-amber-200' : 'text-[#9A8C76]'}`} />
+                  <span className={rayDar ? 'lg:hidden' : ''}>{item.label}</span>
                 </button>
               );
             })}
           </nav>
           
-          {/* Quick Stats overview */}
+          {/*
+            Varlık sayısı. Eskiden ham `items.length` yazılıyordu: arşivlenmişi,
+            öneriyi, harita ayarını, kanal kaydını, günlük notu — hepsini
+            sayıyordu. O yüzden raydaki 163 ile wiki'deki 88 ve markalardaki 3
+            birbirini tutmuyordu. Artık ölçü tek: arşivlenmemiş, öneri
+            olmayan, gerçek varlıklar.
+          */}
+          {!rayDar && (
           <div className="mt-4 p-4 bg-white/40 border border-[#CFC5B4] rounded-xl text-center space-y-1 font-mono text-[10px] text-[#6A5E4C] dark:text-[#A6B0C9]">
             <p>KOMUTA MERKEZİ AKSI</p>
             <p className="font-bold text-xs text-[#D35057]">
-              {items.length} Kayıtlı Varlık
+              {varlikSayisi} Kayıtlı Varlık
             </p>
+            {oneriSayisi > 0 && (
+              <p className="opacity-70">+{oneriSayisi} öneri bekliyor</p>
+            )}
           </div>
+          )}
         </aside>
 
         {/* ACTIVE WORKSPACE AREA */}
@@ -963,19 +1026,8 @@ export default function App() {
             />
           )}
 
-          {activeTab === 'blog' && (
-            <Blog
-              items={items}
-              activeItemId={activeItemId}
-              onSelectItem={setActiveItemId}
-              onUpdateItem={handleUpdateItem}
-              onDeleteItem={handleDeleteItem}
-              onAddItem={handleAddItem}
-            />
-          )}
-
-          {activeTab === 'kitap' && (
-            <Kitap
+          {activeTab === 'yazi' && (
+            <YaziAtolyesi
               items={items}
               activeItemId={activeItemId}
               onSelectItem={setActiveItemId}

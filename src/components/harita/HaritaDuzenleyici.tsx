@@ -194,6 +194,25 @@ export const HaritaDuzenleyici: React.FC<HaritaDuzenleyiciProps> = ({
   const [tamEkran, setTamEkran] = useState(false);
 
   const [manyetik, setManyetik] = useState(true);
+  /**
+   * Katman görünürlüğü. Kemal: "mahalleler her saniye açık kalmak zorunda
+   * değil, harita işlemlerini aç kapa olarak yapabiliriz."
+   *
+   * Not: alttaki "Mıknatıs" kutucukları görünürlük değil, köşenin neye
+   * yapışacağını seçiyordu — Kemal onları katman anahtarı sandı. Artık
+   * görünürlüğün kendi bloğu var, mıknatısınki ayrı ve öyle adlandırıldı.
+   */
+  const [acikKatmanlar, setAcikKatmanlar] = useState<Set<string>>(
+    () => new Set(['bolge-dolgu', 'yollar', 'esyukselti', 'kiyi'])
+  );
+  const katmaniCevir = useCallback((id: string) => {
+    setAcikKatmanlar(s => {
+      const y = new Set(s);
+      y.has(id) ? y.delete(id) : y.add(id);
+      return y;
+    });
+  }, []);
+
   const [manyetikTur, setManyetikTur] = useState<Set<ManyetikTur>>(
     () => new Set<ManyetikTur>(['yol', 'esyukselti', 'kiyi'])
   );
@@ -358,9 +377,17 @@ export const HaritaDuzenleyici: React.FC<HaritaDuzenleyiciProps> = ({
         paint: { 'line-color': KARA.kiyiCizgi, 'line-width': 1.4 }
       });
 
+      /*
+       * Yol ağı. Bu katmanın filtresi `id == '__yok__'` olarak kalmıştı —
+       * yani hiçbir zaman hiçbir şey çizmiyordu. Düzenleyicide görünen tek
+       * yol, seçtiğin yolun kontrol noktalarıydı. Kemal'in iki şikâyeti de
+       * buradan geliyordu: "yollarda düzenleme yaparken hepsi kapanıyor,
+       * nereye yol çektiğimi göremiyorum" ve "binayı nereye eklediğimi
+       * göremiyorum yollar görünmediği için".
+       */
       map.addLayer({
         id: 'yollar', type: 'line', source: KAYNAK,
-        filter: ['==', ['get', 'id'], '__yok__'],
+        filter: ['==', ['get', 'katman'], 'yol'],
         layout: { 'line-cap': 'round', 'line-join': 'round' },
         paint: {
           'line-color': YOL.kaplama, 'line-opacity': 0.5,
@@ -853,6 +880,48 @@ export const HaritaDuzenleyici: React.FC<HaritaDuzenleyiciProps> = ({
     );
   }, [mekanListesi, mekanArama]);
 
+  /**
+   * Mekânları mahalleye göre grupla (Kemal: "tüm mekânlar tek listede,
+   * bunun mahalleye göre bölünmesi lazım") ve gizlenenleri listeden çıkar
+   * ("silinen mekânlar hâlâ burada duruyor"). Gizlenenler kaybolmuyor,
+   * listenin altında kendi katlanır bölümünde duruyor — geri alınabilsin.
+   */
+  const MAHALLE_ADLARI: Record<string, string> = {
+    yer_merkez: 'Merkez', yer_liman: 'Liman', yer_iskele: 'İskele',
+    yer_stadyum: 'Stadyum', yer_ciftlik: 'Çiftlik'
+  };
+
+  const mekanGruplari = useMemo(() => {
+    const gorunen = suzulmusMekanlar.filter(m => !m.silindi);
+    const harita = new Map<string, typeof gorunen>();
+    for (const m of gorunen) {
+      const ad = m.mahalle ? MAHALLE_ADLARI[m.mahalle] ?? m.mahalle : 'Mahallesiz';
+      if (!harita.has(ad)) harita.set(ad, []);
+      harita.get(ad)!.push(m);
+    }
+    return [...harita.entries()].sort((x, y) => {
+      if (x[0] === 'Mahallesiz') return 1;
+      if (y[0] === 'Mahallesiz') return -1;
+      return x[0].localeCompare(y[0], 'tr');
+    });
+  }, [suzulmusMekanlar]);
+
+  const gizlenenMekanlar = useMemo(
+    () => suzulmusMekanlar.filter(m => m.silindi),
+    [suzulmusMekanlar]
+  );
+  const [gizlenenAcik, setGizlenenAcik] = useState(false);
+  const [kapaliMahalleler, setKapaliMahalleler] = useState<Set<string>>(
+    () => new Set()
+  );
+  const mahalleyiCevir = useCallback((ad: string) => {
+    setKapaliMahalleler(s => {
+      const y = new Set(s);
+      y.has(ad) ? y.delete(ad) : y.add(ad);
+      return y;
+    });
+  }, []);
+
   const isaretiCevir = useCallback((id: string) => {
     setIsaretli(s => {
       const y = new Set(s);
@@ -929,6 +998,18 @@ export const HaritaDuzenleyici: React.FC<HaritaDuzenleyiciProps> = ({
       if (c.style.cursor === 'crosshair') c.style.cursor = '';
     };
   }, [hazir, ekleKipi, mekanEkle]);
+
+  // Katman görünürlüğünü haritaya uygula
+  useEffect(() => {
+    const map = harita.current;
+    if (!map || !hazir) return;
+    for (const id of ['bolge-dolgu', 'yollar', 'esyukselti', 'kiyi']) {
+      if (!map.getLayer(id)) continue;
+      map.setLayoutProperty(
+        id, 'visibility', acikKatmanlar.has(id) ? 'visible' : 'none'
+      );
+    }
+  }, [hazir, acikKatmanlar]);
 
   // Seçili yolu haritada vurgula
   useEffect(() => {
@@ -1362,8 +1443,32 @@ export const HaritaDuzenleyici: React.FC<HaritaDuzenleyiciProps> = ({
             {secim ? 'Seçili köşeyi sil' : 'Köşeyi sil — önce bir köşe seç'}
           </button>}
 
+          {/* --- katman görünürlüğü: her sekmede geçerli --- */}
+          <div className="mt-4 p-2.5 rounded-sm border border-[#bba591]
+                          bg-[#efe7d6]">
+            <div className="font-mono text-[11px] uppercase tracking-wider
+                            text-[#6f6047] mb-1.5">Görünen katmanlar</div>
+            <div className="space-y-1">
+              {([
+                ['bolge-dolgu', 'Mahalleler'],
+                ['yollar', 'Yollar'],
+                ['esyukselti', 'Eşyükseltiler'],
+                ['kiyi', 'Kıyı']
+              ] as Array<[string, string]>).map(([id, ad]) => (
+                <label key={id} className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={acikKatmanlar.has(id)}
+                    onChange={() => katmaniCevir(id)}
+                  />
+                  <span>{ad}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
           {/* --- mıknatıs: yalnız hat düzenlerken anlamlı --- */}
-          {sekme !== 'mekan' && <div className="mt-4 p-2.5 rounded-sm border border-[#bba591]
+          {sekme !== 'mekan' && <div className="mt-3 p-2.5 rounded-sm border border-[#bba591]
                           bg-[#efe7d6]">
             <label className="flex items-center gap-2 cursor-pointer">
               <input
@@ -1379,11 +1484,14 @@ export const HaritaDuzenleyici: React.FC<HaritaDuzenleyiciProps> = ({
             <p className="text-[11px] leading-snug text-[#6f6047] mt-1">
               Köşeyi yaklaştırınca kendiliğinden yapışır.
             </p>
-            <div className="mt-2 space-y-1">
+            <p className="text-[11px] text-[#6f6047] mt-2 mb-1">
+              Neye yapışsın:
+            </p>
+            <div className="space-y-1">
               {([
-                ['yol', 'Yollar'],
-                ['esyukselti', 'Eşyükseltiler'],
-                ['kiyi', 'Kıyı']
+                ['yol', 'Yollara'],
+                ['esyukselti', 'Eşyükseltilere'],
+                ['kiyi', 'Kıyıya']
               ] as Array<[ManyetikTur, string]>).map(([t, ad]) => (
                 <label key={t} className="flex items-center gap-2 cursor-pointer">
                   <input
@@ -1522,44 +1630,98 @@ export const HaritaDuzenleyici: React.FC<HaritaDuzenleyiciProps> = ({
                   )}
                 </div>
 
-                <div className="mt-1.5 max-h-64 overflow-y-auto pr-1">
-                  {suzulmusMekanlar.map(m => (
-                    <div
-                      key={m.id}
-                      className={`flex items-center gap-2 px-2 py-1 rounded-sm
-                        mb-0.5 border text-[12px]
-                        ${seciliMekan === m.id
-                          ? 'border-kiremit bg-[#f0e3e0]'
-                          : 'border-transparent hover:bg-[#e8dfcc]'}`}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={isaretli.has(m.id)}
-                        disabled={m.silindi}
-                        onChange={() => isaretiCevir(m.id)}
-                        title="Toplu kaldırmak için işaretle"
-                        className="shrink-0 cursor-pointer disabled:opacity-30"
-                      />
-                      <button
-                        onClick={() => mekanaGit(m.id)}
-                        className="flex-1 text-left flex items-center
-                                   justify-between gap-2 min-w-0"
-                      >
-                        <span className={`truncate ${
-                          m.silindi ? 'line-through opacity-50' : ''}`}>
-                          {m.elle && <span className="text-[#336659]">• </span>}
-                          {m.ad}
-                        </span>
-                        <span className="shrink-0 text-[10px] text-[#6f6047]">
-                          {m.tur}
-                        </span>
-                      </button>
-                    </div>
-                  ))}
-                  {!suzulmusMekanlar.length && (
+                {/* Mahalle mahalle — her başlık kendi içinde katlanır */}
+                <div className="mt-1.5 max-h-72 overflow-y-auto pr-1">
+                  {mekanGruplari.map(([mahalle, liste]) => {
+                    const kapali = kapaliMahalleler.has(mahalle);
+                    return (
+                      <div key={mahalle} className="mb-1.5">
+                        <button
+                          onClick={() => mahalleyiCevir(mahalle)}
+                          className="w-full flex items-center gap-1.5 px-1 py-1
+                                     font-mono text-[10px] uppercase tracking-wider
+                                     text-[#6f6047] hover:text-[#3a2f22]"
+                        >
+                          <span className="w-3 text-left">{kapali ? '▸' : '▾'}</span>
+                          <span className="flex-1 text-left">{mahalle}</span>
+                          <span className="opacity-60">{liste.length}</span>
+                        </button>
+
+                        {!kapali && liste.map(m => (
+                          <div
+                            key={m.id}
+                            className={`flex items-center gap-2 px-2 py-1 rounded-sm
+                              mb-0.5 ml-3 border text-[12px]
+                              ${seciliMekan === m.id
+                                ? 'border-kiremit bg-[#f0e3e0]'
+                                : 'border-transparent hover:bg-[#e8dfcc]'}`}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={isaretli.has(m.id)}
+                              onChange={() => isaretiCevir(m.id)}
+                              title="Toplu kaldırmak için işaretle"
+                              className="shrink-0 cursor-pointer"
+                            />
+                            <button
+                              onClick={() => mekanaGit(m.id)}
+                              className="flex-1 text-left flex items-center
+                                         justify-between gap-2 min-w-0"
+                            >
+                              <span className="truncate">
+                                {m.elle && <span className="text-[#336659]">• </span>}
+                                {m.ad}
+                              </span>
+                              <span className="shrink-0 text-[10px] text-[#6f6047]">
+                                {m.tur}
+                              </span>
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  })}
+
+                  {!mekanGruplari.length && (
                     <p className="px-2 py-2 text-[11px] text-[#6f6047]">
                       Aramaya uyan mekân yok.
                     </p>
+                  )}
+
+                  {/* Gizlenenler listeden çıkar ama kaybolmaz */}
+                  {gizlenenMekanlar.length > 0 && (
+                    <div className="mt-2 pt-2 border-t border-[#d9d2c4]">
+                      <button
+                        onClick={() => setGizlenenAcik(a => !a)}
+                        className="w-full flex items-center gap-1.5 px-1 py-1
+                                   font-mono text-[10px] uppercase tracking-wider
+                                   text-[#6f6047] hover:text-[#3a2f22]"
+                      >
+                        <span className="w-3 text-left">
+                          {gizlenenAcik ? '▾' : '▸'}
+                        </span>
+                        <span className="flex-1 text-left">Gizlenenler</span>
+                        <span className="opacity-60">{gizlenenMekanlar.length}</span>
+                      </button>
+                      {gizlenenAcik && gizlenenMekanlar.map(m => (
+                        <div
+                          key={m.id}
+                          className="flex items-center gap-2 px-2 py-1 ml-3
+                                     text-[12px] text-[#6f6047]"
+                        >
+                          <span className="flex-1 truncate line-through opacity-60">
+                            {m.ad}
+                          </span>
+                          <button
+                            onClick={() => mekaniGeriGetir(m.id)}
+                            className="shrink-0 text-[10px] underline
+                                       hover:text-[#3a2f22]"
+                          >
+                            geri getir
+                          </button>
+                        </div>
+                      ))}
+                    </div>
                   )}
                 </div>
               </div>

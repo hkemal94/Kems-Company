@@ -24,6 +24,13 @@ export const KEMS_RENK = {
   murekkep: '#131313'
 } as const;
 
+/**
+ * ÖNEMLİ: `selectedLogo` ve `ideaLogos` arayüzde <img src=...> olarak
+ * çiziliyor. Buraya metin yazınca kırık görsel simgesi çıkıyor — ilk
+ * sürümde arma tariflerini oraya koydum, Kemal'in ekranında "Fikir 3,
+ * Fikir 4, Fikir 5" diye kırık kutular belirdi. Tarifler artık
+ * `armaTarifi` alanında duruyor ve metin olarak gösteriliyor.
+ */
 export interface MarkaKunyesi {
   /** Excel ve harita tarafındaki kimlik */
   id: string;
@@ -37,6 +44,8 @@ export interface MarkaKunyesi {
   kurulus?: string;
   merkezi?: string;
   bagliMekan?: string;
+  /** Armanın sözle tarifi — görsel değil, metin olarak gösterilir */
+  armaTarifi: string[];
   kit: BrandKit;
 }
 
@@ -53,15 +62,17 @@ export const MARKA_KUNYELERI: MarkaKunyesi[] = [
       "Kems, Kemal'in lakabı. Marka bir ürün fikrinden bir evrene dönüştü.",
     kurulus: '2024',
     merkezi: 'İstanbul',
+    armaTarifi: [
+      'Çerçeveli kilit: lacivert çerçeve, krem alan, altta kiremit bant',
+      'KEMS blok + el yazısı "Company" (kiremit, krem konturlu)',
+      'KC el yazısı monogram — flama biçiminde, kiremit zemin',
+      'KEMS APPAREL + OBJECTS — düz siyah, sıkışık blok',
+      'Kurum arması ailesi: "Kemsköy Ziraat İşletmeleri Kurumu" etiketleri'
+    ],
     kit: {
-      selectedLogo: 'Çerçeveli KEMS / COMPANY kilidi',
-      ideaLogos: [
-        'Çerçeveli kilit: lacivert çerçeve, krem alan, altta kiremit bant',
-        'KEMS blok + el yazısı "Company" (kiremit, krem konturlu)',
-        'KC el yazısı monogram — flama biçiminde, kiremit zemin',
-        'KEMS APPAREL + OBJECTS — düz siyah, sıkışık blok',
-        'Kurum arması ailesi: "Kemsköy Ziraat İşletmeleri Kurumu" etiketleri'
-      ],
+      // Görsel alanlar boş: logoyu Kemal yüklüyor, metin buraya girmez
+      selectedLogo: '',
+      ideaLogos: [],
       colorPalette: [
         KEMS_RENK.lacivert, KEMS_RENK.kiremit, KEMS_RENK.krem, KEMS_RENK.bej
       ],
@@ -96,13 +107,15 @@ export const MARKA_KUNYELERI: MarkaKunyesi[] = [
     kurulus: '12 Mayıs',
     merkezi: 'Stadyum Mahallesi',
     bagliMekan: 'mekan_dirlik_stadi',
+    armaTarifi: [
+      'Oval rozet: kiremit kontur, krem alan, lacivert yelkenli',
+      'Üstte "DİRLİK SPOR KULÜBÜ", altta "12 MAYIS" kavisli dizilir',
+      'Yelkenli tek başına da kullanılabilir — lacivert siluet',
+      'İki yanda nokta uçlu dikey çizgi: rozetin flama direkleri'
+    ],
     kit: {
-      selectedLogo: 'Oval rozet: kiremit kontur, krem alan, lacivert yelkenli',
-      ideaLogos: [
-        'Oval rozet — üstte "DİRLİK SPOR KULÜBÜ", altta "12 MAYIS" kavisli',
-        'Yelkenli tek başına, lacivert siluet',
-        'İki yanda nokta uçlu dikey çizgi (rozetin flama direkleri)'
-      ],
+      selectedLogo: '',
+      ideaLogos: [],
       colorPalette: [KEMS_RENK.kiremit, KEMS_RENK.lacivert, KEMS_RENK.krem],
       exemplaryWorks: ['Eski kulüp armaları', 'Deniz kulübü flamaları'],
       selectedFont: 'Kalın grotesk, harf aralığı açık (kavisli dizim)',
@@ -129,14 +142,16 @@ export const MARKA_KUNYELERI: MarkaKunyesi[] = [
     neYapar: 'Çiftlik Mahallesindeki avcılık ve kültür kulübü.',
     merkezi: 'Çiftlik Mahallesi',
     bagliMekan: 'mekan_kucukcetmi',
+    armaTarifi: [
+      'Kangal — tek çizgi, mürekkep. Resmî amblem bu.',
+      'Kangal silueti: dikenli tasma, kıvrık kuyruk, tek ağırlıkta kontur',
+      'KÇ monogram — iç içe geçmiş, tırnaklı serif',
+      'El yazısı "Küçükçetmi" + harf aralığı açık "SÜREK KULÜBÜ"',
+      'Köy sokağı illüstrasyonu üstünde tam kilit'
+    ],
     kit: {
-      selectedLogo: 'Kangal — tek çizgi, mürekkep',
-      ideaLogos: [
-        'Kangal silueti: dikenli tasma, kıvrık kuyruk, tek ağırlıkta kontur',
-        'KÇ monogram — iç içe geçmiş, tırnaklı serif',
-        'El yazısı "Küçükçetmi" + harf aralığı açık "SÜREK KULÜBÜ"',
-        'Köy sokağı illüstrasyonu üstünde tam kilit'
-      ],
+      selectedLogo: '',
+      ideaLogos: [],
       // Bilerek tek renk: kulüp Kems paletini kullanmıyor.
       colorPalette: [KEMS_RENK.krem, KEMS_RENK.murekkep],
       exemplaryWorks: ['Köy sokağı illüstrasyonu (değirmen taşı ve çeşme)'],
@@ -163,6 +178,12 @@ export const MARKA_KUNYELERI: MarkaKunyesi[] = [
  * moodboard ve notlar olduğu gibi kalır. Boş alanlar Canva künyesinden
  * dolar. Tek istisna renk paleti — Kemal'in kararı gereği Canva kazanır.
  */
+/** Gerçekten görsel mi — <img src> olarak çizilebilir mi */
+function gorselMi(v: unknown): v is string {
+  return typeof v === 'string'
+    && (v.startsWith('data:') || v.startsWith('http://') || v.startsWith('https://'));
+}
+
 export function kunyeyiBirlestir(mevcut: Item, kunye: MarkaKunyesi): Item {
   const eski: Partial<BrandKit> = mevcut.metadata?.brandKit ?? {};
   const yeni = kunye.kit;
@@ -170,8 +191,10 @@ export function kunyeyiBirlestir(mevcut: Item, kunye: MarkaKunyesi): Item {
   const birlesikKit: BrandKit = {
     // Yüklenmiş logo her zaman kazanır: o Kemal'in dosyası
     logoBase64: eski.logoBase64,
-    selectedLogo: eski.selectedLogo || yeni.selectedLogo,
-    ideaLogos: Array.from(new Set([...(eski.ideaLogos ?? []), ...yeni.ideaLogos])),
+    // Görsel alanlara ASLA metin yazma — arayüz bunları <img> olarak çiziyor
+    // Önceki sürümde buraya metin yazılmıştı; kırık görselleri temizle
+    selectedLogo: gorselMi(eski.selectedLogo) ? eski.selectedLogo : '',
+    ideaLogos: (eski.ideaLogos ?? []).filter(gorselMi),
     // Palet: Canva kazanır (16 Eylül kararı)
     colorPalette: yeni.colorPalette,
     exemplaryWorks: Array.from(
@@ -197,6 +220,8 @@ export function kunyeyiBirlestir(mevcut: Item, kunye: MarkaKunyesi): Item {
       ...mevcut.metadata,
       brandKit: birlesikKit,
       markaTuru: mevcut.metadata?.markaTuru || kunye.tur,
+      armaTarifi: mevcut.metadata?.armaTarifi?.length
+        ? mevcut.metadata.armaTarifi : kunye.armaTarifi,
       ustMarka: mevcut.metadata?.ustMarka || kunye.ustMarka,
       kurulus: mevcut.metadata?.kurulus || kunye.kurulus,
       merkezi: mevcut.metadata?.merkezi || kunye.merkezi,
@@ -226,6 +251,7 @@ export function kunyedenYeni(
     metadata: {
       brandKit: kunye.kit,
       markaTuru: kunye.tur,
+      armaTarifi: kunye.armaTarifi,
       ustMarka: kunye.ustMarka,
       kurulus: kunye.kurulus,
       merkezi: kunye.merkezi,

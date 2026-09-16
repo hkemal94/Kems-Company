@@ -1,10 +1,11 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { ArrowRight, CircleCheck, Compass } from 'lucide-react';
 import type { AreaType, Item } from '../types';
 import { DUZADA_GEO } from '../data/duzadaGeo';
 import { isStub } from './wiki/wikiSchema';
 import { getRol } from './wiki/kunyeParser';
 import { isEntityUnlinked } from '../utils/relations';
+import { oTemizligi } from '../lib/yaziTemizligi';
 
 /**
  * "Neyin eksik" paneli (A1).
@@ -201,10 +202,36 @@ export function eksikleriCikar(items: Item[]): Eksik[] {
 interface EksiklerProps {
   items: Item[];
   onSelectArea: (area: AreaType, itemId?: string) => void;
+  /** Kayıt yazma — ø temizliği için */
+  onUpdateItem?: (item: Item) => Promise<void>;
 }
 
-export const Eksikler: React.FC<EksiklerProps> = ({ items, onSelectArea }) => {
+export const Eksikler: React.FC<EksiklerProps> = ({
+  items, onSelectArea, onUpdateItem
+}) => {
   const eksikler = useMemo(() => eksikleriCikar(items), [items]);
+
+  /**
+   * Norveç ø'sü. Veriye bir kere girmiş ve her yere yayılmış; tek tek
+   * düzeltmek mümkün değil. Burası onu sayıyor ve tek düğmeye bağlıyor.
+   */
+  const temizlik = useMemo(() => oTemizligi(items), [items]);
+  const [temizleniyor, setTemizleniyor] = useState(false);
+  const [temizlikRaporu, setTemizlikRaporu] = useState<string | null>(null);
+
+  const temizle = async () => {
+    if (!onUpdateItem || temizleniyor) return;
+    setTemizleniyor(true);
+    try {
+      let n = 0;
+      for (const kayit of temizlik.degisenler) { await onUpdateItem(kayit); n++; }
+      setTemizlikRaporu(`${n} kayıt düzeltildi.`);
+    } catch (e) {
+      setTemizlikRaporu(`Hata: ${e instanceof Error ? e.message : 'bilinmeyen'}`);
+    } finally {
+      setTemizleniyor(false);
+    }
+  };
 
   // Veri henüz yüklenmediyse panel açılmasın: boş listeyi "her şey tamam"
   // diye göstermek yanlış olur.
@@ -216,6 +243,37 @@ export const Eksikler: React.FC<EksiklerProps> = ({ items, onSelectArea }) => {
         <Compass className="w-4 h-4 text-[#D35057]" />
         Neyin Eksik
       </h2>
+
+      {/* ø temizliği — normal bir "eksik" değil, tek seferlik bir düzeltme */}
+      {onUpdateItem && temizlik.degisenler.length > 0 && (
+        <div className="mb-2.5 flex items-start gap-3 px-4 py-3 rounded-xl border border-[#D35057]/40 bg-[#FAF8F5] dark:bg-[#13204A]">
+          <span className="font-mono text-lg font-bold text-[#D35057] leading-none mt-0.5 shrink-0 tabular-nums">
+            {temizlik.harf}
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-[13px] font-semibold text-[#1B2A4A] dark:text-[#F3EFE8]">
+              yerde Norveç ø'sü var
+            </span>
+            <span className="block mt-0.5 text-[11px] text-[#9A8C76] dark:text-[#6E7CA0] leading-snug">
+              {temizlik.degisenler.length} kayıtta geçiyor — "Kemskøy" gibi.
+              Kimliklere ve görsellere dokunulmaz, yalnız ø → ö.
+            </span>
+          </span>
+          <button
+            type="button"
+            onClick={temizle}
+            disabled={temizleniyor}
+            className="shrink-0 px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#1B2A4A] text-[#F3EFE8] hover:opacity-90 disabled:opacity-40 cursor-pointer"
+          >
+            {temizleniyor ? 'Düzeltiliyor…' : 'Düzelt'}
+          </button>
+        </div>
+      )}
+      {temizlikRaporu && (
+        <p className="mb-2.5 px-4 py-2 rounded-lg bg-[#F3EFE8] dark:bg-[#17345A] text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9]">
+          {temizlikRaporu}
+        </p>
+      )}
 
       {eksikler.length === 0 ? (
         <div className="flex items-center gap-2.5 px-4 py-3 rounded-xl border border-[#CFC5B4] dark:border-[#2C3C72] bg-[#FAF8F5] dark:bg-[#13204A]">
