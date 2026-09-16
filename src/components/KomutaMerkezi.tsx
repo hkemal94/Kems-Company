@@ -36,6 +36,7 @@ import {
 } from 'lucide-react';
 import { Item, AreaType, ItemType } from '../types';
 import { isEntityUnlinked, resolveAllRelations } from '../utils/relations';
+import { Eksikler } from './Eksikler';
 
 interface KomutaMerkeziProps {
   items: Item[];
@@ -411,6 +412,9 @@ export default function KomutaMerkezi({
         </div>
       </div>
 
+
+      {/* A1 · Neyin eksik — sayı değil, yapılacak iş */}
+      <Eksikler items={items} onSelectArea={onSelectArea} />
 
       {/* 4. PROJELER (Folder Cards per area, click to go, auto progress %) */}
       <div className="mb-6">
