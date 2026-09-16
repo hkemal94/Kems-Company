@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Space+Grotesk:wght@400;500;700&family=Outfit:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Oswald:wght@500;600;700&family=Space+Grotesk:wght@400;500;700&family=Outfit:wght@400;500;700&display=swap');
 @import "tailwindcss";
 
 @variant dark (&:where(.dark, .dark *));
@@ -8,13 +8,15 @@
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
   --font-serif: "Playfair Display", Georgia, serif;
   --font-space: "Space Grotesk", sans-serif;
+  /* Markanın blok başlık dili — Canva'daki sıkışık "KEMS" yazısı */
+  --font-blok: "Oswald", "Archivo Narrow", Impact, sans-serif;
   --font-outfit: "Outfit", sans-serif;
 
   /* --- Kems Company marka paleti (marka briefi) ---
      Ana palet */
   --color-krem: #f3efe8;      /* Kültürel Krem — sessiz tuval */
   --color-lacivert: #0e1c4f;  /* Kolej Laciverti — sessiz özgüven */
-  --color-kiremit: #d35057;   /* Dinamik Kiremit — paletin kalp atışı */
+  --color-kiremit: #f26b6f;   /* Dinamik Kiremit — Canva'daki gerçek ton */
   /* Alternatif palet */
   --color-cam: #336659;       /* Derin Çam Yeşili */
   --color-gri: #525252;       /* Şehir Grisi */

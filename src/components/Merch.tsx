@@ -9,7 +9,6 @@ import { SayfaRayi, type RayBolumu } from './SayfaRayi';
 /** Merch ekranının bölümleri — bunlar sekme, kaydırma değil */
 const RAY_BOLUMLERI: RayBolumu[] = [
   { id: 'home', label: 'Genel bakış' },
-  { id: 'temalar', label: 'Temalar' },
   { id: 'droplar', label: 'Dropler' },
   { id: 'urunler', label: 'Ürünler' },
   { id: 'arsiv', label: 'Arşiv' }
@@ -32,7 +31,7 @@ export default function Merch({
   onDeleteItem,
   onAddItem
 }: MerchProps) {
-  const [activeTab, setActiveTab] = useState<'home' | 'temalar' | 'droplar' | 'urunler' | 'arsiv'>('home');
+  const [activeTab, setActiveTab] = useState<'home' | 'droplar' | 'urunler' | 'arsiv'>('home');
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [archiveConfirmId, setArchiveConfirmId] = useState<string | null>(null);
   
@@ -127,24 +126,6 @@ export default function Merch({
     
     // Save activeItem
     await onUpdateItem(updatedItem);
-    
-    // Cascade if Tema
-    if (activeItem.type === 'tema') {
-      const childDrops = items.filter(d => d.area === 'merch' && d.type === 'drop' && d.metadata?.themeId === activeItem.id);
-      for (const d of childDrops) {
-        await onUpdateItem({
-          ...d,
-          metadata: { ...d.metadata, brandId: editBrandId }
-        });
-        const grandProducts = items.filter(p => p.area === 'merch' && p.type === 'merch_urun' && p.metadata?.dropId === d.id);
-        for (const p of grandProducts) {
-          await onUpdateItem({
-            ...p,
-            metadata: { ...p.metadata, brandId: editBrandId }
-          });
-        }
-      }
-    }
     
     // Cascade if Drop
     if (activeItem.type === 'drop') {
@@ -261,12 +242,6 @@ export default function Merch({
   }, [items]);
 
   // Sub-items computation with automatic deduplication by lowercased title to enforce exactly 1 drop = 1 unique record
-  const themes = useMemo(() => {
-    const raw = items.filter(i => i.area === 'merch' && i.type === 'tema' && !i.archived);
-    if (selectedBrandId === 'all') return raw;
-    return raw.filter(t => t.metadata?.brandId === selectedBrandId);
-  }, [items, selectedBrandId]);
-
   const activeDrops = useMemo(() => {
     const rawDrops = items.filter(i => i.area === 'merch' && i.type === 'drop' && !i.archived);
     const uniqueMap = new Map<string, Item>();
@@ -384,11 +359,12 @@ export default function Merch({
     if (!newTitle.trim() || !showCreateForm) return;
 
     const id = `merch_${Date.now()}`;
-    const parentTheme = showCreateForm === 'drop' ? items.find(t => t.id === selectedParentId) : null;
+    // Zincir artık Marka → Drop → Ürün; drop'un ebeveyni doğrudan marka.
     const parentDrop = showCreateForm === 'merch_urun' ? items.find(d => d.id === selectedParentId) : null;
-    const resolvedBrandId = createFormBrandId || (showCreateForm === 'tema' 
-      ? (selectedBrandId !== 'all' ? selectedBrandId : (brands[0]?.id || ''))
-      : (showCreateForm === 'drop' ? (parentTheme?.metadata?.brandId || '') : (parentDrop?.metadata?.brandId || '')));
+    const resolvedBrandId = createFormBrandId
+      || (showCreateForm === 'drop'
+        ? (selectedBrandId !== 'all' ? selectedBrandId : (brands[0]?.id || ''))
+        : (parentDrop?.metadata?.brandId || ''));
 
     const itemData: Omit<Item, 'id' | 'createdAt' | 'updatedAt' | 'userId'> = {
       title: newTitle,
@@ -409,20 +385,13 @@ export default function Merch({
       metadata: {
         brandId: resolvedBrandId,
         ...(showCreateForm === 'drop' ? {
-          themeId: selectedParentId,
           editionCount: 1,
           editionNotes: "1. Edisyon başlangıcı."
         } : {}),
         ...(showCreateForm === 'merch_urun' ? {
           dropId: selectedParentId,
-          themeId: activeDrops.find(d => d.id === selectedParentId)?.metadata?.themeId || '',
           variantColor: newVariantColor,
           category: newCategory
-        } : {}),
-        ...(showCreateForm === 'tema' ? {
-          moodboard: [
-            "https://images.unsplash.com/photo-1505022610485-0249ba5b3675?q=80&w=256&auto=format&fit=crop"
-          ]
         } : {})
       }
     };
@@ -593,7 +562,6 @@ export default function Merch({
 
           {[
             { id: 'home', label: 'Merch Home' },
-            { id: 'temalar', label: 'Temalar' },
             { id: 'droplar', label: 'Droplar' },
             { id: 'urunler', label: 'Ürünler' },
             { id: 'arsiv', label: 'Arşiv' }
@@ -681,7 +649,7 @@ export default function Merch({
                 {[...items].filter(i => i.area === 'merch').slice(0, 4).map(i => (
                   <div key={i.id} className="flex justify-between items-center text-xs">
                     <span 
-                      onClick={() => { onSelectItem(i.id); setActiveTab(i.type === 'tema' ? 'temalar' : i.type === 'drop' ? 'droplar' : 'urunler'); }}
+                      onClick={() => { onSelectItem(i.id); setActiveTab(i.type === 'drop' ? 'droplar' : 'urunler'); }}
                       className="text-[#1B2A4A] dark:text-[#F3EFE8] font-medium hover:underline cursor-pointer"
                     >
                       {i.title}
@@ -904,53 +872,6 @@ export default function Merch({
             )}
           </div>
 
-        </div>
-      )}
-
-      {/* VIEW 2: TEMALAR TAB */}
-      {activeTab === 'temalar' && !activeItem && (
-        <div className="space-y-4 animate-in fade-in duration-200">
-          <div className="flex justify-between items-center pb-2 border-b border-[#CFC5B4]/50">
-            <h3 className="font-serif font-bold text-lg text-[#1B2A4A] dark:text-[#F3EFE8]">
-              Kalıcı Marka Temaları ({themes.length})
-            </h3>
-            <button
-              onClick={() => setShowCreateForm('tema')}
-              className="text-xs font-mono bg-[#1B2A4A] text-[#F3EFE8] px-3 py-1.5 rounded-lg hover:opacity-90 transition-all cursor-pointer"
-            >
-              + Tema Ekle
-            </button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {themes.map(t => {
-              const connected = activeDrops.filter(d => (d.links || []).includes(t.id) || d.metadata?.themeId === t.id);
-              return (
-                <div key={t.id} className="bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] rounded-xl p-5 paper-grain space-y-4 archive-shadow">
-                  <div className="flex justify-between items-start">
-                    <h4 className="font-serif font-bold text-lg text-[#1B2A4A] dark:text-[#F3EFE8] hover:text-[#D35057] cursor-pointer" onClick={() => onSelectItem(t.id)}>
-                      {t.title}
-                    </h4>
-                    <span className="text-[10px] font-mono text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">
-                      {t.status}
-                    </span>
-                  </div>
-
-                  <div className="text-xs text-[#6A5E4C] dark:text-[#A6B0C9] space-y-1">
-                    <span className="font-bold text-[10px] uppercase font-mono block">Kreasyon ve Konsept Dünyası:</span>
-                    <p className="leading-relaxed">{t.notes}</p>
-                  </div>
-
-                  <div className="pt-3 border-t border-[#CFC5B4]/30 flex justify-between items-center text-[11px] font-mono text-[#9A8C76]">
-                    <span>Bağlı Aktif Droplar: {connected.length} adet</span>
-                    <button onClick={() => onSelectItem(t.id)} className="text-[#D35057] hover:underline cursor-pointer">
-                      Detaylar & İlham Panosu →
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
         </div>
       )}
 
@@ -1290,7 +1211,6 @@ export default function Merch({
         const isDrop = activeItem.type === 'drop';
         const activeProducts = products.filter(p => p.metadata?.dropId === activeItem.id);
         const brandName = brands.find(b => b.id === activeItem.metadata?.brandId)?.title || "Genel Serisi";
-        const parentThemeName = themes.find(t => t.id === activeItem.metadata?.themeId)?.title || "Serbest Tema";
 
         (globalThis as any).renderBrochureView = () => {
           return (
@@ -1432,11 +1352,6 @@ export default function Merch({
                         <span className="block text-[10px] font-mono uppercase text-[#6A5E4C] dark:text-[#A6B0C9]">Süreç Takibi</span>
                         <span className="font-bold text-[#1B2A4A] dark:text-[#F3EFE8]">{activeItem.status}</span>
                       </div>
-                      <div className="space-y-0.5">
-                        <span className="block text-[10px] font-mono uppercase text-[#6A5E4C] dark:text-[#A6B0C9]">Kalıcı Üst Tema</span>
-                        <span className="font-bold text-[#1B2A4A] dark:text-[#F3EFE8]">{parentThemeName}</span>
-                      </div>
-                      
                       {!isDrop && (
                         <>
                           <div className="space-y-0.5">
@@ -1829,22 +1744,6 @@ export default function Merch({
                       />
                     )}
                   </div>
-
-                  {activeItem.type === 'drop' && (
-                    <div>
-                      <label className="block text-xs font-mono text-[#6A5E4C] dark:text-[#A6B0C9] mb-1 font-bold">Bağlı Olduğu Kalıcı Tema</label>
-                      <select
-                        value={editParentId}
-                        onChange={(e) => setEditParentId(e.target.value)}
-                        className="w-full text-xs bg-[#F6F1E7] dark:bg-[#17345A] text-[#1B2A4A] dark:text-[#F3EFE8] border border-[#CFC5B4] rounded p-2"
-                      >
-                        <option value="">Seçiniz...</option>
-                        {themes.map(t => (
-                          <option key={t.id} value={t.id}>{t.title}</option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
 
                   {activeItem.type === 'merch_urun' && (
                     <>
@@ -2400,7 +2299,7 @@ export default function Merch({
         <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
           <form onSubmit={handleCreateMerch} className="bg-[#F3EFE8] border-2 border-[#CFC5B4] rounded-xl max-w-md w-full p-6 space-y-4 paper-grain animate-in zoom-in-95 duration-200">
             <h3 className="font-serif font-bold text-lg text-[#1B2A4A] border-b border-[#CFC5B4]/50 pb-2 capitalize">
-              Yeni {showCreateForm === 'tema' ? 'Tema' : showCreateForm === 'drop' ? 'Drop' : 'Ürün'} Tasarla
+              Yeni {showCreateForm === 'drop' ? 'Drop' : 'Ürün'} Tasarla
             </h3>
 
             <div>
@@ -2433,25 +2332,6 @@ export default function Merch({
                 ))}
               </select>
             </div>
-
-            {showCreateForm === 'drop' && (
-              <div>
-                <label className="block text-xs font-mono text-[#6A5E4C] mb-1">
-                  Bağlı Olduğu Kalıcı Tema
-                </label>
-                <select
-                  required
-                  value={selectedParentId}
-                  onChange={(e) => setSelectedParentId(e.target.value)}
-                  className="w-full text-xs bg-[#F6F1E7] text-[#1B2A4A] border border-[#CFC5B4] rounded p-2"
-                >
-                  <option value="">Tema Seçin...</option>
-                  {themes.map(t => (
-                    <option key={t.id} value={t.id}>{t.title}</option>
-                  ))}
-                </select>
-              </div>
-            )}
 
             {showCreateForm === 'merch_urun' && (
               <>

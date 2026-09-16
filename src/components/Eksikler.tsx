@@ -6,6 +6,7 @@ import { isStub } from './wiki/wikiSchema';
 import { getRol } from './wiki/kunyeParser';
 import { isEntityUnlinked } from '../utils/relations';
 import { oTemizligi } from '../lib/yaziTemizligi';
+import { temaDurumu, temaKaldirmaYazilari } from '../lib/temaKaldirma';
 
 /**
  * "Neyin eksik" paneli (A1).
@@ -181,22 +182,47 @@ export function eksikleriCikar(items: Item[]): Eksik[] {
     });
   }
 
-  // --- Merch: teması olmayan drop
-  const temasizDrop = canli.filter(
-    i => i.type === 'drop' && !i.isProposal && !i.metadata?.themeId
+  // --- Merch: markası olmayan drop
+  // Eskiden burada "dropun teması seçilmemiş" vardı; tema katmanı kaldırıldı
+  // (34 cevabın 16. maddesi), artık eksik olan şey markanın kendisi.
+  const markaKimlikleri = new Set(canli.filter(i => i.type === 'marka').map(i => i.id));
+  const markasizDrop = canli.filter(
+    i => i.type === 'drop' && !i.isProposal
+      && !markaKimlikleri.has(String(i.metadata?.brandId || ''))
   );
-  if (temasizDrop.length) {
+  if (markasizDrop.length) {
     eksikler.push({
-      anahtar: 'drop-tema',
-      sayi: temasizDrop.length,
-      baslik: 'dropun teması seçilmemiş',
-      aciklama: temasizDrop.map(i => i.title).join(', '),
+      anahtar: 'drop-marka',
+      sayi: markasizDrop.length,
+      baslik: 'drop bir markaya bağlı değil',
+      aciklama: markasizDrop.map(i => i.title).join(', '),
       alan: 'merch',
-      hedefId: temasizDrop[0].id
+      hedefId: markasizDrop[0].id
     });
   }
 
   return eksikler.sort((a, b) => b.sayi - a.sayi);
+}
+
+/**
+ * İçi boş kitap projesi / serisi (34 cevabın 26. maddesi).
+ *
+ * Kemal: "The Imperial oyunun senaryosu olacaktı, şimdilik silebilirsin içi
+ * boş çünkü." Silmiyoruz, arşivliyoruz — bu projede silinen geri gelmiyor,
+ * arşivlenen geliyor. Kural tek bir kayda değil, içi boş her projeye işliyor:
+ * bölümü olmayan ve gövdesi 120 harften kısa olan proje kaydı.
+ */
+export function bosProjeler(items: Item[]): Item[] {
+  const canli = items.filter(i => !i.archived);
+  const bolumSahibi = new Set(
+    canli.filter(i => i.type === 'kitap_bolum')
+      .map(i => String((i.metadata as any)?.bookId || ''))
+  );
+  return canli.filter(
+    i => i.type === 'kitap_proje' && !i.isProposal
+      && !bolumSahibi.has(i.id)
+      && (i.notes || '').trim().length < 120
+  );
 }
 
 interface EksiklerProps {
@@ -219,6 +245,32 @@ export const Eksikler: React.FC<EksiklerProps> = ({
   const [temizleniyor, setTemizleniyor] = useState(false);
   const [temizlikRaporu, setTemizlikRaporu] = useState<string | null>(null);
 
+  /**
+   * Tema katmanının kaldırılması — tek seferlik göç. Eski tema kayıtları
+   * arşive kalkar, markaları altlarındaki droplara geçer. Silme yok.
+   */
+  const tema = useMemo(() => temaDurumu(items), [items]);
+  const [temaGocu, setTemaGocu] = useState(false);
+  const [temaRaporu, setTemaRaporu] = useState<string | null>(null);
+
+  const temayiKaldir = async () => {
+    if (!onUpdateItem || temaGocu) return;
+    setTemaGocu(true);
+    try {
+      const yazilacak = temaKaldirmaYazilari(items);
+      let n = 0;
+      for (const kayit of yazilacak) { await onUpdateItem(kayit); n++; }
+      setTemaRaporu(
+        `${tema.temalar.length} tema arşivlendi, ${tema.droplar.length} drop `
+        + `doğrudan markaya bağlandı (${n} kayıt yazıldı).`
+      );
+    } catch (e) {
+      setTemaRaporu(`Hata: ${e instanceof Error ? e.message : 'bilinmeyen'}`);
+    } finally {
+      setTemaGocu(false);
+    }
+  };
+
   const temizle = async () => {
     if (!onUpdateItem || temizleniyor) return;
     setTemizleniyor(true);
@@ -236,6 +288,28 @@ export const Eksikler: React.FC<EksiklerProps> = ({
   // Veri henüz yüklenmediyse panel açılmasın: boş listeyi "her şey tamam"
   // diye göstermek yanlış olur.
   if (items.length === 0) return null;
+
+  /** İçi boş proje kayıtları — tek düğmeyle arşive */
+  const bosProje = useMemo(() => bosProjeler(items), [items]);
+  const [projeIsi, setProjeIsi] = useState(false);
+  const [projeRaporu, setProjeRaporu] = useState<string | null>(null);
+
+  const bosProjeleriArsivle = async () => {
+    if (!onUpdateItem || projeIsi) return;
+    setProjeIsi(true);
+    try {
+      let n = 0;
+      for (const p of bosProje) {
+        await onUpdateItem({ ...p, archived: true, updatedAt: Date.now() });
+        n++;
+      }
+      setProjeRaporu(`${n} boş proje arşivlendi. Silinmedi — arşivden geri gelir.`);
+    } catch (e) {
+      setProjeRaporu(`Hata: ${e instanceof Error ? e.message : 'bilinmeyen'}`);
+    } finally {
+      setProjeIsi(false);
+    }
+  };
 
   return (
     <div className="mb-8">
@@ -269,6 +343,70 @@ export const Eksikler: React.FC<EksiklerProps> = ({
           </button>
         </div>
       )}
+      {/* Tema katmanının kaldırılması — tek seferlik göç */}
+      {onUpdateItem && tema.temalar.length > 0 && (
+        <div className="mb-2.5 flex items-start gap-3 px-4 py-3 rounded-xl border border-[#D35057]/40 bg-[#FAF8F5] dark:bg-[#13204A]">
+          <span className="font-mono text-lg font-bold text-[#D35057] leading-none mt-0.5 shrink-0 tabular-nums">
+            {tema.temalar.length}
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-[13px] font-semibold text-[#1B2A4A] dark:text-[#F3EFE8]">
+              tema kaydı hâlâ duruyor
+            </span>
+            <span className="block mt-0.5 text-[11px] text-[#9A8C76] dark:text-[#6E7CA0] leading-snug">
+              Zincir artık marka → drop → ürün. Temalar arşive kalkar,
+              {tema.markaDevri > 0
+                ? ` ${tema.markaDevri} dropun markası temadan devralınır.`
+                : ' dropların marka bağı korunur.'} Hiçbir şey silinmez.
+            </span>
+          </span>
+          <button
+            type="button"
+            onClick={temayiKaldir}
+            disabled={temaGocu}
+            className="shrink-0 px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#1B2A4A] text-[#F3EFE8] hover:opacity-90 disabled:opacity-40 cursor-pointer"
+          >
+            {temaGocu ? 'Taşınıyor…' : 'Katmanı kaldır'}
+          </button>
+        </div>
+      )}
+      {temaRaporu && (
+        <p className="mb-2.5 px-4 py-2 rounded-lg bg-[#F3EFE8] dark:bg-[#17345A] text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9]">
+          {temaRaporu}
+        </p>
+      )}
+
+      {/* İçi boş proje kayıtları */}
+      {onUpdateItem && bosProje.length > 0 && (
+        <div className="mb-2.5 flex items-start gap-3 px-4 py-3 rounded-xl border border-[#D35057]/40 bg-[#FAF8F5] dark:bg-[#13204A]">
+          <span className="font-mono text-lg font-bold text-[#D35057] leading-none mt-0.5 shrink-0 tabular-nums">
+            {bosProje.length}
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-[13px] font-semibold text-[#1B2A4A] dark:text-[#F3EFE8]">
+              proje kaydı boş duruyor
+            </span>
+            <span className="block mt-0.5 text-[11px] text-[#9A8C76] dark:text-[#6E7CA0] leading-snug">
+              {bosProje.map(p => p.title).join(', ')} · bölümü yok, gövdesi yok.
+              Arşive kalkar, silinmez.
+            </span>
+          </span>
+          <button
+            type="button"
+            onClick={bosProjeleriArsivle}
+            disabled={projeIsi}
+            className="shrink-0 px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#1B2A4A] text-[#F3EFE8] hover:opacity-90 disabled:opacity-40 cursor-pointer"
+          >
+            {projeIsi ? 'Arşivleniyor…' : 'Arşivle'}
+          </button>
+        </div>
+      )}
+      {projeRaporu && (
+        <p className="mb-2.5 px-4 py-2 rounded-lg bg-[#F3EFE8] dark:bg-[#17345A] text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9]">
+          {projeRaporu}
+        </p>
+      )}
+
       {temizlikRaporu && (
         <p className="mb-2.5 px-4 py-2 rounded-lg bg-[#F3EFE8] dark:bg-[#17345A] text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9]">
           {temizlikRaporu}

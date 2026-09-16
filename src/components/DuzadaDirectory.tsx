@@ -15,9 +15,11 @@ import {
   Archive, 
   Check, 
   HelpCircle,
-  FileText
+  FileText,
+  Home,
 } from 'lucide-react';
 import { Item, ItemType } from '../types';
+import { kisiMi, adaSakiniMi, adaSakiniYap } from '../lib/adaSakini';
 
 interface DuzadaDirectoryProps {
   items: Item[];
@@ -364,9 +366,43 @@ export default function DuzadaDirectory({
           </div>
         </div>
 
-        {/* Inline Deletion */}
+        {/*
+          Kişilerde silme yok.
+
+          Kemal: "belki de ada sakini olacak, sadece elimdeki karakterleri
+          silmek istemiyorum." Silmek kişiyi evrenden de siliyordu; oysa
+          otelden çıkan kişi adada kalabilir. Kişilerde düğme oteldeki yeri
+          bırakmaya dönüştü, kayıt duruyor. Diğer türlerde silme aynı.
+        */}
         <div onClick={(e) => e.stopPropagation()} className="shrink-0">
-          {isDeleting ? (
+          {kisiMi(ent) ? (
+            adaSakiniMi(ent) ? (
+              <span
+                className="opacity-0 group-hover:opacity-100 text-[8px] font-mono text-stone-400 transition-all"
+                title="Bu kişi zaten ada sakini"
+              >
+                sakin
+              </span>
+            ) : isDeleting ? (
+              <button
+                onClick={async () => {
+                  await onUpdateItem(adaSakiniYap(ent, items));
+                  setDeleteConfirmId(null);
+                }}
+                className="text-[8px] font-mono font-bold bg-[#1B2A4A] text-white px-1 py-0.2 rounded"
+              >
+                Sakin yap
+              </button>
+            ) : (
+              <button
+                onClick={() => setDeleteConfirmId(ent.id)}
+                className="opacity-0 group-hover:opacity-100 p-0.5 text-stone-400 hover:text-[#1B2A4A] rounded transition-all cursor-pointer"
+                title="Otelden çıkar, ada sakini yap (kayıt silinmez)"
+              >
+                <Home className="w-3 h-3" />
+              </button>
+            )
+          ) : isDeleting ? (
             <button
               onClick={async () => {
                 await onDeleteItem(ent.id);

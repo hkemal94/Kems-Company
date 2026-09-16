@@ -1,4 +1,4 @@
-export type AreaType = 'duzada' | 'merch' | 'blog' | 'kitap' | 'brainstorm' | 'ilham' | 'komuta' | 'markalar' | 'oyun';
+export type AreaType = 'duzada' | 'merch' | 'blog' | 'kitap' | 'brainstorm' | 'ilham' | 'komuta' | 'markalar' | 'oyun' | 'bosluklar' | 'galeri';
 
 export type GeneralStatus = 'Fikir' | 'Planlandı' | 'Çalışılıyor' | 'Bitti' | 'Yayınlandı';
 export type DropStatus = 'Konsept' | 'Tasarım' | 'Üretim' | 'Satışta';
@@ -11,13 +11,15 @@ export type ItemType =
   | 'kulüp' | 'dükkân' | 'karakter' | 'mekân' | 'ürün' | 'olay' | 'map_settings' | 'map_pin'
   | 'marka' | 'kisi' | 'yer' | 'oda'
   // Merch types
-  | 'tema' | 'drop' | 'merch_urun'
+  | 'drop' | 'merch_urun'
   // Blog types
   | 'blog_post'
   // Kitap types
   | 'kitap_proje' | 'kitap_bolum'
   // Brainstorm
   | 'fikir'
+  // Oyun stüdyosu: süreçteki iş kartı ve tasarım belgesi bölümü
+  | 'oyun_is' | 'gdd_bolum'
   // Inspiration
   | 'ilham_gorsel'
   // Komuta types

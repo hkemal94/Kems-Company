@@ -245,29 +245,19 @@ export default function Markalar({
     );
   }, [items, activeBrandId, isUnassignedSelected]);
 
-  // Merch items for this brand:
-  // Temalar belonging to this brand (metadata.brandId === activeBrandId)
-  const brandTemalar = useMemo(() => {
-    return items.filter(i => 
-      !i.archived && 
-      i.type === 'tema' && 
-      (isUnassignedSelected ? !i.metadata?.brandId : i.metadata?.brandId === activeBrandId)
-    );
-  }, [items, activeBrandId, isUnassignedSelected]);
-
-  // Drops for this brand:
-  // We can find drops whose parent Tema belongs to this brand
+  // Merch items for this brand.
+  // Tema katmanı kaldırıldı (34 cevabın 16. maddesi): droplar doğrudan
+  // markaya bağlı, araya başka bir halka girmiyor.
   const brandDroplar = useMemo(() => {
-    const temaIds = brandTemalar.map(t => t.id);
     return items.filter(i => 
       !i.archived && 
       i.type === 'drop' && 
       (isUnassignedSelected 
-        ? (!i.metadata?.brandId && !temaIds.includes(i.metadata?.themeId || ''))
-        : (i.metadata?.brandId === activeBrandId || temaIds.includes(i.metadata?.themeId || ''))
+        ? !i.metadata?.brandId
+        : i.metadata?.brandId === activeBrandId
       )
     );
-  }, [items, activeBrandId, brandTemalar, isUnassignedSelected]);
+  }, [items, activeBrandId, isUnassignedSelected]);
 
   // Products for this brand:
   const brandUrunler = useMemo(() => {
@@ -354,19 +344,18 @@ export default function Markalar({
     alert(activeBrandId === 'unassigned' ? 'Yeni bağımsız varlık başarıyla oluşturuldu!' : 'Yeni varlık markaya bağlı olarak oluşturuldu!');
   };
 
-  // Create Theme bound to Brand ("Merch yap" flow)
+  // "Merch yap" — markanın kitiyle doğrudan bir DROP açar (tema yok)
   const handleCreateBrandMerch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newThemeTitle.trim() || !activeBrandId) return;
 
-    const id = `merch_tema_${Date.now()}`;
     const itemData: Omit<Item, 'id' | 'createdAt' | 'updatedAt' | 'userId'> = {
       title: newThemeTitle,
       area: 'merch',
-      type: 'tema',
-      status: 'Çalışılıyor',
+      type: 'drop',
+      status: 'Konsept',
       priority: 'orta',
-      tags: ['merch', 'tema'],
+      tags: ['merch', 'drop'],
       links: [],
       notes: newThemeNotes,
       images: [],
@@ -374,7 +363,8 @@ export default function Markalar({
       archived: false,
       metadata: {
         brandId: activeBrandId,
-        moodboard: []
+        editionCount: 1,
+        editionNotes: '1. Edisyon başlangıcı.'
       }
     };
 
@@ -383,9 +373,12 @@ export default function Markalar({
     setNewThemeNotes('');
     setShowMerchForm(false);
     
-    // Redirect to Merch Atölyesi
-    onSelectArea('merch', id);
-    alert('Marka kiti kullanılarak Tema oluşturuldu ve Merch Atölyesi\'ne yönlendirildiniz!');
+    /*
+     * Eskiden burada yerel bir `id` üretilip onSelectArea'ya veriliyordu; ama
+     * kaydın gerçek kimliğini onAddItem üretiyor, yani o kimlik hiçbir zaman
+     * tutmuyordu — açılan sayfa boş geliyordu. Artık drop listesine gidiyoruz.
+     */
+    onSelectArea('merch');
   };
 
   // AI palette generation suggestion
@@ -617,7 +610,7 @@ export default function Markalar({
                     <button
                       onClick={() => setShowMerchForm(true)}
                       className="flex items-center gap-1 bg-emerald-600 hover:bg-emerald-700 text-white font-mono text-xs px-3.5 py-2 rounded-lg cursor-pointer shadow-xs"
-                      title="Bu markanın kitini kullanarak tema oluşturun"
+                      title="Bu markanın kitiyle yeni bir drop açın"
                     >
                       <ShoppingBag className="w-3.5 h-3.5" />
                       <span>Merch Yap</span>
@@ -1658,29 +1651,7 @@ export default function Markalar({
                   </span>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  
-                  {/* Tema List */}
-                  <div className="space-y-2">
-                    <span className="text-[10px] font-mono uppercase tracking-wider text-stone-400 block">
-                      📁 Temalar ({brandTemalar.length})
-                    </span>
-                    <div className="space-y-1">
-                      {brandTemalar.map(t => (
-                        <div 
-                          key={t.id} 
-                          onClick={() => onSelectArea('merch', t.id)}
-                          className="p-2 bg-white dark:bg-[#112440] border border-stone-200 rounded-lg text-xs hover:border-[#D35057] transition-all flex justify-between items-center cursor-pointer"
-                        >
-                          <span className="font-bold text-[#1B2A4A] dark:text-[#F3EFE8] truncate max-w-[120px]">{t.title}</span>
-                          <span className="text-[9px] font-mono text-indigo-500">Aç</span>
-                        </div>
-                      ))}
-                      {brandTemalar.length === 0 && (
-                        <span className="text-[11px] text-stone-400 italic block">Tanımlı tema bulunamadı.</span>
-                      )}
-                    </div>
-                  </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
                   {/* Drop List */}
                   <div className="space-y-2">
@@ -1813,16 +1784,16 @@ export default function Markalar({
 
             <p className="text-xs text-stone-500 leading-relaxed font-mono">
               Bu işlem, <strong>{activeBrand.title}</strong> markasının kurumsal logosunu, fontunu ve 
-              renk paletini otomatik olarak içe aktararak yeni bir Merch Teması (Theme) başlatacaktır.
+              renk paletini kullanarak yeni bir drop başlatır. Zincir: marka → drop → ürün.
             </p>
 
             <form onSubmit={handleCreateBrandMerch} className="space-y-4 font-mono text-xs">
               <div className="space-y-1">
-                <label className="block font-bold text-[#6A5E4C]">Yeni Merch Teması Adı *</label>
+                <label className="block font-bold text-[#6A5E4C]">Yeni Drop Adı *</label>
                 <input
                   type="text"
                   required
-                  placeholder="Örn: Yaz Sezonu Koleksiyonu, Ekinoks Özel..."
+                  placeholder="Örn: Basics 2, Ekinoks Özel..."
                   value={newThemeTitle}
                   onChange={(e) => setNewThemeTitle(e.target.value)}
                   className="w-full text-xs bg-white text-[#1B2A4A] border border-[#CFC5B4] rounded-lg p-2 focus:outline-hidden"
@@ -1830,7 +1801,7 @@ export default function Markalar({
               </div>
 
               <div className="space-y-1">
-                <label className="block font-bold text-[#6A5E4C]">Tema Açıklaması / Konsept</label>
+                <label className="block font-bold text-[#6A5E4C]">Drop Açıklaması / Konsept</label>
                 <textarea
                   rows={3}
                   placeholder="Koleksiyonun esin kaynakları, stil rehberi ve hedefleri..."
@@ -1852,7 +1823,7 @@ export default function Markalar({
                   type="submit"
                   className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
                 >
-                  Tema Oluştur ve Atölyeye Git
+                  Drop Oluştur ve Atölyeye Git
                 </button>
               </div>
             </form>

@@ -24,6 +24,8 @@ import {
   LayoutDashboard, 
   Compass, 
   PenTool, 
+  PenLine, 
+  Image as ImageIcon, 
   BookMarked, 
   Palette,
   Shield,
@@ -40,8 +42,10 @@ import {
 } from './lib/aiGozcusu';
 import Blog from './components/Blog';
 import Kitap from './components/Kitap';
-import Oyun from './components/Oyun';
 import Brainstorm from './components/Brainstorm';
+import Bosluklar from './components/Bosluklar';
+import Galeri from './components/Galeri';
+import OyunEkrani from './components/oyun/OyunEkrani';
 import Markalar from './components/Markalar';
 import { CHARACTERS_IMPORT_DATA } from './data/charactersImportData';
 import DuzadaDirectory from './components/DuzadaDirectory';
@@ -198,12 +202,20 @@ export default function App() {
     }
   }, [user]);
 
-  // Sekmeye dönüldüğünde ve 15 saniyede bir otomatik canlı çekim
+  /*
+   * Otomatik canlı çekim (34 cevabın 29. maddesi: "saat başı").
+   *
+   * Önceden 15 saniyedeydi; tek kullanıcılı bir uygulamada bu, saatte 240
+   * gereksiz okuma demek. Sekmeye dönünce ve sekme görünür olunca zaten
+   * çekiliyor, o yüzden arka plandaki zamanlayıcının sık olmasına gerek yok.
+   * Elle "Şimdi Yenile" düğmesi de duruyor.
+   */
+  const SAAT_BASI = 60 * 60 * 1000;
   useEffect(() => {
     if (!user) return;
     const interval = setInterval(() => {
       handleRefreshLive();
-    }, 15000);
+    }, SAAT_BASI);
 
     const onFocus = () => {
       handleRefreshLive();
@@ -420,18 +432,8 @@ export default function App() {
     const targetItem = items.find(i => i.id === itemId);
 
     if (targetItem && targetItem.area === 'merch') {
-      if (targetItem.type === 'tema') {
-        // Cascade delete child drops and their products
-        const childDrops = items.filter(d => d.area === 'merch' && d.type === 'drop' && d.metadata?.themeId === itemId);
-        for (const d of childDrops) {
-          deletedIds.add(d.id);
-          const grandProducts = items.filter(p => p.area === 'merch' && p.type === 'merch_urun' && p.metadata?.dropId === d.id);
-          for (const p of grandProducts) {
-            deletedIds.add(p.id);
-          }
-        }
-      } else if (targetItem.type === 'drop') {
-        // Cascade delete child products under this drop
+      if (targetItem.type === 'drop') {
+        // Drop silinince altındaki ürünler de gider
         const childProducts = items.filter(p => p.area === 'merch' && p.type === 'merch_urun' && p.metadata?.dropId === itemId);
         for (const p of childProducts) {
           deletedIds.add(p.id);
@@ -755,7 +757,7 @@ export default function App() {
   const handleSelectResult = (item: Item) => {
     setActiveItemId(item.id);
     // Switch to correct tab based on item type
-    if (item.type === 'tema' || item.type === 'drop' || item.type === 'merch_urun') {
+    if (item.type === 'drop' || item.type === 'merch_urun') {
       setActiveTab('merch');
     } else if (item.type === 'marka') {
       setActiveTab('markalar');
@@ -1035,7 +1037,11 @@ export default function App() {
               // birleştirmek için yazılmıştı ama raya hiç bağlanmamıştı.
               { id: 'yazi', label: 'Yazı İşleri', icon: PenTool },
               { id: 'oyun', label: 'Oyun Projeleri', icon: Gamepad2 },
-              { id: 'brainstorm', label: 'Brainstorm', icon: Sparkles }
+              { id: 'brainstorm', label: 'Brainstorm', icon: Sparkles },
+              // Boşluklar: metni Kemal yazacak, buraya hiçbir öneri basılmıyor
+              { id: 'bosluklar', label: 'Boşluklar', icon: PenLine },
+              // Galeri: Canva'dan indirilen logolar buraya yükleniyor
+              { id: 'galeri', label: 'Galeri', icon: ImageIcon }
             ].map(item => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
@@ -1149,7 +1155,7 @@ export default function App() {
           )}
 
           {activeTab === 'oyun' && (
-            <Oyun
+            <OyunEkrani
               items={items}
               activeItemId={activeItemId}
               onSelectItem={setActiveItemId}
@@ -1164,7 +1170,27 @@ export default function App() {
                   setActiveItemId(null);
                 }
               }}
+              onSelectArea={(area, itemId) => {
+                setActiveTab(area as any);
+                setActiveItemId(itemId || null);
+              }}
             />
+          )}
+
+          {activeTab === 'galeri' && (
+            <Galeri
+              items={items}
+              onAddItem={handleAddItem}
+              onUpdateItem={handleUpdateItem}
+              onSelectItem={(id) => {
+                const it = items.find(i => i.id === id);
+                if (it) handleSelectResult(it);
+              }}
+            />
+          )}
+
+          {activeTab === 'bosluklar' && (
+            <Bosluklar items={items} onUpdateItem={handleUpdateItem} />
           )}
 
           {activeTab === 'brainstorm' && (
