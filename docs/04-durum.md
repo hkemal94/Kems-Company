@@ -136,10 +136,16 @@ geri getirilen kayıtları yeniden arşive kaldırmayı önermez.
 Açık: Deniz Feneri "faal" ama başlangıç yılı yok — yıl gelince
 "Faaliyette: YYYY–" yazılır.
 
-**Uyarı — kendiliğinden silen eski kodlar (App.tsx):** otel kopyalarını,
-oda kopyalarını, "yeni varlık" adlı kayıtları ve bazı olay kayıtlarını
-siliyorlar. "Hiçbir kayıt silinmez" kuralına aykırı. Kemal'e soruldu;
-K paketinde ele alınacak.
+W2 düğmesine basıldı (28 Eylül); Kemal kontrol etti, "okey".
+
+**K — kendiliğinden silen eski kodlar (28 Eylül, düzeltildi):** App.tsx
+açılışta otel kopyalarını, "yeni varlık" adlı kayıtları ve oyun mekaniği
+olaylarını siliyordu; artık arşive kaldırıyor (`otomatik-arsiv` etiketi).
+Oda kopyası birleştirme kodu tamamen kalktı: kopyaları siliyor, odalara
+"Deluxe" ve 203/304'e "bakımda" yazıyordu.
+Kemal'in kararıyla ikisi daha: arayüzdeki bütün "Sil" düğmeleri artık
+arşive kaldırıyor (bağlar korunur, drop kalkınca ürünleri de kalkar);
+76 karakteri öneri olarak içe aktaran eski kod kapatıldı.
 
 ## Harita · H1 sokak dokusu (28 Eylül)
 
@@ -172,11 +178,44 @@ bir kordon eklendi (adı geçici: "Liman Kordonu").
 Harita paketinde sırada: postane + sağlık ocağı (Merkez), mahalle
 sınırlarının doğallaşması, arazi / bina görünümü.
 
+**Liman ve cadde (28 Eylül, W3 1. tur):** Kemsköy Caddesi'ndeki 14 yapı
+1–2 kata indi. Liman rıhtımına mendirek ve feribot iskelesi eklendi.
+Görsel: `docs/gorseller/h2-liman.png`.
+
+**W3 sonrası harita (28 Eylül):** Merkez'deki iki apartman dükkânlı /
+müstakil eve döndü (Merkez'de apartman yok). Çiftlik'e adsız kooperatif
+zeytinyağı fabrikası, fenerin yanına Fener Evi eklendi. Sade Meze eski
+fabrika binası olarak büyüdü (2 kat). Köy sokakları da artık yapıların
+içinden geçmiyor (Belediye, Dirlik Stadı, Sürek Kulübü çakışmaları gitti).
+
+**W3 aktarım düğmesi:** Neyin Eksik'te "yeni soru-cevaplar (W3) vikiye
+aktarılmayı bekliyor" kartı (`src/lib/w3Aktarimi.ts`): künyelere tarih
+aralıkları, fenere "Faaliyette: 19. yüzyıl–", Merkez'e çarşı satırı, ada
+maddesinde feribot Küçükkuyu ve eski paragraf eski metne.
+
 **Konut kararı (Kemal, 28 Eylül):** Mahallelerdeki binalar çoğunlukla
 müstakil ev olacak. Apartman / çok katlı blok az; yoksa nüfus istenmeyen
 seviyeye çıkar. Sokak dokusu sıklaşsa da adalar bahçeli müstakil evlerle
 dolacak, blokla değil. Henüz ev yerleştirilmedi; bina işi başlarken
 buna uyulacak.
+
+## Sıradaki büyük işler (28 Eylül, Kemal'in istekleri)
+
+**Şehir kurucu (H):** Harita düzenleyiciyi şehir kurucu tarzına taşımak.
+Kemal: "yollar git gide gözüme kötü görünüyor." Sıra: (1) yol aracı —
+tıklayıp çiz, kavşağa yapışsın, yokuşta kıvrılsın; (2) bina aracı — hazır
+kalıplar (müstakil ev, dükkânlı ev, kamu binası), yola dönük yerleşim, adayı
+doldurma; (3) örnek mahalle kalıpları (kıyı kasabası / Küçükkuyu, dağ köyü /
+Adatepe, tek caddeli liman). İlk adım yol aracı; Kemal yatınca başlanacak.
+
+**Kanon KKM'nin başka alanlarında:** Merch'te drop açılınca bağlı kurumun
+kanon bilgisi; Kitap'ta geçen yer/kişi adlarının vikiye bağlanması ve
+tarihle çelişki uyarısı (ör. 1970'lerde feribot Liman'da olamaz); Blog'da
+kanondan hızlı bilgi; tutarlılık denetçisinin (ConsistencyChecker) kanonla
+beslenmesi. Plan Kemal'e sunuldu, sıraya girecek.
+
+**Canva künye eskizi:** A4 dikey, tek tasarımda mahalle / kurum / kişi /
+mekân künyeleri; alanlar boş (Kemal dolduracak).
 
 ## Otel maddesi temizliği (28 Eylül)
 

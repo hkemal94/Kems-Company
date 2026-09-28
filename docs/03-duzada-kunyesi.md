@@ -23,8 +23,9 @@ yazılmaz.
 ## Mahalleler
 
 **Merkez Mahallesi** — Adanın ortası, eski adıyla Düzada Köyü. Ada geliştikçe
-köy merkez mahallesi olarak anılmaya başlamış. Kamu binaları, apartmanlar,
-küçük işletmeler.
+köy merkez mahallesi olarak anılmaya başlamış. Kamu binaları, meydan
+çevresinde çarşı (kahvehane, bakkal, fırın), küçük işletmeler. Apartman yok
+(Kemal, 28 Eylül: binalar çoğunlukla müstakil).
 
 **Liman Mahallesi** — İskelenin operasyonel olarak yetersiz kalması sebebiyle
 inşa edilen yeni liman ve çevresi. Adanın kuzeybatı ucunda, limanı yukarıdan
@@ -38,6 +39,125 @@ sakinler oturuyor. Adanın eğlence mekânları ve ilk oteli burada.
 **Stadyum Mahallesi** — Dirlik Spor Kulübü ve Dirlik Stadı.
 
 **Çiftlik Mahallesi** — Küçükçetmi Sürek Kulübü.
+
+## Tarihçe iskeleti (28 Eylül 2026, soru-cevap W3)
+
+Aralıklar kanon; kesin yıl yoksa uydurulmaz. Ayrıntı `docs/soru-cevap/w3.md`.
+
+- **Merkez / Düzada Köyü** — antik kökenli; Ada Tepesi'nde kalıntı var.
+- **Kemsköy** — otelden (1954) önce köyün iskelesi ve birkaç balıkçı evi.
+- **The Imperial Kemsköy** — 1954.
+- **Deniz Feneri** — 19. yüzyıl.
+- **Dirlik Spor Kulübü** — 1950–1970'ler, köy döneminde; toprak sahada
+  oynayan amatör çocuklar. Stat 1980'lerde. Su sporları İskele'nin koyunda.
+- **Küçükçetmi Sürek Kulübü** — sürek avı köyde eski gelenek; kulüp sonra.
+  Av 1990–2000'lerde bırakıldı; gelenek kulüpte sürer.
+- **Liman Mahallesi** — 1980–1990'lar; öncesinde fener ve koyun çevresi
+  zeytinlik. Feribot İskele'den yeni limana taşındı; İskele otel, eğlence
+  ve küçük teknelerin yeri olarak kaldı.
+- **Otelin etkisi** — 1954 ile adada yaz turizmi başladı; İskele'ye
+  otelciler ve varlıklı yazlıkçılar yerleşti. Otel yıl boyu açık; kışın az
+  misafir ve az personelle.
+- **Kemsköy'ün mahalleliği** — halk 1954 sonrası "mahalle" dedi; resmî
+  mahalle olması belediyeyle.
+- **Okul** — 1920–1940'lar.
+- **Ada Tepesi kalıntısı** — antik yerleşim duvarları.
+- **Belediye** — 1980 sonrası; Düzada Köyü o zaman "Merkez Mahallesi" oldu.
+- **Stadyum Mahallesi** — statın çevresinde büyüdü; kulüp çevresi ve adaya
+  sonradan yerleşen aileler.
+- **Zeytinyağı** — eski fabrika İskele tarafında (19. yy sonu – 1920'ler
+  kuruldu, 1950–1970'lerde kapandı); taş binası bugün Sade Meze. Aynı
+  dönemde Tariş benzeri bir kooperatif Çiftlik'e modern, küçük bir fabrika
+  kurdu (adsız).
+- **Çiftlik Mahallesi** — hep dağınık küçük çiftliklerin bölgesi.
+- **Fener bekçiliği** — bekçi fenerin yanındaki evde yaşardı; 1980–1990'larda
+  fener otomatiğe geçti.
+
+## Ada hayatı (28 Eylül 2026, soru-cevap W3)
+
+- **Ulaşım** — her gün feribot, Küçükkuyu'ya; fırtınada iptal. Feribot araç
+  da taşır, adada araba serbest. Sahil Yolu eski patikaların parça parça
+  birleşmesiyle oluştu. Su anakaradan boru hattıyla gelir.
+- **Mevsim** — yazın kalabalıklaşır; kışın ada sessizleşir. Otel yıl boyu
+  açık (kışın az misafir, az personel).
+- **Konaklama** — otel, her mahallede dağınık pansiyonlar, kiralık evler.
+  Kamp yok.
+- **Balıkçılık** — büyük tekneler Liman'da, küçükler İskele'de.
+- **Adalılar** — karışık: eski köylüler, mübadeleyle gelenler, sonradan
+  yerleşenler.
+- **İbadet** — Merkez'de cami; İskele'de boş duran eski bir kilise (küçük
+  şapel) ve bir mescit. Mezarlık Merkez'in dışında, zeytinliklerde.
+- **Güvenlik** — Merkez'de jandarma karakolu; Liman'da sahil güvenlik.
+- **Kamu** — postane 1950–1970'ler; sağlık ocağı 1980 sonrası. Okul ilk ve
+  ortaokul; lise anakarada. Ağır hastalıkta feribot, acilde deniz
+  ambulansı. Liman İdare Binası: liman başkanlığı, feribot gişesi ve
+  bekleme salonu, sahil güvenlik.
+- **Doğa** — zeytinlik, maki, Ada Tepesi yamaçlarında çam ormanı, çıplak
+  kayalık. Plajlar: İskele koyu, Stadyum kıyısı, gizli koylar. Ticari
+  hayvancılık yok; evlerde tavuk, eşek, birkaç keçi.
+- **Şenlikler** — zeytin hasadı, bağ bozumu, deniz şenliği, sürek geleneği
+  (irili ufaklı).
+- **Dirlik** — profesyonel alt lige birkaç kez inip çıktı.
+- **Mekânlar** — Sade Meze: fabrika kapandıktan sonra bir süre boş kaldı,
+  1980–1990'larda meyhane oldu. Dondurmacı Kızlar: 2000 sonrası.
+- **Kems Company** — Kemsköy Caddesi'nde bir dükkânı var (adı, yeri sonra);
+  Kems Company ürünleri ve kulüp serileri satılır.
+
+## Ada hayatı · 2 (28 Eylül 2026, W3 20–27. turlar)
+
+- **Otelin kökeni** — bina devletin: İskele Mahallesi'ne Haydarpaşa'nın
+  minyatürü gibi bir **devlet misafirhanesi** olarak yapıldı; çok sürmeden
+  özelleştirilip otel oldu (tarih yok). Parlak dönemi hep sürdü; her
+  dönemde farklı yüksek profilli misafirler. Otelin sahili uçurumun dibinde
+  ayrı küçük bir cep.
+- **Elektrik** — 1950–1960'lar: önce otelin jeneratörü, köy hemen ardından.
+- **Eski kilise** — 18. yüzyıl, İskele'de, boş.
+- **Dirlik** — profesyonel alt ligde 1990'lar ve 2000'lerde; yakın dönemde
+  bölgesel amatör ligden profesyonel lige çıkmak için iddialı. Stat iki
+  tribünlü. İç saha maçlarında ada stada taşınır, deplasmanda Merkez
+  kahvehanesinde izlenir.
+- **İskele** — eğlence: meyhane ve bar tarzı birkaç mekân. Kemsköy Caddesi
+  yazlık bir beldenin ana caddesi; zamanla daha üst segmente yaklaşıyor.
+- **Liman** — çekek yeri, balık hali, balık lokantası; market, akaryakıt,
+  kafeler, araç kiralama. Sakinler: liman çalışanları, balıkçılar, esnaf,
+  genç aileler.
+- **Çiftlik** — küçük aile şaraphaneleri; taş, avlulu çiftlik evleri.
+  Kooperatifin üyeleri bütün adanın zeytincileri. Arıcılık Ada Tepesi
+  yamaçlarında.
+- **Merkez** — meydanda eski taş çeşme ve yaşlı bir çınar; haftada bir
+  pazar. Eski köylü aileler, kamu çalışanları, esnaf, emekliler; orta direk.
+- **Kıyılar** — Stadyum kıyısında kumlu-çakıllı plaj; gizli koylara patika
+  ya da tekneyle.
+- **Kış** — poyraz kışın sert (feribot iptalleri çoğunlukla kışın), bahar
+  sabahları sis, sonbaharda lodos.
+- **Sade Meze ve Dondurmacı Kızlar** — ikisinin de sahibi aynı kadın: ailesi
+  adalı, anakaradan geldi; Sade Meze ailesinden kalma. Adı yok.
+
+## Ada hayatı · 3 (28 Eylül 2026, W3 28–35. turlar)
+
+- **Merkez** — eski cami, 1980 sonrası yenilendi; kahvehane 1950–1970'lerden.
+  Belediye itfaiyesi, eczane; kütüphane yalnız okulda. Banka yok, Liman ve
+  İskele'de ATM.
+- **Ada Tepesi** — antik yerleşim duvarları ve yangın gözetleme kulesi;
+  toprak yol, son kısım patika.
+- **İskele** — cadde otelden bu yana yavaş yavaş dükkânlı yazlık caddesine
+  döndü; barlar 1970'lerden. Gece hayatı yıl boyu, kışın sakin; Sade Meze
+  yıl boyu açık.
+- **Kems Company** — adını Kemsköy'den alır (kurgu içinde). Caddedeki
+  dükkânı 2010 sonrası.
+- **Liman** — mendireğin içinde birkaç yat iskelesi (marina yok). Akşamları
+  son feribota kadar canlı. Balık hali önce İskele'deydi, limana taşındı.
+  İskele ile hafif bir rekabet.
+- **Çiftlik** — zeytinlikler karışık (asırlık ve yeni); şaraphaneler 2000
+  sonrası butik; Ada Tepesi çam balı yerel.
+- **Mutfak** — balık öne çıkar.
+- **Stadyum** — Dirlik Stadı 1980'ler. Kıyıdaki plajda maç öncesi taraftar
+  birahanesi.
+- **Adalılar** — hafif Ege ağzı yalnız yaşlılarda. Lise, hastane, büyük
+  alışveriş ve resmî işler için Küçükkuyu'ya gidilir.
+- **Otel** — misafirler: sanatçı ve yazarlar, siyasetçi ve bürokratlar, iş
+  insanları, yabancı gezginler. Personel karışık (adalı + sezonluk).
+  Restoranı dışarıya da açık; düğün / etkinlik yapılmaz.
 
 ## The Imperial Kemsköy
 
