@@ -111,6 +111,17 @@ birikiyor, sonra tek seferlik düğmeyle vikiye aktarılacak. İlk mahalle
 İskele / Kemsköy: başlık, konum, sınırlar, arazi cevaplandı; Tarihçe
 Kemal'in cümlelerini bekliyor.
 
+## Harita · H1 sokak dokusu (28 Eylül)
+
+Kemal: mahalle sokakları "inanılmaz yapay". Sebep: üreteç (`gen/duzada.py`)
+beş mahalleye aynı ızgara kalıbını basıyordu. Artık doku araziden doğuyor:
+kıyıda rıhtıma paralel cadde ve arka sokaklar, yamaçta eşyükselti sokakları,
+aralarda tırmanan geçitler / merdivenler. Kemal: "yön doğru, muhteşem değil
+ama şu an için iyi". Uygulama içinde 3B görünüm henüz denenmedi.
+
+Harita paketinde sırada: postane + sağlık ocağı (Merkez), mahalle
+sınırlarının doğallaşması, arazi / bina görünümü.
+
 ## Otel maddesi temizliği (28 Eylül)
 
 Oyun için açılan kod oturumu bu depoya da girdi ve "Ekim 2008'e taşı"

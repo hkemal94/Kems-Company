@@ -1527,75 +1527,18 @@ def _kivrimli(p0, p1, salinim, n=10):
             for i in range(n + 1)]
 
 
-# (mahalle, ad kökü, merkez, doku açısı°, uzun sokak sayısı, enine sayı,
-#  uzunluk m, genişlik m)
-YERLESIMLER = [
-    ("yer_merkez",  "Merkez",  MERKEZ_KASABA,   22.0, 5, 4, 1450, 1050),
-    ("yer_liman",   "Liman",   (-4500,  2450), -28.0, 4, 3, 1400,  900),
-    ("yer_stadyum", "Stadyum", ( 4550,  2950),  40.0, 4, 3, 1300,  850),
-    ("yer_ciftlik", "Çiftlik", ( 6280, -2330),  62.0, 3, 3, 1050,  760),
-]
-
-for _mid, _kok, (_cx, _cy), _aci, _uzun_adet, _en_adet, _boy, _en in YERLESIMLER:
-    _hucre = mahalle_geom[_mid][2]
-    # Doku kendi mahallesinde kalsın (ana yola değecek kadar taşabilsin),
-    # ama hiçbir koşulda kıyıyı aşmasın.
-    _alan = _hucre.buffer(60).intersection(ada.buffer(-30))
-    _th = math.radians(_aci)
-    _u = (math.cos(_th), math.sin(_th))            # uzun eksen
-    _v = (-math.sin(_th), math.cos(_th))           # enine eksen
-    _n = 0
-
-    def _nokta(a, b):
-        return (_cx + _u[0] * a + _v[0] * b, _cy + _u[1] * a + _v[1] * b)
-
-    # uzun sokaklar
-    for _k in range(_uzun_adet):
-        _b = (_k - (_uzun_adet - 1) / 2) * (_en / max(_uzun_adet - 1, 1))
-        _ham = _kivrimli(_nokta(-_boy / 2, _b), _nokta(_boy / 2, _b),
-                         28.0 * (1 if _k % 2 else -1))
-        _hat = _hat_kirp(_ham, _alan)
-        if _hat:
-            _n += 1
-            YOLLAR.append((f"sokak_{_mid}_{_n}", f"{_kok} {_n}. Sokak",
-                           _hat, "sokak", _mid))
-
-    # enine sokaklar
-    for _k in range(_en_adet):
-        _a = (_k - (_en_adet - 1) / 2) * (_boy / max(_en_adet - 1, 1)) * 0.78
-        _ham = _kivrimli(_nokta(_a, -_en / 2 - 90), _nokta(_a, _en / 2 + 90),
-                         22.0 * (-1 if _k % 2 else 1))
-        _hat = _hat_kirp(_ham, _alan)
-        if _hat:
-            _n += 1
-            YOLLAR.append((f"sokak_{_mid}_{_n}", f"{_kok} {_n}. Sokak",
-                           _hat, "sokak", _mid))
-
-
-
-# --- İskele: araziye göre sokak dokusu ------------------------------------
+# --- araziye göre sokak dokusu ---------------------------------------------
 #
-# Diğer mahalleler hâlâ ızgara kalıbıyla kuruluyor; İskele ilk deneme.
-# Kemal: sokaklar "inanılmaz yapay". Ege kıyı kasabasında doku üç
-# parçadan oluşur, burada da öyle:
-#   1. Kemsköy Caddesi — kıyıya paralel (yukarıda tanımlı).
-#   2. Yamaç sokakları — eşyükselti çizgilerini izler; aynı kotta kalır,
-#      yamacın kıvrımıyla kıvrılır.
-#   3. Dik geçitler — caddeden yamaca en dik yönde tırmanır; eğim yüksekse
-#      merdivendir.
-# Adlar numaralı ve geçici: "İskele 3. Sokak".
-
-ISKELE_DERINLIK = 520.0      # dokunun caddeden içeri ne kadar uzandığı (m)
-ISKELE_KAT_ARASI = 9.0      # ardışık yamaç sokakları arasındaki kot farkı (m)
-ISKELE_GECIT_ARALIGI = 120.0 # dik geçitlerin cadde boyunca aralığı (m)
-
-_isk_hucre = mahalle_geom["yer_iskele"][2]
-# Doku caddenin ARKASINDA kalır: caddenin iki ucundan dik kesilen bir
-# şerit (düz uçlu tampon), kıyıdan ve mahalle sınırından içeride.
-_isk_alan = (_isk_hucre.buffer(40)
-             .intersection(KEMSKOY_HATTI.buffer(ISKELE_DERINLIK, cap_style=2))
-             .intersection(ada.buffer(-60)))
-_isk_n = 0
+# Eskiden her mahalleye aynı kalıp basılıyordu: 3-5 paralel sokak, onları
+# dik kesen 3-4 sokak, biraz döndürülmüş. Kemal: "inanılmaz yapay".
+# Ege kasabasında doku araziden doğar; burada da öyle:
+#   omurga  — kıyı mahallesinde kıyıya paralel cadde; iç mahallede
+#             yerleşim noktasından geçen eşyükselti hattı (yamacı yatay keser).
+#   yamaç   — omurganın üstünde (iç mahallede altında da) eşyükselti
+#             çizgilerini izleyen sokaklar; tepenin kıvrımıyla döner.
+#   geçit   — omurgadan yamaca en dik yönde tırmanan / inen yollar; eğimi
+#             yüksek olanlar merdiven.
+# Adlar numaralı ve geçici: "İskele 3. Sokak". Asıl adları Kemal koyacak.
 
 
 def _chaikin(noktalar, tur=3):
@@ -1610,20 +1553,6 @@ def _chaikin(noktalar, tur=3):
     return noktalar
 
 
-def _isk_ekle(hat, tur):
-    global _isk_n
-    _isk_n += 1
-    YOLLAR.append((f"sokak_yer_iskele_{_isk_n}", f"İskele {_isk_n}. Sokak",
-                   hat, tur, "yer_iskele"))
-
-
-# kot alanı
-_ix0, _iy0, _ix1, _iy1 = _isk_alan.bounds
-_IGX, _IGY = np.meshgrid(np.linspace(_ix0, _ix1, 180), np.linspace(_iy0, _iy1, 180))
-_IZ = yukselti(_IGX, _IGY)
-_cadde_kotu = float(np.median(yukselti(*np.array(KEMSKOY_HATTI.coords).T)))
-
-
 def _egim_yonu(x, y, h=12.0):
     gx = (yukselti(x + h, y) - yukselti(x - h, y)) / (2 * h)
     gy = (yukselti(x, y + h) - yukselti(x, y - h)) / (2 * h)
@@ -1631,53 +1560,186 @@ def _egim_yonu(x, y, h=12.0):
     return (gx / n, gy / n, n) if n > 1e-6 else (0.0, 0.0, 0.0)
 
 
-# 3. dik geçitler (önce bunlar: yamaç sokakları bunlara değenleri tutacak)
-_gecitler = []
-_adet = max(int(KEMSKOY_HATTI.length // ISKELE_GECIT_ARALIGI), 2)
-for _i in range(1, _adet):
-    _p = KEMSKOY_HATTI.interpolate(_i / _adet, normalized=True)
-    _hat = [(_p.x, _p.y)]
-    x, y = _p.x, _p.y
-    for _ in range(60):
-        ux, uy, _e = _egim_yonu(x, y)
-        if _e == 0.0:
-            break
-        # tam dik değil: biraz yanlama, gerçek patikalar gibi
-        _sap = 0.18 * math.sin(len(_hat) * 0.35 + _i)
-        x, y = x + 15 * (ux - uy * _sap), y + 15 * (uy + ux * _sap)
-        if not _isk_alan.contains(Point(x, y)):
-            break
-        _hat.append((x, y))
-    if len(_hat) >= 6:
-        _gecitler.append(_chaikin(_hat_seyrelt(_hat, 45.0)))
+def _esyukselti_omurga(merkez, yarim_boy, adim=20.0):
+    """Merkezden iki yöne, eğime dik yürüyerek yatay bir omurga çizer."""
+    uclar = []
+    for yon in (1, -1):
+        x, y = merkez
+        hat = []
+        for _ in range(int(yarim_boy // adim)):
+            ux, uy, e = _egim_yonu(x, y)
+            if e == 0.0:
+                break
+            x, y = x - yon * uy * adim, y + yon * ux * adim
+            if not ada.buffer(-80).contains(Point(x, y)):
+                break
+            hat.append((x, y))
+        uclar.append(hat)
+    return uclar[1][::-1] + [merkez] + uclar[0]
 
-# 2. yamaç sokakları: eşyükselti çizgileri
-_kotlar = [_cadde_kotu + ISKELE_KAT_ARASI * k for k in range(1, 7)]
-_yamac = []
-import matplotlib as _mpl2
-_mpl2.use("Agg")
-import matplotlib.pyplot as _plt2
-_cs = _plt2.contour(_IGX, _IGY, _IZ, levels=_kotlar)
-for _seviye in _cs.allsegs:
-    for _seg in _seviye:
-        if len(_seg) < 4:
-            continue
-        _hat = _hat_kirp([tuple(q) for q in _seg], _isk_alan)
-        if not _hat or LineString(_hat).length < 160:
-            continue
-        # en az bir geçide değmeyen sokak havada kalır — alma
-        if any(LineString(_hat).distance(LineString(g)) < 30 for g in _gecitler):
-            _yamac.append(_hat_seyrelt(_chaikin(_hat_seyrelt(_hat, 60.0)), 20.0))
-_plt2.close("all")
 
-for _hat in _yamac:
-    _isk_ekle(_hat, "sokak")
-for _hat in _gecitler:
-    _hl = LineString(_hat)
-    _dz = abs(float(yukselti(*_hat[-1])) - float(yukselti(*_hat[0])))
-    _isk_ekle(_hat, "merdiven" if _dz / max(_hl.length, 1) > 0.15 else "sokak")
-print(f"İskele dokusu  : {len(_yamac)} yamaç sokağı, {len(_gecitler)} geçit, "
-      f"cadde kotu {_cadde_kotu:.0f} m")
+def _arazi_dokusu(mid, kok, omurga, derinlik, kat_arasi, gecit_araligi,
+                  iki_yon, omurgayi_ekle):
+    import random as _random
+    rnd = _random.Random(mid)          # her üretimde aynı sonuç
+    hucre = mahalle_geom[mid][2]
+    if iki_yon:
+        # iç mahalle: dikdörtgen değil, kenarı dalgalı yuvarlak bir leke
+        taban = omurga.buffer(derinlik, cap_style=1)
+        cevre = [(x + rnd.uniform(-90, 90), y + rnd.uniform(-90, 90))
+                 for x, y in list(taban.exterior.coords)[::6]]
+        taban = Polygon(cevre).buffer(60).buffer(-60)
+    else:
+        taban = omurga.buffer(derinlik, cap_style=2)
+    alan = (hucre.buffer(40).intersection(taban).intersection(ada.buffer(-60)))
+    sayac = [0]
+
+    def ekle(hat, tur):
+        sayac[0] += 1
+        YOLLAR.append((f"sokak_{mid}_{sayac[0]}", f"{kok} {sayac[0]}. Sokak",
+                       hat, tur, mid))
+
+    if omurgayi_ekle:
+        ekle(list(omurga.coords), "sokak")
+
+    x0, y0, x1, y1 = alan.bounds
+    GX, GY = np.meshgrid(np.linspace(x0, x1, 180), np.linspace(y0, y1, 180))
+    Z = yukselti(GX, GY)
+    omurga_kotu = float(np.median(yukselti(*np.array(omurga.coords).T)))
+
+    # geçitler
+    gecitler = []
+    konumlar, t = [], rnd.uniform(0.05, 0.15)
+    while t < 0.95:
+        konumlar.append(t)
+        t += (gecit_araligi / omurga.length) * rnd.uniform(0.6, 1.5)
+    for i, t in enumerate(konumlar):
+        p0 = omurga.interpolate(t, normalized=True)
+        for yon in ((1, -1) if iki_yon else (1,)):
+            if iki_yon and rnd.random() < 0.3:
+                continue                  # her noktadan iki yöne yol çıkmaz
+            hat = [(p0.x, p0.y)]
+            x, y = p0.x, p0.y
+            for _ in range(rnd.randint(14, 45)):
+                ux, uy, e = _egim_yonu(x, y)
+                if e == 0.0:
+                    break
+                ux, uy = ux * yon, uy * yon
+                sap = 0.30 * math.sin(len(hat) * rnd.uniform(0.2, 0.45) + i * 1.7)
+                x, y = x + 15 * (ux - uy * sap), y + 15 * (uy + ux * sap)
+                if not alan.contains(Point(x, y)):
+                    break
+                hat.append((x, y))
+            if len(hat) >= 6:
+                gecitler.append(_chaikin(_hat_seyrelt(hat, 45.0)))
+
+    # yamaç sokakları
+    # kot aralığı sabit metre değil: yatayda ~110 m aralık verecek kadar
+    # eğim omurgada değil, dokunun bütün alanında ölçülür (kıyı caddesi
+    # yar kenarında durur; orada ölçülen eğim arka yamacı olduğundan dik gösterir)
+    _gy, _gx = np.gradient(Z, GY[1, 0] - GY[0, 0], GX[0, 1] - GX[0, 0])
+    _icerde = np.array([alan.contains(Point(x, y)) for x, y in
+                        zip(GX.ravel(), GY.ravel())]).reshape(GX.shape)
+    ort_egim = float(np.median(np.hypot(_gx, _gy)[_icerde])) if _icerde.any() else 0.08
+    kat_arasi = max(kat_arasi, ort_egim * 110.0)
+    kotlar = [omurga_kotu + kat_arasi * k for k in range(1, 7)]
+    if iki_yon:
+        kotlar += [omurga_kotu - kat_arasi * k for k in range(1, 5)]
+    kotlar = sorted(k for k in kotlar if k > 5)
+    yamac = []
+    if kotlar:
+        import matplotlib as _m
+        _m.use("Agg")
+        import matplotlib.pyplot as _p
+        cs = _p.contour(GX, GY, Z, levels=kotlar)
+        for seviye in cs.allsegs:
+            for seg in seviye:
+                if len(seg) < 4:
+                    continue
+                hat = _hat_kirp([tuple(q) for q in seg], alan)
+                if not hat or LineString(hat).length < 160:
+                    continue
+                if not any(LineString(hat).distance(LineString(g)) < 30 for g in gecitler):
+                    continue
+                # uzun eşyükselti sokağı tek parça kalmaz: yer yer kesilir,
+                # yalnız bir geçide değen parçalar tutulur
+                hl = LineString(hat)
+                if hl.length < 600:
+                    # kısa sokak bölünmez, olduğu gibi kalır
+                    yamac.append(_hat_seyrelt(_chaikin(_hat_seyrelt(hat, 60.0)), 20.0))
+                    continue
+                kes, d = [0.0], 0.0
+                while True:
+                    d += rnd.uniform(260, 520)
+                    if d >= hl.length:
+                        break
+                    kes.append(d)
+                kes.append(hl.length)
+                for a, b in zip(kes, kes[1:]):
+                    if b - a < 140 or rnd.random() < 0.3:
+                        continue
+                    from shapely.ops import substring as _sub
+                    parca = list(_sub(hl, a, b - rnd.uniform(20, 60)).coords)
+                    if len(parca) < 2:
+                        continue
+                    if any(LineString(parca).distance(LineString(g)) < 30 for g in gecitler):
+                        yamac.append(_hat_seyrelt(_chaikin(_hat_seyrelt(parca, 60.0)), 20.0))
+        _p.close("all")
+
+    # Düzlükte eşyükselti sokak vermez (kıyı düzlüğü). Orada arka sokaklar
+    # omurgaya — rıhtıma — paralel uzanır; yer yer kesilir, hafif kıvrılır.
+    if len(yamac) < 3:
+        yanlar = (1, -1) if iki_yon else (1,)
+        for k in range(1, 5):
+            for yan in yanlar:
+                d = k * rnd.uniform(95, 125)
+                try:
+                    kay = omurga.offset_curve(d * yan)
+                except Exception:
+                    continue
+                parcali = (list(kay.geoms) if kay.geom_type.startswith("Multi")
+                           else [kay])
+                for kp in parcali:
+                    hat = _hat_kirp(list(kp.coords), alan)
+                    if not hat:
+                        continue
+                    hl = LineString(hat)
+                    a = rnd.uniform(0, 0.25) * hl.length
+                    b = hl.length - rnd.uniform(0, 0.25) * hl.length
+                    if b - a < 160:
+                        continue
+                    from shapely.ops import substring as _sub
+                    parca = [(x + rnd.uniform(-12, 12), y + rnd.uniform(-12, 12))
+                             for x, y in _hat_seyrelt(list(_sub(hl, a, b).coords), 70.0)]
+                    if any(LineString(parca).distance(LineString(g)) < 30 for g in gecitler):
+                        yamac.append(_hat_seyrelt(_chaikin(parca), 20.0))
+
+    for hat in yamac:
+        ekle(hat, "sokak")
+    for hat in gecitler:
+        hl = LineString(hat)
+        dz = abs(float(yukselti(*hat[-1])) - float(yukselti(*hat[0])))
+        ekle(hat, "merdiven" if dz / max(hl.length, 1) > 0.15 else "sokak")
+    print(f"{kok:8s} dokusu : omurga {omurga.length:5.0f} m, kot {omurga_kotu:4.0f} m, "
+          f"{len(yamac)} yamaç sokağı, {len(gecitler)} geçit")
+
+
+# İskele — kıyı mahallesi: omurga Kemsköy Caddesi (yukarıda, kıyıyı izler)
+_arazi_dokusu("yer_iskele", "İskele", KEMSKOY_HATTI, 520.0, 9.0, 120.0,
+              iki_yon=False, omurgayi_ekle=False)
+
+# İç / yamaç mahalleleri — omurga: yerleşim noktasından geçen yatay hat
+IC_YERLESIMLER = [
+    # (mahalle, ad kökü, yerleşim noktası, omurga yarı boyu m, derinlik m)
+    ("yer_merkez",  "Merkez",  MERKEZ_KASABA,     700.0, 480.0),
+    ("yer_liman",   "Liman",   (-4500.0,  2450.0), 650.0, 420.0),
+    ("yer_stadyum", "Stadyum", ( 4550.0,  2950.0), 600.0, 400.0),
+    ("yer_ciftlik", "Çiftlik", ( 6280.0, -2330.0), 520.0, 360.0),
+]
+for _mid, _kok, _nok, _yarim, _der in IC_YERLESIMLER:
+    _om = _chaikin(_hat_seyrelt(_esyukselti_omurga(_nok, _yarim), 60.0))
+    _arazi_dokusu(_mid, _kok, LineString(_om), _der, 9.0, 130.0,
+                  iki_yon=True, omurgayi_ekle=True)
 
 # --- otele çıkan yol ---
 # Köyün güney ucundan Güney Burnu'nun sırtına tırmanan tek şerit. Köşeli
