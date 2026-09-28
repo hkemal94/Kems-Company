@@ -32,8 +32,10 @@ terimsiz olur. Kodu değil, **ekranda ne değiştiğini** anlat.
 - Tasarım jetonları `src/index.css` içindeki `@theme` bloğunda. Bütün font
   rolleri (sans, serif, mono, blok…) Poppins; rol adları bilerek duruyor.
   Tek satır değişince ~1000 yer değişir — jetona dokunmadan önce sor.
-- Arayüz renkleri: lacivert `#1B2A4A` (arayüzün laciverti — markanınki
-  değil), krem `#F3EFE8`, kâğıt `#FAF8F5`.
+- Arayüz renkleri markanınki (Kemal, 28 Eylül gece): lacivert `#0E1C4F`,
+  vurgu kiremit `#F26B6F`, krem `#F3EFE8`, kâğıt `#FAF8F5`. Karanlık modda
+  lacivert düğmeler `dark:bg-[#2C3C72]` alır. Eski `#1B2A4A` / `#D35057`
+  kullanılmaz.
 
 ## Kesin kurallar
 

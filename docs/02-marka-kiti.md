@@ -38,8 +38,8 @@ değil, çalışma değerleri.
 **Poppins.** 28 Eylül 2026 kararı: her yerde Poppins — belgeler de arayüz de.
 
 Arayüzün yazı tipi jetonları Poppins'e geçti (`src/index.css`). Arayüz
-renkleri henüz eski tonlarda (#1B2A4A, #D35057); markaya geçiş K paketi
-olarak sırada (Kemal, 28 Eylül gece).
+renkleri de markanınki oldu (28 Eylül gece, K paketi): #1B2A4A → #0E1C4F,
+#D35057 → #F26B6F.
 
 ## Logo ve işaretler
 
