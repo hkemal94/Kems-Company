@@ -48,7 +48,7 @@ Aralıklar kanon; kesin yıl yoksa uydurulmaz. Ayrıntı `docs/soru-cevap/w3.md`
 - **Kemsköy** — otelden (1954) önce köyün iskelesi ve birkaç balıkçı evi.
 - **The Imperial Kemsköy** — 1954.
 - **Deniz Feneri** — 19. yüzyıl.
-- **Dirlik Spor Kulübü** — 1950–1970'ler, köy döneminde; toprak sahada
+- **Dirlik Spor Kulübü** — 12 Mayıs 1957, köy döneminde; toprak sahada
   oynayan amatör çocuklar. Stat 1980'lerde. Su sporları İskele'nin koyunda.
 - **Küçükçetmi Sürek Kulübü** — sürek avı köyde eski gelenek; kulüp sonra.
   Av 1990–2000'lerde bırakıldı; gelenek kulüpte sürer.
@@ -184,6 +184,28 @@ Aralıklar kanon; kesin yıl yoksa uydurulmaz. Ayrıntı `docs/soru-cevap/w3.md`
   bekçileri.
 - **Dirlik** — taraftar geleneği: maç öncesi birahanede buluşma. Renkler
   Canva'daki armadan okunacak.
+
+## Ada hayatı · 5 (28 Eylül 2026, W3 44–51. turlar)
+
+- **Dirlik Spor Kulübü** — kuruluş **12 Mayıs 1957** (Claude'un önerisi,
+  Kemal onayladı; logodaki "12 Mayıs"). Ad "birlik ve dirlik"ten:
+  mahallelerin çocukları tek takımda. Renkler logodan: Kolej Laciverti
+  `#0E1C4F`, kiremit `#F26B6F`, krem `#F3EFE8`. Logodaki yelkenli ada
+  kimliği (futbol ana branş). Rakibi anakaradan, Küçükkuyu tarafından bir
+  kulüp (adı yok). Su sporları için İskele koyunda yalnız bir iskele.
+  Forma sonra.
+- **Kooperatif** — Çiftlik'teki zeytinyağı fabrikasının sahibi **Kemsköy
+  Ziraat İşletmeleri Kurumu**. Canva etiketlerindeki "Kuruluş 2025"
+  düzelecek (kanon 1950–1970'ler). "Birlik Zeytin" merch örneği; gerçek
+  marka da olabilir (açık).
+- **Canva'daki diğer etiketler** — Birlik Birası ve Kems Coffee Co. Kems
+  Company ürünü (evrende üretim / kafe yok). Tabakhane ve "Zeytin
+  Selelerini Yaşatma Derneği" tasarım şakası, evrende yok.
+- **Dondurmacı Kızlar** — logo renkleri mor ve sarı (tonlar taslak).
+- **Merkez pazarı** — cumartesi (Claude'un önerisi): cuma adalıların bir
+  kısmı Küçükkuyu pazarına gider, cumartesi anakaralı pazarcılar sabah
+  feribotuyla gelir.
+- **Otel** — 1960'lardan beri aynı şirketin.
 
 ## The Imperial Kemsköy
 

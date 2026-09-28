@@ -215,6 +215,16 @@ kalıplar (müstakil ev, dükkânlı ev, kamu binası), yola dönük yerleşim, 
 doldurma; (3) örnek mahalle kalıpları (kıyı kasabası / Küçükkuyu, dağ köyü /
 Adatepe, tek caddeli liman). İlk adım yol aracı; Kemal yatınca başlanacak.
 
+Kemal'in kararları (W3 47–48. turlar, 28 Eylül gece): **ayrı bir "Kurucu"
+ekranı, sıfırdan**; üstten plan görünümü (3B önizleme ayrı). Bina
+yerleşimi üç yolla: yol kenarına otomatik, tek tek elle, mahalle şablonu.
+Şablonlar: Ege liman kasabası, köy meydanı, dağınık çiftlik, stat çevresi
+(Claude başka örnek bulursa eklenir). Yol türleri: ana yol, mahalle
+sokağı, toprak yol, patika. Kurucu bugünkü haritayla açılır; çalışma
+taslakta kalır, "Haritaya işle" düğmesiyle haritaya geçer, eski hâl arşive
+kalkar. Geri al / yinele var. Zaman kaydırıcı (1954, 1980…) ve nüfus
+göstergesi ileride. Kems Company dükkânının yerini Kemal kurucuda seçecek.
+
 **Kanon KKM'nin başka alanlarında:** Merch'te drop açılınca bağlı kurumun
 kanon bilgisi; Kitap'ta geçen yer/kişi adlarının vikiye bağlanması ve
 tarihle çelişki uyarısı (ör. 1970'lerde feribot Liman'da olamaz); Blog'da
