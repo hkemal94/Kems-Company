@@ -123,10 +123,10 @@ export function kunyeSatiri(k: HaritaKunyesi): string {
  * arayüzde soluk görünür ve doluluk sayımına girmez.
  */
 export function yeniBolumler(k: HaritaKunyesi): WikiSection[] {
+  // "Bugün" bölümü yok: vikinin bir "şimdi"si olmaz (CLAUDE.md, kanon)
   const taban: Array<[string, string]> = [
     ['genel', 'Genel bakış'],
-    ['tarihce', 'Tarihçe'],
-    ['bugun', 'Bugün']
+    ['tarihce', 'Tarihçe']
   ];
   if (k.tur === 'kafe' || k.tur === 'meyhane') {
     taban.push(['mudavimler', 'Müdavimler']);

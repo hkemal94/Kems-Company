@@ -42,8 +42,18 @@ const TUR_ADI: Record<string, string> = {
   ürün: 'evren ürünü',
 };
 
+/**
+ * Sıfırlamadan sonra açılan kayıtlar. W1 bir kere basıldı; bu tarihten
+ * sonra açılan maddeler (W2 aktarımı, haritadan kurulanlar, elle
+ * yazılanlar) kartı yeniden çıkarmamalı. 28 Eylül 2026 00:00, Türkiye.
+ */
+const SIFIRLAMA_TARIHI = Date.UTC(2026, 8, 27, 21, 0);
+
 function korunurMu(i: Item): boolean {
   if (i.id === ADA_KIMLIGI) return true;
+  // Arşivden bilerek geri getirilen kayıt yeniden arşive kalkmaz
+  if ((i.tags || []).includes(SIFIRLAMA_ETIKETI)) return true;
+  if ((i.createdAt || 0) >= SIFIRLAMA_TARIHI) return true;
   if (i.type === 'marka' || i.type === 'kulüp' || kurumMu(i)) return true;
   if (i.type === 'map_settings' || i.type === 'map_pin') return true;
   return false;

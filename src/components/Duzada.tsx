@@ -519,7 +519,8 @@ export default function Duzada({
     let hedef = items.find(it => it.id === wikiId);
     if (!hedef && wikiId.startsWith('yer_')) {
       const anahtar = wikiId.slice(4); // merkez, liman, iskele, ciftlik, stadyum
-      const bolgeler = items.filter(it => it.area === 'duzada' && it.type === 'yer');
+      // Arşivdekiler atlanır: W1'de kalkan eski mahalle kayıtları bulunmasın
+      const bolgeler = items.filter(it => it.area === 'duzada' && it.type === 'yer' && !it.archived);
       hedef =
         bolgeler.find(it => sadelestir(it.metadata?.region || '') === anahtar) ||
         bolgeler.find(it => sadelestir(it.id) === `region${anahtar}`) ||

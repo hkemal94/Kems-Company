@@ -10,6 +10,7 @@ import { temaDurumu, temaKaldirmaYazilari } from '../lib/temaKaldirma';
 import { markaYapisi, markaGocu, markaGocuYazilari } from '../lib/markaYapisi';
 import { otelTemizligi } from '../lib/otelTemizligi';
 import { vikiSifirlama, vikiSifirlamaYazilari } from '../lib/vikiSifirlama';
+import { soruCevapAktarimi } from '../lib/soruCevapAktarimi';
 
 /**
  * "Neyin eksik" paneli (A1).
@@ -378,6 +379,41 @@ export const Eksikler: React.FC<EksiklerProps> = ({
     }
   };
 
+  /**
+   * Soru-cevapların vikiye aktarılması (W2) — mahalleler, mekânlar, otel,
+   * ada ve kurumlar. Kurgu metni yok; yalnız Kemal'in cevapları.
+   */
+  const aktarim = useMemo(() => soruCevapAktarimi(items), [items]);
+  const aktarimIsiVar = aktarim.yeniler.length + aktarim.guncellenenler.length > 0;
+  const [aktarimIsi, setAktarimIsi] = useState(false);
+  const [aktarimRaporu, setAktarimRaporu] = useState<string | null>(null);
+  const [aktarimOnay, setAktarimOnay] = useState(false);
+
+  const vikiyeAktar = async () => {
+    if (!onUpdateItem || aktarimIsi) return;
+    setAktarimOnay(false);
+    setAktarimIsi(true);
+    let n = 0;
+    try {
+      for (const kayit of [...aktarim.yeniler, ...aktarim.guncellenenler]) {
+        await onUpdateItem(kayit);
+        n++;
+      }
+      setAktarimRaporu(
+        `${n} kayıt yazıldı. Tarihçe gibi boş bölümler "boş" işaretli; onları sen yazacaksın.`
+        + (aktarim.bulunamayan.length ? ` Bulunamayan: ${aktarim.bulunamayan.join(', ')}.` : '')
+      );
+    } catch (e) {
+      // Yazılanlar ikinci basışta atlanır; kalanlar için tekrar basılabilir
+      setAktarimRaporu(
+        `${n} kayıt yazıldı, sonra hata: `
+        + `${e instanceof Error ? e.message : 'bilinmeyen'}. Kalanlar için tekrar bas.`
+      );
+    } finally {
+      setAktarimIsi(false);
+    }
+  };
+
   /** İçi boş proje kayıtları — tek düğmeyle arşive */
   const bosProje = useMemo(() => bosProjeler(items), [items]);
   const [projeIsi, setProjeIsi] = useState(false);
@@ -466,6 +502,62 @@ export const Eksikler: React.FC<EksiklerProps> = ({
       {vikiRaporu && (
         <p className="mb-2.5 px-4 py-2 rounded-lg bg-[#F3EFE8] dark:bg-[#17345A] text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9]">
           {vikiRaporu}
+        </p>
+      )}
+
+      {/* Soru-cevaplar vikiye (W2) — tek seferlik */}
+      {onUpdateItem && aktarimIsiVar && (
+        <div className="mb-2.5 flex items-start gap-3 px-4 py-3 rounded-xl border border-[#D35057]/40 bg-[#FAF8F5] dark:bg-[#13204A]">
+          <span className="font-mono text-lg font-bold text-[#D35057] leading-none mt-0.5 shrink-0 tabular-nums">
+            {aktarim.yeniler.length + aktarim.guncellenenler.length}
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-[13px] font-semibold text-[#1B2A4A] dark:text-[#F3EFE8]">
+              soru-cevaplar vikiye aktarılmayı bekliyor
+            </span>
+            <span className="block mt-0.5 text-[11px] text-[#9A8C76] dark:text-[#6E7CA0] leading-snug">
+              {aktarim.ozet.join(' · ')}.
+              Yalnız senin cevapların yazılır; boş bölümler boş kalır.
+              Hiçbir şey silinmez.
+            </span>
+          </span>
+          {aktarimOnay ? (
+            <span className="shrink-0 flex flex-col items-end gap-1.5">
+              <span className="text-[11px] font-semibold text-[#D35057]">
+                {aktarim.yeniler.length + aktarim.guncellenenler.length} kayıt yazılsın mı?
+              </span>
+              <span className="flex gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setAktarimOnay(false)}
+                  className="px-3 py-1.5 text-[11px] font-mono rounded-lg border border-[#CFC5B4] dark:border-[#2C3C72] text-[#6A5E4C] dark:text-[#A6B0C9] hover:border-[#1B2A4A] cursor-pointer"
+                >
+                  Vazgeç
+                </button>
+                <button
+                  type="button"
+                  onClick={vikiyeAktar}
+                  className="px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#D35057] text-[#F3EFE8] hover:opacity-90 cursor-pointer"
+                >
+                  Evet, aktar
+                </button>
+              </span>
+            </span>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setAktarimOnay(true)}
+              disabled={aktarimIsi}
+              className="shrink-0 px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#1B2A4A] text-[#F3EFE8] hover:opacity-90 disabled:opacity-40 cursor-pointer"
+            >
+              {aktarimIsi ? 'Aktarılıyor…' : 'Vikiye aktar'}
+            </button>
+          )}
+        </div>
+      )}
+      {aktarimRaporu && (
+        <p className="mb-2.5 px-4 py-2 rounded-lg bg-[#F3EFE8] dark:bg-[#17345A] text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9]">
+          {aktarimRaporu}
         </p>
       )}
 

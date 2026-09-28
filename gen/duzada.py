@@ -1284,11 +1284,11 @@ print(f"  İskele           : kıyıya dik, T başı {ISKELE_BAS:.0f} m")
 # Deniz feneri — adanın kuzeybatı ucunda, Liman'ı yukarıdan görür
 fx, fy = kara(141, 0.985)
 bina("bina_fener", "Deniz Feneri", daire(fx, fy, 7), 24, "fener", "yer_liman",
-     wiki_id="mekan_fener")
+     wiki_id="viki_mekan_fener")
 
 # Dirlik Stadı
 bina("bina_stad", "Dirlik Stadı", elips(4750, 3150, 78, 54, 15), 14, "stadyum",
-     "yer_stadyum", wiki_id="mekan_dirlik_stadi")
+     "yer_stadyum", wiki_id="viki_mekan_dirlik_stadi")
 
 # Küçükçetmi Sürek Kulübü — çiftlik yerleşkesi
 bina("bina_surek", "Küçükçetmi Sürek Kulübü", dikdortgen(6320, -2320, 54, 26, -8),
@@ -1301,7 +1301,7 @@ bina("bina_surek", "Küçükçetmi Sürek Kulübü", dikdortgen(6320, -2320, 54,
 # apartmanlar bilerek bağlantısız — adaya doku katıyorlar, anlatacak
 # hikâyeleri yok.
 merkez_yapilar = [
-    ("bina_belediye", "Belediye Binası", (-100, 220), 44, 24, 12, 3, "mekan_belediye"),
+    ("bina_belediye", "Belediye Binası", (-100, 220), 44, 24, 12, 3, "viki_mekan_belediye"),
     ("bina_okul", "Düzada İlkokulu", (220, -50), 52, 20, 9, 2, "mekan_okul"),
     ("bina_pazar", "Merkez Pazarı", (-260, -140), 36, 30, 7, 1, "mekan_pazar"),
     ("bina_apt1", "Çarşı Apartmanı", (120, 270), 22, 18, 15, 5, None),
@@ -1367,7 +1367,7 @@ for i in range(7):
 # Yerleşkenin karaya bakan ucunda, bahçenin gerisinde ayrı bir kütle.
 bina("bina_meyhane", "Sade Meze",
      yerlesim_dikdortgen(-150, 96, 26, 14, 18.0), 7, "meyhane", "yer_iskele",
-     wiki_id="mekan_meyhane", kat=1)
+     wiki_id="viki_mekan_meyhane", kat=1)
 
 # Liman Mahallesi — liman yapıları rıhtımda, suyun hemen kıyısında.
 # (Eskiden kara(152, 0.88) ile konuyordu; bu nokta denizden ~700 m
@@ -1397,12 +1397,12 @@ bina("bina_liman_depo", "Liman Deposu", dikdortgen(lx, ly, 46, 22, RIHTIM_ACI), 
      "yapı", "yer_liman", kat=1)
 lx2, ly2 = rihtim(20, 30)
 bina("bina_liman_ofis", "Liman İdare Binası", dikdortgen(lx2, ly2, 24, 20, RIHTIM_ACI), 11,
-     "yapı", "yer_liman", kat=3)
+     "yapı", "yer_liman", wiki_id="viki_mekan_liman_idare", kat=3)
 # Dondurmacı Kızlar: önce otelin iskelesindeydi, Kemal Liman Mahallesine
 # taşıdı. Adını 16 Eylül'de koydu.
 lx3, ly3 = rihtim(75, 20)
 bina("bina_liman_kafe", "Dondurmacı Kızlar", dikdortgen(lx3, ly3, 18, 14, RIHTIM_ACI), 5,
-     "kafe", "yer_liman", wiki_id="mekan_liman_kafe", kat=1)
+     "kafe", "yer_liman", wiki_id="viki_mekan_liman_kafe", kat=1)
 
 assert (ox, oy) == OTEL_MERKEZ, "ox/oy gölgelendi — yerleske() bozulur"
 
