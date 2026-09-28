@@ -355,7 +355,7 @@ export default function SharedEditor({
           <button
             type="button"
             onClick={() => setFocusMode(!focusMode)}
-            className={`p-1.5 rounded transition-all flex items-center gap-1.5 text-xs font-mono font-bold ${focusMode ? 'bg-[#D35057] text-white' : 'bg-[#1B2A4A]/5 hover:bg-[#1B2A4A]/10 text-[#1B2A4A] dark:text-[#A6B0C9]'}`}
+            className={`p-1.5 rounded transition-all flex items-center gap-1.5 text-xs font-mono font-bold ${focusMode ? 'bg-[#F26B6F] text-white' : 'bg-[#0E1C4F]/5 hover:bg-[#0E1C4F]/10 text-[#0E1C4F] dark:text-[#A6B0C9]'}`}
             title="Odak / Dikkat Dağıtmayan Mod"
           >
             {focusMode ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
@@ -391,7 +391,7 @@ export default function SharedEditor({
       {suggestions.length > 0 && (
         <div className="bg-[#FFFDF9] dark:bg-stone-900/80 border border-amber-200 dark:border-amber-950/40 p-2.5 rounded-lg flex flex-col gap-2 animate-in slide-in-from-top-2 duration-200">
           <div className="flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-[#D35057]" />
+            <Sparkles className="w-3.5 h-3.5 text-[#F26B6F]" />
             <span className="text-[10px] font-mono text-amber-800 dark:text-amber-300 uppercase font-bold tracking-wider">Kurgu Kancaları ve Bağlantı Önerileri</span>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -403,12 +403,12 @@ export default function SharedEditor({
                 {s.type === 'link' ? (
                   <>
                     <span className="text-stone-700 dark:text-stone-300">
-                      Metindeki <strong className="text-[#1B2A4A] dark:text-[#F3EFE8]">{s.name}</strong> ismini <strong className="text-[#D35057]">{s.entity?.title} ({s.entity?.type === 'kisi' ? 'Kişi' : s.entity?.type === 'mekan' ? 'Mekan' : 'Marka'})</strong> ile bağla?
+                      Metindeki <strong className="text-[#0E1C4F] dark:text-[#F3EFE8]">{s.name}</strong> ismini <strong className="text-[#F26B6F]">{s.entity?.title} ({s.entity?.type === 'kisi' ? 'Kişi' : s.entity?.type === 'mekan' ? 'Mekan' : 'Marka'})</strong> ile bağla?
                     </span>
                     <button
                       type="button"
                       onClick={() => handleConnectLink(s.name, s.entity!.id, s.entity!.title)}
-                      className="px-2 py-1 bg-[#D35057] hover:bg-[#b04046] text-white text-[10px] font-mono font-bold rounded flex items-center gap-1 cursor-pointer transition-colors"
+                      className="px-2 py-1 bg-[#F26B6F] hover:bg-[#b04046] text-white text-[10px] font-mono font-bold rounded flex items-center gap-1 cursor-pointer transition-colors"
                     >
                       <Link className="w-3 h-3" /> 🔗 Bağla
                     </button>
@@ -430,7 +430,7 @@ export default function SharedEditor({
                       <button
                         type="button"
                         onClick={() => handleConnectProposal(s.name, 'kisi')}
-                        className="px-2 py-1 bg-[#1B2A4A] dark:bg-[#1E293B] hover:opacity-90 text-white text-[10px] font-bold rounded-md flex items-center gap-1 cursor-pointer transition-all"
+                        className="px-2 py-1 bg-[#0E1C4F] dark:bg-[#1E293B] hover:opacity-90 text-white text-[10px] font-bold rounded-md flex items-center gap-1 cursor-pointer transition-all"
                         title="Kişi/Karakter olarak kurgu evrenine ekle"
                       >
                         👤 Kişi
@@ -484,7 +484,7 @@ export default function SharedEditor({
               applyFormat('italic');
             }
           }}
-          className={`w-full flex-1 bg-transparent text-[#1B2A4A] dark:text-[#F3EFE8] font-serif leading-relaxed whitespace-pre-wrap focus:outline-hidden p-2 resize-none ${focusMode ? 'text-lg md:text-xl min-h-[500px]' : 'text-sm min-h-[300px]'}`}
+          className={`w-full flex-1 bg-transparent text-[#0E1C4F] dark:text-[#F3EFE8] font-serif leading-relaxed whitespace-pre-wrap focus:outline-hidden p-2 resize-none ${focusMode ? 'text-lg md:text-xl min-h-[500px]' : 'text-sm min-h-[300px]'}`}
           placeholder={placeholder}
           id="rich_text_shared_editor"
         />
@@ -505,7 +505,7 @@ export default function SharedEditor({
           <button
             type="button"
             onClick={() => setFocusMode(false)}
-            className="text-[#D35057] font-bold uppercase tracking-wider hover:underline cursor-pointer"
+            className="text-[#F26B6F] font-bold uppercase tracking-wider hover:underline cursor-pointer"
           >
             Odaktan Çık
           </button>

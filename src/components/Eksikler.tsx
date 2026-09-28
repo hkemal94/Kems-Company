@@ -501,18 +501,18 @@ export const Eksikler: React.FC<EksiklerProps> = ({
   return (
     <div className="mb-8">
       <h2 className="text-[12px] font-bold text-[#6A5E4C] dark:text-[#A6B0C9] uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-        <Compass className="w-4 h-4 text-[#D35057]" />
+        <Compass className="w-4 h-4 text-[#F26B6F]" />
         Neyin Eksik
       </h2>
 
       {/* Vikinin baştan kurulması (W1) — tek seferlik */}
       {onUpdateItem && viki.arsivlenecek.length > 0 && (
-        <div className="mb-2.5 flex items-start gap-3 px-4 py-3 rounded-xl border border-[#D35057]/40 bg-[#FAF8F5] dark:bg-[#13204A]">
-          <span className="font-mono text-lg font-bold text-[#D35057] leading-none mt-0.5 shrink-0 tabular-nums">
+        <div className="mb-2.5 flex items-start gap-3 px-4 py-3 rounded-xl border border-[#F26B6F]/40 bg-[#FAF8F5] dark:bg-[#13204A]">
+          <span className="font-mono text-lg font-bold text-[#F26B6F] leading-none mt-0.5 shrink-0 tabular-nums">
             {viki.arsivlenecek.length}
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block text-[13px] font-semibold text-[#1B2A4A] dark:text-[#F3EFE8]">
+            <span className="block text-[13px] font-semibold text-[#0E1C4F] dark:text-[#F3EFE8]">
               viki baştan kuruluyor: kayıtlar arşive kalkacak
             </span>
             <span className="block mt-0.5 text-[11px] text-[#9A8C76] dark:text-[#6E7CA0] leading-snug">
@@ -523,21 +523,21 @@ export const Eksikler: React.FC<EksiklerProps> = ({
           </span>
           {vikiOnay ? (
             <span className="shrink-0 flex flex-col items-end gap-1.5">
-              <span className="text-[11px] font-semibold text-[#D35057]">
+              <span className="text-[11px] font-semibold text-[#F26B6F]">
                 {viki.arsivlenecek.length} kayıt arşive kalksın mı?
               </span>
               <span className="flex gap-1.5">
                 <button
                   type="button"
                   onClick={() => setVikiOnay(false)}
-                  className="px-3 py-1.5 text-[11px] font-mono rounded-lg border border-[#CFC5B4] dark:border-[#2C3C72] text-[#6A5E4C] dark:text-[#A6B0C9] hover:border-[#1B2A4A] cursor-pointer"
+                  className="px-3 py-1.5 text-[11px] font-mono rounded-lg border border-[#CFC5B4] dark:border-[#2C3C72] text-[#6A5E4C] dark:text-[#A6B0C9] hover:border-[#0E1C4F] cursor-pointer"
                 >
                   Vazgeç
                 </button>
                 <button
                   type="button"
                   onClick={vikiyiArsivle}
-                  className="px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#D35057] text-[#F3EFE8] hover:opacity-90 cursor-pointer"
+                  className="px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#F26B6F] text-[#F3EFE8] hover:opacity-90 cursor-pointer"
                 >
                   Evet, kaldır
                 </button>
@@ -548,7 +548,7 @@ export const Eksikler: React.FC<EksiklerProps> = ({
               type="button"
               onClick={() => setVikiOnay(true)}
               disabled={vikiIsi}
-              className="shrink-0 px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#1B2A4A] text-[#F3EFE8] hover:opacity-90 disabled:opacity-40 cursor-pointer"
+              className="shrink-0 px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#0E1C4F] dark:bg-[#2C3C72] text-[#F3EFE8] hover:opacity-90 disabled:opacity-40 cursor-pointer"
             >
               {vikiIsi ? 'Arşivleniyor…' : 'Arşive kaldır'}
             </button>
@@ -563,12 +563,12 @@ export const Eksikler: React.FC<EksiklerProps> = ({
 
       {/* W3 soru-cevapları vikiye — tek seferlik */}
       {onUpdateItem && w3.guncellenenler.length > 0 && (
-        <div className="mb-2.5 flex items-start gap-3 px-4 py-3 rounded-xl border border-[#D35057]/40 bg-[#FAF8F5] dark:bg-[#13204A]">
-          <span className="font-mono text-lg font-bold text-[#D35057] leading-none mt-0.5 shrink-0 tabular-nums">
+        <div className="mb-2.5 flex items-start gap-3 px-4 py-3 rounded-xl border border-[#F26B6F]/40 bg-[#FAF8F5] dark:bg-[#13204A]">
+          <span className="font-mono text-lg font-bold text-[#F26B6F] leading-none mt-0.5 shrink-0 tabular-nums">
             {w3.guncellenenler.length}
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block text-[13px] font-semibold text-[#1B2A4A] dark:text-[#F3EFE8]">
+            <span className="block text-[13px] font-semibold text-[#0E1C4F] dark:text-[#F3EFE8]">
               yeni soru-cevaplar (W3) vikiye aktarılmayı bekliyor
             </span>
             <span className="block mt-0.5 text-[11px] text-[#9A8C76] dark:text-[#6E7CA0] leading-snug">
@@ -578,21 +578,21 @@ export const Eksikler: React.FC<EksiklerProps> = ({
           </span>
           {w3Onay ? (
             <span className="shrink-0 flex flex-col items-end gap-1.5">
-              <span className="text-[11px] font-semibold text-[#D35057]">
+              <span className="text-[11px] font-semibold text-[#F26B6F]">
                 {w3.guncellenenler.length} kayıt güncellensin mi?
               </span>
               <span className="flex gap-1.5">
                 <button
                   type="button"
                   onClick={() => setW3Onay(false)}
-                  className="px-3 py-1.5 text-[11px] font-mono rounded-lg border border-[#CFC5B4] dark:border-[#2C3C72] text-[#6A5E4C] dark:text-[#A6B0C9] hover:border-[#1B2A4A] cursor-pointer"
+                  className="px-3 py-1.5 text-[11px] font-mono rounded-lg border border-[#CFC5B4] dark:border-[#2C3C72] text-[#6A5E4C] dark:text-[#A6B0C9] hover:border-[#0E1C4F] cursor-pointer"
                 >
                   Vazgeç
                 </button>
                 <button
                   type="button"
                   onClick={w3Aktar}
-                  className="px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#D35057] text-[#F3EFE8] hover:opacity-90 cursor-pointer"
+                  className="px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#F26B6F] text-[#F3EFE8] hover:opacity-90 cursor-pointer"
                 >
                   Evet, aktar
                 </button>
@@ -603,7 +603,7 @@ export const Eksikler: React.FC<EksiklerProps> = ({
               type="button"
               onClick={() => setW3Onay(true)}
               disabled={w3Isi}
-              className="shrink-0 px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#1B2A4A] text-[#F3EFE8] hover:opacity-90 disabled:opacity-40 cursor-pointer"
+              className="shrink-0 px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#0E1C4F] dark:bg-[#2C3C72] text-[#F3EFE8] hover:opacity-90 disabled:opacity-40 cursor-pointer"
             >
               {w3Isi ? 'Aktarılıyor…' : 'Vikiye aktar'}
             </button>
@@ -618,12 +618,12 @@ export const Eksikler: React.FC<EksiklerProps> = ({
 
       {/* Ada hayatı vikiye (W4) — tek seferlik; önce W3 */}
       {onUpdateItem && w3.guncellenenler.length === 0 && w4.guncellenenler.length > 0 && (
-        <div className="mb-2.5 flex items-start gap-3 px-4 py-3 rounded-xl border border-[#D35057]/40 bg-[#FAF8F5] dark:bg-[#13204A]">
-          <span className="font-mono text-lg font-bold text-[#D35057] leading-none mt-0.5 shrink-0 tabular-nums">
+        <div className="mb-2.5 flex items-start gap-3 px-4 py-3 rounded-xl border border-[#F26B6F]/40 bg-[#FAF8F5] dark:bg-[#13204A]">
+          <span className="font-mono text-lg font-bold text-[#F26B6F] leading-none mt-0.5 shrink-0 tabular-nums">
             {w4.guncellenenler.length}
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block text-[13px] font-semibold text-[#1B2A4A] dark:text-[#F3EFE8]">
+            <span className="block text-[13px] font-semibold text-[#0E1C4F] dark:text-[#F3EFE8]">
               ada hayatı bilgileri (W4) vikiye aktarılmayı bekliyor
             </span>
             <span className="block mt-0.5 text-[11px] text-[#9A8C76] dark:text-[#6E7CA0] leading-snug">
@@ -633,21 +633,21 @@ export const Eksikler: React.FC<EksiklerProps> = ({
           </span>
           {w4Onay ? (
             <span className="shrink-0 flex flex-col items-end gap-1.5">
-              <span className="text-[11px] font-semibold text-[#D35057]">
+              <span className="text-[11px] font-semibold text-[#F26B6F]">
                 {w4.guncellenenler.length} kayıt güncellensin mi?
               </span>
               <span className="flex gap-1.5">
                 <button
                   type="button"
                   onClick={() => setW4Onay(false)}
-                  className="px-3 py-1.5 text-[11px] font-mono rounded-lg border border-[#CFC5B4] dark:border-[#2C3C72] text-[#6A5E4C] dark:text-[#A6B0C9] hover:border-[#1B2A4A] cursor-pointer"
+                  className="px-3 py-1.5 text-[11px] font-mono rounded-lg border border-[#CFC5B4] dark:border-[#2C3C72] text-[#6A5E4C] dark:text-[#A6B0C9] hover:border-[#0E1C4F] cursor-pointer"
                 >
                   Vazgeç
                 </button>
                 <button
                   type="button"
                   onClick={w4Aktar}
-                  className="px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#D35057] text-[#F3EFE8] hover:opacity-90 cursor-pointer"
+                  className="px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#F26B6F] text-[#F3EFE8] hover:opacity-90 cursor-pointer"
                 >
                   Evet, aktar
                 </button>
@@ -658,7 +658,7 @@ export const Eksikler: React.FC<EksiklerProps> = ({
               type="button"
               onClick={() => setW4Onay(true)}
               disabled={w4Isi}
-              className="shrink-0 px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#1B2A4A] text-[#F3EFE8] hover:opacity-90 disabled:opacity-40 cursor-pointer"
+              className="shrink-0 px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#0E1C4F] dark:bg-[#2C3C72] text-[#F3EFE8] hover:opacity-90 disabled:opacity-40 cursor-pointer"
             >
               {w4Isi ? 'Aktarılıyor…' : 'Vikiye aktar'}
             </button>
@@ -673,12 +673,12 @@ export const Eksikler: React.FC<EksiklerProps> = ({
 
       {/* Soru-cevaplar vikiye (W2) — tek seferlik */}
       {onUpdateItem && aktarimIsiVar && (
-        <div className="mb-2.5 flex items-start gap-3 px-4 py-3 rounded-xl border border-[#D35057]/40 bg-[#FAF8F5] dark:bg-[#13204A]">
-          <span className="font-mono text-lg font-bold text-[#D35057] leading-none mt-0.5 shrink-0 tabular-nums">
+        <div className="mb-2.5 flex items-start gap-3 px-4 py-3 rounded-xl border border-[#F26B6F]/40 bg-[#FAF8F5] dark:bg-[#13204A]">
+          <span className="font-mono text-lg font-bold text-[#F26B6F] leading-none mt-0.5 shrink-0 tabular-nums">
             {aktarim.yeniler.length + aktarim.guncellenenler.length}
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block text-[13px] font-semibold text-[#1B2A4A] dark:text-[#F3EFE8]">
+            <span className="block text-[13px] font-semibold text-[#0E1C4F] dark:text-[#F3EFE8]">
               soru-cevaplar vikiye aktarılmayı bekliyor
             </span>
             <span className="block mt-0.5 text-[11px] text-[#9A8C76] dark:text-[#6E7CA0] leading-snug">
@@ -689,21 +689,21 @@ export const Eksikler: React.FC<EksiklerProps> = ({
           </span>
           {aktarimOnay ? (
             <span className="shrink-0 flex flex-col items-end gap-1.5">
-              <span className="text-[11px] font-semibold text-[#D35057]">
+              <span className="text-[11px] font-semibold text-[#F26B6F]">
                 {aktarim.yeniler.length + aktarim.guncellenenler.length} kayıt yazılsın mı?
               </span>
               <span className="flex gap-1.5">
                 <button
                   type="button"
                   onClick={() => setAktarimOnay(false)}
-                  className="px-3 py-1.5 text-[11px] font-mono rounded-lg border border-[#CFC5B4] dark:border-[#2C3C72] text-[#6A5E4C] dark:text-[#A6B0C9] hover:border-[#1B2A4A] cursor-pointer"
+                  className="px-3 py-1.5 text-[11px] font-mono rounded-lg border border-[#CFC5B4] dark:border-[#2C3C72] text-[#6A5E4C] dark:text-[#A6B0C9] hover:border-[#0E1C4F] cursor-pointer"
                 >
                   Vazgeç
                 </button>
                 <button
                   type="button"
                   onClick={vikiyeAktar}
-                  className="px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#D35057] text-[#F3EFE8] hover:opacity-90 cursor-pointer"
+                  className="px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#F26B6F] text-[#F3EFE8] hover:opacity-90 cursor-pointer"
                 >
                   Evet, aktar
                 </button>
@@ -714,7 +714,7 @@ export const Eksikler: React.FC<EksiklerProps> = ({
               type="button"
               onClick={() => setAktarimOnay(true)}
               disabled={aktarimIsi}
-              className="shrink-0 px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#1B2A4A] text-[#F3EFE8] hover:opacity-90 disabled:opacity-40 cursor-pointer"
+              className="shrink-0 px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#0E1C4F] dark:bg-[#2C3C72] text-[#F3EFE8] hover:opacity-90 disabled:opacity-40 cursor-pointer"
             >
               {aktarimIsi ? 'Aktarılıyor…' : 'Vikiye aktar'}
             </button>
@@ -729,12 +729,12 @@ export const Eksikler: React.FC<EksiklerProps> = ({
 
       {/* ø temizliği — normal bir "eksik" değil, tek seferlik bir düzeltme */}
       {onUpdateItem && temizlik.degisenler.length > 0 && (
-        <div className="mb-2.5 flex items-start gap-3 px-4 py-3 rounded-xl border border-[#D35057]/40 bg-[#FAF8F5] dark:bg-[#13204A]">
-          <span className="font-mono text-lg font-bold text-[#D35057] leading-none mt-0.5 shrink-0 tabular-nums">
+        <div className="mb-2.5 flex items-start gap-3 px-4 py-3 rounded-xl border border-[#F26B6F]/40 bg-[#FAF8F5] dark:bg-[#13204A]">
+          <span className="font-mono text-lg font-bold text-[#F26B6F] leading-none mt-0.5 shrink-0 tabular-nums">
             {temizlik.harf}
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block text-[13px] font-semibold text-[#1B2A4A] dark:text-[#F3EFE8]">
+            <span className="block text-[13px] font-semibold text-[#0E1C4F] dark:text-[#F3EFE8]">
               yerde Norveç ø'sü var
             </span>
             <span className="block mt-0.5 text-[11px] text-[#9A8C76] dark:text-[#6E7CA0] leading-snug">
@@ -746,7 +746,7 @@ export const Eksikler: React.FC<EksiklerProps> = ({
             type="button"
             onClick={temizle}
             disabled={temizleniyor}
-            className="shrink-0 px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#1B2A4A] text-[#F3EFE8] hover:opacity-90 disabled:opacity-40 cursor-pointer"
+            className="shrink-0 px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#0E1C4F] dark:bg-[#2C3C72] text-[#F3EFE8] hover:opacity-90 disabled:opacity-40 cursor-pointer"
           >
             {temizleniyor ? 'Düzeltiliyor…' : 'Düzelt'}
           </button>
@@ -754,12 +754,12 @@ export const Eksikler: React.FC<EksiklerProps> = ({
       )}
       {/* Marka yapısı · Adım 2 — tek seferlik göç */}
       {onUpdateItem && (marka.tipiDegisecek.length > 0 || marka.baglanacakDrop.length > 0) && (
-        <div className="mb-2.5 flex items-start gap-3 px-4 py-3 rounded-xl border border-[#D35057]/40 bg-[#FAF8F5] dark:bg-[#13204A]">
-          <span className="font-mono text-lg font-bold text-[#D35057] leading-none mt-0.5 shrink-0 tabular-nums">
+        <div className="mb-2.5 flex items-start gap-3 px-4 py-3 rounded-xl border border-[#F26B6F]/40 bg-[#FAF8F5] dark:bg-[#13204A]">
+          <span className="font-mono text-lg font-bold text-[#F26B6F] leading-none mt-0.5 shrink-0 tabular-nums">
             {marka.tipiDegisecek.length + marka.baglanacakDrop.length}
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block text-[13px] font-semibold text-[#1B2A4A] dark:text-[#F3EFE8]">
+            <span className="block text-[13px] font-semibold text-[#0E1C4F] dark:text-[#F3EFE8]">
               kulüp hâlâ marka olarak kayıtlı
             </span>
             <span className="block mt-0.5 text-[11px] text-[#9A8C76] dark:text-[#6E7CA0] leading-snug">
@@ -773,7 +773,7 @@ export const Eksikler: React.FC<EksiklerProps> = ({
             type="button"
             onClick={markayiGocur}
             disabled={markaIsi}
-            className="shrink-0 px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#1B2A4A] text-[#F3EFE8] hover:opacity-90 disabled:opacity-40 cursor-pointer"
+            className="shrink-0 px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#0E1C4F] dark:bg-[#2C3C72] text-[#F3EFE8] hover:opacity-90 disabled:opacity-40 cursor-pointer"
           >
             {markaIsi ? 'Taşınıyor…' : 'Kuruma çevir'}
           </button>
@@ -787,12 +787,12 @@ export const Eksikler: React.FC<EksiklerProps> = ({
 
       {/* Otel maddesi temizliği — 2008 düğmesinin izi */}
       {onUpdateItem && otel.degisenler.length > 0 && (
-        <div className="mb-2.5 flex items-start gap-3 px-4 py-3 rounded-xl border border-[#D35057]/40 bg-[#FAF8F5] dark:bg-[#13204A]">
-          <span className="font-mono text-lg font-bold text-[#D35057] leading-none mt-0.5 shrink-0 tabular-nums">
+        <div className="mb-2.5 flex items-start gap-3 px-4 py-3 rounded-xl border border-[#F26B6F]/40 bg-[#FAF8F5] dark:bg-[#13204A]">
+          <span className="font-mono text-lg font-bold text-[#F26B6F] leading-none mt-0.5 shrink-0 tabular-nums">
             {otel.degisenler.length}
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block text-[13px] font-semibold text-[#1B2A4A] dark:text-[#F3EFE8]">
+            <span className="block text-[13px] font-semibold text-[#0E1C4F] dark:text-[#F3EFE8]">
               kayıtta oyun verisi vikiye karışmış
             </span>
             <span className="block mt-0.5 text-[11px] text-[#9A8C76] dark:text-[#6E7CA0] leading-snug">
@@ -806,7 +806,7 @@ export const Eksikler: React.FC<EksiklerProps> = ({
             type="button"
             onClick={oteliTemizle}
             disabled={otelIsi}
-            className="shrink-0 px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#1B2A4A] text-[#F3EFE8] hover:opacity-90 disabled:opacity-40 cursor-pointer"
+            className="shrink-0 px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#0E1C4F] dark:bg-[#2C3C72] text-[#F3EFE8] hover:opacity-90 disabled:opacity-40 cursor-pointer"
           >
             {otelIsi ? 'Temizleniyor…' : 'Temizle'}
           </button>
@@ -820,12 +820,12 @@ export const Eksikler: React.FC<EksiklerProps> = ({
 
       {/* Tema katmanının kaldırılması — tek seferlik göç */}
       {onUpdateItem && tema.temalar.length > 0 && (
-        <div className="mb-2.5 flex items-start gap-3 px-4 py-3 rounded-xl border border-[#D35057]/40 bg-[#FAF8F5] dark:bg-[#13204A]">
-          <span className="font-mono text-lg font-bold text-[#D35057] leading-none mt-0.5 shrink-0 tabular-nums">
+        <div className="mb-2.5 flex items-start gap-3 px-4 py-3 rounded-xl border border-[#F26B6F]/40 bg-[#FAF8F5] dark:bg-[#13204A]">
+          <span className="font-mono text-lg font-bold text-[#F26B6F] leading-none mt-0.5 shrink-0 tabular-nums">
             {tema.temalar.length}
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block text-[13px] font-semibold text-[#1B2A4A] dark:text-[#F3EFE8]">
+            <span className="block text-[13px] font-semibold text-[#0E1C4F] dark:text-[#F3EFE8]">
               tema kaydı hâlâ duruyor
             </span>
             <span className="block mt-0.5 text-[11px] text-[#9A8C76] dark:text-[#6E7CA0] leading-snug">
@@ -839,7 +839,7 @@ export const Eksikler: React.FC<EksiklerProps> = ({
             type="button"
             onClick={temayiKaldir}
             disabled={temaGocu}
-            className="shrink-0 px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#1B2A4A] text-[#F3EFE8] hover:opacity-90 disabled:opacity-40 cursor-pointer"
+            className="shrink-0 px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#0E1C4F] dark:bg-[#2C3C72] text-[#F3EFE8] hover:opacity-90 disabled:opacity-40 cursor-pointer"
           >
             {temaGocu ? 'Taşınıyor…' : 'Katmanı kaldır'}
           </button>
@@ -853,12 +853,12 @@ export const Eksikler: React.FC<EksiklerProps> = ({
 
       {/* İçi boş proje kayıtları */}
       {onUpdateItem && bosProje.length > 0 && (
-        <div className="mb-2.5 flex items-start gap-3 px-4 py-3 rounded-xl border border-[#D35057]/40 bg-[#FAF8F5] dark:bg-[#13204A]">
-          <span className="font-mono text-lg font-bold text-[#D35057] leading-none mt-0.5 shrink-0 tabular-nums">
+        <div className="mb-2.5 flex items-start gap-3 px-4 py-3 rounded-xl border border-[#F26B6F]/40 bg-[#FAF8F5] dark:bg-[#13204A]">
+          <span className="font-mono text-lg font-bold text-[#F26B6F] leading-none mt-0.5 shrink-0 tabular-nums">
             {bosProje.length}
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block text-[13px] font-semibold text-[#1B2A4A] dark:text-[#F3EFE8]">
+            <span className="block text-[13px] font-semibold text-[#0E1C4F] dark:text-[#F3EFE8]">
               proje kaydı boş duruyor
             </span>
             <span className="block mt-0.5 text-[11px] text-[#9A8C76] dark:text-[#6E7CA0] leading-snug">
@@ -870,7 +870,7 @@ export const Eksikler: React.FC<EksiklerProps> = ({
             type="button"
             onClick={bosProjeleriArsivle}
             disabled={projeIsi}
-            className="shrink-0 px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#1B2A4A] text-[#F3EFE8] hover:opacity-90 disabled:opacity-40 cursor-pointer"
+            className="shrink-0 px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#0E1C4F] dark:bg-[#2C3C72] text-[#F3EFE8] hover:opacity-90 disabled:opacity-40 cursor-pointer"
           >
             {projeIsi ? 'Arşivleniyor…' : 'Arşivle'}
           </button>
@@ -903,20 +903,20 @@ export const Eksikler: React.FC<EksiklerProps> = ({
               <button
                 type="button"
                 onClick={() => onSelectArea(e.alan, e.hedefId)}
-                className="w-full text-left flex items-start gap-3 px-4 py-3 rounded-xl border border-[#CFC5B4] dark:border-[#2C3C72] bg-[#FAF8F5] dark:bg-[#13204A] hover:border-[#D35057] dark:hover:border-[#D35057] transition-colors cursor-pointer group archive-shadow"
+                className="w-full text-left flex items-start gap-3 px-4 py-3 rounded-xl border border-[#CFC5B4] dark:border-[#2C3C72] bg-[#FAF8F5] dark:bg-[#13204A] hover:border-[#F26B6F] dark:hover:border-[#F26B6F] transition-colors cursor-pointer group archive-shadow"
               >
-                <span className="font-mono text-lg font-bold text-[#D35057] leading-none mt-0.5 shrink-0 tabular-nums">
+                <span className="font-mono text-lg font-bold text-[#F26B6F] leading-none mt-0.5 shrink-0 tabular-nums">
                   {e.sayi}
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block text-[13px] font-semibold text-[#1B2A4A] dark:text-[#F3EFE8]">
+                  <span className="block text-[13px] font-semibold text-[#0E1C4F] dark:text-[#F3EFE8]">
                     {e.baslik}
                   </span>
                   <span className="block mt-0.5 text-[11px] text-[#9A8C76] dark:text-[#6E7CA0] leading-snug">
                     {e.aciklama}
                   </span>
                 </span>
-                <ArrowRight className="w-3.5 h-3.5 mt-1 shrink-0 text-[#CFC5B4] dark:text-[#2C3C72] group-hover:text-[#D35057] transition-colors" />
+                <ArrowRight className="w-3.5 h-3.5 mt-1 shrink-0 text-[#CFC5B4] dark:text-[#2C3C72] group-hover:text-[#F26B6F] transition-colors" />
               </button>
             </li>
           ))}

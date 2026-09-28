@@ -183,7 +183,7 @@ export const Galeri: React.FC<GaleriProps> = ({
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
       <div className="pb-4 border-b border-[#CFC5B4] dark:border-[#2C3C72]">
-        <h1 className="font-serif font-bold text-xl text-[#1B2A4A] dark:text-[#F3EFE8] italic">
+        <h1 className="font-serif font-bold text-xl text-[#0E1C4F] dark:text-[#F3EFE8] italic">
           Galeri
         </h1>
         <p className="mt-1 text-[12px] text-[#6A5E4C] dark:text-[#A6B0C9] max-w-2xl leading-relaxed">
@@ -229,7 +229,7 @@ export const Galeri: React.FC<GaleriProps> = ({
               onClick={() => girdi.current?.click()}
               disabled={yukleniyor}
               className="flex items-center gap-2 px-4 py-2 text-[12px] font-mono rounded-lg
-                         bg-[#1B2A4A] text-[#F3EFE8] hover:opacity-90 disabled:opacity-40 cursor-pointer"
+                         bg-[#0E1C4F] dark:bg-[#2C3C72] text-[#F3EFE8] hover:opacity-90 disabled:opacity-40 cursor-pointer"
             >
               <Upload className="w-3.5 h-3.5" />
               {yukleniyor ? 'Yükleniyor…' : 'Görsel seç'}
@@ -322,7 +322,7 @@ export const Galeri: React.FC<GaleriProps> = ({
                     />
                   </button>
                   <div className="px-3 py-2 border-t border-[#CFC5B4]/60 dark:border-[#2C3C72]">
-                    <p className="text-[11px] font-semibold text-[#1B2A4A] dark:text-[#F3EFE8] truncate">
+                    <p className="text-[11px] font-semibold text-[#0E1C4F] dark:text-[#F3EFE8] truncate">
                       {g.title}
                     </p>
                     <p className="text-[9px] font-mono uppercase tracking-wider text-[#9A8C76] mt-0.5 truncate">
@@ -336,7 +336,7 @@ export const Galeri: React.FC<GaleriProps> = ({
                         defaultValue=""
                         onChange={e => { if (e.target.value) void bagla(g, e.target.value); }}
                         className="mt-1.5 w-full text-[10px] font-mono bg-white dark:bg-[#17345A]
-                                   text-[#1B2A4A] dark:text-[#F3EFE8] border border-[#CFC5B4]
+                                   text-[#0E1C4F] dark:text-[#F3EFE8] border border-[#CFC5B4]
                                    dark:border-[#2C3C72] rounded p-1"
                       >
                         <option value="">Kayıt seç…</option>
@@ -375,7 +375,7 @@ export const Galeri: React.FC<GaleriProps> = ({
           >
             <div className="flex items-start justify-between gap-3 mb-3">
               <div className="min-w-0">
-                <h2 className="font-mono text-sm font-bold text-[#1B2A4A] dark:text-[#F3EFE8] truncate">
+                <h2 className="font-mono text-sm font-bold text-[#0E1C4F] dark:text-[#F3EFE8] truncate">
                   {buyuk.title}
                 </h2>
                 <p className="text-[11px] text-[#9A8C76]">

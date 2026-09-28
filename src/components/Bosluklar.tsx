@@ -132,7 +132,7 @@ const BoslukSatiri: React.FC<BoslukSatiriProps> = ({ bosluk, onKaydet }) => {
   return (
     <li className="px-4 py-3 border-t border-[#CFC5B4]/50 dark:border-[#2C3C72]/60">
       <div className="flex items-baseline gap-2 flex-wrap">
-        <span className="text-[12px] font-semibold text-[#1B2A4A] dark:text-[#F3EFE8]">
+        <span className="text-[12px] font-semibold text-[#0E1C4F] dark:text-[#F3EFE8]">
           {bosluk.etiket}
         </span>
         <span className="text-[11px] text-[#9A8C76] dark:text-[#6E7CA0]">
@@ -149,7 +149,7 @@ const BoslukSatiri: React.FC<BoslukSatiriProps> = ({ bosluk, onKaydet }) => {
             if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') void kaydet();
           }}
           placeholder="…"
-          className="flex-1 text-[12px] bg-white dark:bg-[#17345A] text-[#1B2A4A]
+          className="flex-1 text-[12px] bg-white dark:bg-[#17345A] text-[#0E1C4F]
                      dark:text-[#F3EFE8] border border-[#CFC5B4] dark:border-[#2C3C72]
                      rounded-lg p-2 focus:outline-hidden focus:border-[#F26B6F]"
         />
@@ -157,7 +157,7 @@ const BoslukSatiri: React.FC<BoslukSatiriProps> = ({ bosluk, onKaydet }) => {
           type="button"
           onClick={kaydet}
           disabled={!metin.trim() || yaziliyor}
-          className="shrink-0 px-3 py-2 text-[11px] font-mono rounded-lg bg-[#1B2A4A]
+          className="shrink-0 px-3 py-2 text-[11px] font-mono rounded-lg bg-[#0E1C4F] dark:bg-[#2C3C72]
                      text-[#F3EFE8] hover:opacity-90 disabled:opacity-30 cursor-pointer"
         >
           {yaziliyor ? '…' : 'Yaz'}
@@ -202,7 +202,7 @@ export const Bosluklar: React.FC<{
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
       <div className="pb-4 border-b border-[#CFC5B4] dark:border-[#2C3C72]">
-        <h1 className="font-serif font-bold text-xl text-[#1B2A4A] dark:text-[#F3EFE8] italic">
+        <h1 className="font-serif font-bold text-xl text-[#0E1C4F] dark:text-[#F3EFE8] italic">
           Boşluklar
         </h1>
         <p className="mt-1 text-[12px] text-[#6A5E4C] dark:text-[#A6B0C9] max-w-2xl leading-relaxed">
@@ -233,7 +233,7 @@ export const Bosluklar: React.FC<{
                   ? 'border-[#F26B6F] bg-[#FAF8F5] dark:bg-[#13204A]'
                   : 'border-[#CFC5B4] dark:border-[#2C3C72] bg-[#FAF8F5] dark:bg-[#13204A] hover:border-[#F26B6F]'}`}
             >
-              <span className="block font-mono text-lg font-bold text-[#1B2A4A] dark:text-[#F3EFE8] tabular-nums leading-none">
+              <span className="block font-mono text-lg font-bold text-[#0E1C4F] dark:text-[#F3EFE8] tabular-nums leading-none">
                 {t.bosluk}
               </span>
               <span className="block mt-1 text-[10px] font-mono uppercase tracking-widest text-[#6A5E4C] dark:text-[#A6B0C9]">
@@ -278,7 +278,7 @@ export const Bosluklar: React.FC<{
                               ? <ChevronDown className="w-3.5 h-3.5 shrink-0 text-[#F26B6F]" />
                               : <ChevronRight className="w-3.5 h-3.5 shrink-0 text-[#CFC5B4]" />}
                             <span className="flex-1 min-w-0 text-[13px] font-semibold
-                                             text-[#1B2A4A] dark:text-[#F3EFE8] truncate">
+                                             text-[#0E1C4F] dark:text-[#F3EFE8] truncate">
                               {liste[0].item.title}
                             </span>
                             <span className="shrink-0 flex items-center gap-1 font-mono text-[11px] text-[#F26B6F]">

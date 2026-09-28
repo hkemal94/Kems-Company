@@ -522,7 +522,7 @@ export default function App() {
             logoBase64: targetLogo,
             selectedLogo: 'Kems Company Classic Logo',
             ideaLogos: ['KEMS Modern Minimalist'],
-            colorPalette: ['#1B2A4A', '#D35057', '#FAF8F5'],
+            colorPalette: ['#0E1C4F', '#F26B6F', '#FAF8F5'],
             exemplaryWorks: ['Master Şablon Kitap Kapağı'],
             selectedFont: 'Space Grotesk'
           }
@@ -670,7 +670,7 @@ export default function App() {
     return (
       <div className="min-h-screen bg-[#E4DCCD] flex items-center justify-center font-mono text-xs text-[#6A5E4C]">
         <div className="text-center space-y-2">
-          <div className="w-6 h-6 border-2 border-[#D35057] border-t-transparent rounded-full animate-spin mx-auto" />
+          <div className="w-6 h-6 border-2 border-[#F26B6F] border-t-transparent rounded-full animate-spin mx-auto" />
           <p>Kems Komuta Merkezi Yükleniyor...</p>
         </div>
       </div>
@@ -683,7 +683,7 @@ export default function App() {
   const hasKemsLogo = !!(kemsLogo && (kemsLogo.startsWith('http') || kemsLogo.startsWith('data:')));
 
   return (
-    <div className="min-h-screen bg-[#E4DCCD] dark:bg-[#0B132B] text-[#1B2A4A] dark:text-[#F3EFE8] flex flex-col font-sans transition-colors duration-200 paper-grain selection:bg-[#D35057] selection:text-white">
+    <div className="min-h-screen bg-[#E4DCCD] dark:bg-[#0B132B] text-[#0E1C4F] dark:text-[#F3EFE8] flex flex-col font-sans transition-colors duration-200 paper-grain selection:bg-[#F26B6F] selection:text-white">
       
       {/* Heritage Archive Top Header */}
       <header className="border-b-2 border-[#CFC5B4] dark:border-[#2C3C72] bg-[#F3EFE8]/90 dark:bg-[#13204A]/90 sticky top-0 z-30 backdrop-blur-xs py-3.5 px-4 md:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -707,13 +707,13 @@ export default function App() {
                 <span className="text-[#0F1E36] font-extrabold tracking-tighter text-xs uppercase leading-none font-sans">KEMS</span>
                 <span className="text-[#0F1E36] text-[5px] font-bold absolute top-0.5 right-0.5 leading-none">®</span>
               </div>
-              <div className="bg-[#D35057] text-white px-0.5 py-[2px] flex items-center justify-center border-t-[2.5px] border-[#0F1E36] h-[14px]">
+              <div className="bg-[#F26B6F] text-white px-0.5 py-[2px] flex items-center justify-center border-t-[2.5px] border-[#0F1E36] h-[14px]">
                 <span className="text-white font-extrabold tracking-[0.08em] text-[5.5px] uppercase leading-none font-sans">COMPANY</span>
               </div>
             </div>
           )}
           <div className="flex flex-col">
-            <h1 className="font-sans font-bold text-base text-[#1B2A4A] dark:text-[#F3EFE8] uppercase tracking-tight leading-none">
+            <h1 className="font-sans font-bold text-base text-[#0E1C4F] dark:text-[#F3EFE8] uppercase tracking-tight leading-none">
               Komuta Merkezi
             </h1>
             <span className="text-[9px] font-mono font-semibold text-[#6A5E4C] dark:text-[#A6B0C9] uppercase tracking-widest block mt-0.5">
@@ -728,11 +728,11 @@ export default function App() {
           {/* Quick tools */}
           <button
             onClick={() => setIsSearchOpen(true)}
-            className="flex items-center justify-between w-48 sm:w-64 md:w-80 px-3.5 py-1.5 bg-white dark:bg-[#17345A] border border-[#CFC5B4] dark:border-[#2C3C72] text-[#6A5E4C] dark:text-[#A6B0C9] rounded-lg text-xs font-mono hover:border-[#D35057] transition-all cursor-pointer group text-left shadow-2xs"
+            className="flex items-center justify-between w-48 sm:w-64 md:w-80 px-3.5 py-1.5 bg-white dark:bg-[#17345A] border border-[#CFC5B4] dark:border-[#2C3C72] text-[#6A5E4C] dark:text-[#A6B0C9] rounded-lg text-xs font-mono hover:border-[#F26B6F] transition-all cursor-pointer group text-left shadow-2xs"
             title="Arama yap (Cmd+K)"
           >
             <div className="flex items-center gap-2">
-              <Search className="w-3.5 h-3.5 group-hover:text-[#D35057] transition-colors" />
+              <Search className="w-3.5 h-3.5 group-hover:text-[#F26B6F] transition-colors" />
               <span className="opacity-80">Arama yap...</span>
             </div>
             <kbd className="hidden sm:inline-block bg-[#F3EFE8] dark:bg-[#13204A] px-1.5 py-0.5 rounded text-[10px] text-[#9A8C76] dark:text-[#6E7CA0]">⌘K</kbd>
@@ -740,7 +740,7 @@ export default function App() {
 
           <button
             onClick={() => setIsHizliNotOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#D35057] text-white rounded-lg text-xs font-mono hover:bg-[#B23A40] transition-all shadow-xs cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#F26B6F] text-white rounded-lg text-xs font-mono hover:bg-[#B23A40] transition-all shadow-xs cursor-pointer"
             title="Hızlı Fikir / Not al (Alt+N)"
           >
             <Lightbulb className="w-3.5 h-3.5" />
@@ -750,7 +750,7 @@ export default function App() {
           {/* Theme Switcher */}
           <button
             onClick={handleToggleTheme}
-            className="p-2 bg-white dark:bg-[#17345A] border border-[#CFC5B4] dark:border-[#2C3C72] text-[#6A5E4C] dark:text-[#A6B0C9] rounded-lg hover:text-[#D35057] transition-colors cursor-pointer"
+            className="p-2 bg-white dark:bg-[#17345A] border border-[#CFC5B4] dark:border-[#2C3C72] text-[#6A5E4C] dark:text-[#A6B0C9] rounded-lg hover:text-[#F26B6F] transition-colors cursor-pointer"
             title="Temayı değiştir (Arşiv / Koyu)"
           >
             <Sunset className="w-4 h-4" />
@@ -779,8 +779,8 @@ export default function App() {
       {/* AI ucu ulaşılamıyorsa tek yerden söyle — düğmeler sessiz kalmasın */}
       {(aiHal.hal === 'sunucu-yok' || aiHal.hal === 'hata') && (
         <div className="max-w-[1400px] w-full mx-auto px-4 md:px-8 pt-4">
-          <div className="flex items-start gap-3 px-4 py-3 rounded-xl border border-[#D35057]/45 bg-[#D35057]/8">
-            <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0 text-[#D35057]" />
+          <div className="flex items-start gap-3 px-4 py-3 rounded-xl border border-[#F26B6F]/45 bg-[#F26B6F]/8">
+            <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0 text-[#F26B6F]" />
             <p className="flex-1 text-[12px] leading-snug text-[#B23A40]">
               {aiHal.mesaj}
             </p>
@@ -800,11 +800,11 @@ export default function App() {
         {/* Mobile Sidebar Toggle Header */}
         <div className="lg:hidden w-full flex items-center justify-between p-3.5 bg-white dark:bg-[#13204A] border border-[#CFC5B4] dark:border-[#2C3C72] rounded-xl mb-1 shadow-xs">
           <span className="font-mono text-xs font-bold text-[#6A5E4C] dark:text-[#A6B0C9] flex items-center gap-2">
-            <Menu className="w-4 h-4 text-[#D35057]" /> Çalışma Masası Rayı
+            <Menu className="w-4 h-4 text-[#F26B6F]" /> Çalışma Masası Rayı
           </span>
           <button 
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="text-xs font-mono px-3 py-1.5 bg-[#D35057] text-white rounded-lg font-bold hover:bg-[#B23A40] transition-colors cursor-pointer"
+            className="text-xs font-mono px-3 py-1.5 bg-[#F26B6F] text-white rounded-lg font-bold hover:bg-[#B23A40] transition-colors cursor-pointer"
           >
             {isMenuOpen ? 'Menüyü Kapat ✕' : 'Menüyü Aç ☰'}
           </button>
@@ -822,7 +822,7 @@ export default function App() {
               type="button"
               onClick={rayiDegistir}
               title={rayDar ? 'Rayı genişlet' : 'Rayı daralt'}
-              className="hidden lg:flex ml-auto items-center justify-center w-6 h-6 rounded-md text-[#9A8C76] hover:text-[#D35057] hover:bg-[#F3EFE8] dark:hover:bg-[#17345A] transition-colors cursor-pointer"
+              className="hidden lg:flex ml-auto items-center justify-center w-6 h-6 rounded-md text-[#9A8C76] hover:text-[#F26B6F] hover:bg-[#F3EFE8] dark:hover:bg-[#17345A] transition-colors cursor-pointer"
             >
               {rayDar ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronLeft className="w-3.5 h-3.5" />}
             </button>
@@ -854,9 +854,9 @@ export default function App() {
                     setIsMenuOpen(false); // Close mobile menu after select
                   }}
                   title={item.label}
-                  className={`w-full text-left rounded-xl flex items-center cursor-pointer transition-all ${rayDar ? 'lg:justify-center lg:px-0 px-4 py-3 gap-3 lg:gap-0' : 'px-4 py-3 gap-3'} ${isActive ? 'bg-[#1B2A4A] dark:bg-[#D35057] text-[#F3EFE8] font-bold shadow-md' : 'bg-white dark:bg-[#13204A]/55 hover:bg-[#F6F1E7] hover:text-[#1B2A4A] dark:hover:bg-[#202E5C] dark:hover:text-[#F3EFE8] border border-[#CFC5B4]/40 text-[#6A5E4C] dark:text-[#A6B0C9]'}`}
+                  className={`w-full text-left rounded-xl flex items-center cursor-pointer transition-all ${rayDar ? 'lg:justify-center lg:px-0 px-4 py-3 gap-3 lg:gap-0' : 'px-4 py-3 gap-3'} ${isActive ? 'bg-[#0E1C4F] dark:bg-[#F26B6F] text-[#F3EFE8] font-bold shadow-md' : 'bg-white dark:bg-[#13204A]/55 hover:bg-[#F6F1E7] hover:text-[#0E1C4F] dark:hover:bg-[#202E5C] dark:hover:text-[#F3EFE8] border border-[#CFC5B4]/40 text-[#6A5E4C] dark:text-[#A6B0C9]'}`}
                 >
-                  <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-[#D35057] dark:text-amber-200' : 'text-[#9A8C76]'}`} />
+                  <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-[#F26B6F] dark:text-amber-200' : 'text-[#9A8C76]'}`} />
                   <span className={rayDar ? 'lg:hidden' : ''}>{item.label}</span>
                 </button>
               );
@@ -879,7 +879,7 @@ export default function App() {
           {!rayDar && (
           <div className="mt-4 p-4 bg-white/40 border border-[#CFC5B4] rounded-xl text-center space-y-1 font-mono text-[10px] text-[#6A5E4C] dark:text-[#A6B0C9]">
             <p>KOMUTA MERKEZİ AKSI</p>
-            <p className="font-bold text-xs text-[#D35057]">
+            <p className="font-bold text-xs text-[#F26B6F]">
               {varlikSayisi} Kayıtlı Varlık
             </p>
             {oneriSayisi > 0 && (

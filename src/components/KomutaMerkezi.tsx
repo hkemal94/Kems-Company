@@ -423,9 +423,9 @@ export default function KomutaMerkezi({
       <div className="flex flex-col md:flex-row md:items-center justify-between pb-6 border-b border-[#CFC5B4] dark:border-[#2C3C72] gap-4">
         <div className="space-y-1">
           <div className="flex items-baseline gap-2.5">
-            <span className="font-sans font-black text-2xl tracking-tighter text-[#1B2A4A] dark:text-[#F3EFE8] select-none">KEMS</span>
+            <span className="font-sans font-black text-2xl tracking-tighter text-[#0E1C4F] dark:text-[#F3EFE8] select-none">KEMS</span>
             <div className="h-4 w-px bg-[#CFC5B4] dark:bg-[#2C3C72] self-center" />
-            <h1 className="font-serif font-bold text-xl text-[#1B2A4A] dark:text-[#F3EFE8] italic">Komuta Merkezi</h1>
+            <h1 className="font-serif font-bold text-xl text-[#0E1C4F] dark:text-[#F3EFE8] italic">Komuta Merkezi</h1>
           </div>
           <p className="text-[11px] font-mono text-[#6A5E4C] dark:text-[#A6B0C9] uppercase tracking-wider">
             {currentDate}
@@ -475,7 +475,7 @@ export default function KomutaMerkezi({
             )}
             <div>
               <div className="flex justify-between items-start">
-                <h3 className="font-bold text-lg text-[#1B2A4A] dark:text-[#F3EFE8] group-hover:text-[#4A5E68] transition-colors">Düzada</h3>
+                <h3 className="font-bold text-lg text-[#0E1C4F] dark:text-[#F3EFE8] group-hover:text-[#4A5E68] transition-colors">Düzada</h3>
                 <span className="text-xs font-mono text-[#4A5E68] dark:text-[#A6B0C9] font-bold">%{projectStats.duzada.progress}</span>
               </div>
               <p className="text-[11px] text-[#4A5E68] dark:text-[#A6B0C9] mt-0.5 italic">Ada & Lore Arşivi</p>
@@ -506,7 +506,7 @@ export default function KomutaMerkezi({
             )}
             <div>
               <div className="flex justify-between items-start">
-                <h3 className="font-bold text-lg text-[#1B2A4A] dark:text-[#F3EFE8] group-hover:text-[#F26B6F] transition-colors">Merch</h3>
+                <h3 className="font-bold text-lg text-[#0E1C4F] dark:text-[#F3EFE8] group-hover:text-[#F26B6F] transition-colors">Merch</h3>
                 <span className="text-xs font-mono text-[#F26B6F] dark:text-[#A6B0C9] font-bold">%{projectStats.merch.progress}</span>
               </div>
               <p className="text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9] mt-0.5 italic">Tema & Drop Atölyesi</p>
@@ -537,8 +537,8 @@ export default function KomutaMerkezi({
             )}
             <div>
               <div className="flex justify-between items-start">
-                <h3 className="font-bold text-lg text-[#1B2A4A] dark:text-[#F3EFE8] group-hover:text-indigo-600 transition-colors">Blog</h3>
-                <span className="text-xs font-mono text-[#1B2A4A] dark:text-[#A6B0C9] font-bold">%{projectStats.blog.progress}</span>
+                <h3 className="font-bold text-lg text-[#0E1C4F] dark:text-[#F3EFE8] group-hover:text-indigo-600 transition-colors">Blog</h3>
+                <span className="text-xs font-mono text-[#0E1C4F] dark:text-[#A6B0C9] font-bold">%{projectStats.blog.progress}</span>
               </div>
               <p className="text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9] mt-0.5 italic">Kemsinblogu</p>
             </div>
@@ -546,12 +546,12 @@ export default function KomutaMerkezi({
             <div className="space-y-1.5">
               <div className="w-full bg-[#CFC5B4]/30 dark:bg-[#17345A] h-1.5 rounded-full overflow-hidden">
                 <div 
-                  className="bg-[#1B2A4A] h-full rounded-full transition-all duration-500" 
+                  className="bg-[#0E1C4F] dark:bg-[#2C3C72] h-full rounded-full transition-all duration-500" 
                   style={{ width: `${projectStats.blog.progress}%` }}
                 />
               </div>
               <div className="flex gap-2 mt-3">
-                <span className="text-[9px] bg-white/50 dark:bg-black/20 text-[#1B2A4A] dark:text-stone-300 px-2 py-0.5 rounded-full font-bold">{projectStats.blog.count} Yazı</span>
+                <span className="text-[9px] bg-white/50 dark:bg-black/20 text-[#0E1C4F] dark:text-stone-300 px-2 py-0.5 rounded-full font-bold">{projectStats.blog.count} Yazı</span>
               </div>
             </div>
           </div>
@@ -568,7 +568,7 @@ export default function KomutaMerkezi({
             )}
             <div>
               <div className="flex justify-between items-start">
-                <h3 className="font-bold text-lg text-[#1B2A4A] dark:text-[#F3EFE8] group-hover:text-amber-700 transition-colors">Kitap</h3>
+                <h3 className="font-bold text-lg text-[#0E1C4F] dark:text-[#F3EFE8] group-hover:text-amber-700 transition-colors">Kitap</h3>
                 <span className="text-xs font-mono text-[#BBA591] dark:text-[#A6B0C9] font-bold">%{projectStats.kitap.progress}</span>
               </div>
               <p className="text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9] mt-0.5 italic">Roman Projeleri</p>
@@ -650,14 +650,14 @@ export default function KomutaMerkezi({
               placeholder="Öncelikli yapılacak işi yazın..."
               value={newPriorityText}
               onChange={(e) => setNewPriorityText(e.target.value)}
-              className="w-full bg-[#F3EFE8] dark:bg-[#13204A] text-[#1B2A4A] dark:text-[#F3EFE8] border border-[#CFC5B4] dark:border-[#2C3C72] rounded px-3 py-2 text-xs focus:outline-hidden focus:border-[#F26B6F]"
+              className="w-full bg-[#F3EFE8] dark:bg-[#13204A] text-[#0E1C4F] dark:text-[#F3EFE8] border border-[#CFC5B4] dark:border-[#2C3C72] rounded px-3 py-2 text-xs focus:outline-hidden focus:border-[#F26B6F]"
             />
             <div className="flex items-center justify-between gap-2">
               <div className="flex gap-2 text-xs">
                 <select 
                   value={newPriorityArea}
                   onChange={(e) => setNewPriorityArea(e.target.value as any)}
-                  className="bg-[#F3EFE8] dark:bg-[#13204A] text-xs border border-[#CFC5B4] dark:border-[#2C3C72] rounded px-2.5 py-1 text-[#1B2A4A] dark:text-[#F3EFE8]"
+                  className="bg-[#F3EFE8] dark:bg-[#13204A] text-xs border border-[#CFC5B4] dark:border-[#2C3C72] rounded px-2.5 py-1 text-[#0E1C4F] dark:text-[#F3EFE8]"
                 >
                   <option value="duzada">Düzada & Lore</option>
                   <option value="merch">Merch / Drop</option>
@@ -666,7 +666,7 @@ export default function KomutaMerkezi({
                   <option value="oyun">Oyun Projeleri</option>
                 </select>
               </div>
-              <button type="submit" className="px-4 py-1.5 bg-[#1B2A4A] dark:bg-[#F26B6F] text-white text-xs rounded hover:opacity-90 font-bold">
+              <button type="submit" className="px-4 py-1.5 bg-[#0E1C4F] dark:bg-[#F26B6F] text-white text-xs rounded hover:opacity-90 font-bold">
                 Ekle
               </button>
             </div>
@@ -694,7 +694,7 @@ export default function KomutaMerkezi({
                 borderCol = 'border-l-[#F26B6F]'; // Merch (coral)
                 areaName = 'Merch';
               } else if (item.area === 'blog') {
-                borderCol = 'border-l-[#1B2A4A]'; // Blog (navy)
+                borderCol = 'border-l-[#0E1C4F]'; // Blog (navy)
                 areaName = 'Blog';
               } else if (item.area === 'kitap') {
                 borderCol = 'border-l-[#BBA591]'; // Kitap (tan)
@@ -720,7 +720,7 @@ export default function KomutaMerkezi({
                     </div>
                     <h4 
                       onClick={() => onSelectArea(isOyun ? 'oyun' : item.area, item.id)}
-                      className="font-serif font-bold text-sm text-[#1B2A4A] dark:text-[#F3EFE8] hover:text-[#F26B6F] cursor-pointer transition-colors"
+                      className="font-serif font-bold text-sm text-[#0E1C4F] dark:text-[#F3EFE8] hover:text-[#F26B6F] cursor-pointer transition-colors"
                     >
                       {item.title}
                     </h4>
@@ -773,7 +773,7 @@ export default function KomutaMerkezi({
           onClick={() => setIsAiCornerOpen(!isAiCornerOpen)}
         >
           <div className="space-y-0.5">
-            <h2 className="text-xs font-bold text-[#1B2A4A] dark:text-[#F3EFE8] uppercase tracking-wider flex items-center gap-1.5 group-hover:text-[#F26B6F] transition-colors">
+            <h2 className="text-xs font-bold text-[#0E1C4F] dark:text-[#F3EFE8] uppercase tracking-wider flex items-center gap-1.5 group-hover:text-[#F26B6F] transition-colors">
               <Sparkles className="w-4 h-4 text-amber-500 animate-pulse" />
               Yapay Zeka Karar Köşesi ({aiProposals.length})
             </h2>
@@ -889,7 +889,7 @@ export default function KomutaMerkezi({
                   className={`text-[10px] font-bold py-1 px-3 rounded-full transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
                     isActive
                       ? 'bg-[#F26B6F] text-[#F3EFE8] shadow-xs'
-                      : 'bg-white dark:bg-[#13204A]/40 text-[#1B2A4A] dark:text-[#A6B0C9] hover:bg-[#FAF8F5]'
+                      : 'bg-white dark:bg-[#13204A]/40 text-[#0E1C4F] dark:text-[#A6B0C9] hover:bg-[#FAF8F5]'
                   }`}
                 >
                   <span>{labelMap[tabKey]}</span>
@@ -951,7 +951,7 @@ export default function KomutaMerkezi({
                 />
                 <div className="flex-1 space-y-2">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-[9px] font-bold bg-[#E7EBE6] dark:bg-[#1B2A4A] px-2 py-0.5 rounded text-[#4A5E68] dark:text-[#7FB8B3] uppercase">
+                    <span className="text-[9px] font-bold bg-[#E7EBE6] dark:bg-[#0E1C4F] px-2 py-0.5 rounded text-[#4A5E68] dark:text-[#7FB8B3] uppercase">
                       {prop.area === 'duzada' ? 'DÜZADA' : prop.area.toUpperCase()}
                     </span>
                     <div className="flex gap-2 shrink-0">
@@ -969,7 +969,7 @@ export default function KomutaMerkezi({
                       </button>
                     </div>
                   </div>
-                  <h4 className="font-serif font-bold text-xs text-[#1B2A4A] dark:text-[#F3EFE8]">
+                  <h4 className="font-serif font-bold text-xs text-[#0E1C4F] dark:text-[#F3EFE8]">
                     {prop.title}
                   </h4>
                   {prop.notes && (
@@ -1010,7 +1010,7 @@ export default function KomutaMerkezi({
                           Git ↗
                         </button>
                       </div>
-                      <h4 className="font-serif font-bold text-xs text-[#1B2A4A] dark:text-[#F3EFE8] line-clamp-1">
+                      <h4 className="font-serif font-bold text-xs text-[#0E1C4F] dark:text-[#F3EFE8] line-clamp-1">
                         {item.title}
                       </h4>
 
@@ -1020,7 +1020,7 @@ export default function KomutaMerkezi({
                         
                         return (
                           <div key={idx} className="p-2 bg-white/70 dark:bg-black/15 rounded text-[10px] space-y-1.5 border border-dashed border-[#F26B6F]/20">
-                            <span className="font-bold text-[#1B2A4A] dark:text-stone-300">
+                            <span className="font-bold text-[#0E1C4F] dark:text-stone-300">
                               → {targetTitle} ({rel.type === 'çalışanı' ? 'Çalışanı' : 'Bulunduğu Yer'})
                             </span>
                             {rel.reason && <p className="text-[9px] leading-tight text-stone-500">{rel.reason}</p>}
@@ -1123,7 +1123,7 @@ export default function KomutaMerkezi({
                 <button
                   key={item.id}
                   onClick={() => onSelectArea(isOyun ? 'oyun' : item.area, item.id)}
-                  className="flex items-center gap-2 text-xs bg-[#FAF8F5] dark:bg-[#13204A] text-[#1B2A4A] dark:text-[#F3EFE8] border border-[#CFC5B4]/60 dark:border-[#2C3C72] hover:bg-[#1B2A4A] hover:text-[#F3EFE8] dark:hover:bg-[#F26B6F] dark:hover:text-white px-3 py-1.5 rounded-full transition-all font-mono cursor-pointer shadow-2xs"
+                  className="flex items-center gap-2 text-xs bg-[#FAF8F5] dark:bg-[#13204A] text-[#0E1C4F] dark:text-[#F3EFE8] border border-[#CFC5B4]/60 dark:border-[#2C3C72] hover:bg-[#0E1C4F] hover:text-[#F3EFE8] dark:hover:bg-[#F26B6F] dark:hover:text-white px-3 py-1.5 rounded-full transition-all font-mono cursor-pointer shadow-2xs"
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-[#F26B6F]" />
                   <span className="font-bold text-[9px] uppercase opacity-70">[{item.type}]</span>
@@ -1184,7 +1184,7 @@ export default function KomutaMerkezi({
             onClick={() => onSelectArea('duzada')}
             className="p-3 bg-[#FAF8F5] hover:bg-[#F3EFE8] dark:bg-[#17345A]/40 border border-[#CFC5B4]/50 rounded-lg cursor-pointer transition-all hover:scale-[1.03] shadow-3xs"
           >
-            <span className="text-2xl font-bold text-[#1B2A4A] dark:text-[#F3EFE8] block">{statsSummary.karakter}</span>
+            <span className="text-2xl font-bold text-[#0E1C4F] dark:text-[#F3EFE8] block">{statsSummary.karakter}</span>
             <span className="text-[9px] text-[#6A5E4C] dark:text-[#A6B0C9] uppercase font-bold block mt-1">Kişi / Karakter</span>
           </div>
 
@@ -1193,7 +1193,7 @@ export default function KomutaMerkezi({
             onClick={() => onSelectArea('duzada')}
             className="p-3 bg-[#FAF8F5] hover:bg-[#F3EFE8] dark:bg-[#17345A]/40 border border-[#CFC5B4]/50 rounded-lg cursor-pointer transition-all hover:scale-[1.03] shadow-3xs"
           >
-            <span className="text-2xl font-bold text-[#1B2A4A] dark:text-[#F3EFE8] block">{statsSummary.yer}</span>
+            <span className="text-2xl font-bold text-[#0E1C4F] dark:text-[#F3EFE8] block">{statsSummary.yer}</span>
             <span className="text-[9px] text-[#6A5E4C] dark:text-[#A6B0C9] uppercase font-bold block mt-1">Yer / Mekân / Oda</span>
           </div>
 
@@ -1211,7 +1211,7 @@ export default function KomutaMerkezi({
             onClick={() => onSelectArea('duzada')}
             className="p-3 bg-[#FAF8F5] hover:bg-[#F3EFE8] dark:bg-[#17345A]/40 border border-[#CFC5B4]/50 rounded-lg cursor-pointer transition-all hover:scale-[1.03] shadow-3xs"
           >
-            <span className="text-2xl font-bold text-[#1B2A4A] dark:text-[#F3EFE8] block">{statsSummary.olay}</span>
+            <span className="text-2xl font-bold text-[#0E1C4F] dark:text-[#F3EFE8] block">{statsSummary.olay}</span>
             <span className="text-[9px] text-[#6A5E4C] dark:text-[#A6B0C9] uppercase font-bold block mt-1">Olay / Lore</span>
           </div>
 
@@ -1220,7 +1220,7 @@ export default function KomutaMerkezi({
             onClick={() => onSelectArea('merch')}
             className="p-3 bg-[#FAF8F5] hover:bg-[#F3EFE8] dark:bg-[#17345A]/40 border border-[#CFC5B4]/50 rounded-lg cursor-pointer transition-all hover:scale-[1.03] shadow-3xs"
           >
-            <span className="text-2xl font-bold text-[#1B2A4A] dark:text-[#F3EFE8] block">{statsSummary.tema}</span>
+            <span className="text-2xl font-bold text-[#0E1C4F] dark:text-[#F3EFE8] block">{statsSummary.tema}</span>
             <span className="text-[9px] text-[#6A5E4C] dark:text-[#A6B0C9] uppercase font-bold block mt-1">Tema / Koleksiyon</span>
           </div>
 
@@ -1238,7 +1238,7 @@ export default function KomutaMerkezi({
             onClick={() => onSelectArea('merch')}
             className="p-3 bg-[#FAF8F5] hover:bg-[#F3EFE8] dark:bg-[#17345A]/40 border border-[#CFC5B4]/50 rounded-lg cursor-pointer transition-all hover:scale-[1.03] shadow-3xs"
           >
-            <span className="text-2xl font-bold text-[#1B2A4A] dark:text-[#F3EFE8] block">{statsSummary.urun}</span>
+            <span className="text-2xl font-bold text-[#0E1C4F] dark:text-[#F3EFE8] block">{statsSummary.urun}</span>
             <span className="text-[9px] text-[#6A5E4C] dark:text-[#A6B0C9] uppercase font-bold block mt-1">Ürün</span>
           </div>
 
@@ -1247,7 +1247,7 @@ export default function KomutaMerkezi({
             onClick={() => onSelectArea('blog')}
             className="p-3 bg-[#FAF8F5] hover:bg-[#F3EFE8] dark:bg-[#17345A]/40 border border-[#CFC5B4]/50 rounded-lg cursor-pointer transition-all hover:scale-[1.03] shadow-3xs"
           >
-            <span className="text-2xl font-bold text-[#1B2A4A] dark:text-[#F3EFE8] block">{statsSummary.yazi}</span>
+            <span className="text-2xl font-bold text-[#0E1C4F] dark:text-[#F3EFE8] block">{statsSummary.yazi}</span>
             <span className="text-[9px] text-[#6A5E4C] dark:text-[#A6B0C9] uppercase font-bold block mt-1">Blog Yazısı</span>
           </div>
 
@@ -1256,7 +1256,7 @@ export default function KomutaMerkezi({
             onClick={() => onSelectArea('kitap')}
             className="p-3 bg-[#FAF8F5] hover:bg-[#F3EFE8] dark:bg-[#17345A]/40 border border-[#CFC5B4]/50 rounded-lg cursor-pointer transition-all hover:scale-[1.03] shadow-3xs"
           >
-            <span className="text-2xl font-bold text-[#1B2A4A] dark:text-[#F3EFE8] block">{statsSummary.bolum}</span>
+            <span className="text-2xl font-bold text-[#0E1C4F] dark:text-[#F3EFE8] block">{statsSummary.bolum}</span>
             <span className="text-[9px] text-[#6A5E4C] dark:text-[#A6B0C9] uppercase font-bold block mt-1">Kitap / Bölüm</span>
           </div>
 
@@ -1267,7 +1267,7 @@ export default function KomutaMerkezi({
             title="Fikirler sağ alt köşedeki kutuda"
             className="p-3 bg-[#FAF8F5] dark:bg-[#17345A]/40 border border-[#CFC5B4]/50 rounded-lg shadow-3xs"
           >
-            <span className="text-2xl font-bold text-[#1B2A4A] dark:text-[#F3EFE8] block">{statsSummary.fikir}</span>
+            <span className="text-2xl font-bold text-[#0E1C4F] dark:text-[#F3EFE8] block">{statsSummary.fikir}</span>
             <span className="text-[9px] text-[#6A5E4C] dark:text-[#A6B0C9] uppercase font-bold block mt-1">Fikir Havuzu</span>
           </div>
 
@@ -1276,7 +1276,7 @@ export default function KomutaMerkezi({
             onClick={() => onSelectArea('ilham')}
             className="p-3 bg-[#FAF8F5] hover:bg-[#F3EFE8] dark:bg-[#17345A]/40 border border-[#CFC5B4]/50 rounded-lg cursor-pointer transition-all hover:scale-[1.03] shadow-3xs"
           >
-            <span className="text-2xl font-bold text-[#1B2A4A] dark:text-[#F3EFE8] block">{statsSummary.ilham}</span>
+            <span className="text-2xl font-bold text-[#0E1C4F] dark:text-[#F3EFE8] block">{statsSummary.ilham}</span>
             <span className="text-[9px] text-[#6A5E4C] dark:text-[#A6B0C9] uppercase font-bold block mt-1">Görsel İlham</span>
           </div>
 
@@ -1287,7 +1287,7 @@ export default function KomutaMerkezi({
       {/* 7. GÜNLÜK NOT / BUGÜNÜN DÜŞÜNCESİ (Persistent free-text, editable & deletable) */}
       <div className="bg-[#FAF6EE] dark:bg-[#172554]/30 border-2 border-dashed border-[#CFC5B4] dark:border-[#2C3C72] rounded-xl p-6 paper-grain archive-shadow">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xs font-mono uppercase tracking-widest text-[#1B2A4A] dark:text-[#F3EFE8] font-bold flex items-center gap-1.5">
+          <h3 className="text-xs font-mono uppercase tracking-widest text-[#0E1C4F] dark:text-[#F3EFE8] font-bold flex items-center gap-1.5">
             <Flame className="w-4 h-4 text-amber-500 animate-pulse" />
             GÜNLÜK NOT / BUGÜNÜN DÜŞÜNCESİ
           </h3>
@@ -1331,7 +1331,7 @@ export default function KomutaMerkezi({
               value={dailyNoteText}
               onChange={(e) => setDailyNoteText(e.target.value)}
               placeholder="Bugünün odağını, aklınızdaki bir fikri veya lore esintisini buraya serbest not alın. Bulut veritabanında saklanır."
-              className="w-full h-28 p-3.5 text-xs bg-white dark:bg-[#13204A] text-[#1B2A4A] dark:text-[#F3EFE8] border border-[#CFC5B4] dark:border-[#2C3C72] rounded-lg focus:outline-hidden focus:border-[#F26B6F] leading-relaxed font-sans"
+              className="w-full h-28 p-3.5 text-xs bg-white dark:bg-[#13204A] text-[#0E1C4F] dark:text-[#F3EFE8] border border-[#CFC5B4] dark:border-[#2C3C72] rounded-lg focus:outline-hidden focus:border-[#F26B6F] leading-relaxed font-sans"
             />
             <div className="flex justify-end gap-2 text-xs font-mono">
               {dailyNoteItem && (
@@ -1340,7 +1340,7 @@ export default function KomutaMerkezi({
                     setIsEditingDailyNote(false);
                     setDailyNoteText(dailyNoteItem.notes);
                   }}
-                  className="px-3.5 py-1.5 bg-stone-200 hover:bg-stone-300 text-[#1B2A4A] rounded-md cursor-pointer"
+                  className="px-3.5 py-1.5 bg-stone-200 hover:bg-stone-300 text-[#0E1C4F] rounded-md cursor-pointer"
                 >
                   İptal
                 </button>
@@ -1355,7 +1355,7 @@ export default function KomutaMerkezi({
           </div>
         ) : (
           <div className="p-4 bg-white/70 dark:bg-black/15 border border-[#CFC5B4]/30 rounded-lg relative group">
-            <div className="text-xs leading-relaxed font-serif text-[#1B2A4A] dark:text-stone-200 italic whitespace-pre-wrap">
+            <div className="text-xs leading-relaxed font-serif text-[#0E1C4F] dark:text-stone-200 italic whitespace-pre-wrap">
               "{dailyNoteItem.notes}"
             </div>
             <div className="mt-3 text-[10px] font-mono text-stone-400 dark:text-stone-500 flex justify-between items-center">
@@ -1376,7 +1376,7 @@ export default function KomutaMerkezi({
       <div id="km-yayinlar" className="border-2 border-dashed border-[#CFC5B4] dark:border-[#2C3C72] bg-[#FAF8F5]/80 dark:bg-[#13204A]/30 rounded-xl p-6 space-y-4 paper-grain archive-shadow scroll-mt-24">
         <div className="flex justify-between items-start">
           <div className="space-y-1">
-            <h4 className="text-xs font-mono uppercase tracking-widest text-[#1B2A4A] dark:text-[#F3EFE8] font-bold flex items-center gap-1.5">
+            <h4 className="text-xs font-mono uppercase tracking-widest text-[#0E1C4F] dark:text-[#F3EFE8] font-bold flex items-center gap-1.5">
               <Youtube className="w-4 h-4 text-[#F26B6F]" />
               Kanallar
             </h4>
@@ -1411,7 +1411,7 @@ export default function KomutaMerkezi({
                             type="text"
                             value={editChannelTitle}
                             onChange={(e) => setEditChannelTitle(e.target.value)}
-                            className="w-full text-xs bg-stone-50 dark:bg-[#112440] text-[#1B2A4A] dark:text-[#F3EFE8] border border-[#CFC5B4] rounded p-1 focus:outline-hidden"
+                            className="w-full text-xs bg-stone-50 dark:bg-[#112440] text-[#0E1C4F] dark:text-[#F3EFE8] border border-[#CFC5B4] rounded p-1 focus:outline-hidden"
                           />
                         </div>
                         <div>
@@ -1420,7 +1420,7 @@ export default function KomutaMerkezi({
                             type="url"
                             value={editChannelUrl}
                             onChange={(e) => setEditChannelUrl(e.target.value)}
-                            className="w-full text-xs bg-stone-50 dark:bg-[#112440] text-[#1B2A4A] dark:text-[#F3EFE8] border border-[#CFC5B4] rounded p-1 focus:outline-hidden"
+                            className="w-full text-xs bg-stone-50 dark:bg-[#112440] text-[#0E1C4F] dark:text-[#F3EFE8] border border-[#CFC5B4] rounded p-1 focus:outline-hidden"
                           />
                         </div>
                         <div>
@@ -1428,7 +1428,7 @@ export default function KomutaMerkezi({
                           <select
                             value={editChannelPlatform}
                             onChange={(e) => setEditChannelPlatform(e.target.value as any)}
-                            className="w-full text-xs bg-stone-50 dark:bg-[#112440] text-[#1B2A4A] dark:text-[#F3EFE8] border border-[#CFC5B4] rounded p-1 focus:outline-hidden"
+                            className="w-full text-xs bg-stone-50 dark:bg-[#112440] text-[#0E1C4F] dark:text-[#F3EFE8] border border-[#CFC5B4] rounded p-1 focus:outline-hidden"
                           >
                             <option value="youtube">YouTube</option>
                             <option value="tiktok">TikTok</option>
@@ -1471,7 +1471,7 @@ export default function KomutaMerkezi({
                     <div className="flex items-center justify-between gap-4">
                       <div className="flex items-center gap-2 overflow-hidden">
                         <span className="capitalize font-bold text-[#F26B6F] shrink-0">[{ch.metadata?.platform || 'custom'}]</span>
-                        <span className="font-semibold text-[#1B2A4A] dark:text-[#F3EFE8] shrink-0">{ch.title}</span>
+                        <span className="font-semibold text-[#0E1C4F] dark:text-[#F3EFE8] shrink-0">{ch.title}</span>
                         <span className="text-[10px] text-stone-400 truncate max-w-[150px] sm:max-w-xs">{ch.notes}</span>
                       </div>
                       
@@ -1582,7 +1582,7 @@ export default function KomutaMerkezi({
               }}
               className="bg-white/45 dark:bg-[#17345A]/15 border border-[#CFC5B4] p-4 rounded-lg space-y-3"
             >
-              <span className="text-[10px] font-mono font-bold text-[#1B2A4A] dark:text-[#F3EFE8] block uppercase">
+              <span className="text-[10px] font-mono font-bold text-[#0E1C4F] dark:text-[#F3EFE8] block uppercase">
                 Yeni Kanal / Bağlantı Ekle
               </span>
 
@@ -1595,7 +1595,7 @@ export default function KomutaMerkezi({
                     placeholder="Örn: Spotify Çalma Listesi"
                     value={newChannelTitle}
                     onChange={(e) => setNewChannelTitle(e.target.value)}
-                    className="w-full text-xs bg-white dark:bg-[#17345A] text-[#1B2A4A] dark:text-[#F3EFE8] border border-[#CFC5B4] rounded p-2 focus:outline-hidden"
+                    className="w-full text-xs bg-white dark:bg-[#17345A] text-[#0E1C4F] dark:text-[#F3EFE8] border border-[#CFC5B4] rounded p-2 focus:outline-hidden"
                   />
                 </div>
 
@@ -1607,7 +1607,7 @@ export default function KomutaMerkezi({
                     placeholder="https://..."
                     value={newChannelUrl}
                     onChange={(e) => setNewChannelUrl(e.target.value)}
-                    className="w-full text-xs bg-white dark:bg-[#17345A] text-[#1B2A4A] dark:text-[#F3EFE8] border border-[#CFC5B4] rounded p-2 focus:outline-hidden"
+                    className="w-full text-xs bg-white dark:bg-[#17345A] text-[#0E1C4F] dark:text-[#F3EFE8] border border-[#CFC5B4] rounded p-2 focus:outline-hidden"
                   />
                 </div>
 
@@ -1616,7 +1616,7 @@ export default function KomutaMerkezi({
                   <select
                     value={newChannelPlatform}
                     onChange={(e) => setNewChannelPlatform(e.target.value as any)}
-                    className="w-full text-xs bg-white dark:bg-[#17345A] text-[#1B2A4A] dark:text-[#F3EFE8] border border-[#CFC5B4] rounded p-2 text-[#1B2A4A]"
+                    className="w-full text-xs bg-white dark:bg-[#17345A] text-[#0E1C4F] dark:text-[#F3EFE8] border border-[#CFC5B4] rounded p-2 text-[#0E1C4F]"
                   >
                     <option value="youtube">YouTube</option>
                     <option value="instagram">Instagram</option>
@@ -1727,7 +1727,7 @@ export default function KomutaMerkezi({
       <div className="border border-[#CFC5B4] dark:border-[#2C3C72] bg-[#F9F7F1]/70 dark:bg-[#13204A]/25 rounded-xl p-5 space-y-4 paper-grain">
         <div className="flex items-center justify-between">
           <div className="space-y-1">
-            <h4 className="text-xs font-mono uppercase tracking-widest text-[#1B2A4A] dark:text-[#F3EFE8] font-bold flex items-center gap-2">
+            <h4 className="text-xs font-mono uppercase tracking-widest text-[#0E1C4F] dark:text-[#F3EFE8] font-bold flex items-center gap-2">
               <Upload className="w-4 h-4 text-[#F26B6F]" />
               Toplu Karakter & Veri Yükleme (Sheet / Excel / CSV / JSON)
             </h4>
@@ -1737,7 +1737,7 @@ export default function KomutaMerkezi({
           </div>
           <button
             onClick={() => setIsBulkImportOpen(!isBulkImportOpen)}
-            className="text-xs font-mono bg-[#1B2A4A]/5 hover:bg-[#1B2A4A]/10 text-[#1B2A4A] dark:text-[#F3EFE8] border border-[#CFC5B4] dark:border-[#2C3C72] px-3 py-1.5 rounded-lg transition-all cursor-pointer"
+            className="text-xs font-mono bg-[#0E1C4F] dark:bg-[#2C3C72]/5 hover:bg-[#0E1C4F]/10 text-[#0E1C4F] dark:text-[#F3EFE8] border border-[#CFC5B4] dark:border-[#2C3C72] px-3 py-1.5 rounded-lg transition-all cursor-pointer"
           >
             {isBulkImportOpen ? 'Paneli Gizle' : 'Yükleme Panelini Aç'}
           </button>
@@ -1748,7 +1748,7 @@ export default function KomutaMerkezi({
             {/* Sheet Template Box */}
             <div className="bg-white/60 dark:bg-[#17345A]/30 border border-[#CFC5B4] rounded-lg p-4 space-y-3">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                <span className="text-[11px] font-mono font-bold text-[#1B2A4A] dark:text-[#F3EFE8] block uppercase">
+                <span className="text-[11px] font-mono font-bold text-[#0E1C4F] dark:text-[#F3EFE8] block uppercase">
                   Doldurmanız Gereken Sütun Yapısı (Sheet Şablonu)
                 </span>
                 <div className="flex gap-2">
@@ -1775,7 +1775,7 @@ export default function KomutaMerkezi({
                       link.click();
                       document.body.removeChild(link);
                     }}
-                    className="text-[10px] font-mono bg-[#1B2A4A] text-white px-2.5 py-1 rounded hover:bg-[#111C32] flex items-center gap-1 cursor-pointer"
+                    className="text-[10px] font-mono bg-[#0E1C4F] dark:bg-[#2C3C72] text-white px-2.5 py-1 rounded hover:bg-[#111C32] flex items-center gap-1 cursor-pointer"
                   >
                     <Download className="w-3 h-3" />
                     Şablonu İndir (Excel/CSV)
@@ -1786,7 +1786,7 @@ export default function KomutaMerkezi({
               <div className="overflow-x-auto">
                 <table className="w-full text-left font-mono text-[10px] border-collapse">
                   <thead>
-                    <tr className="bg-[#1B2A4A]/10 dark:bg-[#1B2A4A]/45 border-b border-[#CFC5B4]">
+                    <tr className="bg-[#0E1C4F]/10 dark:bg-[#0E1C4F]/45 border-b border-[#CFC5B4]">
                       <th className="p-1.5 font-bold">Başlık *</th>
                       <th className="p-1.5 font-bold">Alan *</th>
                       <th className="p-1.5 font-bold">Tür *</th>

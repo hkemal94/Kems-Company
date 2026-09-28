@@ -32,7 +32,7 @@ export default function AramaModal({ isOpen, onClose, items, onSelectResult }: A
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-[#1B2A4A]/40 backdrop-blur-xs flex items-start justify-center p-4 pt-20 z-50">
+    <div className="fixed inset-0 bg-[#0E1C4F] dark:bg-[#2C3C72]/40 backdrop-blur-xs flex items-start justify-center p-4 pt-20 z-50">
       <div className="bg-[#F3EFE8] dark:bg-[#13204A] border-2 border-[#CFC5B4] dark:border-[#2C3C72] rounded-xl max-w-2xl w-full overflow-hidden shadow-2xl animate-in fade-in slide-in-from-top-4 duration-200 paper-grain">
         
         {/* Search Bar Input */}
@@ -44,11 +44,11 @@ export default function AramaModal({ isOpen, onClose, items, onSelectResult }: A
             placeholder="Etiket, bağlantılı varlık veya başlık ara... (ör. 'küçükçetmi')"
             value={queryStr}
             onChange={(e) => setQueryStr(e.target.value)}
-            className="w-full bg-transparent text-[#1B2A4A] dark:text-[#F3EFE8] text-base focus:outline-hidden"
+            className="w-full bg-transparent text-[#0E1C4F] dark:text-[#F3EFE8] text-base focus:outline-hidden"
           />
           <button 
             onClick={onClose}
-            className="text-[#6A5E4C] dark:text-[#A6B0C9] hover:text-[#D35057] transition-colors p-1 rounded-lg hover:bg-[#CFC5B4]/20"
+            className="text-[#6A5E4C] dark:text-[#A6B0C9] hover:text-[#F26B6F] transition-colors p-1 rounded-lg hover:bg-[#CFC5B4]/20"
           >
             <X className="w-5 h-5" />
           </button>
@@ -74,7 +74,7 @@ export default function AramaModal({ isOpen, onClose, items, onSelectResult }: A
                   onSelectResult(item);
                   onClose();
                 }}
-                className="flex items-center justify-between p-3 rounded-lg bg-[#F6F1E7]/80 dark:bg-[#17345A]/50 border border-[#CFC5B4]/50 dark:border-[#2C3C72]/50 hover:border-[#D35057] dark:hover:border-[#D35057] hover:bg-[#F6F1E7] dark:hover:bg-[#17345A] cursor-pointer transition-all group"
+                className="flex items-center justify-between p-3 rounded-lg bg-[#F6F1E7]/80 dark:bg-[#17345A]/50 border border-[#CFC5B4]/50 dark:border-[#2C3C72]/50 hover:border-[#F26B6F] dark:hover:border-[#F26B6F] hover:bg-[#F6F1E7] dark:hover:bg-[#17345A] cursor-pointer transition-all group"
               >
                 <div className="space-y-1 pr-4">
                   <div className="flex items-center gap-2">
@@ -82,11 +82,11 @@ export default function AramaModal({ isOpen, onClose, items, onSelectResult }: A
                       {item.type}
                     </span>
                     {item.isProposal && (
-                      <span className="text-[10px] font-mono text-[#D35057] border border-dashed border-[#D35057] px-1.5 py-0.5 rounded-xs">
+                      <span className="text-[10px] font-mono text-[#F26B6F] border border-dashed border-[#F26B6F] px-1.5 py-0.5 rounded-xs">
                         Öneri
                       </span>
                     )}
-                    <span className="font-serif font-semibold text-[#1B2A4A] dark:text-[#F3EFE8] group-hover:text-[#D35057] transition-colors">
+                    <span className="font-serif font-semibold text-[#0E1C4F] dark:text-[#F3EFE8] group-hover:text-[#F26B6F] transition-colors">
                       {item.title}
                     </span>
                   </div>
@@ -107,7 +107,7 @@ export default function AramaModal({ isOpen, onClose, items, onSelectResult }: A
                   )}
                 </div>
 
-                <div className="flex items-center gap-2 text-[#9A8C76] dark:text-[#6E7CA0] group-hover:text-[#D35057] transition-all shrink-0">
+                <div className="flex items-center gap-2 text-[#9A8C76] dark:text-[#6E7CA0] group-hover:text-[#F26B6F] transition-all shrink-0">
                   <span className="text-[10px] font-mono capitalize">
                     {item.area === 'duzada' ? 'Ada & Lore' : item.area}
                   </span>

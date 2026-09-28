@@ -136,12 +136,12 @@ export const Yedekleme: React.FC<YedeklemeProps> = ({ items, settings, onKayit }
         }
         className="relative p-2 bg-white dark:bg-[#17345A] border border-[#CFC5B4]
                    dark:border-[#2C3C72] text-[#6A5E4C] dark:text-[#A6B0C9]
-                   rounded-lg hover:text-[#D35057] transition-colors cursor-pointer"
+                   rounded-lg hover:text-[#F26B6F] transition-colors cursor-pointer"
       >
         <Archive className="w-4 h-4" />
         {eski && (
           <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full
-                           bg-[#D35057]" />
+                           bg-[#F26B6F]" />
         )}
       </button>
 
@@ -166,7 +166,7 @@ export const Yedekleme: React.FC<YedeklemeProps> = ({ items, settings, onKayit }
           >
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h2 className="font-mono text-sm font-bold text-[#1B2A4A]
+                <h2 className="font-mono text-sm font-bold text-[#0E1C4F]
                                dark:text-[#F3EFE8]">
                   Yedekleme
                 </h2>
@@ -179,7 +179,7 @@ export const Yedekleme: React.FC<YedeklemeProps> = ({ items, settings, onKayit }
               <button
                 onClick={() => setAcik(false)}
                 className="p-1 text-[#6A5E4C] dark:text-[#A6B0C9]
-                           hover:text-[#D35057] cursor-pointer"
+                           hover:text-[#F26B6F] cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -197,7 +197,7 @@ export const Yedekleme: React.FC<YedeklemeProps> = ({ items, settings, onKayit }
                 onClick={indir}
                 disabled={calisiyor}
                 className="flex items-center justify-center gap-2 py-2.5 rounded-lg
-                           bg-[#1B2A4A] dark:bg-[#D35057] text-[#F3EFE8] text-xs
+                           bg-[#0E1C4F] dark:bg-[#F26B6F] text-[#F3EFE8] text-xs
                            font-mono hover:opacity-90 disabled:opacity-40
                            cursor-pointer"
               >

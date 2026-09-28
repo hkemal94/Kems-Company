@@ -206,7 +206,7 @@ export const NpcSihirbazi: React.FC<NpcSihirbaziProps> = ({ items, onAddItem, on
         onClick={e => e.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-3 mb-1">
-          <h2 className="font-mono text-sm font-bold text-[#1B2A4A] dark:text-[#F3EFE8]">
+          <h2 className="font-mono text-sm font-bold text-[#0E1C4F] dark:text-[#F3EFE8]">
             NPC yarat · {basliklar[adim]}
           </h2>
           <span className="font-mono text-[10px] text-[#9A8C76]">
@@ -254,7 +254,7 @@ export const NpcSihirbazi: React.FC<NpcSihirbaziProps> = ({ items, onAddItem, on
         )}
         {adim === 'ozet' && (
           <div className="rounded-lg border border-[#CFC5B4] dark:border-[#2C3C72] p-4 space-y-1.5">
-            <p className="font-serif font-bold text-lg text-[#1B2A4A] dark:text-[#F3EFE8]">
+            <p className="font-serif font-bold text-lg text-[#0E1C4F] dark:text-[#F3EFE8]">
               {ad || '—'}
             </p>
             {[['Rol', rol], ['Mahalle', mahalle], ['Mizaç', mizac], ['Oteldeki yeri', durum.ad]]
@@ -302,14 +302,14 @@ export const NpcSihirbazi: React.FC<NpcSihirbaziProps> = ({ items, onAddItem, on
               onClick={kaydet}
               disabled={!ad || yaziliyor}
               className="flex items-center gap-1.5 px-4 py-2 text-[11px] font-mono rounded-lg
-                         bg-[#1B2A4A] text-[#F3EFE8] hover:opacity-90 disabled:opacity-30 cursor-pointer"
+                         bg-[#0E1C4F] dark:bg-[#2C3C72] text-[#F3EFE8] hover:opacity-90 disabled:opacity-30 cursor-pointer"
             >
               <Check className="w-3 h-3" /> {yaziliyor ? 'Ekleniyor…' : 'Kişiyi ekle'}
             </button>
           ) : (
             <button
               onClick={ileri}
-              className="px-4 py-2 text-[11px] font-mono rounded-lg bg-[#1B2A4A]
+              className="px-4 py-2 text-[11px] font-mono rounded-lg bg-[#0E1C4F] dark:bg-[#2C3C72]
                          text-[#F3EFE8] hover:opacity-90 cursor-pointer"
             >
               İleri

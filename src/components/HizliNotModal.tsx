@@ -44,18 +44,18 @@ export default function HizliNotModal({ isOpen, onClose, onSave }: HizliNotModal
   };
 
   return (
-    <div className="fixed inset-0 bg-[#1B2A4A]/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+    <div className="fixed inset-0 bg-[#0E1C4F] dark:bg-[#2C3C72]/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
       <div className="bg-[#F3EFE8] dark:bg-[#13204A] border-2 border-[#CFC5B4] dark:border-[#2C3C72] rounded-xl max-w-lg w-full overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-200 paper-grain">
         
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[#CFC5B4] dark:border-[#2C3C72]">
-          <div className="flex items-center gap-2 text-[#1B2A4A] dark:text-[#F3EFE8]">
-            <Lightbulb className="w-5 h-5 text-[#D35057]" />
+          <div className="flex items-center gap-2 text-[#0E1C4F] dark:text-[#F3EFE8]">
+            <Lightbulb className="w-5 h-5 text-[#F26B6F]" />
             <h3 className="font-serif font-bold text-lg">Hızlı Not Al</h3>
           </div>
           <button 
             onClick={onClose}
-            className="text-[#6A5E4C] dark:text-[#A6B0C9] hover:text-[#D35057] transition-colors p-1 rounded-lg hover:bg-[#CFC5B4]/20"
+            className="text-[#6A5E4C] dark:text-[#A6B0C9] hover:text-[#F26B6F] transition-colors p-1 rounded-lg hover:bg-[#CFC5B4]/20"
           >
             <X className="w-5 h-5" />
           </button>
@@ -73,7 +73,7 @@ export default function HizliNotModal({ isOpen, onClose, onSave }: HizliNotModal
               placeholder="Notunuza kısa ve açıklayıcı bir başlık verin..."
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full bg-[#F6F1E7] dark:bg-[#17345A] text-[#1B2A4A] dark:text-[#F3EFE8] border border-[#CFC5B4] dark:border-[#2C3C72] rounded-lg px-4 py-2 text-sm focus:outline-hidden focus:border-[#D35057] dark:focus:border-[#D35057]"
+              className="w-full bg-[#F6F1E7] dark:bg-[#17345A] text-[#0E1C4F] dark:text-[#F3EFE8] border border-[#CFC5B4] dark:border-[#2C3C72] rounded-lg px-4 py-2 text-sm focus:outline-hidden focus:border-[#F26B6F] dark:focus:border-[#F26B6F]"
             />
           </div>
 
@@ -85,7 +85,7 @@ export default function HizliNotModal({ isOpen, onClose, onSave }: HizliNotModal
               <select
                 value={area}
                 onChange={(e) => handleAreaChange(e.target.value as AreaType)}
-                className="w-full bg-[#F6F1E7] dark:bg-[#17345A] text-[#1B2A4A] dark:text-[#F3EFE8] border border-[#CFC5B4] dark:border-[#2C3C72] rounded-lg px-3 py-2 text-sm focus:outline-hidden focus:border-[#D35057]"
+                className="w-full bg-[#F6F1E7] dark:bg-[#17345A] text-[#0E1C4F] dark:text-[#F3EFE8] border border-[#CFC5B4] dark:border-[#2C3C72] rounded-lg px-3 py-2 text-sm focus:outline-hidden focus:border-[#F26B6F]"
               >
                 <option value="duzada">Düzada & Lore</option>
                 <option value="merch">Merch / Drop</option>
@@ -102,7 +102,7 @@ export default function HizliNotModal({ isOpen, onClose, onSave }: HizliNotModal
               <select
                 value={type}
                 onChange={(e) => setType(e.target.value as ItemType)}
-                className="w-full bg-[#F6F1E7] dark:bg-[#17345A] text-[#1B2A4A] dark:text-[#F3EFE8] border border-[#CFC5B4] dark:border-[#2C3C72] rounded-lg px-3 py-2 text-sm focus:outline-hidden focus:border-[#D35057]"
+                className="w-full bg-[#F6F1E7] dark:bg-[#17345A] text-[#0E1C4F] dark:text-[#F3EFE8] border border-[#CFC5B4] dark:border-[#2C3C72] rounded-lg px-3 py-2 text-sm focus:outline-hidden focus:border-[#F26B6F]"
               >
                 {area === 'duzada' && (
                   <>
@@ -142,7 +142,7 @@ export default function HizliNotModal({ isOpen, onClose, onSave }: HizliNotModal
               placeholder="Akla gelen ilk kıvılcımları buraya karala..."
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="w-full bg-[#F6F1E7] dark:bg-[#17345A] text-[#1B2A4A] dark:text-[#F3EFE8] border border-[#CFC5B4] dark:border-[#2C3C72] rounded-lg px-4 py-2 text-sm focus:outline-hidden focus:border-[#D35057] font-sans"
+              className="w-full bg-[#F6F1E7] dark:bg-[#17345A] text-[#0E1C4F] dark:text-[#F3EFE8] border border-[#CFC5B4] dark:border-[#2C3C72] rounded-lg px-4 py-2 text-sm focus:outline-hidden focus:border-[#F26B6F] font-sans"
             />
           </div>
 
@@ -157,7 +157,7 @@ export default function HizliNotModal({ isOpen, onClose, onSave }: HizliNotModal
             <button
               type="submit"
               disabled={saving || !title.trim()}
-              className="px-5 py-2 bg-[#D35057] hover:bg-[#B23A40] disabled:bg-[#D35057]/50 text-[#F3EFE8] rounded-lg text-xs font-mono flex items-center gap-1.5 transition-colors cursor-pointer"
+              className="px-5 py-2 bg-[#F26B6F] hover:bg-[#B23A40] disabled:bg-[#F26B6F]/50 text-[#F3EFE8] rounded-lg text-xs font-mono flex items-center gap-1.5 transition-colors cursor-pointer"
             >
               <Send className="w-3.5 h-3.5" />
               {saving ? "Kaydediliyor..." : "Fikir Olarak Kaydet"}
