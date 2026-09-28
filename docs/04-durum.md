@@ -82,6 +82,35 @@ getirmek gerekirse). Basılması Kemal'de.
 Harita şikâyeti (W1'den sonra): yollar dümdüz, arazi yapay, binalar kutu,
 genel his harita gibi değil. Ekran görüntüsü bekleniyor.
 
+## Canva düzeni (28 Eylül)
+
+Kemal 50 tasarımın 251 sayfasını ayıklama sayfasında işaretledi
+(https://claude.ai/artifact/Pob5WWQLLZqVDwAvy8FHAx — seçimler orada kayıtlı).
+Sonra tasarımlar Canva'da şu klasörlere taşındı; hiçbir şey silinmedi:
+
+```
+İlham (FAHWf9rScOM)      14 tasarım — Düzada Harita, İskele Mahallesi örnek,
+│                          The Imperial, davetiyeler, fotoğraflar…
+├── Marka (FAHWgMHm7u4)   5  — KEMS, kems, Kems Company, Company, Sandbox (Brand Kit)
+├── Merch (FAHWgGalwn0)  18  — Basics 1, Basics I, No Name Drop.1, iskambil destesi,
+│                              11 Shopier seti, İyot / Deniz Kulübü Prints, poster
+├── Instagram (FAHWgD-8jho) 7 — Instagram gönderileri, Başlık, 3 adsız (emin olunamayanlar)
+└── Harita (FAHWf784A3E)  2  — doğum günü gönderisi, Instagram Denemeleri
+```
+
+- Kural: **Marka öncelikli.** Hem Harita hem Marka/Merch olan tasarım Marka/Merch'e gitti.
+- **Eski** işaretli 4 tasarım (Çarşı, Kuleli Shopier, Kare Logo, 24 sayfalık
+  adsız afiş seti) taşınmadı, eski yerlerinde.
+- Eski klasörler ("İyot - Done", "Deniz Kulübü - Done", "Kems Company",
+  "Denemeler", "Ürünler", "Instagram"…) boşalmış olabilir; Kemal karar verecek.
+
+## Viki soru-cevap (W2)
+
+Sohbette tıklamalı sorularla yürüyor; cevaplar `docs/soru-cevap/` altında
+birikiyor, sonra tek seferlik düğmeyle vikiye aktarılacak. İlk mahalle
+İskele / Kemsköy: başlık, konum, sınırlar, arazi cevaplandı; Tarihçe
+Kemal'in cümlelerini bekliyor.
+
 ## Otel maddesi temizliği (28 Eylül)
 
 Oyun için açılan kod oturumu bu depoya da girdi ve "Ekim 2008'e taşı"
