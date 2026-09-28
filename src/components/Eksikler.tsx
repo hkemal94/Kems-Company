@@ -355,14 +355,13 @@ export const Eksikler: React.FC<EksiklerProps> = ({
   const viki = useMemo(() => vikiSifirlama(items), [items]);
   const [vikiIsi, setVikiIsi] = useState(false);
   const [vikiRaporu, setVikiRaporu] = useState<string | null>(null);
+  // Onay kartın içinde sorulur. window.confirm AI Studio önizlemesinde
+  // (çerçeve içinde) engelleniyor, sessizce "hayır" dönüyordu.
+  const [vikiOnay, setVikiOnay] = useState(false);
 
   const vikiyiArsivle = async () => {
     if (!onUpdateItem || vikiIsi) return;
-    const onay = window.confirm(
-      `${viki.arsivlenecek.length} viki kaydı arşive kalkacak. Silinmez; `
-      + `arşivden geri gelir. Devam edilsin mi?`
-    );
-    if (!onay) return;
+    setVikiOnay(false);
     setVikiIsi(true);
     let n = 0;
     try {
@@ -430,14 +429,38 @@ export const Eksikler: React.FC<EksiklerProps> = ({
               Hiçbir şey silinmez; arşivden geri gelir.
             </span>
           </span>
-          <button
-            type="button"
-            onClick={vikiyiArsivle}
-            disabled={vikiIsi}
-            className="shrink-0 px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#1B2A4A] text-[#F3EFE8] hover:opacity-90 disabled:opacity-40 cursor-pointer"
-          >
-            {vikiIsi ? 'Arşivleniyor…' : 'Arşive kaldır'}
-          </button>
+          {vikiOnay ? (
+            <span className="shrink-0 flex flex-col items-end gap-1.5">
+              <span className="text-[11px] font-semibold text-[#D35057]">
+                {viki.arsivlenecek.length} kayıt arşive kalksın mı?
+              </span>
+              <span className="flex gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setVikiOnay(false)}
+                  className="px-3 py-1.5 text-[11px] font-mono rounded-lg border border-[#CFC5B4] dark:border-[#2C3C72] text-[#6A5E4C] dark:text-[#A6B0C9] hover:border-[#1B2A4A] cursor-pointer"
+                >
+                  Vazgeç
+                </button>
+                <button
+                  type="button"
+                  onClick={vikiyiArsivle}
+                  className="px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#D35057] text-[#F3EFE8] hover:opacity-90 cursor-pointer"
+                >
+                  Evet, kaldır
+                </button>
+              </span>
+            </span>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setVikiOnay(true)}
+              disabled={vikiIsi}
+              className="shrink-0 px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#1B2A4A] text-[#F3EFE8] hover:opacity-90 disabled:opacity-40 cursor-pointer"
+            >
+              {vikiIsi ? 'Arşivleniyor…' : 'Arşive kaldır'}
+            </button>
+          )}
         </div>
       )}
       {vikiRaporu && (
