@@ -7,14 +7,15 @@ Ad sorularında Claude aday önerebilir; karar Kemal'in.
 ## Adlar (Kemal koyacak)
 - Çiftlik'teki kooperatif zeytinyağı fabrikasının ve kooperatifin adı.
 - Fener bekçisi kimdi? (ad / kişi kaydı)
+- Sade Meze ve Dondurmacı Kızlar'ın sahibi olan kadın.
+- Dirlik'in rakibi (varsa).
 - Liman, Stadyum, Çiftlik mahallelerinin sokak adları (şu an numaralı).
 - Geçici yapı adları: Güney Burnu, Liman Deposu, Düzada İlkokulu, Merkez
   Pazarı, Çarşı Apartmanı, Zeytinli Apartmanı.
 
 ## Tarihler (aralık yeter)
-- Adaya elektrik ne zaman geldi?
-- Dirlik'in profesyonel alt lig dönemleri.
-- Eski kilisenin dönemi.
+- Otel ne zaman özelleşti? Sonra el değiştirdi mi?
+- Merkez pazarının günü.
 - Kesin yıllar: fener (19. yy), fabrika (19. yy sonu – 1920'ler), belediye
   (1980 sonrası), otomatiğe geçiş (1980–1990'lar) — aralık yeterliyse gerek yok.
 - Kemsköy'ün mahalle sayılması (bilinen: 1954 sonrası).

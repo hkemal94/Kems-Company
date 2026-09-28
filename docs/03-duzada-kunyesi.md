@@ -103,6 +103,36 @@ Aralıklar kanon; kesin yıl yoksa uydurulmaz. Ayrıntı `docs/soru-cevap/w3.md`
 - **Kems Company** — Kemsköy Caddesi'nde bir dükkânı var (adı, yeri sonra);
   Kems Company ürünleri ve kulüp serileri satılır.
 
+## Ada hayatı · 2 (28 Eylül 2026, W3 20–27. turlar)
+
+- **Otelin kökeni** — bina devletin: İskele Mahallesi'ne Haydarpaşa'nın
+  minyatürü gibi bir **devlet misafirhanesi** olarak yapıldı; çok sürmeden
+  özelleştirilip otel oldu (tarih yok). Parlak dönemi hep sürdü; her
+  dönemde farklı yüksek profilli misafirler. Otelin sahili uçurumun dibinde
+  ayrı küçük bir cep.
+- **Elektrik** — 1950–1960'lar: önce otelin jeneratörü, köy hemen ardından.
+- **Eski kilise** — 18. yüzyıl, İskele'de, boş.
+- **Dirlik** — profesyonel alt ligde 1990'lar ve 2000'lerde; yakın dönemde
+  bölgesel amatör ligden profesyonel lige çıkmak için iddialı. Stat iki
+  tribünlü. İç saha maçlarında ada stada taşınır, deplasmanda Merkez
+  kahvehanesinde izlenir.
+- **İskele** — eğlence: meyhane ve bar tarzı birkaç mekân. Kemsköy Caddesi
+  yazlık bir beldenin ana caddesi; zamanla daha üst segmente yaklaşıyor.
+- **Liman** — çekek yeri, balık hali, balık lokantası; market, akaryakıt,
+  kafeler, araç kiralama. Sakinler: liman çalışanları, balıkçılar, esnaf,
+  genç aileler.
+- **Çiftlik** — küçük aile şaraphaneleri; taş, avlulu çiftlik evleri.
+  Kooperatifin üyeleri bütün adanın zeytincileri. Arıcılık Ada Tepesi
+  yamaçlarında.
+- **Merkez** — meydanda eski taş çeşme ve yaşlı bir çınar; haftada bir
+  pazar. Eski köylü aileler, kamu çalışanları, esnaf, emekliler; orta direk.
+- **Kıyılar** — Stadyum kıyısında kumlu-çakıllı plaj; gizli koylara patika
+  ya da tekneyle.
+- **Kış** — poyraz kışın sert (feribot iptalleri çoğunlukla kışın), bahar
+  sabahları sis, sonbaharda lodos.
+- **Sade Meze ve Dondurmacı Kızlar** — ikisinin de sahibi aynı kadın: ailesi
+  adalı, anakaradan geldi; Sade Meze ailesinden kalma. Adı yok.
+
 ## The Imperial Kemsköy
 
 Bütün projenin başlangıç noktası. Haydarpaşa Gar binasının küçüğü gibi
