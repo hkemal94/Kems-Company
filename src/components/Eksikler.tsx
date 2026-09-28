@@ -11,6 +11,7 @@ import { markaYapisi, markaGocu, markaGocuYazilari } from '../lib/markaYapisi';
 import { otelTemizligi } from '../lib/otelTemizligi';
 import { vikiSifirlama, vikiSifirlamaYazilari } from '../lib/vikiSifirlama';
 import { soruCevapAktarimi } from '../lib/soruCevapAktarimi';
+import { w3Aktarimi } from '../lib/w3Aktarimi';
 
 /**
  * "Neyin eksik" paneli (A1).
@@ -414,6 +415,33 @@ export const Eksikler: React.FC<EksiklerProps> = ({
     }
   };
 
+  /** W3 soru-cevapları vikiye — tarih aralıkları ve bilgi satırları */
+  const w3 = useMemo(() => w3Aktarimi(items), [items]);
+  const [w3Isi, setW3Isi] = useState(false);
+  const [w3Raporu, setW3Raporu] = useState<string | null>(null);
+  const [w3Onay, setW3Onay] = useState(false);
+
+  const w3Aktar = async () => {
+    if (!onUpdateItem || w3Isi) return;
+    setW3Onay(false);
+    setW3Isi(true);
+    let n = 0;
+    try {
+      for (const kayit of w3.guncellenenler) { await onUpdateItem(kayit); n++; }
+      setW3Raporu(
+        `${n} kayıt güncellendi.`
+        + (w3.bulunamayan.length ? ` Bulunamayan: ${w3.bulunamayan.join(', ')}.` : '')
+      );
+    } catch (e) {
+      setW3Raporu(
+        `${n} kayıt güncellendi, sonra hata: `
+        + `${e instanceof Error ? e.message : 'bilinmeyen'}. Kalanlar için tekrar bas.`
+      );
+    } finally {
+      setW3Isi(false);
+    }
+  };
+
   /** İçi boş proje kayıtları — tek düğmeyle arşive */
   const bosProje = useMemo(() => bosProjeler(items), [items]);
   const [projeIsi, setProjeIsi] = useState(false);
@@ -502,6 +530,61 @@ export const Eksikler: React.FC<EksiklerProps> = ({
       {vikiRaporu && (
         <p className="mb-2.5 px-4 py-2 rounded-lg bg-[#F3EFE8] dark:bg-[#17345A] text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9]">
           {vikiRaporu}
+        </p>
+      )}
+
+      {/* W3 soru-cevapları vikiye — tek seferlik */}
+      {onUpdateItem && w3.guncellenenler.length > 0 && (
+        <div className="mb-2.5 flex items-start gap-3 px-4 py-3 rounded-xl border border-[#D35057]/40 bg-[#FAF8F5] dark:bg-[#13204A]">
+          <span className="font-mono text-lg font-bold text-[#D35057] leading-none mt-0.5 shrink-0 tabular-nums">
+            {w3.guncellenenler.length}
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-[13px] font-semibold text-[#1B2A4A] dark:text-[#F3EFE8]">
+              yeni soru-cevaplar (W3) vikiye aktarılmayı bekliyor
+            </span>
+            <span className="block mt-0.5 text-[11px] text-[#9A8C76] dark:text-[#6E7CA0] leading-snug">
+              {w3.ozet.join(' · ')}.
+              Tarihçe bölümleri boş kalır. Hiçbir şey silinmez.
+            </span>
+          </span>
+          {w3Onay ? (
+            <span className="shrink-0 flex flex-col items-end gap-1.5">
+              <span className="text-[11px] font-semibold text-[#D35057]">
+                {w3.guncellenenler.length} kayıt güncellensin mi?
+              </span>
+              <span className="flex gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setW3Onay(false)}
+                  className="px-3 py-1.5 text-[11px] font-mono rounded-lg border border-[#CFC5B4] dark:border-[#2C3C72] text-[#6A5E4C] dark:text-[#A6B0C9] hover:border-[#1B2A4A] cursor-pointer"
+                >
+                  Vazgeç
+                </button>
+                <button
+                  type="button"
+                  onClick={w3Aktar}
+                  className="px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#D35057] text-[#F3EFE8] hover:opacity-90 cursor-pointer"
+                >
+                  Evet, aktar
+                </button>
+              </span>
+            </span>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setW3Onay(true)}
+              disabled={w3Isi}
+              className="shrink-0 px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#1B2A4A] text-[#F3EFE8] hover:opacity-90 disabled:opacity-40 cursor-pointer"
+            >
+              {w3Isi ? 'Aktarılıyor…' : 'Vikiye aktar'}
+            </button>
+          )}
+        </div>
+      )}
+      {w3Raporu && (
+        <p className="mb-2.5 px-4 py-2 rounded-lg bg-[#F3EFE8] dark:bg-[#17345A] text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9]">
+          {w3Raporu}
         </p>
       )}
 

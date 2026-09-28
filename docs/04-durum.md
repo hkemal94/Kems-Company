@@ -182,6 +182,17 @@ sınırlarının doğallaşması, arazi / bina görünümü.
 1–2 kata indi. Liman rıhtımına mendirek ve feribot iskelesi eklendi.
 Görsel: `docs/gorseller/h2-liman.png`.
 
+**W3 sonrası harita (28 Eylül):** Merkez'deki iki apartman dükkânlı /
+müstakil eve döndü (Merkez'de apartman yok). Çiftlik'e adsız kooperatif
+zeytinyağı fabrikası, fenerin yanına Fener Evi eklendi. Sade Meze eski
+fabrika binası olarak büyüdü (2 kat). Köy sokakları da artık yapıların
+içinden geçmiyor (Belediye, Dirlik Stadı, Sürek Kulübü çakışmaları gitti).
+
+**W3 aktarım düğmesi:** Neyin Eksik'te "yeni soru-cevaplar (W3) vikiye
+aktarılmayı bekliyor" kartı (`src/lib/w3Aktarimi.ts`): künyelere tarih
+aralıkları, fenere "Faaliyette: 19. yüzyıl–", Merkez'e çarşı satırı, ada
+maddesinde feribot Küçükkuyu ve eski paragraf eski metne.
+
 **Konut kararı (Kemal, 28 Eylül):** Mahallelerdeki binalar çoğunlukla
 müstakil ev olacak. Apartman / çok katlı blok az; yoksa nüfus istenmeyen
 seviyeye çıkar. Sokak dokusu sıklaşsa da adalar bahçeli müstakil evlerle

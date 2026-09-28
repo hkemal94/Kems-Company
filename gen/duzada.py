@@ -1285,6 +1285,10 @@ print(f"  İskele           : kıyıya dik, T başı {ISKELE_BAS:.0f} m")
 fx, fy = kara(141, 0.985)
 bina("bina_fener", "Deniz Feneri", daire(fx, fy, 7), 24, "fener", "yer_liman",
      wiki_id="viki_mekan_fener")
+# Fener bekçisinin evi (Kemal, 28 Eylül): fenerin hemen yanında, karaya doğru
+_fe = (fx * 0.994, fy * 0.994)
+bina("bina_fener_evi", "Fener Evi", dikdortgen(_fe[0], _fe[1], 11, 8,
+     math.degrees(math.atan2(fy, fx))), 5, "yapı", "yer_liman", kat=1)
 
 # Dirlik Stadı
 bina("bina_stad", "Dirlik Stadı", elips(4750, 3150, 78, 54, 15), 14, "stadyum",
@@ -1293,6 +1297,11 @@ bina("bina_stad", "Dirlik Stadı", elips(4750, 3150, 78, 54, 15), 14, "stadyum",
 # Küçükçetmi Sürek Kulübü — çiftlik yerleşkesi
 bina("bina_surek", "Küçükçetmi Sürek Kulübü", dikdortgen(6320, -2320, 54, 26, -8),
      9, "kulüp", "yer_ciftlik", wiki_id="mekan_kucukcetmi")
+
+# Kooperatifin zeytinyağı fabrikası (Kemal, 28 Eylül): 1950–70'ler, modern
+# ve küçük çaplı; adı yok, tür adıyla duruyor.
+bina("bina_zeytinyagi", "Zeytinyağı Fabrikası", dikdortgen(6560, -2560, 40, 20, 24),
+     8, "yapı", "yer_ciftlik", kat=1)
 
 # Merkez Mahallesi — kamu binaları ve apartmanlar
 # Kasaba ~310 m kotta bir sırtın üstünde. Ege kasabaları kıyıda değil,
@@ -1304,8 +1313,10 @@ merkez_yapilar = [
     ("bina_belediye", "Belediye Binası", (-100, 220), 44, 24, 12, 3, "viki_mekan_belediye"),
     ("bina_okul", "Düzada İlkokulu", (220, -50), 52, 20, 9, 2, "mekan_okul"),
     ("bina_pazar", "Merkez Pazarı", (-260, -140), 36, 30, 7, 1, "mekan_pazar"),
-    ("bina_apt1", "Çarşı Apartmanı", (120, 270), 22, 18, 15, 5, None),
-    ("bina_apt2", "Zeytinli Apartmanı", (-200, 50), 20, 20, 12, 4, None),
+    # Kemal (28 Eylül): Merkez'de apartman yok; ikisi dükkânlı / müstakil ev.
+    # Adlar tür adı; eski geçici adlar (Çarşı / Zeytinli Apartmanı) kalktı.
+    ("bina_apt1", "Dükkânlı Ev", (120, 270), 14, 12, 7, 2, None),
+    ("bina_apt2", "Müstakil Ev", (-200, 50), 12, 11, 6, 2, None),
 ]
 for bid, ad, (dx, dy), w, h, yuk, kat, wid in merkez_yapilar:
     bina(bid, ad,
@@ -1367,9 +1378,11 @@ for i in range(7):
 # Tarihi Meyhane — otelin yanında, otele ait değil.
 # Kemal: "otel ile homojen bir bağı yok ama yıllardır birlikte anılıyorlar."
 # Yerleşkenin karaya bakan ucunda, bahçenin gerisinde ayrı bir kütle.
+# Kemal (28 Eylül): bina, İskele tarafındaki eski zeytinyağı fabrikası
+# (19. yy sonu – 1920'ler; 1950–70'lerde kapandı). Taş, uzun bir kütle.
 bina("bina_meyhane", "Sade Meze",
-     yerlesim_dikdortgen(-150, 96, 26, 14, 18.0), 7, "meyhane", "yer_iskele",
-     wiki_id="viki_mekan_meyhane", kat=1)
+     yerlesim_dikdortgen(-150, 96, 34, 17, 18.0), 9, "meyhane", "yer_iskele",
+     wiki_id="viki_mekan_meyhane", kat=2)
 
 # Liman Mahallesi — liman yapıları rıhtımda, suyun hemen kıyısında.
 # (Eskiden kara(152, 0.88) ile konuyordu; bu nokta denizden ~700 m
@@ -1979,19 +1992,28 @@ def _koy_dokusu(mid, kok, meydan, yaricap, kol_sayisi, halka_oranlari):
     alan = mahalle_geom[mid][2].buffer(40).intersection(ada.buffer(-60))
     sayac = [0]
 
+    # Sokak yapının içinden geçmez: yapıya değen yerde kesilir (kasabadaki gibi)
+    engel = unary_union([b_["geom"].buffer(4) for b_ in binalar])
+
     def ekle(hat, tur=None):
         if len(hat) < 2:
             return
         hat = _hat_kirp(hat, alan)
         if not hat:
             return
-        if tur is None:
-            hl = LineString(hat)
-            dz = abs(float(yukselti(*hat[-1])) - float(yukselti(*hat[0])))
-            tur = "merdiven" if dz / max(hl.length, 1) > 0.16 else "sokak"
-        sayac[0] += 1
-        YOLLAR.append((f"sokak_{mid}_{sayac[0]}", f"{kok} {sayac[0]}. Sokak",
-                       _hat_seyrelt(_chaikin(hat), 15.0), tur, mid))
+        kes = LineString(_hat_seyrelt(_chaikin(hat), 15.0)).difference(engel)
+        parcalar = list(kes.geoms) if hasattr(kes, "geoms") else [kes]
+        for hl in parcalar:
+            if hl.geom_type != "LineString" or hl.length < 40:
+                continue
+            h = [(x, y) for x, y in hl.coords]
+            t = tur
+            if t is None:
+                dz = abs(float(yukselti(*h[-1])) - float(yukselti(*h[0])))
+                t = "merdiven" if dz / max(hl.length, 1) > 0.16 else "sokak"
+            sayac[0] += 1
+            YOLLAR.append((f"sokak_{mid}_{sayac[0]}", f"{kok} {sayac[0]}. Sokak",
+                           h, t, mid))
 
     def yuru(x, y, yon, boy, adim=18.0):
         """Eğimi yumuşatarak yürüyen patika. Her sokak kendi ana yönünü

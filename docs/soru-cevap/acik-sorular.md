@@ -18,10 +18,6 @@ Ad sorularında Claude aday önerebilir; karar Kemal'in.
 - Dirlik Stadı'nın yapımı (bilinen: kulüpten sonra).
 - Anakaradaki feribot iskelesi: Küçükkuyu (ada künyesinde "Çanakkale / Ayvalık tarafı" yazıyor, düzeltilecek).
 
-## Doğrulanacak
-- "Sade Meyhane" yazıldı; kanondaki ad **Sade Meze**. Aynı yer mi, ad mı değişiyor?
-- Otel yıl boyu açık, ama ada için "kışın yalnız adalılar kalır" denmişti. Kışın otel az misafirle mi açık?
-
 ## Harita
 
 ## Metin (Kemal yazacak)

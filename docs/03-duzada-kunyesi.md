@@ -56,7 +56,8 @@ Aralıklar kanon; kesin yıl yoksa uydurulmaz. Ayrıntı `docs/soru-cevap/w3.md`
   zeytinlik. Feribot İskele'den yeni limana taşındı; İskele otel, eğlence
   ve küçük teknelerin yeri olarak kaldı.
 - **Otelin etkisi** — 1954 ile adada yaz turizmi başladı; İskele'ye
-  otelciler ve varlıklı yazlıkçılar yerleşti. Otel yıl boyu açık.
+  otelciler ve varlıklı yazlıkçılar yerleşti. Otel yıl boyu açık; kışın az
+  misafir ve az personelle.
 - **Kemsköy'ün mahalleliği** — halk 1954 sonrası "mahalle" dedi; resmî
   mahalle olması belediyeyle.
 - **Okul** — 1920–1940'lar.
