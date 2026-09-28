@@ -239,6 +239,19 @@ arşiv + Canva aynası. Bildirimler: haftalık özet, tarihli işler, bekleyen
 düğme, günün sorusu (telefon / e-posta / uygulama içi). Site ve sosyal
 medya: tasarım soruları paralel başlar, kod sonra.
 
+**Kurucu 1. adım (28–29 Eylül gecesi, yapıldı):** Düzada'da üçüncü sekme
+"Kurucu" (`src/components/kurucu/`). Üstten plan; bugünkü haritayla açılır
+(elle yapılan düzen dahil). Araçlar: Gez, Seç, Yol çiz. Dört yol türü (ana,
+sokak, toprak, patika); nokta kavşağa / yola yapışır, denize çizilmez;
+Enter / çift tık / Bitir. Seçilen yolun türü değişir ya da taslaktan
+kaldırılır (silinmez, kesikli kırmızı görünür). Geri al / yinele (100
+adım). Taslak `duzada/haritaDuzeni` belgesinin `kurucu` alanında (Firestore
+kuralı değişmedi); harita düzenleyicisi kaydederken taslağı korur.
+**Harita değişmez** — "Haritaya işle" 3. adımda. Sıradaki: bina aracı
+(yol kenarına otomatik müstakil ev + tek tek), sonra şablonlar ve "Haritaya
+işle". Gerçek veride ve AI Studio önizlemesinde denenmedi; yalnız yerel
+önizlemede (sahte veri) denendi.
+
 **Kanon KKM'nin başka alanlarında:** Merch'te drop açılınca bağlı kurumun
 kanon bilgisi; Kitap'ta geçen yer/kişi adlarının vikiye bağlanması ve
 tarihle çelişki uyarısı (ör. 1970'lerde feribot Liman'da olamaz); Blog'da

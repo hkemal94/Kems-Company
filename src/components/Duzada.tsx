@@ -20,7 +20,8 @@ import { SayfaRayi, type RayBolumu } from './SayfaRayi';
 /** Düzada'nın iki yüzü — sekme, kaydırma değil */
 const RAY_BOLUMLERI: RayBolumu[] = [
   { id: 'wiki', label: 'Düzada Wiki' },
-  { id: 'harita', label: 'Düzada Haritası' }
+  { id: 'harita', label: 'Düzada Haritası' },
+  { id: 'kurucu', label: 'Kurucu' }
 ];
 
 // MapLibre haritası ~1 MB'lık bir paket (motor + arazi verisi). Sekme
@@ -31,6 +32,10 @@ const DuzadaHarita = lazy(() =>
 // Düzenleyici de aynı motoru kullanıyor; "Düzenle"ye basılınca yüklenir (H2)
 const HaritaDuzenleyici = lazy(() =>
   import('./harita/HaritaDuzenleyici').then(m => ({ default: m.HaritaDuzenleyici }))
+);
+// Kurucu (şehir kurucu): harita verisini kullanır, sekme açılınca yüklenir
+const Kurucu = lazy(() =>
+  import('./kurucu/Kurucu').then(m => ({ default: m.Kurucu }))
 );
 
 interface DuzadaProps {
@@ -342,7 +347,7 @@ export default function Duzada({
   const [haritaDuzenleniyor, setHaritaDuzenleniyor] = useState(false);
 
   // Navigation / Tabs inside Düzada
-  const [activeTab, setActiveTab] = useState<'wiki' | 'harita'>('wiki');
+  const [activeTab, setActiveTab] = useState<'wiki' | 'harita' | 'kurucu'>('wiki');
   
   const regionsCreatedRef = useRef(false);
   const worldDetailsSyncedRef = useRef(false);
@@ -1668,6 +1673,12 @@ export default function Duzada({
           >
             Düzada Haritası
           </button>
+          <button
+            onClick={() => setActiveTab('kurucu')}
+            className={`px-4 py-2 rounded-lg cursor-pointer transition-all ${activeTab === 'kurucu' ? 'bg-[#0E1C4F] dark:bg-[#F26B6F] text-[#F3EFE8]' : 'bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] text-[#6A5E4C] dark:text-[#A6B0C9]'}`}
+          >
+            Kurucu
+          </button>
         </div>
       </div>
 
@@ -1677,6 +1688,37 @@ export default function Duzada({
         aktifId={activeTab}
         onSec={id => setActiveTab(id as typeof activeTab)}
       />
+
+      {/* KURUCU — şehir kurucu, 1. adım: yol aracı */}
+      {activeTab === 'kurucu' && (
+        <div className="bg-[#E7EBE6] dark:bg-[#13204A] border border-[#B9C7BD] dark:border-[#2C3C72] rounded-xl p-4 archive-shadow relative">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[10px] font-mono uppercase text-[#4A5E68] dark:text-[#A6B0C9] font-bold">
+              KURUCU · YOLLAR (TASLAK — HARİTA DEĞİŞMEZ)
+            </span>
+          </div>
+          {haritaDuzeni.ilkYukleme ? (
+            <Suspense
+              fallback={
+                <div className="h-[78vh] flex items-center justify-center rounded-lg border border-[#B9C7BD] bg-[#F3EFE8] font-mono text-xs text-[#6A5E4C]">
+                  Kurucu yükleniyor…
+                </div>
+              }
+            >
+              <Kurucu
+                className="w-full lg:h-[78vh]"
+                duzen={haritaDuzeni.duzen}
+                kaydet={haritaDuzeni.kaydet}
+                durum={haritaDuzeni.durum}
+              />
+            </Suspense>
+          ) : (
+            <div className="h-[78vh] flex items-center justify-center rounded-lg border border-[#B9C7BD] bg-[#F3EFE8] font-mono text-xs text-[#6A5E4C]">
+              Kayıtlı düzen okunuyor…
+            </div>
+          )}
+        </div>
+      )}
 
       {/* HARİTA — DÜZENLEME (H2) */}
       {activeTab === 'harita' && haritaDuzenleniyor && (
