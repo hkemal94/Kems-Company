@@ -225,6 +225,20 @@ taslakta kalır, "Haritaya işle" düğmesiyle haritaya geçer, eski hâl arşiv
 kalkar. Geri al / yinele var. Zaman kaydırıcı (1954, 1980…) ve nüfus
 göstergesi ileride. Kems Company dükkânının yerini Kemal kurucuda seçecek.
 
+**Yapısal kararlar (28 Eylül gece, `docs/soru-cevap/yapisal-1.md`):**
+Sıra: **(1) K: arayüz renkleri markaya** (yazı tipi zaten Poppins; kalan
+#1B2A4A → #0E1C4F, #D35057 → #F26B6F, karanlık mod korunarak) → **(2)
+Kurucu** → **(3) yeni ana ekran**: yapay zekâ üretim bölümünün vitrini
+(sosyal medya taslağı, kanon sorusu, merch fikri; "Aday" kutusuna düşer,
+Canva'ya bağlanır) + yüzdeler şeridi (künye, merch, kitap, harita).
+Menü daha ince çubuk; ayrı "Durum" sekmesi (yüzdeler; Boşluklar içine
+girer). Oyun sekmesi künye olur (durum, açıklama, ekran görüntüleri).
+Merch: pano + kanon kökü + her ürüne Canva tasarımı; stok/satış KKM'de
+değil. Kitap: adlar vikiye bağlı, tarih uyarısı, kanon yan paneli. Galeri:
+arşiv + Canva aynası. Bildirimler: haftalık özet, tarihli işler, bekleyen
+düğme, günün sorusu (telefon / e-posta / uygulama içi). Site ve sosyal
+medya: tasarım soruları paralel başlar, kod sonra.
+
 **Kanon KKM'nin başka alanlarında:** Merch'te drop açılınca bağlı kurumun
 kanon bilgisi; Kitap'ta geçen yer/kişi adlarının vikiye bağlanması ve
 tarihle çelişki uyarısı (ör. 1970'lerde feribot Liman'da olamaz); Blog'da
