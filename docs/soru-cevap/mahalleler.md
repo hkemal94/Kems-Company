@@ -10,8 +10,8 @@ soruları ve cevapları kaydeder. İskele'nin ayrıntısı `iskele.md`'de.
 | İskele / Kemsköy | İskele Mahallesi (Kemsköy) | Batı kıyısı | Merkez, Liman, Çiftlik |
 | Merkez | Merkez Mahallesi (Düzada Köyü) | Adanın ortası; **Ada Tepesi burada** | İskele, Liman, Stadyum, Çiftlik |
 | Liman | (sorulmadı; "Liman Mahallesi" varsayılmadı) | Kuzeybatı ucu (kanon) | İskele, Merkez, Stadyum |
-| Stadyum | (sorulmadı) | Kuzey / kuzeydoğu | Merkez, Liman |
-| Çiftlik | (sorulmadı) | Güney; **doğu / güneydoğu kıyısına kadar uzanıyor** | İskele, Merkez — Stadyum'la komşu **değil** |
+| Stadyum | (sorulmadı) | Kuzey / kuzeydoğu | Merkez, Liman, Çiftlik |
+| Çiftlik | (sorulmadı) | Güney; **doğu / güneydoğu kıyısına kadar uzanıyor** | İskele, Merkez, Stadyum (harita kontrolünde düzeltildi — `harita.md`) |
 
 ## Madde bölümleri
 
