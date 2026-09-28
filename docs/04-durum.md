@@ -142,6 +142,12 @@ bir kordon eklendi (adı geçici: "Liman Kordonu").
 Harita paketinde sırada: postane + sağlık ocağı (Merkez), mahalle
 sınırlarının doğallaşması, arazi / bina görünümü.
 
+**Konut kararı (Kemal, 28 Eylül):** Mahallelerdeki binalar çoğunlukla
+müstakil ev olacak. Apartman / çok katlı blok az; yoksa nüfus istenmeyen
+seviyeye çıkar. Sokak dokusu sıklaşsa da adalar bahçeli müstakil evlerle
+dolacak, blokla değil. Henüz ev yerleştirilmedi; bina işi başlarken
+buna uyulacak.
+
 ## Otel maddesi temizliği (28 Eylül)
 
 Oyun için açılan kod oturumu bu depoya da girdi ve "Ekim 2008'e taşı"
