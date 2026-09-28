@@ -57,12 +57,15 @@ değildir** — onlara uydurma isim verilmez.
 Bunlar kanon, kullanılabilir:
 
 - **Ada Tepesi** — zirve
-- **Sade Meze** — meyhane
-- **Dondurmacı Kızlar** — liman kafesi
+- **Sade Meze** — meyhane, İskele Mahallesi
+- **Dondurmacı Kızlar** — liman kafesi, Liman Mahallesi
 - **Deniz Feneri** — Liman Mahallesi
 - **Dirlik Stadı**, **Dirlik Spor Kulübü** — Stadyum Mahallesi
 - **Küçükçetmi Sürek Kulübü** — Çiftlik Mahallesi
 - **The Imperial Kemsköy** — İskele Mahallesi
+- **Kuzey Sırtı** (386 m), **Çetmi Sırtı** (254 m), **Fener Burnu** (118 m) — zirveler
+- **Liman İdare Binası** — Liman Mahallesi
+- **Belediye Binası** — Merkez Mahallesi
 - Yollar: **Sahil Yolu** (adayı dolanan halka), **Kemsköy Caddesi**,
   **Sahil Merdiveni**, **Otel Yolu**
 

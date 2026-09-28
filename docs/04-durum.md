@@ -82,6 +82,72 @@ getirmek gerekirse). Basılması Kemal'de.
 Harita şikâyeti (W1'den sonra): yollar dümdüz, arazi yapay, binalar kutu,
 genel his harita gibi değil. Ekran görüntüsü bekleniyor.
 
+## Canva düzeni (28 Eylül)
+
+Kemal 50 tasarımın 251 sayfasını ayıklama sayfasında işaretledi
+(https://claude.ai/artifact/Pob5WWQLLZqVDwAvy8FHAx — seçimler orada kayıtlı).
+Sonra tasarımlar Canva'da şu klasörlere taşındı; hiçbir şey silinmedi:
+
+```
+İlham (FAHWf9rScOM)      14 tasarım — Düzada Harita, İskele Mahallesi örnek,
+│                          The Imperial, davetiyeler, fotoğraflar…
+├── Marka (FAHWgMHm7u4)   5  — KEMS, kems, Kems Company, Company, Sandbox (Brand Kit)
+├── Merch (FAHWgGalwn0)  18  — Basics 1, Basics I, No Name Drop.1, iskambil destesi,
+│                              11 Shopier seti, İyot / Deniz Kulübü Prints, poster
+├── Instagram (FAHWgD-8jho) 7 — Instagram gönderileri, Başlık, 3 adsız (emin olunamayanlar)
+└── Harita (FAHWf784A3E)  2  — doğum günü gönderisi, Instagram Denemeleri
+```
+
+- Kural: **Marka öncelikli.** Hem Harita hem Marka/Merch olan tasarım Marka/Merch'e gitti.
+- **Eski** işaretli 4 tasarım (Çarşı, Kuleli Shopier, Kare Logo, 24 sayfalık
+  adsız afiş seti) taşınmadı, eski yerlerinde.
+- Eski klasörler ("İyot - Done", "Deniz Kulübü - Done", "Kems Company",
+  "Denemeler", "Ürünler", "Instagram"…) boşalmış olabilir; Kemal karar verecek.
+
+## Viki soru-cevap (W2)
+
+Sohbette tıklamalı sorularla yürüyor; cevaplar `docs/soru-cevap/` altında
+birikiyor, sonra tek seferlik düğmeyle vikiye aktarılacak. İlk mahalle
+İskele / Kemsköy: başlık, konum, sınırlar, arazi cevaplandı; Tarihçe
+Kemal'in cümlelerini bekliyor.
+
+## Harita · H1 sokak dokusu (28 Eylül)
+
+Kemal: mahalle sokakları "inanılmaz yapay". Sebep: üreteç (`gen/duzada.py`)
+beş mahalleye aynı ızgara kalıbını basıyordu. Artık doku araziden doğuyor:
+kıyıda rıhtıma paralel cadde ve arka sokaklar, yamaçta eşyükselti sokakları,
+aralarda tırmanan geçitler / merdivenler. Kemal: "yön doğru, muhteşem değil
+ama şu an için iyi". Uygulama içinde 3B görünüm henüz denenmedi.
+
+İkinci geçiş — "Küçükkuyu tarzı" (gerçek veri olmadan, Kemal onayıyla):
+İskele ve Liman kıyı kasabası olarak kaldı. Merkez, Stadyum ve Çiftlik
+köy dokusuna geçti: ortada bir meydan, oradan dağılan kıvrımlı ara yollar,
+dallanan sokaklar, yarım kalan halka yollar ve çıkmazlar; dik yerler
+merdiven. Görsel: `docs/gorseller/h1-koyler.png`. Gerçek Küçükkuyu yol
+verisi (OpenStreetMap) ağ izni açılırsa ya da Kemal dosya yüklerse
+karşılaştırılabilir.
+
+Üçüncü geçiş — kıyı kasabaları (Kemal Küçükkuyu'nun Google Haritalar
+görüntüsünü gösterdi: "Bunu dene"): İskele ve Liman'da ana yol kasabanın
+omurgası (İskele'de Kemsköy Caddesi, Liman'da Sahil Yolu). İki yanında
+küçük, hafif çarpık adalar; ortada sık, kenarlara ve yokuş yukarı seyrek;
+dışta tarlaya uzanan çıkmaz patikalar; yamaca tırmanan iki kıvrımlı sokak.
+Sokaklar yapıların içinden geçmez. Merkez, Stadyum, Çiftlik köy olarak
+kaldı (Küçükkuyu ve köyleri gibi). Görsel: `docs/gorseller/h1-kasaba.png`.
+Kemal: "biraz daha sık olsun, liman binalarını kıyıya taşı." Kasaba
+dokusu sıklaştı. Liman Deposu, Liman İdare Binası ve Dondurmacı Kızlar
+denizden ~700 m içeriden rıhtıma, suyun kıyısına indi; arkalarından geçen
+bir kordon eklendi (adı geçici: "Liman Kordonu").
+
+Harita paketinde sırada: postane + sağlık ocağı (Merkez), mahalle
+sınırlarının doğallaşması, arazi / bina görünümü.
+
+**Konut kararı (Kemal, 28 Eylül):** Mahallelerdeki binalar çoğunlukla
+müstakil ev olacak. Apartman / çok katlı blok az; yoksa nüfus istenmeyen
+seviyeye çıkar. Sokak dokusu sıklaşsa da adalar bahçeli müstakil evlerle
+dolacak, blokla değil. Henüz ev yerleştirilmedi; bina işi başlarken
+buna uyulacak.
+
 ## Otel maddesi temizliği (28 Eylül)
 
 Oyun için açılan kod oturumu bu depoya da girdi ve "Ekim 2008'e taşı"
