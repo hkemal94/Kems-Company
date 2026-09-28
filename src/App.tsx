@@ -70,7 +70,6 @@ export default function App() {
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
   
   // A ref lock to prevent infinite loops of room de-duplication on items real-time updates
-  const deduplicationLockRef = useRef<boolean>(false);
   
   // Navigation & interaction states
   const [activeTab, setActiveTab] = useState<'komuta' | 'markalar' | 'duzada' | 'merch' | 'yazi' | 'oyun'>('komuta');
@@ -264,120 +263,10 @@ export default function App() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Auto de-duplicate rooms on startup
-  useEffect(() => {
-    if (!user || items.length === 0 || deduplicationLockRef.current) return;
-
-    const runDeduplication = async () => {
-      deduplicationLockRef.current = true;
-      // Find all rooms
-      const rooms = items.filter(i => 
-        i.area === 'duzada' && 
-        !i.archived && 
-        (i.type === 'oda' || i.tags?.includes('oda') || i.id.startsWith('kemskoy_room_') || i.title.startsWith('Oda '))
-      );
-
-      // Group rooms by room number (extracted from room number metadata or title)
-      const roomsByNum: Record<string, Item[]> = {};
-      rooms.forEach(room => {
-        const num = room.metadata?.roomNumber || room.title.replace(/\D/g, '');
-        if (num && num.length === 3) { // Expecting "101", etc.
-          if (!roomsByNum[num]) {
-            roomsByNum[num] = [];
-          }
-          roomsByNum[num].push(room);
-        }
-      });
-
-      let changesMade = false;
-
-      for (const [roomNum, duplicateList] of Object.entries(roomsByNum)) {
-        // If there's more than 1 item, or if the single item doesn't have the canonical ID kemskoy_room_XXX
-        const canonicalId = `kemskoy_room_${roomNum}`;
-        const hasWrongId = duplicateList.length === 1 && duplicateList[0].id !== canonicalId;
-        
-        if (duplicateList.length > 1 || hasWrongId) {
-          console.log(`Deduplicating room ${roomNum}... Found ${duplicateList.length} records.`);
-          changesMade = true;
-
-          // Find if one has the canonical ID
-          let canonicalRoom = duplicateList.find(r => r.id === canonicalId);
-          if (!canonicalRoom) {
-            // Pick the first one as canonical template
-            canonicalRoom = duplicateList[0];
-          }
-
-          // Merge all other rooms in the list into this canonical one
-          const mergedLinks = new Set<string>(canonicalRoom.links || []);
-          const mergedTags = new Set<string>(canonicalRoom.tags || []);
-          let mergedNotes = canonicalRoom.notes || '';
-          let mergedMetadata = { ...(canonicalRoom.metadata || {}) };
-
-          // Ensure it is linked to the hotel kemskoy_hotel
-          if (!mergedLinks.has('kemskoy_hotel')) {
-            mergedLinks.add('kemskoy_hotel');
-          }
-
-          duplicateList.forEach(other => {
-            if (other.id === canonicalRoom!.id) return;
-
-            // Merge links
-            if (other.links) {
-              other.links.forEach(l => mergedLinks.add(l));
-            }
-            // Merge tags
-            if (other.tags) {
-              other.tags.forEach(t => mergedTags.add(t));
-            }
-            // Merge notes safely
-            if (other.notes && !mergedNotes.includes(other.notes)) {
-              if (mergedNotes) mergedNotes += ' | ';
-              mergedNotes += other.notes;
-            }
-            // Merge metadata fields
-            if (other.metadata) {
-              mergedMetadata = {
-                ...other.metadata,
-                ...mergedMetadata, // keep canonical's values if present
-              };
-            }
-          });
-
-          // Ensure basic properties are solid
-          const updatedCanonical: Omit<Item, 'userId'> = {
-            ...canonicalRoom,
-            id: canonicalId, // force canonical ID
-            links: Array.from(mergedLinks),
-            tags: Array.from(mergedTags),
-            notes: mergedNotes,
-            isProposal: false, // Ensure we keep it as a solid non-proposal room
-            metadata: {
-              ...mergedMetadata,
-              roomNumber: roomNum,
-              roomType: mergedMetadata.roomType || (roomNum.endsWith('3') ? 'Suite' : (roomNum.endsWith('4') || roomNum.endsWith('5') ? 'Deluxe' : 'Standart')),
-              isMaintenance: roomNum === '203' || roomNum === '304'
-            }
-          };
-
-          // Save the canonical room with the forced canonical ID
-          await saveItem(user.uid, updatedCanonical);
-
-          // Delete all other duplicates in the group from Firestore
-          for (const other of duplicateList) {
-            if (other.id !== canonicalId) {
-              await deleteItemDoc(user.uid, other.id);
-            }
-          }
-        }
-      }
-
-      if (changesMade) {
-        console.log("Hotel rooms deduplicated and consolidated successfully.");
-      }
-    };
-
-    runDeduplication();
-  }, [user, items]);
+  // K (28 Eylül 2026): açılışta oda kopyalarını birleştiren kod kaldırıldı.
+  // Kopyaları SİLİYOR, odalara kendiliğinden "Deluxe" tipi ve 203/304'e
+  // "bakımda" yazıyordu — ikisi de Kemal'in kararıyla vikiden kalktı.
+  // Odalar W1'de arşive kalktı; eski simülasyonun verisi, viki değil.
 
   const handleToggleTheme = async () => {
     if (!user) return;
@@ -424,6 +313,19 @@ export default function App() {
     await saveItem(user.uid, updatedItem);
   };
 
+  /**
+   * K (28 Eylül 2026): otomatik temizlikler kayıt silmez, arşive kaldırır.
+   * Etiket, neyin kendiliğinden kalktığını arşivde bulmayı sağlar.
+   */
+  const otomatikArsivle = (item: Item) =>
+    handleUpdateItem({
+      ...item,
+      archived: true,
+      tags: (item.tags || []).includes('otomatik-arsiv')
+        ? item.tags
+        : [...(item.tags || []), 'otomatik-arsiv']
+    });
+
   const handleDeleteItem = async (itemId: string) => {
     if (!user) return;
     
@@ -458,11 +360,11 @@ export default function App() {
   // Auto-delete any "yeni varlık" (case-insensitive) items as requested by user
   useEffect(() => {
     if (!user || items.length === 0) return;
-    const targets = items.filter(item => item.title.trim().toLowerCase() === 'yeni varlık');
+    // K: silmek yerine arşive kaldırır — bu projede hiçbir kayıt silinmez
+    const targets = items.filter(item => !item.archived && item.title.trim().toLowerCase() === 'yeni varlık');
     if (targets.length > 0) {
-      console.log(`Auto-deleting ${targets.length} 'yeni varlık' items...`);
       targets.forEach(item => {
-        deleteItemDoc(user.uid, item.id).catch(err => console.error("Error auto-deleting 'yeni varlık':", err));
+        otomatikArsivle(item).catch(err => console.error("'yeni varlık' arşivlenemedi:", err));
       });
     }
   }, [items, user]);
@@ -499,6 +401,7 @@ export default function App() {
     if (!user || items.length === 0) return;
     const duplicates = items.filter(item => 
       item.area === 'duzada' && 
+      !item.archived &&
       item.id !== 'kemskoy_hotel' && 
       (
         item.title.toLowerCase() === 'the imperial' || 
@@ -533,10 +436,10 @@ export default function App() {
           notes: mergedNotes
         };
 
-        // Update canonical and delete duplicates
+        // K: kopyalar silinmez, arşive kalkar
         handleUpdateItem(updatedHotel).then(() => {
           duplicates.forEach(dup => {
-            deleteItemDoc(user.uid, dup.id).catch(err => console.error("Error deleting duplicate hotel item:", err));
+            otomatikArsivle(dup).catch(err => console.error("Otel kopyası arşivlenemedi:", err));
           });
         }).catch(err => console.error("Error updating canonical hotel:", err));
       }
@@ -654,13 +557,14 @@ export default function App() {
     if (!user || items.length === 0) return;
     const currentOlaylar = items.filter(item => 
       item.area === 'duzada' && 
+      !item.archived &&
       item.type === 'olay' && 
       (item.id.includes('surek_senligi') || item.id.startsWith('kemskoy_mech') || item.tags.includes('mekanik') || item.tags.includes('kemskoy-oyun-mekanigi'))
     );
     if (currentOlaylar.length > 0) {
-      console.log(`Auto-deleting ${currentOlaylar.length} current olay items (mechanics and defaults)...`);
+      // K: silmek yerine arşive kaldırır
       currentOlaylar.forEach(item => {
-        deleteItemDoc(user.uid, item.id).catch(err => console.error("Error deleting current olay item:", err));
+        otomatikArsivle(item).catch(err => console.error("Olay kaydı arşivlenemedi:", err));
       });
     }
   }, [items, user]);

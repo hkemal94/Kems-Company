@@ -136,10 +136,16 @@ geri getirilen kayıtları yeniden arşive kaldırmayı önermez.
 Açık: Deniz Feneri "faal" ama başlangıç yılı yok — yıl gelince
 "Faaliyette: YYYY–" yazılır.
 
-**Uyarı — kendiliğinden silen eski kodlar (App.tsx):** otel kopyalarını,
-oda kopyalarını, "yeni varlık" adlı kayıtları ve bazı olay kayıtlarını
-siliyorlar. "Hiçbir kayıt silinmez" kuralına aykırı. Kemal'e soruldu;
-K paketinde ele alınacak.
+W2 düğmesine basıldı (28 Eylül); Kemal kontrol etti, "okey".
+
+**K — kendiliğinden silen eski kodlar (28 Eylül, düzeltildi):** App.tsx
+açılışta otel kopyalarını, "yeni varlık" adlı kayıtları ve oyun mekaniği
+olaylarını siliyordu; artık arşive kaldırıyor (`otomatik-arsiv` etiketi).
+Oda kopyası birleştirme kodu tamamen kalktı: kopyaları siliyor, odalara
+"Deluxe" ve 203/304'e "bakımda" yazıyordu.
+Hâlâ açık: arayüzdeki elle "Sil" düğmeleri (~20 yer) gerçekten siliyor;
+76 karakteri öneri olarak içe aktaran eski kod yeni bir tarayıcıda yeniden
+çalışabilir. Kemal'e soruldu.
 
 ## Harita · H1 sokak dokusu (28 Eylül)
 
