@@ -119,6 +119,14 @@ kıyıda rıhtıma paralel cadde ve arka sokaklar, yamaçta eşyükselti sokakla
 aralarda tırmanan geçitler / merdivenler. Kemal: "yön doğru, muhteşem değil
 ama şu an için iyi". Uygulama içinde 3B görünüm henüz denenmedi.
 
+İkinci geçiş — "Küçükkuyu tarzı" (gerçek veri olmadan, Kemal onayıyla):
+İskele ve Liman kıyı kasabası olarak kaldı. Merkez, Stadyum ve Çiftlik
+köy dokusuna geçti: ortada bir meydan, oradan dağılan kıvrımlı ara yollar,
+dallanan sokaklar, yarım kalan halka yollar ve çıkmazlar; dik yerler
+merdiven. Görsel: `docs/gorseller/h1-koyler.png`. Gerçek Küçükkuyu yol
+verisi (OpenStreetMap) ağ izni açılırsa ya da Kemal dosya yüklerse
+karşılaştırılabilir.
+
 Harita paketinde sırada: postane + sağlık ocağı (Merkez), mahalle
 sınırlarının doğallaşması, arazi / bina görünümü.
 

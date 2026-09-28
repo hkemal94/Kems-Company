@@ -1728,18 +1728,124 @@ def _arazi_dokusu(mid, kok, omurga, derinlik, kat_arasi, gecit_araligi,
 _arazi_dokusu("yer_iskele", "İskele", KEMSKOY_HATTI, 520.0, 9.0, 120.0,
               iki_yon=False, omurgayi_ekle=False)
 
-# İç / yamaç mahalleleri — omurga: yerleşim noktasından geçen yatay hat
-IC_YERLESIMLER = [
-    # (mahalle, ad kökü, yerleşim noktası, omurga yarı boyu m, derinlik m)
-    ("yer_merkez",  "Merkez",  MERKEZ_KASABA,     700.0, 480.0),
-    ("yer_liman",   "Liman",   (-4500.0,  2450.0), 650.0, 420.0),
-    ("yer_stadyum", "Stadyum", ( 4550.0,  2950.0), 600.0, 400.0),
-    ("yer_ciftlik", "Çiftlik", ( 6280.0, -2330.0), 520.0, 360.0),
+# Liman — kıyı kasabası: rıhtıma paralel doku (İskele gibi)
+_om = _chaikin(_hat_seyrelt(_esyukselti_omurga((-4500.0, 2450.0), 650.0), 60.0))
+_arazi_dokusu("yer_liman", "Liman", LineString(_om), 420.0, 9.0, 130.0,
+              iki_yon=True, omurgayi_ekle=True)
+
+
+# --- dağ köyü dokusu (Küçükkuyu'nun yukarı köyleri tarzı) -----------------
+#
+# Kemal: "Küçükkuyu ve köylerine ait yol haritasına benzer." Kaz Dağı
+# eteğindeki köylerde (Adatepe, Yeşilyurt gibi) doku şöyle: ortada küçük
+# bir meydan; oradan dışarı dolanan dar sokaklar; bunları yer yer bağlayan
+# kesik halkalar; çıkmazlar. Köy yamaca yayılırken sokak eğimi olabildiğince
+# az tutar — dik yerde sokak yamacı yanlamasına keser ya da merdiven olur.
+
+def _koy_dokusu(mid, kok, meydan, yaricap, kol_sayisi, halka_oranlari):
+    import random as _random
+    rnd = _random.Random(mid + "-koy")
+    alan = mahalle_geom[mid][2].buffer(40).intersection(ada.buffer(-60))
+    sayac = [0]
+
+    def ekle(hat, tur=None):
+        if len(hat) < 2:
+            return
+        hat = _hat_kirp(hat, alan)
+        if not hat:
+            return
+        if tur is None:
+            hl = LineString(hat)
+            dz = abs(float(yukselti(*hat[-1])) - float(yukselti(*hat[0])))
+            tur = "merdiven" if dz / max(hl.length, 1) > 0.16 else "sokak"
+        sayac[0] += 1
+        YOLLAR.append((f"sokak_{mid}_{sayac[0]}", f"{kok} {sayac[0]}. Sokak",
+                       _hat_seyrelt(_chaikin(hat), 15.0), tur, mid))
+
+    def yuru(x, y, yon, boy, adim=18.0):
+        """Eğimi yumuşatarak yürüyen patika. Her sokak kendi ana yönünü
+        korur; dik yerde bir miktar yamacı yanlamasına kesmeye eğilir."""
+        hat = [(x, y)]
+        ana = yon
+        for _ in range(int(boy // adim)):
+            ana += rnd.uniform(-0.18, 0.18)
+            dx, dy = math.cos(ana), math.sin(ana)
+            ux, uy, e = _egim_yonu(x, y)
+            if e > 0.14:
+                tx, ty = -uy, ux
+                if tx * dx + ty * dy < 0:
+                    tx, ty = -tx, -ty
+                k = min((e - 0.14) * 2.5, 0.45)
+                dx, dy = (1 - k) * dx + k * tx, (1 - k) * dy + k * ty
+                n = math.hypot(dx, dy)
+                dx, dy = dx / n, dy / n
+            x, y = x + dx * adim, y + dy * adim
+            if not alan.contains(Point(x, y)):
+                break
+            hat.append((x, y))
+        return hat
+
+    # kollar: meydandan dışarı
+    _bas = rnd.uniform(0, 2 * math.pi)
+    acilar = [_bas + 2 * math.pi * i / kol_sayisi + rnd.uniform(-0.3, 0.3)
+              for i in range(kol_sayisi)]
+    kollar = []
+    for a in acilar:
+        kol = yuru(meydan[0] + 15 * math.cos(a), meydan[1] + 15 * math.sin(a),
+                   a, yaricap * rnd.uniform(0.65, 1.1))
+        kol = [meydan] + kol
+        kollar.append(kol)
+        ekle(kol)
+        # dallanma: kolun ortasından dışarı doğru ayrılan ikinci sokaklar
+        hl = LineString(kol)
+        for _ in range(rnd.randint(1, 2)):
+            if hl.length < 120:
+                break
+            p0 = hl.interpolate(rnd.uniform(0.35, 0.7), normalized=True)
+            dy_, dx_ = p0.y - meydan[1], p0.x - meydan[0]
+            yon = math.atan2(dy_, dx_) + rnd.choice((1, -1)) * rnd.uniform(0.45, 0.9)
+            ekle(yuru(p0.x, p0.y, yon, yaricap * rnd.uniform(0.4, 0.7)))
+
+    # kesik halkalar: komşu kolları belli bir uzaklıkta birbirine bağlar
+    for oran in halka_oranlari:
+        for i in range(len(kollar)):
+            if rnd.random() < 0.35:
+                continue                              # halka yer yer kopuk
+            k1, k2 = kollar[i], kollar[(i + 1) % len(kollar)]
+            h1, h2 = LineString(k1), LineString(k2)
+            d1, d2 = oran * yaricap, oran * yaricap * rnd.uniform(0.85, 1.15)
+            if h1.length < d1 or h2.length < d2:
+                continue
+            p1, p2 = h1.interpolate(d1), h2.interpolate(d2)
+            mx, my = (p1.x + p2.x) / 2, (p1.y + p2.y) / 2
+            vx, vy = mx - meydan[0], my - meydan[1]
+            vn = math.hypot(vx, vy) or 1.0
+            sis = rnd.uniform(0.05, 0.25) * math.hypot(p2.x - p1.x, p2.y - p1.y)
+            orta = (mx + vx / vn * sis, my + vy / vn * sis)
+            ekle([(p1.x, p1.y), orta, (p2.x, p2.y)])
+
+    # çıkmazlar: kollardan yana kısa sokaklar
+    for kol in kollar:
+        hl = LineString(kol)
+        for _ in range(rnd.randint(1, 3)):
+            if hl.length < 80:
+                break
+            p0 = hl.interpolate(rnd.uniform(0.3, 0.9), normalized=True)
+            q = hl.interpolate(min(hl.project(p0) + 10, hl.length))
+            yon = math.atan2(q.y - p0.y, q.x - p0.x) + rnd.choice((1, -1)) * rnd.uniform(1.1, 1.9)
+            ekle(yuru(p0.x, p0.y, yon, rnd.uniform(60, 150)))
+
+    print(f"{kok:8s} köyü   : meydan, {len(kollar)} kol, {sayac[0]} sokak")
+
+
+KOYLER = [
+    # (mahalle, ad kökü, meydan, yarıçap m, kol sayısı, halka oranları)
+    ("yer_merkez",  "Merkez",  MERKEZ_KASABA,       700.0, 10, (0.25, 0.5, 0.75, 0.95)),
+    ("yer_stadyum", "Stadyum", ( 4550.0,  2950.0),  420.0, 7, (0.4, 0.75)),
+    ("yer_ciftlik", "Çiftlik", ( 6280.0, -2330.0),  380.0, 6, (0.4, 0.75)),
 ]
-for _mid, _kok, _nok, _yarim, _der in IC_YERLESIMLER:
-    _om = _chaikin(_hat_seyrelt(_esyukselti_omurga(_nok, _yarim), 60.0))
-    _arazi_dokusu(_mid, _kok, LineString(_om), _der, 9.0, 130.0,
-                  iki_yon=True, omurgayi_ekle=True)
+for _mid, _kok, _mey, _r, _k, _h in KOYLER:
+    _koy_dokusu(_mid, _kok, _mey, _r, _k, _h)
 
 # --- otele çıkan yol ---
 # Köyün güney ucundan Güney Burnu'nun sırtına tırmanan tek şerit. Köşeli
