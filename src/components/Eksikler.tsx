@@ -9,6 +9,7 @@ import { oTemizligi } from '../lib/yaziTemizligi';
 import { temaDurumu, temaKaldirmaYazilari } from '../lib/temaKaldirma';
 import { markaYapisi, markaGocu, markaGocuYazilari } from '../lib/markaYapisi';
 import { otelTemizligi } from '../lib/otelTemizligi';
+import { vikiSifirlama, vikiSifirlamaYazilari } from '../lib/vikiSifirlama';
 
 /**
  * "Neyin eksik" paneli (A1).
@@ -347,6 +348,37 @@ export const Eksikler: React.FC<EksiklerProps> = ({
     }
   };
 
+  /**
+   * Vikinin baştan kurulması (W1) — kişiler, odalar, mekânlar arşive kalkar.
+   * Ada kaydı, marka/kurumlar ve harita verisi yerinde kalır. Silme yok.
+   */
+  const viki = useMemo(() => vikiSifirlama(items), [items]);
+  const [vikiIsi, setVikiIsi] = useState(false);
+  const [vikiRaporu, setVikiRaporu] = useState<string | null>(null);
+
+  const vikiyiArsivle = async () => {
+    if (!onUpdateItem || vikiIsi) return;
+    const onay = window.confirm(
+      `${viki.arsivlenecek.length} viki kaydı arşive kalkacak. Silinmez; `
+      + `arşivden geri gelir. Devam edilsin mi?`
+    );
+    if (!onay) return;
+    setVikiIsi(true);
+    let n = 0;
+    try {
+      for (const kayit of vikiSifirlamaYazilari(items)) { await onUpdateItem(kayit); n++; }
+      setVikiRaporu(`${n} kayıt arşive kalktı. Viki soru-cevaba hazır.`);
+    } catch (e) {
+      // Yarıda kaldıysa kart kalan kayıtlarla yeniden görünür; tekrar basılabilir
+      setVikiRaporu(
+        `${n} kayıt arşive kalktı, sonra hata: `
+        + `${e instanceof Error ? e.message : 'bilinmeyen'}. Kalanlar için tekrar bas.`
+      );
+    } finally {
+      setVikiIsi(false);
+    }
+  };
+
   /** İçi boş proje kayıtları — tek düğmeyle arşive */
   const bosProje = useMemo(() => bosProjeler(items), [items]);
   const [projeIsi, setProjeIsi] = useState(false);
@@ -381,6 +413,38 @@ export const Eksikler: React.FC<EksiklerProps> = ({
         <Compass className="w-4 h-4 text-[#D35057]" />
         Neyin Eksik
       </h2>
+
+      {/* Vikinin baştan kurulması (W1) — tek seferlik */}
+      {onUpdateItem && viki.arsivlenecek.length > 0 && (
+        <div className="mb-2.5 flex items-start gap-3 px-4 py-3 rounded-xl border border-[#D35057]/40 bg-[#FAF8F5] dark:bg-[#13204A]">
+          <span className="font-mono text-lg font-bold text-[#D35057] leading-none mt-0.5 shrink-0 tabular-nums">
+            {viki.arsivlenecek.length}
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-[13px] font-semibold text-[#1B2A4A] dark:text-[#F3EFE8]">
+              viki baştan kuruluyor: kayıtlar arşive kalkacak
+            </span>
+            <span className="block mt-0.5 text-[11px] text-[#9A8C76] dark:text-[#6E7CA0] leading-snug">
+              {viki.dagilim.map(d => `${d.sayi} ${d.tur}`).join(' · ')}.
+              Ada kaydı, Kems Company, kurumlar ve harita yerinde kalır.
+              Hiçbir şey silinmez; arşivden geri gelir.
+            </span>
+          </span>
+          <button
+            type="button"
+            onClick={vikiyiArsivle}
+            disabled={vikiIsi}
+            className="shrink-0 px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#1B2A4A] text-[#F3EFE8] hover:opacity-90 disabled:opacity-40 cursor-pointer"
+          >
+            {vikiIsi ? 'Arşivleniyor…' : 'Arşive kaldır'}
+          </button>
+        </div>
+      )}
+      {vikiRaporu && (
+        <p className="mb-2.5 px-4 py-2 rounded-lg bg-[#F3EFE8] dark:bg-[#17345A] text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9]">
+          {vikiRaporu}
+        </p>
+      )}
 
       {/* ø temizliği — normal bir "eksik" değil, tek seferlik bir düzeltme */}
       {onUpdateItem && temizlik.degisenler.length > 0 && (
