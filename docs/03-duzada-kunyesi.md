@@ -107,7 +107,7 @@ Aralıklar kanon; kesin yıl yoksa uydurulmaz. Ayrıntı `docs/soru-cevap/w3.md`
 
 - **Otelin kökeni** — bina devletin: İskele Mahallesi'ne Haydarpaşa'nın
   minyatürü gibi bir **devlet misafirhanesi** olarak yapıldı; çok sürmeden
-  özelleştirilip otel oldu (tarih yok). Parlak dönemi hep sürdü; her
+  özelleştirilip otel oldu (1960'lar, bir şirkete geçti). Parlak dönemi hep sürdü; her
   dönemde farklı yüksek profilli misafirler. Otelin sahili uçurumun dibinde
   ayrı küçük bir cep.
 - **Elektrik** — 1950–1960'lar: önce otelin jeneratörü, köy hemen ardından.
@@ -144,20 +144,46 @@ Aralıklar kanon; kesin yıl yoksa uydurulmaz. Ayrıntı `docs/soru-cevap/w3.md`
   döndü; barlar 1970'lerden. Gece hayatı yıl boyu, kışın sakin; Sade Meze
   yıl boyu açık.
 - **Kems Company** — adını Kemsköy'den alır (kurgu içinde). Caddedeki
-  dükkânı 2010 sonrası.
+  dükkânı 2024 ve sonrası, yeni yapılmış bir binada (W3 37. tur; önceki
+  "2010 sonrası" cevabı etiketteki "Est. 2024" ile çelişiyordu).
 - **Liman** — mendireğin içinde birkaç yat iskelesi (marina yok). Akşamları
   son feribota kadar canlı. Balık hali önce İskele'deydi, limana taşındı.
   İskele ile hafif bir rekabet.
 - **Çiftlik** — zeytinlikler karışık (asırlık ve yeni); şaraphaneler 2000
   sonrası butik; Ada Tepesi çam balı yerel.
 - **Mutfak** — balık öne çıkar.
-- **Stadyum** — Dirlik Stadı 1980'ler. Kıyıdaki plajda maç öncesi taraftar
-  birahanesi.
+- **Stadyum** — Dirlik Stadı 1980'ler. Taraftar birahanesi plajın üstünde,
+  plaja bakan kıyıda; maç öncesi buluşma yeri.
 - **Adalılar** — hafif Ege ağzı yalnız yaşlılarda. Lise, hastane, büyük
   alışveriş ve resmî işler için Küçükkuyu'ya gidilir.
 - **Otel** — misafirler: sanatçı ve yazarlar, siyasetçi ve bürokratlar, iş
   insanları, yabancı gezginler. Personel karışık (adalı + sezonluk).
   Restoranı dışarıya da açık; düğün / etkinlik yapılmaz.
+
+## Ada hayatı · 4 (28 Eylül 2026, W3 36–43. turlar)
+
+- **Nüfus** — kışın 3.000–4.000; yazın 3–4 katına çıkar (Claude'un önerisi,
+  Kemal onayladı). Gençlerin çoğu okumak için anakaraya gider, bazısı
+  döner. Kışın zeytin hasadı, balık, pansiyon ve tekne bakımı.
+- **Ulaşım (ada içi)** — özel araç, motosiklet ve bisiklet, Liman–Merkez–
+  İskele dolmuşu (yıl boyu, kışın seyrek). Yollar önce topraktı, zamanla
+  asfaltlandı. Feribot yalnız adalıların aracını alır. Turist otele otelin
+  aracı, taksi, dolmuş ya da deniz taksisiyle gider; deniz taksisi Liman'da
+  bir kooperatifin işi. Telefon ve internet normal.
+- **Stadyum Mahallesi** — çekirdeği eski: toprak saha çevresinde 1950'lerden
+  beri küçük bir yerleşim; stat (1980'ler) onu büyüttü.
+- **Mübadele** — 1923'te kilisenin Rum cemaati gitti; gelen aileler
+  İskele'deki boşalan evlere yerleşti. Kilise o zamandan beri boş.
+- **Merkez** — belediye 1980 sonrası yeni bir binada; adanın tek okulu
+  Merkez'de, çocuklar dolmuşla gelir.
+- **Küçükçetmi Sürek Kulübü** — adını Küçükkuyu'nun bir köyünden adaya
+  gelen (20. yy başı) bir ailenin çiftliğinden alır: Küçükçetmi Çiftliği.
+  Kulübü bu aile kurdu; çiftlik evi kulüp evi. Av bırakıldıktan sonra
+  nişancılık, doğa yürüyüşleri, Kangal yetiştiriciliği; aynı zamanda bir
+  buluşma yeri. Kangal'ın kökü: zeytinlikleri ve sürüleri koruyan çiftlik
+  bekçileri.
+- **Dirlik** — taraftar geleneği: maç öncesi birahanede buluşma. Renkler
+  Canva'daki armadan okunacak.
 
 ## The Imperial Kemsköy
 

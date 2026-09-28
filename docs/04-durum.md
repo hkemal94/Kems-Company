@@ -216,6 +216,11 @@ beslenmesi. Plan Kemal'e sunuldu, sıraya girecek.
 
 **Canva künye eskizi:** A4 dikey, tek tasarımda mahalle / kurum / kişi /
 mekân künyeleri; alanlar boş (Kemal dolduracak).
+İki tasarım var: boş kalıp ("Düzada Künye Kalıpları 1") ve kanondaki
+bilgilerle doldurulmuş örnek ("Düzada Künye Örnekleri"). İkisinde de
+yazılar Kolej Laciverti `#0E1C4F`, örnek notu kiremit `#F26B6F`. Yazı
+tipi uzaktan değiştirilemiyor; Poppins'e geçiş Canva'da elle:
+Düzenle → Stiller → Kems Company → Tüm sayfalara uygula.
 
 ## Otel maddesi temizliği (28 Eylül)
 
