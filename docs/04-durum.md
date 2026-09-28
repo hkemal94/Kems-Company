@@ -134,8 +134,10 @@ küçük, hafif çarpık adalar; ortada sık, kenarlara ve yokuş yukarı seyrek
 dışta tarlaya uzanan çıkmaz patikalar; yamaca tırmanan iki kıvrımlı sokak.
 Sokaklar yapıların içinden geçmez. Merkez, Stadyum, Çiftlik köy olarak
 kaldı (Küçükkuyu ve köyleri gibi). Görsel: `docs/gorseller/h1-kasaba.png`.
-Not: Liman'ın liman yapıları denizden ~700 m içeride duruyor; bu eski bir
-yerleşim sorunu, ayrıca ele alınmalı.
+Kemal: "biraz daha sık olsun, liman binalarını kıyıya taşı." Kasaba
+dokusu sıklaştı. Liman Deposu, Liman İdare Binası ve Dondurmacı Kızlar
+denizden ~700 m içeriden rıhtıma, suyun kıyısına indi; arkalarından geçen
+bir kordon eklendi (adı geçici: "Liman Kordonu").
 
 Harita paketinde sırada: postane + sağlık ocağı (Merkez), mahalle
 sınırlarının doğallaşması, arazi / bina görünümü.

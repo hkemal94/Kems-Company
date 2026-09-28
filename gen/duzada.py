@@ -1369,17 +1369,39 @@ bina("bina_meyhane", "Sade Meze",
      yerlesim_dikdortgen(-150, 96, 26, 14, 18.0), 7, "meyhane", "yer_iskele",
      wiki_id="mekan_meyhane", kat=1)
 
-# Liman Mahallesi — körfezin kıyısındaki liman yapıları
-lx, ly = kara(152, 0.88)
-bina("bina_liman_depo", "Liman Deposu", dikdortgen(lx, ly, 46, 22, -28), 8,
+# Liman Mahallesi — liman yapıları rıhtımda, suyun hemen kıyısında.
+# (Eskiden kara(152, 0.88) ile konuyordu; bu nokta denizden ~700 m
+# içeride kalıyordu. Kemal: "liman binalarını kıyıya taşı".)
+# Rıhtım: kasabanın omurgası olan Sahil Yolu'ndan denize en yakın kıyı.
+from shapely.ops import nearest_points as _en_yakin
+LIMAN_KASABA = (-4500.0, 2450.0)
+_liman_yol = sahil_hat.interpolate(sahil_hat.project(Point(*LIMAN_KASABA)))
+_rihtim = _en_yakin(ada.exterior, _liman_yol)[0]
+_kiyi_s = ada.exterior.project(_rihtim)
+_r0 = ada.exterior.interpolate(_kiyi_s - 30)
+_r1 = ada.exterior.interpolate(_kiyi_s + 30)
+_rt = math.atan2(_r1.y - _r0.y, _r1.x - _r0.x)       # kıyı boyunca
+RIHTIM_ACI = math.degrees(_rt)
+_rn = (_liman_yol.x - _rihtim.x, _liman_yol.y - _rihtim.y)
+_rn = (_rn[0] / math.hypot(*_rn), _rn[1] / math.hypot(*_rn))  # karaya doğru
+
+
+def rihtim(boyunca, iceri):
+    """Rıhtımdan kıyı boyunca `boyunca`, karaya doğru `iceri` m ötesi."""
+    return (_rihtim.x + math.cos(_rt) * boyunca + _rn[0] * iceri,
+            _rihtim.y + math.sin(_rt) * boyunca + _rn[1] * iceri)
+
+
+lx, ly = rihtim(-45, 24)
+bina("bina_liman_depo", "Liman Deposu", dikdortgen(lx, ly, 46, 22, RIHTIM_ACI), 8,
      "yapı", "yer_liman", kat=1)
-lx2, ly2 = kara(149, 0.82)
-bina("bina_liman_ofis", "Liman İdare Binası", dikdortgen(lx2, ly2, 24, 20, -28), 11,
+lx2, ly2 = rihtim(20, 30)
+bina("bina_liman_ofis", "Liman İdare Binası", dikdortgen(lx2, ly2, 24, 20, RIHTIM_ACI), 11,
      "yapı", "yer_liman", kat=3)
 # Dondurmacı Kızlar: önce otelin iskelesindeydi, Kemal Liman Mahallesine
 # taşıdı. Adını 16 Eylül'de koydu.
-lx3, ly3 = kara(155, 0.86)
-bina("bina_liman_kafe", "Dondurmacı Kızlar", dikdortgen(lx3, ly3, 18, 14, -24), 5,
+lx3, ly3 = rihtim(75, 20)
+bina("bina_liman_kafe", "Dondurmacı Kızlar", dikdortgen(lx3, ly3, 18, 14, RIHTIM_ACI), 5,
      "kafe", "yer_liman", wiki_id="mekan_liman_kafe", kat=1)
 
 assert (ox, oy) == OTEL_MERKEZ, "ox/oy gölgelendi — yerleske() bozulur"
@@ -1800,7 +1822,7 @@ def _kasaba_dokusu(mid, kok, omurga, merkez, yari_boy, kara_derinlik,
     for yon, derin in ((1, kara_derinlik), (-1, deniz_derinlik)):
         d = 0.0
         while True:
-            d += rnd.uniform(55, 90) * (1.0 + 0.35 * d / derin)
+            d += rnd.uniform(42, 70) * (1.0 + 0.3 * d / derin)
             if d > derin:
                 break
             w = yayilim(yon * d)
@@ -1842,7 +1864,7 @@ def _kasaba_dokusu(mid, kok, omurga, merkez, yari_boy, kara_derinlik,
             p0 = nokta(s, sira_d(alt, s))
             p1 = nokta(s + kay, sira_d(ust, s + kay))
             ekle([p0, p1])
-            s += rnd.uniform(55, 100) * (1.0 + 0.8 * dis / kara_derinlik)
+            s += rnd.uniform(40, 75) * (1.0 + 0.6 * dis / kara_derinlik)
 
     # yamaca tırmanan kıvrımlı ana sokaklar
     for i in range(2):
@@ -1899,8 +1921,13 @@ _kasaba_dokusu("yer_iskele", "İskele", KEMSKOY_HATTI,
 _s_liman = sahil_hat.project(Point(-4500.0, 2450.0))
 _liman_omurga = _substring(sahil_hat, max(_s_liman - 1100, 0.0),
                            min(_s_liman + 1100, sahil_hat.length))
-_kasaba_dokusu("yer_liman", "Liman", _liman_omurga, (-4500.0, 2450.0),
-               620.0, 520.0, 200.0)
+_kasaba_dokusu("yer_liman", "Liman", _liman_omurga, LIMAN_KASABA,
+               620.0, 520.0, _liman_yol.distance(_rihtim) - 60.0)
+
+# Rıhtım boyunca kordon: liman yapılarının kara tarafından geçer
+YOLLAR.append(("sokak_yer_liman_kordon", "Liman Kordonu",
+               [rihtim(b_, 58 + 6 * math.sin(b_ / 90.0))
+                for b_ in range(-260, 281, 30)], "sokak", "yer_liman"))
 
 
 # --- dağ köyü dokusu (Küçükkuyu'nun yukarı köyleri tarzı) -----------------
@@ -2438,7 +2465,7 @@ geojson = {"type": "FeatureCollection", "features": features}
 
 # Elle ayarlanmış etiket konumları (uygulamadaki düzenleyiciden). Üretilen
 # konumun üstüne yazılır; yoksa her üretimde kaybolurlar.
-ETIKET_ELLE = {"etk_bina_belediye": [25.8132792, 39.0030812], "etk_bina_okul": [25.816968000000003, 39.0006532], "etk_bina_pazar": [25.811439999999997, 38.9998378], "etk_bina_meyhane": [25.746981600000005, 38.9753166], "etk_bina_liman_kafe": [25.7500774, 39.0249216]}
+ETIKET_ELLE = {"etk_bina_belediye": [25.8132792, 39.0030812], "etk_bina_okul": [25.816968000000003, 39.0006532], "etk_bina_pazar": [25.811439999999997, 38.9998378], "etk_bina_meyhane": [25.746981600000005, 38.9753166]}
 for _f in geojson["features"]:
     _eid = _f["properties"].get("id")
     if _eid in ETIKET_ELLE:
