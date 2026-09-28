@@ -1724,14 +1724,183 @@ def _arazi_dokusu(mid, kok, omurga, derinlik, kat_arasi, gecit_araligi,
           f"{len(yamac)} yamaç sokağı, {len(gecitler)} geçit")
 
 
-# İskele — kıyı mahallesi: omurga Kemsköy Caddesi (yukarıda, kıyıyı izler)
-_arazi_dokusu("yer_iskele", "İskele", KEMSKOY_HATTI, 520.0, 9.0, 120.0,
-              iki_yon=False, omurgayi_ekle=False)
+# --- kıyı kasabası dokusu (Küçükkuyu tarzı) --------------------------------
+#
+# Kemal Küçükkuyu'nun haritasını gösterdi: "Bunu dene." Oradaki düzen:
+#   - kıyıya paralel geçen ana yol kasabanın omurgası;
+#   - onun iki yanında küçük, hafif çarpık adalar (60-110 m): ana yola
+#     paralel sıralar ve onları kesen kısa sokaklar, tuğla gibi kaydırılmış;
+#   - doku ortada sık, kenarlara ve yokuş yukarı seyreliyor;
+#   - dışta tarlalara uzanan, çıkmazla biten uzun patikalar;
+#   - yamaca tırmanan bir iki kıvrımlı ana sokak.
+# Hesap omurgaya göre (s = omurga boyunca, d = içeri doğru) yapılıyor,
+# sonra haritaya çevriliyor.
 
-# Liman — kıyı kasabası: rıhtıma paralel doku (İskele gibi)
-_om = _chaikin(_hat_seyrelt(_esyukselti_omurga((-4500.0, 2450.0), 650.0), 60.0))
-_arazi_dokusu("yer_liman", "Liman", LineString(_om), 420.0, 9.0, 130.0,
-              iki_yon=True, omurgayi_ekle=True)
+def _kasaba_dokusu(mid, kok, omurga, merkez, yari_boy, kara_derinlik,
+                   deniz_derinlik):
+    import random as _random
+    rnd = _random.Random(mid + "-kasaba")
+    alan = mahalle_geom[mid][2].buffer(40).intersection(ada.buffer(-30))
+    L = omurga.length
+    s_m = omurga.project(Point(*merkez))
+    kiyi = ada.exterior
+
+    def nokta(s, d):
+        # omurganın dışına taşan uçlar teğet boyunca uzatılır
+        sa = min(max(s, 0.0), L)
+        p = omurga.interpolate(sa)
+        q0 = omurga.interpolate(max(sa - 40, 0.0))
+        q1 = omurga.interpolate(min(sa + 40, L))
+        tx, ty = q1.x - q0.x, q1.y - q0.y
+        n = math.hypot(tx, ty) or 1.0
+        tx, ty = tx / n, ty / n
+        nx, ny = -ty * ic, tx * ic
+        fazla = s - sa
+        return (p.x + tx * fazla + nx * d, p.y + ty * fazla + ny * d)
+
+    # içerisi hangi yan: kıyıdan uzaklaşan
+    ic = 1
+    a = nokta(s_m, 150.0)
+    ic = -1
+    b = nokta(s_m, 150.0)
+    ic = 1 if kiyi.distance(Point(*a)) > kiyi.distance(Point(*b)) else -1
+
+    binalar_geo = [b_["geom"].buffer(4) for b_ in binalar]
+    yollar = []           # (hat, tur)
+
+    engel = unary_union(binalar_geo)
+
+    def ekle(hat, tur=None):
+        """Hattı alana kırpar, yapıların içinden geçen yeri keser; kalan
+        her anlamlı parçayı ayrı sokak olarak ekler."""
+        if len(hat) < 2:
+            return
+        kes = LineString(hat).intersection(alan).difference(engel)
+        if kes.is_empty:
+            return
+        parcalar = (list(kes.geoms) if hasattr(kes, "geoms") else [kes])
+        for hl in parcalar:
+            if hl.geom_type != "LineString" or hl.length < 45:
+                continue
+            h = [(x, y) for x, y in hl.coords]
+            t = tur
+            if t is None:
+                dz = abs(float(yukselti(*h[-1])) - float(yukselti(*h[0])))
+                t = "merdiven" if dz / max(hl.length, 1) > 0.16 else "sokak"
+            yollar.append((h, t))
+
+    def yayilim(d):
+        """Bu içerilikte doku omurga boyunca ne kadar uzanıyor."""
+        derin = kara_derinlik if d >= 0 else deniz_derinlik
+        oran = min(abs(d) / derin, 1.0)
+        return yari_boy * (1.0 - 0.75 * oran ** 1.4)
+
+    # sıralar: omurgaya paralel, hafif eğik ve dalgalı
+    siralar = [(0.0, s_m - yari_boy, s_m + yari_boy, 0.0, 0.0)]
+    for yon, derin in ((1, kara_derinlik), (-1, deniz_derinlik)):
+        d = 0.0
+        while True:
+            d += rnd.uniform(55, 90) * (1.0 + 0.35 * d / derin)
+            if d > derin:
+                break
+            w = yayilim(yon * d)
+            s0 = s_m - w * rnd.uniform(0.75, 1.1)
+            s1 = s_m + w * rnd.uniform(0.75, 1.1)
+            siralar.append((yon * d, s0, s1, rnd.uniform(-0.07, 0.07),
+                            rnd.uniform(0, 6.28)))
+    siralar.sort(key=lambda r: r[0])
+
+    def sira_d(r, s):
+        d0, _, _, egim, faz = r
+        if d0 == 0.0:
+            return 0.0
+        return d0 + egim * (s - s_m) + 9.0 * math.sin(s / 70.0 + faz)
+
+    for r in siralar[:]:
+        if r[0] == 0.0:
+            continue
+        d0, s0, s1 = r[0], r[1], r[2]
+        # dış sıralar yer yer kopuk
+        kopuk = abs(d0) > 0.45 * (kara_derinlik if d0 > 0 else deniz_derinlik)
+        s, parca = s0, []
+        while s <= s1:
+            parca.append(nokta(s, sira_d(r, s)))
+            s += 25.0
+            if kopuk and len(parca) > 6 and rnd.random() < 0.06:
+                ekle(parca)
+                parca = []
+                s += rnd.uniform(60, 140)
+        ekle(parca)
+
+    # ara sokaklar: komşu iki sıra arasında, tuğla gibi kaydırılmış
+    for alt, ust in zip(siralar, siralar[1:]):
+        s0, s1 = max(alt[1], ust[1]), min(alt[2], ust[2])
+        s = s0 + rnd.uniform(10, 50)
+        dis = max(abs(alt[0]), abs(ust[0]))
+        while s < s1 - 10:
+            kay = rnd.uniform(-22, 22)
+            p0 = nokta(s, sira_d(alt, s))
+            p1 = nokta(s + kay, sira_d(ust, s + kay))
+            ekle([p0, p1])
+            s += rnd.uniform(55, 100) * (1.0 + 0.8 * dis / kara_derinlik)
+
+    # yamaca tırmanan kıvrımlı ana sokaklar
+    for i in range(2):
+        s = s_m + (i - 0.5) * yari_boy * rnd.uniform(0.5, 0.9)
+        hat, d = [], 0.0
+        while d < kara_derinlik * 1.35:
+            hat.append(nokta(s, d))
+            d += 25.0
+            s += 25.0 * 0.45 * math.sin(d / 160.0 + i * 2.1)
+        ekle(hat, "sokak")
+
+    # dışta tarlaya uzanan çıkmaz patikalar
+    dis_sira = siralar[-1]
+    for _ in range(rnd.randint(4, 7)):
+        s = rnd.uniform(dis_sira[1], dis_sira[2])
+        d = sira_d(dis_sira, s)
+        hat, kayma = [], rnd.uniform(-0.35, 0.35)
+        for k in range(rnd.randint(5, 11)):
+            hat.append(nokta(s, d))
+            d += 25.0
+            s += 25.0 * kayma
+            kayma += rnd.uniform(-0.12, 0.12)
+        ekle(_chaikin(hat), "sokak")
+
+    # omurgaya hiçbir yerden değmeyen kopuk parçaları at
+    bagli = [LineString(omurga.coords)]
+    kalan = [LineString(h) for h, _ in yollar]
+    turler = {id(k): t for k, (_, t) in zip(kalan, yollar)}
+    secilen = []
+    degisti = True
+    while degisti:
+        degisti = False
+        for k in kalan[:]:
+            if any(k.distance(b_) < 6 for b_ in bagli):
+                bagli.append(k)
+                secilen.append(k)
+                kalan.remove(k)
+                degisti = True
+
+    for i, k in enumerate(secilen, 1):
+        YOLLAR.append((f"sokak_{mid}_{i}", f"{kok} {i}. Sokak",
+                       [(x, y) for x, y in k.coords], turler[id(k)], mid))
+    print(f"{kok:8s} kasabası: {len(siralar)} sıra, {len(secilen)} sokak "
+          f"({len(kalan)} kopuk parça atıldı)")
+
+
+# İskele — omurga Kemsköy Caddesi; denize doğru yer dar
+_kasaba_dokusu("yer_iskele", "İskele", KEMSKOY_HATTI,
+               KEMSKOY_HATTI.interpolate(0.45, normalized=True).coords[0],
+               520.0, 460.0, 55.0)
+
+# Liman — omurga Sahil Yolu'nun kasabadan geçen kesimi (Küçükkuyu'da
+# olduğu gibi ana yol kasabanın ortasından geçer)
+_s_liman = sahil_hat.project(Point(-4500.0, 2450.0))
+_liman_omurga = _substring(sahil_hat, max(_s_liman - 1100, 0.0),
+                           min(_s_liman + 1100, sahil_hat.length))
+_kasaba_dokusu("yer_liman", "Liman", _liman_omurga, (-4500.0, 2450.0),
+               620.0, 520.0, 200.0)
 
 
 # --- dağ köyü dokusu (Küçükkuyu'nun yukarı köyleri tarzı) -----------------

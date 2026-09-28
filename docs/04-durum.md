@@ -127,6 +127,16 @@ merdiven. Görsel: `docs/gorseller/h1-koyler.png`. Gerçek Küçükkuyu yol
 verisi (OpenStreetMap) ağ izni açılırsa ya da Kemal dosya yüklerse
 karşılaştırılabilir.
 
+Üçüncü geçiş — kıyı kasabaları (Kemal Küçükkuyu'nun Google Haritalar
+görüntüsünü gösterdi: "Bunu dene"): İskele ve Liman'da ana yol kasabanın
+omurgası (İskele'de Kemsköy Caddesi, Liman'da Sahil Yolu). İki yanında
+küçük, hafif çarpık adalar; ortada sık, kenarlara ve yokuş yukarı seyrek;
+dışta tarlaya uzanan çıkmaz patikalar; yamaca tırmanan iki kıvrımlı sokak.
+Sokaklar yapıların içinden geçmez. Merkez, Stadyum, Çiftlik köy olarak
+kaldı (Küçükkuyu ve köyleri gibi). Görsel: `docs/gorseller/h1-kasaba.png`.
+Not: Liman'ın liman yapıları denizden ~700 m içeride duruyor; bu eski bir
+yerleşim sorunu, ayrıca ele alınmalı.
+
 Harita paketinde sırada: postane + sağlık ocağı (Merkez), mahalle
 sınırlarının doğallaşması, arazi / bina görünümü.
 
