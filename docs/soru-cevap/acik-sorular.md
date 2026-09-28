@@ -5,7 +5,7 @@ sorular. Cevaplanınca buradan ilgili tur dosyasına taşınır.
 Ad sorularında Claude aday önerebilir; karar Kemal'in.
 
 ## Adlar (Kemal koyacak)
-- Çiftlik'teki eski zeytinyağı fabrikasının adı.
+- Çiftlik'teki kooperatif zeytinyağı fabrikasının ve kooperatifin adı.
 - Fener bekçisi kimdi? (ad / kişi kaydı)
 - Liman, Stadyum, Çiftlik mahallelerinin sokak adları (şu an numaralı).
 - Geçici yapı adları: Güney Burnu, Liman Deposu, Düzada İlkokulu, Merkez
@@ -16,9 +16,13 @@ Ad sorularında Claude aday önerebilir; karar Kemal'in.
   (1980 sonrası), otomatiğe geçiş (1980–1990'lar) — aralık yeterliyse gerek yok.
 - Kemsköy'ün mahalle sayılması (bilinen: 1954 sonrası).
 - Dirlik Stadı'nın yapımı (bilinen: kulüpten sonra).
+- Anakaradaki feribot iskelesi: Küçükkuyu (ada künyesinde "Çanakkale / Ayvalık tarafı" yazıyor, düzeltilecek).
+
+## Doğrulanacak
+- "Sade Meyhane" yazıldı; kanondaki ad **Sade Meze**. Aynı yer mi, ad mı değişiyor?
+- Otel yıl boyu açık, ama ada için "kışın yalnız adalılar kalır" denmişti. Kışın otel az misafirle mi açık?
 
 ## Harita
-- Zeytinyağı fabrikası haritaya adsız yapı olarak eklensin mi?
 
 ## Metin (Kemal yazacak)
 - Her mahallenin Tarihçe bölümü.

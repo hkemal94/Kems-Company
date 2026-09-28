@@ -23,8 +23,9 @@ yazılmaz.
 ## Mahalleler
 
 **Merkez Mahallesi** — Adanın ortası, eski adıyla Düzada Köyü. Ada geliştikçe
-köy merkez mahallesi olarak anılmaya başlamış. Kamu binaları, apartmanlar,
-küçük işletmeler.
+köy merkez mahallesi olarak anılmaya başlamış. Kamu binaları, meydan
+çevresinde çarşı (kahvehane, bakkal, fırın), küçük işletmeler. Apartman yok
+(Kemal, 28 Eylül: binalar çoğunlukla müstakil).
 
 **Liman Mahallesi** — İskelenin operasyonel olarak yetersiz kalması sebebiyle
 inşa edilen yeni liman ve çevresi. Adanın kuzeybatı ucunda, limanı yukarıdan
@@ -47,19 +48,29 @@ Aralıklar kanon; kesin yıl yoksa uydurulmaz. Ayrıntı `docs/soru-cevap/w3.md`
 - **Kemsköy** — otelden (1954) önce köyün iskelesi ve birkaç balıkçı evi.
 - **The Imperial Kemsköy** — 1954.
 - **Deniz Feneri** — 19. yüzyıl.
-- **Dirlik Spor Kulübü** — 1950–1970'ler; önce toprak saha, stat sonra.
+- **Dirlik Spor Kulübü** — 1950–1970'ler, köy döneminde; toprak sahada
+  oynayan amatör çocuklar. Stat sonra. Su sporları İskele'nin koyunda.
 - **Küçükçetmi Sürek Kulübü** — sürek avı köyde eski gelenek; kulüp sonra.
+  Av 1990–2000'lerde bırakıldı; gelenek kulüpte sürer.
 - **Liman Mahallesi** — 1980–1990'lar; öncesinde fener ve koyun çevresi
   zeytinlik. Feribot İskele'den yeni limana taşındı; İskele otel, eğlence
   ve küçük teknelerin yeri olarak kaldı.
-- **Otelin etkisi** — 1954 ile adada yaz turizmi başladı.
+- **Otelin etkisi** — 1954 ile adada yaz turizmi başladı; İskele'ye
+  otelciler ve varlıklı yazlıkçılar yerleşti. Otel yıl boyu açık.
+- **Kemsköy'ün mahalleliği** — halk 1954 sonrası "mahalle" dedi; resmî
+  mahalle olması belediyeyle.
+- **Okul** — 1920–1940'lar.
+- **Ada Tepesi kalıntısı** — antik yerleşim duvarları.
 - **Belediye** — 1980 sonrası; Düzada Köyü o zaman "Merkez Mahallesi" oldu.
 - **Stadyum Mahallesi** — statın çevresinde büyüdü; kulüp çevresi ve adaya
   sonradan yerleşen aileler.
-- **Çiftlik Mahallesi** — hep dağınık küçük çiftliklerin bölgesi; zeytin
-  eski bir zeytinyağı fabrikasında işlenir (taş bina, adsız; 19. yüzyıl
-  sonu – 1920'ler).
-- **Fener bekçiliği** — bekçiyle işledi; 1980–1990'larda otomatiğe geçti.
+- **Zeytinyağı** — eski fabrika İskele tarafında (19. yy sonu – 1920'ler
+  kuruldu, 1950–1970'lerde kapandı); taş binası bugün Sade Meze. Aynı
+  dönemde Tariş benzeri bir kooperatif Çiftlik'e modern, küçük bir fabrika
+  kurdu (adsız).
+- **Çiftlik Mahallesi** — hep dağınık küçük çiftliklerin bölgesi.
+- **Fener bekçiliği** — bekçi fenerin yanındaki evde yaşardı; 1980–1990'larda
+  fener otomatiğe geçti.
 
 ## The Imperial Kemsköy
 
