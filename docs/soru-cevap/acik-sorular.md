@@ -12,6 +12,9 @@ Ad sorularında Claude aday önerebilir; karar Kemal'in.
   Pazarı, Çarşı Apartmanı, Zeytinli Apartmanı.
 
 ## Tarihler (aralık yeter)
+- Adaya elektrik ne zaman geldi?
+- Dirlik'in profesyonel alt lig dönemleri.
+- Eski kilisenin dönemi.
 - Kesin yıllar: fener (19. yy), fabrika (19. yy sonu – 1920'ler), belediye
   (1980 sonrası), otomatiğe geçiş (1980–1990'lar) — aralık yeterliyse gerek yok.
 - Kemsköy'ün mahalle sayılması (bilinen: 1954 sonrası).
@@ -19,6 +22,8 @@ Ad sorularında Claude aday önerebilir; karar Kemal'in.
 - Anakaradaki feribot iskelesi: Küçükkuyu (ada künyesinde "Çanakkale / Ayvalık tarafı" yazıyor, düzeltilecek).
 
 ## Harita
+- Kems Company dükkânı Kemsköy Caddesi'nde hangi yapı? (dükkânın adı da)
+- İskele koyunda Dirlik'in su sporları için yapı var mı?
 
 ## Metin (Kemal yazacak)
 - Her mahallenin Tarihçe bölümü.

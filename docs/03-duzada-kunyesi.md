@@ -73,6 +73,36 @@ Aralıklar kanon; kesin yıl yoksa uydurulmaz. Ayrıntı `docs/soru-cevap/w3.md`
 - **Fener bekçiliği** — bekçi fenerin yanındaki evde yaşardı; 1980–1990'larda
   fener otomatiğe geçti.
 
+## Ada hayatı (28 Eylül 2026, soru-cevap W3)
+
+- **Ulaşım** — her gün feribot, Küçükkuyu'ya; fırtınada iptal. Feribot araç
+  da taşır, adada araba serbest. Sahil Yolu eski patikaların parça parça
+  birleşmesiyle oluştu. Su anakaradan boru hattıyla gelir.
+- **Mevsim** — yazın kalabalıklaşır; kışın ada sessizleşir. Otel yıl boyu
+  açık (kışın az misafir, az personel).
+- **Konaklama** — otel, her mahallede dağınık pansiyonlar, kiralık evler.
+  Kamp yok.
+- **Balıkçılık** — büyük tekneler Liman'da, küçükler İskele'de.
+- **Adalılar** — karışık: eski köylüler, mübadeleyle gelenler, sonradan
+  yerleşenler.
+- **İbadet** — Merkez'de cami; İskele'de boş duran eski bir kilise (küçük
+  şapel) ve bir mescit. Mezarlık Merkez'in dışında, zeytinliklerde.
+- **Güvenlik** — Merkez'de jandarma karakolu; Liman'da sahil güvenlik.
+- **Kamu** — postane 1950–1970'ler; sağlık ocağı 1980 sonrası. Okul ilk ve
+  ortaokul; lise anakarada. Ağır hastalıkta feribot, acilde deniz
+  ambulansı. Liman İdare Binası: liman başkanlığı, feribot gişesi ve
+  bekleme salonu, sahil güvenlik.
+- **Doğa** — zeytinlik, maki, Ada Tepesi yamaçlarında çam ormanı, çıplak
+  kayalık. Plajlar: İskele koyu, Stadyum kıyısı, gizli koylar. Ticari
+  hayvancılık yok; evlerde tavuk, eşek, birkaç keçi.
+- **Şenlikler** — zeytin hasadı, bağ bozumu, deniz şenliği, sürek geleneği
+  (irili ufaklı).
+- **Dirlik** — profesyonel alt lige birkaç kez inip çıktı.
+- **Mekânlar** — Sade Meze: fabrika kapandıktan sonra bir süre boş kaldı,
+  1980–1990'larda meyhane oldu. Dondurmacı Kızlar: 2000 sonrası.
+- **Kems Company** — Kemsköy Caddesi'nde bir dükkânı var (adı, yeri sonra);
+  Kems Company ürünleri ve kulüp serileri satılır.
+
 ## The Imperial Kemsköy
 
 Bütün projenin başlangıç noktası. Haydarpaşa Gar binasının küçüğü gibi

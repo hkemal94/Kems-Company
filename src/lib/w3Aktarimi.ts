@@ -81,6 +81,7 @@ const ULASIM = [
   'Anakarayla bağlantı: her gün feribot; fırtınada sefer iptal olur.',
   'Anakara iskelesi: Küçükkuyu (Çanakkale).'
 ];
+const MEVSIM = 'Mevsim: yazın kalabalıklaşır; kışın ada sessizleşir.';
 /** Ada maddesinin başındaki, Kemal'in eski metne taşıttığı paragraf */
 const ESKI_PARAGRAF = /takımada|melankolik/i;
 
@@ -114,8 +115,14 @@ function adaDuzeltmesi(ada: Item): { kayit: Item; tasinan: number } {
   const bolumler: WikiSection[] = ((ada.metadata?.wikiSections as WikiSection[]) || []).map(b => {
     const satirlar = (b.content || '').split(/\n\s*\n/);
     const eskiUlasim = satirlar.some(s => /^(Anakarayla bağlantı|Bağlı olduğu kıyı):/.test(s.trim()));
-    if (!eskiUlasim) return b;
-    const digerleri = satirlar.filter(s => !/^(Anakarayla bağlantı|Bağlı olduğu kıyı):/.test(s.trim()));
+    if (!eskiUlasim) {
+      // Kemal (W3): "kışın yalnız adalılar kalır" değil, "kışın ada sessizleşir"
+      if (!satirlar.some(s => /^Mevsim:/.test(s.trim()))) return b;
+      return { ...b, content: satirlar.map(s => (/^Mevsim:/.test(s.trim()) ? MEVSIM : s)).join('\n\n') };
+    }
+    const digerleri = satirlar
+      .filter(s => !/^(Anakarayla bağlantı|Bağlı olduğu kıyı):/.test(s.trim()))
+      .map(s => (/^Mevsim:/.test(s.trim()) ? MEVSIM : s));
     return { ...b, content: [...digerleri, ...ULASIM].filter(s => s.trim()).join('\n\n') };
   });
 
@@ -148,7 +155,7 @@ export function w3Aktarimi(items: Item[]): W3Aktarimi {
   if (bekliyor(ada)) {
     const { kayit, tasinan } = adaDuzeltmesi(ada!);
     guncellenenler.push(kayit);
-    ozet.push('Ada: feribot Küçükkuyu' + (tasinan ? ', eski paragraf "eski metin"e taşınır' : ''));
+    ozet.push('Ada: feribot Küçükkuyu, kış satırı' + (tasinan ? ', eski paragraf "eski metin"e taşınır' : ''));
   } else if (!ada) bulunamayan.push('ada kaydı');
 
   // Mahalleler, mekânlar, otel
