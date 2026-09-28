@@ -49,7 +49,7 @@ Aralıklar kanon; kesin yıl yoksa uydurulmaz. Ayrıntı `docs/soru-cevap/w3.md`
 - **The Imperial Kemsköy** — 1954.
 - **Deniz Feneri** — 19. yüzyıl.
 - **Dirlik Spor Kulübü** — 1950–1970'ler, köy döneminde; toprak sahada
-  oynayan amatör çocuklar. Stat sonra. Su sporları İskele'nin koyunda.
+  oynayan amatör çocuklar. Stat 1980'lerde. Su sporları İskele'nin koyunda.
 - **Küçükçetmi Sürek Kulübü** — sürek avı köyde eski gelenek; kulüp sonra.
   Av 1990–2000'lerde bırakıldı; gelenek kulüpte sürer.
 - **Liman Mahallesi** — 1980–1990'lar; öncesinde fener ve koyun çevresi
@@ -132,6 +132,32 @@ Aralıklar kanon; kesin yıl yoksa uydurulmaz. Ayrıntı `docs/soru-cevap/w3.md`
   sabahları sis, sonbaharda lodos.
 - **Sade Meze ve Dondurmacı Kızlar** — ikisinin de sahibi aynı kadın: ailesi
   adalı, anakaradan geldi; Sade Meze ailesinden kalma. Adı yok.
+
+## Ada hayatı · 3 (28 Eylül 2026, W3 28–35. turlar)
+
+- **Merkez** — eski cami, 1980 sonrası yenilendi; kahvehane 1950–1970'lerden.
+  Belediye itfaiyesi, eczane; kütüphane yalnız okulda. Banka yok, Liman ve
+  İskele'de ATM.
+- **Ada Tepesi** — antik yerleşim duvarları ve yangın gözetleme kulesi;
+  toprak yol, son kısım patika.
+- **İskele** — cadde otelden bu yana yavaş yavaş dükkânlı yazlık caddesine
+  döndü; barlar 1970'lerden. Gece hayatı yıl boyu, kışın sakin; Sade Meze
+  yıl boyu açık.
+- **Kems Company** — adını Kemsköy'den alır (kurgu içinde). Caddedeki
+  dükkânı 2010 sonrası.
+- **Liman** — mendireğin içinde birkaç yat iskelesi (marina yok). Akşamları
+  son feribota kadar canlı. Balık hali önce İskele'deydi, limana taşındı.
+  İskele ile hafif bir rekabet.
+- **Çiftlik** — zeytinlikler karışık (asırlık ve yeni); şaraphaneler 2000
+  sonrası butik; Ada Tepesi çam balı yerel.
+- **Mutfak** — balık öne çıkar.
+- **Stadyum** — Dirlik Stadı 1980'ler. Kıyıdaki plajda maç öncesi taraftar
+  birahanesi.
+- **Adalılar** — hafif Ege ağzı yalnız yaşlılarda. Lise, hastane, büyük
+  alışveriş ve resmî işler için Küçükkuyu'ya gidilir.
+- **Otel** — misafirler: sanatçı ve yazarlar, siyasetçi ve bürokratlar, iş
+  insanları, yabancı gezginler. Personel karışık (adalı + sezonluk).
+  Restoranı dışarıya da açık; düğün / etkinlik yapılmaz.
 
 ## The Imperial Kemsköy
 

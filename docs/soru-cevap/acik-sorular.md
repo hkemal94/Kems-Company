@@ -16,10 +16,10 @@ Ad sorularında Claude aday önerebilir; karar Kemal'in.
 ## Tarihler (aralık yeter)
 - Otel ne zaman özelleşti? Sonra el değiştirdi mi?
 - Merkez pazarının günü.
+- Dirlik'in taraftar geleneği.
 - Kesin yıllar: fener (19. yy), fabrika (19. yy sonu – 1920'ler), belediye
   (1980 sonrası), otomatiğe geçiş (1980–1990'lar) — aralık yeterliyse gerek yok.
 - Kemsköy'ün mahalle sayılması (bilinen: 1954 sonrası).
-- Dirlik Stadı'nın yapımı (bilinen: kulüpten sonra).
 - Anakaradaki feribot iskelesi: Küçükkuyu (ada künyesinde "Çanakkale / Ayvalık tarafı" yazıyor, düzeltilecek).
 
 ## Harita
