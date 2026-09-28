@@ -178,6 +178,10 @@ bir kordon eklendi (adı geçici: "Liman Kordonu").
 Harita paketinde sırada: postane + sağlık ocağı (Merkez), mahalle
 sınırlarının doğallaşması, arazi / bina görünümü.
 
+**Liman ve cadde (28 Eylül, W3 1. tur):** Kemsköy Caddesi'ndeki 14 yapı
+1–2 kata indi. Liman rıhtımına mendirek ve feribot iskelesi eklendi.
+Görsel: `docs/gorseller/h2-liman.png`.
+
 **Konut kararı (Kemal, 28 Eylül):** Mahallelerdeki binalar çoğunlukla
 müstakil ev olacak. Apartman / çok katlı blok az; yoksa nüfus istenmeyen
 seviyeye çıkar. Sokak dokusu sıklaşsa da adalar bahçeli müstakil evlerle

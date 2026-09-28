@@ -1359,8 +1359,10 @@ for i in range(7):
         kx = 26 * math.cos(math.radians(aci + yan))
         ky = 26 * math.sin(math.radians(aci + yan))
         bina(f"bina_kemskoy_{i}_{isim}", f"Kemsköy Caddesi No. {i * 2 + (1 if isim == 'kuzey' else 2)}",
-             dikdortgen(cx + kx, cy + ky, 20, 14, aci), 8 + (i % 3) * 2, "yapı",
-             "yer_iskele", kat=2 + (i % 3))
+             dikdortgen(cx + kx, cy + ky, 20, 14, aci), 5 + (i % 2) * 3, "yapı",
+             "yer_iskele", kat=1 + (i % 2))
+# Kemal (28 Eylül): cadde alçak kalsın, 1–2 kat — alt kat dükkân, üstü ev.
+# Ada çoğunlukla müstakil evlerden oluşacak; nüfus düşük kalmalı.
 
 # Tarihi Meyhane — otelin yanında, otele ait değil.
 # Kemal: "otel ile homojen bir bağı yok ama yıllardır birlikte anılıyorlar."
@@ -1403,6 +1405,39 @@ bina("bina_liman_ofis", "Liman İdare Binası", dikdortgen(lx2, ly2, 24, 20, RIH
 lx3, ly3 = rihtim(75, 20)
 bina("bina_liman_kafe", "Dondurmacı Kızlar", dikdortgen(lx3, ly3, 18, 14, RIHTIM_ACI), 5,
      "kafe", "yer_liman", wiki_id="viki_mekan_liman_kafe", kat=1)
+
+# Liman yapıları: mendirek ve iskele (Kemal, 28 Eylül: "mendirek + iskele",
+# Küçükkuyu limanı gibi). Rıhtımın önünde koyu saran bir dalgakıran; kökü
+# kıyıda, ağzı öbür uçta açık. Feribot iskelesi rıhtımın ortasından denize uzanır.
+_deniz = lambda boyunca, disari: rihtim(boyunca, -disari)
+_mendirek_hat = LineString(catmull_rom([
+    _deniz(-230, -10), _deniz(-235, 60), _deniz(-200, 150),
+    _deniz(-90, 185), _deniz(40, 185), _deniz(120, 160)
+], False, 6))
+_mendirek = _mendirek_hat.buffer(7, cap_style=1).difference(ada.buffer(-2))
+if _mendirek.geom_type == "MultiPolygon":
+    _mendirek = max(_mendirek.geoms, key=lambda g: g.area)
+binalar.append({
+    "id": "bina_liman_mendirek", "ad": "Mendirek", "geom": _mendirek,
+    "yukseklik": 3, "tur": "iskele", "mahalle": "yer_liman",
+    "wikiId": None, "kat": None, "taban": 0.0,
+})
+_iskele_l = unary_union([
+    LineString([_deniz(0, -8), _deniz(0, 95)]).buffer(6, cap_style=2),
+    LineString([_deniz(-22, 95), _deniz(22, 95)]).buffer(6, cap_style=2),
+])
+binalar.append({
+    "id": "bina_liman_iskele", "ad": "Liman İskelesi", "geom": _iskele_l,
+    "yukseklik": 3, "tur": "iskele", "mahalle": "yer_liman",
+    "wikiId": None, "kat": None, "taban": 0.0,
+})
+# Denetim: iki yapı da suda, birbirine ve kıyıdan ötesine taşmıyor
+for _ad, _g in (("Mendirek", _mendirek), ("Liman İskelesi", _iskele_l)):
+    _kara = _g.intersection(ada).area / _g.area
+    if _kara > 0.15:
+        raise SystemExit(f"HATA: {_ad} karaya taşıyor (%{_kara * 100:.0f})")
+if _mendirek.distance(_iskele_l) < 25:
+    raise SystemExit("HATA: iskele mendireğe çok yakın")
 
 assert (ox, oy) == OTEL_MERKEZ, "ox/oy gölgelendi — yerleske() bozulur"
 
