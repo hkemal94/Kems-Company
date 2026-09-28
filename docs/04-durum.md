@@ -199,6 +199,24 @@ seviyeye çıkar. Sokak dokusu sıklaşsa da adalar bahçeli müstakil evlerle
 dolacak, blokla değil. Henüz ev yerleştirilmedi; bina işi başlarken
 buna uyulacak.
 
+## Sıradaki büyük işler (28 Eylül, Kemal'in istekleri)
+
+**Şehir kurucu (H):** Harita düzenleyiciyi şehir kurucu tarzına taşımak.
+Kemal: "yollar git gide gözüme kötü görünüyor." Sıra: (1) yol aracı —
+tıklayıp çiz, kavşağa yapışsın, yokuşta kıvrılsın; (2) bina aracı — hazır
+kalıplar (müstakil ev, dükkânlı ev, kamu binası), yola dönük yerleşim, adayı
+doldurma; (3) örnek mahalle kalıpları (kıyı kasabası / Küçükkuyu, dağ köyü /
+Adatepe, tek caddeli liman). İlk adım yol aracı; Kemal yatınca başlanacak.
+
+**Kanon KKM'nin başka alanlarında:** Merch'te drop açılınca bağlı kurumun
+kanon bilgisi; Kitap'ta geçen yer/kişi adlarının vikiye bağlanması ve
+tarihle çelişki uyarısı (ör. 1970'lerde feribot Liman'da olamaz); Blog'da
+kanondan hızlı bilgi; tutarlılık denetçisinin (ConsistencyChecker) kanonla
+beslenmesi. Plan Kemal'e sunuldu, sıraya girecek.
+
+**Canva künye eskizi:** A4 dikey, tek tasarımda mahalle / kurum / kişi /
+mekân künyeleri; alanlar boş (Kemal dolduracak).
+
 ## Otel maddesi temizliği (28 Eylül)
 
 Oyun için açılan kod oturumu bu depoya da girdi ve "Ekim 2008'e taşı"
