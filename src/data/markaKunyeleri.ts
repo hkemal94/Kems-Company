@@ -152,7 +152,15 @@ export const MARKA_KUNYELERI: MarkaKunyesi[] = [
     kit: {
       selectedLogo: '',
       ideaLogos: [],
-      // Bilerek tek renk: kulüp Kems paletini kullanmıyor.
+      /*
+       * Bilerek tek renk: kulüp Kems paletini kullanmıyor.
+       *
+       * 28 Eylül 2026'da armanın kendisinden ölçüldü, tahmin değil:
+       * kangal sayfasında zeminin %82,9'u #f3efe8, çizginin tamamı
+       * #131313 (kenar yumuşatmasıyla #111–#141 arası). Monogram
+       * sayfasında zemin aynı krem, harf #010101 — pratikte aynı
+       * mürekkep. Üçüncü bir renk yok.
+       */
       colorPalette: [KEMS_RENK.krem, KEMS_RENK.murekkep],
       exemplaryWorks: ['Köy sokağı illüstrasyonu (değirmen taşı ve çeşme)'],
       selectedFont: 'El yazısı (ad) + harf aralığı açık serif (alt satır)',

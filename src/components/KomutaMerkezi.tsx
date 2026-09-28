@@ -1260,10 +1260,12 @@ export default function KomutaMerkezi({
             <span className="text-[9px] text-[#6A5E4C] dark:text-[#A6B0C9] uppercase font-bold block mt-1">Kitap / Bölüm</span>
           </div>
 
-          {/* Fikir Havuzu */}
-          <div 
-            onClick={() => onSelectArea('brainstorm')}
-            className="p-3 bg-[#FAF8F5] hover:bg-[#F3EFE8] dark:bg-[#17345A]/40 border border-[#CFC5B4]/50 rounded-lg cursor-pointer transition-all hover:scale-[1.03] shadow-3xs"
+          {/* Fikir Havuzu — Brainstorm sekmesi kalktı, fikirler artık
+              her sayfanın sağ alt köşesindeki kutuda. Sayı duruyor ama
+              tıklanmıyor: gidecek bir sayfa yok. */}
+          <div
+            title="Fikirler sağ alt köşedeki kutuda"
+            className="p-3 bg-[#FAF8F5] dark:bg-[#17345A]/40 border border-[#CFC5B4]/50 rounded-lg shadow-3xs"
           >
             <span className="text-2xl font-bold text-[#1B2A4A] dark:text-[#F3EFE8] block">{statsSummary.fikir}</span>
             <span className="text-[9px] text-[#6A5E4C] dark:text-[#A6B0C9] uppercase font-bold block mt-1">Fikir Havuzu</span>

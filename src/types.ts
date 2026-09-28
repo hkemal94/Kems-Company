@@ -2,7 +2,12 @@ export type AreaType = 'duzada' | 'merch' | 'blog' | 'kitap' | 'brainstorm' | 'i
 
 export type GeneralStatus = 'Fikir' | 'Planlandı' | 'Çalışılıyor' | 'Bitti' | 'Yayınlandı';
 export type DropStatus = 'Konsept' | 'Tasarım' | 'Üretim' | 'Satışta';
-export type UrunStatus = 'Fikir' | 'Tasarım' | 'Örnek/numune' | 'Üretim' | 'Satışta';
+/*
+ * Ürün ve drop aynı dört adımı izliyor (28 Eylül 2026 kararı).
+ * Eskiden üründe 'Fikir' ve 'Örnek/numune' de vardı; numune ayrı takip
+ * edilmediği için kalktı, 'Fikir' ise Brainstorm'un işi.
+ */
+export type UrunStatus = 'Konsept' | 'Tasarım' | 'Üretim' | 'Satışta';
 export type BlogStatus = 'Taslak' | 'Yayında';
 export type KitapStatus = 'taslak' | 'yazıldı' | 'düzeltildi';
 

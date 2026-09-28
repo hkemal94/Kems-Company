@@ -314,15 +314,25 @@ export default function Merch({
     return items.find(i => i.id === activeItemId) || null;
   }, [activeItemId, items]);
 
-  // Product status to percent helper
+  /**
+   * Ürün durumundan ilerleme yüzdesi.
+   *
+   * Dört adım: Konsept → Tasarım → Üretim → Satışta.
+   * Eski kayıtlarda 'Fikir' ve 'Örnek/numune' de geçebiliyor; listeden
+   * kalktılar ama veride duran bir kayıt arayüzü bozmasın diye burada
+   * hâlâ karşılıkları var. 'Örnek/numune' tasarımdan sonra, üretimden
+   * önceydi — yüzdesi de oraya düşüyor.
+   */
   const getProductProgressPercent = (status: string) => {
     switch (status) {
-      case 'Fikir': return 10;
-      case 'Tasarım': return 35;
-      case 'Örnek/numune': return 60;
+      case 'Konsept': return 15;
+      case 'Tasarım': return 45;
       case 'Üretim': return 80;
       case 'Satışta': return 100;
-      default: return 10;
+      // eski değerler
+      case 'Fikir': return 15;
+      case 'Örnek/numune': return 60;
+      default: return 15;
     }
   };
 
@@ -370,7 +380,7 @@ export default function Merch({
       title: newTitle,
       area: 'merch',
       type: showCreateForm,
-      status: showCreateForm === 'drop' ? 'Konsept' : showCreateForm === 'merch_urun' ? 'Fikir' : 'Çalışılıyor',
+      status: showCreateForm === 'drop' || showCreateForm === 'merch_urun' ? 'Konsept' : 'Çalışılıyor',
       priority: 'orta',
       tags: ['merch', showCreateForm],
       links: selectedParentId ? [selectedParentId] : [],
@@ -488,7 +498,7 @@ export default function Merch({
       title: rec.title,
       area: 'merch',
       type: 'merch_urun',
-      status: 'Fikir',
+      status: 'Konsept',
       priority: 'orta',
       tags: ['merch', 'merch_urun', 'ai-öneri'],
       links: [targetDropId],
@@ -590,7 +600,7 @@ export default function Merch({
                 Tasarım bekleyen ürünler
               </h3>
               <div className="space-y-2">
-                {products.filter(p => p.status === 'Fikir' || p.status === 'Tasarım').slice(0, 4).map(p => (
+                {products.filter(p => p.status === 'Konsept' || p.status === 'Tasarım' || p.status === 'Fikir').slice(0, 4).map(p => (
                   <div key={p.id} className="flex justify-between items-center text-xs">
                     <span 
                       onClick={() => { onSelectItem(p.id); setActiveTab('urunler'); }}
@@ -603,8 +613,8 @@ export default function Merch({
                     </span>
                   </div>
                 ))}
-                {products.filter(p => p.status === 'Fikir' || p.status === 'Tasarım').length === 0 && (
-                  <span className="text-xs text-[#9A8C76] italic">Fikir veya Tasarım aşamasında bekleyen ürün yok.</span>
+                {products.filter(p => p.status === 'Konsept' || p.status === 'Tasarım' || p.status === 'Fikir').length === 0 && (
+                  <span className="text-xs text-[#9A8C76] italic">Konsept veya Tasarım aşamasında bekleyen ürün yok.</span>
                 )}
               </div>
             </div>
@@ -1588,7 +1598,7 @@ export default function Merch({
                             ...activeItem,
                             title: activeItem.title.replace(/\s*\(Öneri\)/i, ''),
                             isProposal: false,
-                            status: activeItem.type === 'drop' ? 'Konsept' : 'Fikir'
+                            status: 'Konsept'
                           });
                         }}
                         className="px-4 py-2 bg-[#D35057] text-white font-bold rounded-lg hover:bg-[#b04046] transition-colors cursor-pointer"
@@ -1632,8 +1642,8 @@ export default function Merch({
                   })}
                 </div>
               ) : activeItem.type === 'merch_urun' ? (
-                <div className="grid grid-cols-5 gap-1.5 text-center text-[11px] font-mono">
-                  {['Fikir', 'Tasarım', 'Örnek/numune', 'Üretim', 'Satışta'].map(st => {
+                <div className="grid grid-cols-4 gap-1.5 text-center text-[11px] font-mono">
+                  {['Konsept', 'Tasarım', 'Üretim', 'Satışta'].map(st => {
                     const isActive = activeItem.status === st;
                     return (
                       <button
@@ -1731,7 +1741,7 @@ export default function Merch({
                         onChange={(e) => setEditStatus(e.target.value)}
                         className="w-full text-xs bg-[#F6F1E7] dark:bg-[#17345A] text-[#1B2A4A] dark:text-[#F3EFE8] border border-[#CFC5B4] rounded p-2"
                       >
-                        {['Fikir', 'Tasarım', 'Örnek/numune', 'Üretim', 'Satışta'].map(st => (
+                        {['Konsept', 'Tasarım', 'Üretim', 'Satışta'].map(st => (
                           <option key={st} value={st}>{st}</option>
                         ))}
                       </select>

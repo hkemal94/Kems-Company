@@ -42,7 +42,7 @@ import {
 } from './lib/aiGozcusu';
 import Blog from './components/Blog';
 import Kitap from './components/Kitap';
-import Brainstorm from './components/Brainstorm';
+import HizliFikir from './components/HizliFikir';
 import Bosluklar from './components/Bosluklar';
 import Galeri from './components/Galeri';
 import OyunEkrani from './components/oyun/OyunEkrani';
@@ -73,7 +73,7 @@ export default function App() {
   const deduplicationLockRef = useRef<boolean>(false);
   
   // Navigation & interaction states
-  const [activeTab, setActiveTab] = useState<'komuta' | 'markalar' | 'duzada' | 'merch' | 'yazi' | 'oyun' | 'brainstorm'>('komuta');
+  const [activeTab, setActiveTab] = useState<'komuta' | 'markalar' | 'duzada' | 'merch' | 'yazi' | 'oyun'>('komuta');
   const [activeItemId, setActiveItemId] = useState<string | null>(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isHizliNotOpen, setIsHizliNotOpen] = useState(false);
@@ -764,7 +764,12 @@ export default function App() {
     } else if (item.type === 'blog_post' || item.type === 'kitap_proje' || item.type === 'kitap_bolum') {
       setActiveTab('yazi_atolyesi');
     } else if (item.type === 'fikir') {
-      setActiveTab('brainstorm');
+      /*
+       * Brainstorm sekmesi kalktı (28 Eylül kararı). Fikirler köşedeki
+       * hızlı fikir panosunda yaşıyor; ayrı bir sayfaya gitmek yok.
+       * Fikre tıklanınca Düzada'ya düşüyor, orası evrenin ana ekranı.
+       */
+      setActiveTab('duzada');
     } else {
       setActiveTab('duzada');
     }
@@ -854,7 +859,7 @@ export default function App() {
       notes,
       area,
       type,
-      status: type === 'drop' ? 'Konsept' : type === 'merch_urun' ? 'Fikir' : type === 'blog_post' ? 'Taslak' : type === 'kitap_bolum' ? 'taslak' : 'Fikir',
+      status: type === 'drop' || type === 'merch_urun' ? 'Konsept' : type === 'blog_post' ? 'Taslak' : type === 'kitap_bolum' ? 'taslak' : 'Fikir',
       priority: 'orta',
       tags: ['hızlı-not'],
       links: [],
@@ -1037,7 +1042,6 @@ export default function App() {
               // birleştirmek için yazılmıştı ama raya hiç bağlanmamıştı.
               { id: 'yazi', label: 'Yazı İşleri', icon: PenTool },
               { id: 'oyun', label: 'Oyun Projeleri', icon: Gamepad2 },
-              { id: 'brainstorm', label: 'Brainstorm', icon: Sparkles },
               // Boşluklar: metni Kemal yazacak, buraya hiçbir öneri basılmıyor
               { id: 'bosluklar', label: 'Boşluklar', icon: PenLine },
               // Galeri: Canva'dan indirilen logolar buraya yükleniyor
@@ -1193,21 +1197,16 @@ export default function App() {
             <Bosluklar items={items} onUpdateItem={handleUpdateItem} />
           )}
 
-          {activeTab === 'brainstorm' && (
-            <Brainstorm
-              items={items}
-              onSelectItem={(itemId) => {
-                const item = items.find(i => i.id === itemId);
-                if (item) handleSelectResult(item);
-              }}
-              onUpdateItem={handleUpdateItem}
-              onDeleteItem={handleDeleteItem}
-              onAddItem={handleAddItem}
-            />
-          )}
         </main>
 
       </div>
+
+      {/* Her sayfanın köşesinde duran hızlı fikir kutusu */}
+      <HizliFikir
+        items={items}
+        onAddItem={handleAddItem}
+        onUpdateItem={handleUpdateItem}
+      />
 
       {/* Floating Global Modal Overlays */}
       <AramaModal
