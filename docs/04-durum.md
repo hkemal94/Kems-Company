@@ -111,6 +111,36 @@ birikiyor, sonra tek seferlik düğmeyle vikiye aktarılacak. İlk mahalle
 İskele / Kemsköy: başlık, konum, sınırlar, arazi cevaplandı; Tarihçe
 Kemal'in cümlelerini bekliyor.
 
+**Aktarım düğmesi (28 Eylül):** Neyin Eksik'te "soru-cevaplar vikiye
+aktarılmayı bekliyor" kartı (`src/lib/soruCevapAktarimi.ts`). Kemal'in
+kararları:
+- Liman, Stadyum, Çiftlik başlıkları kanondaki adlarla (… Mahallesi).
+- Arşivdeki mekânlar arşivde kalır; yerlerine yeni boş kayıt açılır
+  (Sade Meze, Dondurmacı Kızlar, Deniz Feneri, Liman İdare Binası, Dirlik
+  Stadı, Belediye Binası). Haritadaki yapılar yeni kayıtlara (`viki_…`)
+  bağlandı.
+- Otel istisna: uygulama `kemskoy_hotel` dışındaki "The Imperial
+  Kemsköy" kayıtlarını kopya sayıp siliyor (App.tsx). Otel aynı kayıtla
+  arşivden çıkar; eski gövde, bölüm ve künye yazıları görünmez
+  `eskiMetin` alanına taşınır. Künyede yalnız "Faaliyette: 1954–" ve
+  "Oda sayısı: 20".
+- Cevaplar künyede ve kısa satırlarda; cümle kurulmadı. Tarihçe vb. boş.
+- Ada maddesinde cevaplarla çelişen yazılar (Ekim 2003, Sezon Sonu,
+  haftada iki gemi, güneydeki Eski Liman) `eskiMetin`e taşınır.
+- Dirlik'e "Branşlar: Futbol, Su sporları", Küçükçetmi'ye "Sürek: Av".
+
+Yan düzeltmeler: haritadan açılan maddelerde "Bugün" bölümü kalktı
+(vikinin şimdisi yok). W1 kartı 28 Eylül'den sonra açılan ya da arşivden
+geri getirilen kayıtları yeniden arşive kaldırmayı önermez.
+
+Açık: Deniz Feneri "faal" ama başlangıç yılı yok — yıl gelince
+"Faaliyette: YYYY–" yazılır.
+
+**Uyarı — kendiliğinden silen eski kodlar (App.tsx):** otel kopyalarını,
+oda kopyalarını, "yeni varlık" adlı kayıtları ve bazı olay kayıtlarını
+siliyorlar. "Hiçbir kayıt silinmez" kuralına aykırı. Kemal'e soruldu;
+K paketinde ele alınacak.
+
 ## Harita · H1 sokak dokusu (28 Eylül)
 
 Kemal: mahalle sokakları "inanılmaz yapay". Sebep: üreteç (`gen/duzada.py`)
