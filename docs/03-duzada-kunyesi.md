@@ -46,11 +46,20 @@ Aralıklar kanon; kesin yıl yoksa uydurulmaz. Ayrıntı `docs/soru-cevap/w3.md`
 - **Merkez / Düzada Köyü** — antik kökenli; Ada Tepesi'nde kalıntı var.
 - **Kemsköy** — otelden (1954) önce köyün iskelesi ve birkaç balıkçı evi.
 - **The Imperial Kemsköy** — 1954.
-- **Deniz Feneri** — otelden önce; kesin yıl yok.
+- **Deniz Feneri** — otelden önce yapıldı; kesin yıl yok.
 - **Dirlik Spor Kulübü** — 1950–1970'ler; önce toprak saha, stat sonra.
 - **Küçükçetmi Sürek Kulübü** — sürek avı köyde eski gelenek; kulüp sonra.
-- **Liman Mahallesi** — 1980–1990'lar; feribot İskele'den yeni limana
-  taşındı, İskele otel, eğlence ve küçük teknelerin yeri olarak kaldı.
+- **Liman Mahallesi** — 1980–1990'lar; öncesinde fener ve koyun çevresi
+  zeytinlik. Feribot İskele'den yeni limana taşındı; İskele otel, eğlence
+  ve küçük teknelerin yeri olarak kaldı.
+- **Otelin etkisi** — 1954 ile adada yaz turizmi başladı.
+- **Merkez adı** — Düzada Köyü, belediye kurulunca "Merkez Mahallesi"
+  oldu (tarih yok).
+- **Stadyum Mahallesi** — statın çevresinde büyüdü; kulüp çevresi ve adaya
+  sonradan yerleşen aileler.
+- **Çiftlik Mahallesi** — hep dağınık küçük çiftliklerin bölgesi; zeytin
+  eski bir zeytinyağı fabrikasında işlenir (taş bina, adsız).
+- **Deniz Feneri** — önce bekçiyle işledi, sonra otomatiğe geçti.
 
 ## The Imperial Kemsköy
 
