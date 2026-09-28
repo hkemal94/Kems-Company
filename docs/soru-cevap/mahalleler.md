@@ -35,3 +35,14 @@ soruları ve cevapları kaydeder. İskele'nin ayrıntısı `iskele.md`'de.
 ## Harita için not
 
 Bu yerleşim 3B haritadaki mahalle sınırlarıyla karşılaştırılacak (H paketi).
+
+## 28 Eylül 2026 · 4. tur — içerik
+
+| Soru | Cevap |
+|---|---|
+| Merkez'deki kamu yapıları | Belediye / muhtarlık, okul, postane, sağlık ocağı |
+| Çiftlik'te üretim | Zeytin ve zeytinyağı, bağcılık, arıcılık (hayvancılık **yok**) |
+| Liman'a uğrayanlar | Yolcu feribotu, yük gemisi, balıkçı tekneleri, yat / gezi tekneleri |
+| Deniz Feneri | **Faal fener** (vikide "Faaliyette: …–" biçiminde; başlangıç yılı henüz yok) |
+
+Not: kamu yapıları türdür, ad değildir; adları konmadı.
