@@ -219,7 +219,7 @@ export default function KomutaMerkezi({
   }, [items]);
 
   const linkTargets = useMemo(() => {
-    return items.filter(i => !i.archived && !i.isProposal && (i.type === 'yer' || i.type === 'marka'));
+    return items.filter(i => !i.archived && !i.isProposal && (i.type === 'yer' || i.type === 'marka' || i.type === 'kulüp'));
   }, [items]);
 
   // 4. PROJELER PROGRESS CALCULATION (Including Oyun!)

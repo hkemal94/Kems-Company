@@ -1,0 +1,26 @@
+Kems Komuta Merkezi — 28 Eylül paketi (marka yapısı + otel temizliği)
+
+YÜKLEME
+Klasör yapısını bozmadan depoya yükle (GitHub → Add files → Upload files,
+src klasörünü sürükle). Aynı adlı dosyaların üzerine yazılır.
+
+GITHUB'DA ELLE SİLİNECEK İKİ DOSYA (yükleme silmez)
+- src/components/Brainstorm.tsx   (hâlâ depoda duruyor)
+- src/lib/donem2008.ts            ("Ekim 2008'e taşı" düğmesinin dosyası)
+Silinmese de uygulama çalışır; artık hiçbir yer bunları çağırmıyor.
+
+YÜKLEDİKTEN SONRA — Komuta Merkezi → Neyin Eksik
+1. "kulüp hâlâ marka olarak kayıtlı" → Kuruma çevir. Bir kez.
+2. "kayıtta oyun verisi vikiye karışmış" → Temizle.
+   Bu kart yalnızca "Ekim 2008'e taşı" düğmesine bastıysan görünür.
+   Görünmüyorsa basmamışsın, yapacak bir şey yok.
+3. "tema kaydı hâlâ duruyor" / "içi boş proje" kartları görünüyorsa
+   16 Eylül düğmelerine basılmamış demektir; basabilirsin. Görünmüyorsa
+   zaten yapılmış.
+
+DEĞİŞENLER
+Yeni:     src/lib/markaYapisi.ts, src/lib/otelTemizligi.ts
+Marka:    Markalar.tsx, Merch.tsx, Eksikler.tsx, markaKunyeleri.ts,
+          DuzadaWiki.tsx, Galeri.tsx, KomutaMerkezi.tsx, ConsistencyChecker.tsx
+Otel:     DuzadaWiki.tsx, Duzada.tsx, Oyun.tsx, OyunSimulasyon.tsx,
+          kemskoyData.ts (2008 değişikliği geri alındı)

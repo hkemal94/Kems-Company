@@ -188,7 +188,8 @@ export default function DuzadaWiki({
             if (isRoom || isMahalleItem(item)) return false;
             if (type !== 'mekân' && type !== 'dükkân' && !tags.includes('mekân')) return false;
           }
-          if (wikiSelectedFilter === 'marka' && type !== 'marka' && !tags.includes('marka')) return false;
+          // Kurumlar (kulüpler) da bu filtrede: marka ve kurum aynı sekmede
+          if (wikiSelectedFilter === 'marka' && type !== 'marka' && type !== 'kulüp' && !tags.includes('marka') && !tags.includes('kurum')) return false;
           if (wikiSelectedFilter === 'olay' && type !== 'olay' && !tags.includes('olay')) return false;
         }
       }
@@ -223,7 +224,7 @@ export default function DuzadaWiki({
       priority: 'yüksek' as const,
       tags: ['evren', 'rehber'],
       links: [],
-      notes: `Düzada, Ege Denizi'nin serin sularında saklanmış, zamanın daha yavaş aktığı bir takımadanın kalbidir. Tarihi zeytinlikleri, sarp kayalıkların ucunda yükselen deniz feneri, balıkçı teknelerinin sığındığı limanı ve dar sokaklarıyla kendine has melankolik bir atmosfere sahiptir.\n\nAda, özellikle 1954 kuruluş tarihli görkemli "The Imperial Kemskøy" oteli ve çevresindeki sırlar ile bilinir. Ekim 2008 ("Sezon Sonu") dönemi, rüzgarın sertleştiği, turistlerin elini eteğini çektiği ve adanın kendi iç hesaplaşmalarıyla baş başa kaldığı gizemli bir zaman dilimini temsil eder.`,
+      notes: `Düzada, Ege Denizi'nin serin sularında saklanmış, zamanın daha yavaş aktığı bir takımadanın kalbidir. Tarihi zeytinlikleri, sarp kayalıkların ucunda yükselen deniz feneri, balıkçı teknelerinin sığındığı limanı ve dar sokaklarıyla kendine has melankolik bir atmosfere sahiptir.\n\nAda, özellikle 1954 kuruluş tarihli görkemli "The Imperial Kemskøy" oteli ve çevresindeki sırlar ile bilinir. Ekim 2003 ("Sezon Sonu") dönemi, rüzgarın sertleştiği, turistlerin elini eteğini çektiği ve adanın kendi iç hesaplaşmalarıyla baş başa kaldığı gizemli bir zaman dilimini temsil eder.`,
       images: [],
       createdAt: Date.now(),
       updatedAt: Date.now(),
@@ -231,7 +232,6 @@ export default function DuzadaWiki({
       isProposal: false,
       userId: 'system',
       metadata: {
-        activeEra: 'Ekim 2008, "Sezon Sonu"',
         climate: 'Ege / Akdeniz Mikrokliması - Rüzgarlı, Sert',
         atmosphere: 'Melankolik, Sezon Sonu, Sisli ve Gizemli',
         wikiSections: [
@@ -266,7 +266,7 @@ export default function DuzadaWiki({
 
   // Edit form states, synchronized with selected worldItem
   const [notes, setNotes] = useState(worldItem.notes);
-  const [activeEra, setActiveEra] = useState(worldItem.metadata?.activeEra || 'Ekim 2008, "Sezon Sonu"');
+  const [activeEra, setActiveEra] = useState(worldItem.metadata?.activeEra || '');
   const [climate, setClimate] = useState(worldItem.metadata?.climate || 'Ege / Akdeniz Mikrokliması');
   const [atmosphere, setAtmosphere] = useState(worldItem.metadata?.atmosphere || 'Melankolik, Sezon Sonu');
   const [sections, setSections] = useState<WikiSection[]>(worldItem.metadata?.wikiSections || []);
@@ -274,7 +274,7 @@ export default function DuzadaWiki({
   // Sync state if worldItem changes
   React.useEffect(() => {
     setNotes(worldItem.notes);
-    setActiveEra(worldItem.metadata?.activeEra || 'Ekim 2008, "Sezon Sonu"');
+    setActiveEra(worldItem.metadata?.activeEra || '');
     setClimate(worldItem.metadata?.climate || 'Ege / Akdeniz Mikrokliması');
     setAtmosphere(worldItem.metadata?.atmosphere || 'Melankolik, Sezon Sonu');
     setSections(worldItem.metadata?.wikiSections || []);
@@ -380,7 +380,7 @@ export default function DuzadaWiki({
     return {
       kisi: items.filter(i => (i.type === 'kisi' || i.type === 'karakter') && !i.archived).length,
       mekan: items.filter(i => (i.type === 'mekân' || i.type === 'yer' || i.type === 'dükkân') && !i.archived).length,
-      marka: items.filter(i => i.type === 'marka' && !i.archived).length,
+      marka: items.filter(i => (i.type === 'marka' || i.type === 'kulüp') && !i.archived).length,
       olay: items.filter(i => i.type === 'olay' && !i.archived).length,
       oyun: items.filter(i => i.type === 'map_settings' && !i.archived).length,
     };
@@ -1230,21 +1230,13 @@ export default function DuzadaWiki({
               {/* Bento metadata grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 
-                <div className="bg-stone-50 dark:bg-[#12224A]/30 border border-stone-200 dark:border-[#2C3C72]/50 p-3.5 rounded-lg">
-                  <span className="text-[10px] font-mono text-[#6A5E4C] dark:text-[#A6B0C9] uppercase block font-bold">📅 AKTİF DÖNEM & SEZON</span>
-                  {isEditing ? (
-                    <input
-                      type="text"
-                      value={activeEra}
-                      onChange={(e) => setActiveEra(e.target.value)}
-                      className="mt-1.5 w-full p-2 text-xs rounded border border-[#CFC5B4] bg-white dark:bg-[#12224A] text-[#1B2A4A] dark:text-[#F3EFE8] focus:outline-none"
-                      placeholder="örn: Ekim 2008, 'Sezon Sonu'"
-                    />
-                  ) : activeEra ? (
-                    <span className="font-serif text-base font-bold text-[#1B2A4A] dark:text-[#F3EFE8] mt-1 block">{activeEra}</span>
-                  ) : null}
-                </div>
-
+                {/*
+                  "Aktif dönem" kutusu kaldırıldı (28 Eylül 2026). Kanon kuralı:
+                  vikinin bir "şimdi"si yok. "Ekim 2003, Sezon Sonu" eski otel
+                  simülasyonunun tarihiydi; oyun artık ayrı bir projede ve kendi
+                  dönemini kendi belgesinde tutuyor. Kayıttaki değer silinmedi,
+                  yalnızca gösterilmiyor.
+                */}
                 <div className="bg-stone-50 dark:bg-[#12224A]/30 border border-stone-200 dark:border-[#2C3C72]/50 p-3.5 rounded-lg">
                   <span className="text-[10px] font-mono text-[#6A5E4C] dark:text-[#A6B0C9] uppercase block font-bold">🌡️ İKLİM VE COĞRAFİ KONUM</span>
                   {isEditing ? (

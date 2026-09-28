@@ -7,7 +7,8 @@ import { getRol } from './wiki/kunyeParser';
 import { isEntityUnlinked } from '../utils/relations';
 import { oTemizligi } from '../lib/yaziTemizligi';
 import { temaDurumu, temaKaldirmaYazilari } from '../lib/temaKaldirma';
-import { donem2008Durumu } from '../lib/donem2008';
+import { markaYapisi, markaGocu, markaGocuYazilari } from '../lib/markaYapisi';
+import { otelTemizligi } from '../lib/otelTemizligi';
 
 /**
  * "Neyin eksik" paneli (A1).
@@ -145,7 +146,10 @@ export function eksikleriCikar(items: Item[]): Eksik[] {
    * kaydında böyle bir palet duruyordu, gerçek markayla (krem + mürekkep)
    * hiç ilgisi yoktu. O yüzden ölçü "kit var mı" değil, "kit gerçek mi".
    */
-  const markalar = canli.filter(i => i.type === 'marka' && !i.isProposal);
+  // Marka yapısı (7. madde): Kems Company + kurgu içi kurumlar. İkisinin de
+  // künyesi gerçek olmalı; kurumun sloganı boş kalabilir (Kemal'in kararı).
+  const yapi = markaYapisi(items);
+  const markalar = yapi.hepsi.filter(i => !i.isProposal);
   const varsayilanMarka = markalar.filter(i => {
     const bk = i.metadata?.brandKit;
     if (!bk) return true;
@@ -186,7 +190,12 @@ export function eksikleriCikar(items: Item[]): Eksik[] {
   // --- Merch: markası olmayan drop
   // Eskiden burada "dropun teması seçilmemiş" vardı; tema katmanı kaldırıldı
   // (34 cevabın 16. maddesi), artık eksik olan şey markanın kendisi.
-  const markaKimlikleri = new Set(canli.filter(i => i.type === 'marka').map(i => i.id));
+  // Satan her zaman gerçek marka (Kems Company). brandId bir kurumu
+  // gösteriyorsa drop da "markasız" sayılır — kurum ürün satmaz, ürün
+  // kurumdan gelir. Kurum bağı ayrı alanda: kurumId.
+  const markaKimlikleri = new Set(
+    [yapi.anaMarka, ...yapi.digerMarkalar].filter(Boolean).map(i => i!.id)
+  );
   const markasizDrop = canli.filter(
     i => i.type === 'drop' && !i.isProposal
       && !markaKimlikleri.has(String(i.metadata?.brandId || ''))
@@ -273,27 +282,54 @@ export const Eksikler: React.FC<EksiklerProps> = ({
   };
 
   /**
-   * Dönem göçü: Ekim 2003 → Ekim 2008, ve oyun kararlarının otel maddesine
-   * yazılması. Tek seferlik; iş bitince satır kendini gizler.
+   * Marka yapısı · Adım 2 — kulüpler kurum olur, dropları kurumuna bağlanır.
+   * Tek seferlik. Kimlik, künye, arma, palet değişmez; hiçbir şey silinmez.
    */
-  const donem = useMemo(() => donem2008Durumu(items), [items]);
-  const [donemIsi, setDonemIsi] = useState(false);
-  const [donemRaporu, setDonemRaporu] = useState<string | null>(null);
+  const marka = useMemo(() => markaGocu(items), [items]);
+  const [markaIsi, setMarkaIsi] = useState(false);
+  const [markaRaporu, setMarkaRaporu] = useState<string | null>(null);
 
-  const donemiTasi = async () => {
-    if (!onUpdateItem || donemIsi) return;
-    setDonemIsi(true);
+  const markayiGocur = async () => {
+    if (!onUpdateItem || markaIsi) return;
+    setMarkaIsi(true);
     try {
+      const yazilacak = markaGocuYazilari(items);
       let n = 0;
-      for (const kayit of donem.degisenler) { await onUpdateItem(kayit); n++; }
-      setDonemRaporu(
-        `${donem.tarihSayisi} kayıtta tarih Ekim 2008 oldu, otele ${donem.bolumSayisi} oyun bölümü eklendi `
-        + `(${n} kayıt yazıldı).`
+      for (const kayit of yazilacak) { await onUpdateItem(kayit); n++; }
+      setMarkaRaporu(
+        `${marka.tipiDegisecek.length} kulüp kurum oldu, `
+        + `${marka.baglanacakDrop.length} drop kurumuna bağlandı (${n} kayıt yazıldı). `
+        + `Satan hepsinde Kems Company.`
       );
     } catch (e) {
-      setDonemRaporu(`Hata: ${e instanceof Error ? e.message : 'bilinmeyen'}`);
+      setMarkaRaporu(`Hata: ${e instanceof Error ? e.message : 'bilinmeyen'}`);
     } finally {
-      setDonemIsi(false);
+      setMarkaIsi(false);
+    }
+  };
+
+  /**
+   * Otel maddesi temizliği — "Ekim 2008'e taşı" düğmesine basıldıysa veride
+   * kalan izi geri alır. Basılmadıysa kart hiç görünmez.
+   */
+  const otel = useMemo(() => otelTemizligi(items), [items]);
+  const [otelIsi, setOtelIsi] = useState(false);
+  const [otelRaporu, setOtelRaporu] = useState<string | null>(null);
+
+  const oteliTemizle = async () => {
+    if (!onUpdateItem || otelIsi) return;
+    setOtelIsi(true);
+    try {
+      let n = 0;
+      for (const kayit of otel.degisenler) { await onUpdateItem(kayit); n++; }
+      setOtelRaporu(
+        `${otel.bolumSayisi} oyun bölümü vikiden arşive taşındı, `
+        + `${otel.tarihSayisi} kayıtta "Ekim 2008" geri alındı (${n} kayıt yazıldı).`
+      );
+    } catch (e) {
+      setOtelRaporu(`Hata: ${e instanceof Error ? e.message : 'bilinmeyen'}`);
+    } finally {
+      setOtelIsi(false);
     }
   };
 
@@ -310,10 +346,6 @@ export const Eksikler: React.FC<EksiklerProps> = ({
       setTemizleniyor(false);
     }
   };
-
-  // Veri henüz yüklenmediyse panel açılmasın: boş listeyi "her şey tamam"
-  // diye göstermek yanlış olur.
-  if (items.length === 0) return null;
 
   /** İçi boş proje kayıtları — tek düğmeyle arşive */
   const bosProje = useMemo(() => bosProjeler(items), [items]);
@@ -336,6 +368,12 @@ export const Eksikler: React.FC<EksiklerProps> = ({
       setProjeIsi(false);
     }
   };
+
+  // Veri henüz yüklenmediyse panel açılmasın: boş listeyi "her şey tamam"
+  // diye göstermek yanlış olur.
+  // Bu satır bütün useMemo/useState'lerin ALTINDA olmalı: üstte dururken veri
+  // yüklenince çağrılan kanca sayısı değişiyordu, React bunu hata sayar.
+  if (items.length === 0) return null;
 
   return (
     <div className="mb-8">
@@ -369,6 +407,72 @@ export const Eksikler: React.FC<EksiklerProps> = ({
           </button>
         </div>
       )}
+      {/* Marka yapısı · Adım 2 — tek seferlik göç */}
+      {onUpdateItem && (marka.tipiDegisecek.length > 0 || marka.baglanacakDrop.length > 0) && (
+        <div className="mb-2.5 flex items-start gap-3 px-4 py-3 rounded-xl border border-[#D35057]/40 bg-[#FAF8F5] dark:bg-[#13204A]">
+          <span className="font-mono text-lg font-bold text-[#D35057] leading-none mt-0.5 shrink-0 tabular-nums">
+            {marka.tipiDegisecek.length + marka.baglanacakDrop.length}
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-[13px] font-semibold text-[#1B2A4A] dark:text-[#F3EFE8]">
+              kulüp hâlâ marka olarak kayıtlı
+            </span>
+            <span className="block mt-0.5 text-[11px] text-[#9A8C76] dark:text-[#6E7CA0] leading-snug">
+              {marka.tipiDegisecek.map(k => k.title).join(', ') || 'Kurumlar'} kurum olur
+              {marka.baglanacakDrop.length > 0
+                ? `; ${marka.baglanacakDrop.length} drop kendi kurumuna bağlanır, satan Kems Company kalır.`
+                : '.'} Arma, palet ve künye olduğu gibi kalır. Hiçbir şey silinmez.
+            </span>
+          </span>
+          <button
+            type="button"
+            onClick={markayiGocur}
+            disabled={markaIsi}
+            className="shrink-0 px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#1B2A4A] text-[#F3EFE8] hover:opacity-90 disabled:opacity-40 cursor-pointer"
+          >
+            {markaIsi ? 'Taşınıyor…' : 'Kuruma çevir'}
+          </button>
+        </div>
+      )}
+      {markaRaporu && (
+        <p className="mb-2.5 px-4 py-2 rounded-lg bg-[#F3EFE8] dark:bg-[#17345A] text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9]">
+          {markaRaporu}
+        </p>
+      )}
+
+      {/* Otel maddesi temizliği — 2008 düğmesinin izi */}
+      {onUpdateItem && otel.degisenler.length > 0 && (
+        <div className="mb-2.5 flex items-start gap-3 px-4 py-3 rounded-xl border border-[#D35057]/40 bg-[#FAF8F5] dark:bg-[#13204A]">
+          <span className="font-mono text-lg font-bold text-[#D35057] leading-none mt-0.5 shrink-0 tabular-nums">
+            {otel.degisenler.length}
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-[13px] font-semibold text-[#1B2A4A] dark:text-[#F3EFE8]">
+              kayıtta oyun verisi vikiye karışmış
+            </span>
+            <span className="block mt-0.5 text-[11px] text-[#9A8C76] dark:text-[#6E7CA0] leading-snug">
+              "Ekim 2008'e taşı" düğmesinden kalan iz.
+              {otel.bolumSayisi > 0 ? ` Otel maddesindeki ${otel.bolumSayisi} "Oyun:" bölümü vikiden çıkıp kaydın arşivine taşınır.` : ''}
+              {otel.tarihSayisi > 0 ? ` ${otel.tarihSayisi} kayıtta "Ekim 2008" eski hâline döner.` : ''}
+              {' '}Silme yok.
+            </span>
+          </span>
+          <button
+            type="button"
+            onClick={oteliTemizle}
+            disabled={otelIsi}
+            className="shrink-0 px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#1B2A4A] text-[#F3EFE8] hover:opacity-90 disabled:opacity-40 cursor-pointer"
+          >
+            {otelIsi ? 'Temizleniyor…' : 'Temizle'}
+          </button>
+        </div>
+      )}
+      {otelRaporu && (
+        <p className="mb-2.5 px-4 py-2 rounded-lg bg-[#F3EFE8] dark:bg-[#17345A] text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9]">
+          {otelRaporu}
+        </p>
+      )}
+
       {/* Tema katmanının kaldırılması — tek seferlik göç */}
       {onUpdateItem && tema.temalar.length > 0 && (
         <div className="mb-2.5 flex items-start gap-3 px-4 py-3 rounded-xl border border-[#D35057]/40 bg-[#FAF8F5] dark:bg-[#13204A]">
@@ -399,38 +503,6 @@ export const Eksikler: React.FC<EksiklerProps> = ({
       {temaRaporu && (
         <p className="mb-2.5 px-4 py-2 rounded-lg bg-[#F3EFE8] dark:bg-[#17345A] text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9]">
           {temaRaporu}
-        </p>
-      )}
-
-      {/* Dönem göçü: Ekim 2003 → Ekim 2008 */}
-      {onUpdateItem && donem.degisenler.length > 0 && (
-        <div className="mb-2.5 flex items-start gap-3 px-4 py-3 rounded-xl border border-[#D35057]/40 bg-[#FAF8F5] dark:bg-[#13204A]">
-          <span className="font-mono text-lg font-bold text-[#D35057] leading-none mt-0.5 shrink-0 tabular-nums">
-            {donem.degisenler.length}
-          </span>
-          <span className="min-w-0 flex-1">
-            <span className="block text-[13px] font-semibold text-[#1B2A4A] dark:text-[#F3EFE8]">
-              kayıt Ekim 2008'e taşınmayı bekliyor
-            </span>
-            <span className="block mt-0.5 text-[11px] text-[#9A8C76] dark:text-[#6E7CA0] leading-snug">
-              {donem.tarihSayisi} kayıtta "Ekim 2003" geçiyor; yalnız yıl değişir, gün adları aynı kalır.
-              {donem.bolumSayisi > 0 && ` Otel maddesine ${donem.bolumSayisi} oyun bölümü eklenir.`}
-              {' '}Hiçbir şey silinmez.
-            </span>
-          </span>
-          <button
-            type="button"
-            onClick={donemiTasi}
-            disabled={donemIsi}
-            className="shrink-0 px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#1B2A4A] text-[#F3EFE8] hover:opacity-90 disabled:opacity-40 cursor-pointer"
-          >
-            {donemIsi ? 'Taşınıyor…' : 'Ekim 2008\'e taşı'}
-          </button>
-        </div>
-      )}
-      {donemRaporu && (
-        <p className="mb-2.5 px-4 py-2 rounded-lg bg-[#F3EFE8] dark:bg-[#17345A] text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9]">
-          {donemRaporu}
         </p>
       )}
 

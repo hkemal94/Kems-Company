@@ -30,7 +30,7 @@ const WEEKDAYS = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cuma
 function getDayDate(chapterIndex: number): string {
   const baseDay = 5; // Start with Oct 5 for calculation (Day 1 = Oct 6)
   const calculatedDay = baseDay + chapterIndex;
-  return `${calculatedDay} Ekim 2008`;
+  return `${calculatedDay} Ekim 2003`;
 }
 
 function getDayName(chapterIndex: number): string {

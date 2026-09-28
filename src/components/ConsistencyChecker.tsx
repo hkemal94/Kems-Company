@@ -83,7 +83,7 @@ export default function ConsistencyChecker({
       const activeModuleItems = items.filter(i => {
         if (module === 'kisi') return i.type === 'kisi' || i.type === 'karakter';
         if (module === 'duzada') return i.type === 'mekân' || i.type === 'yer' || i.type === 'dükkân';
-        if (module === 'marka') return i.type === 'marka';
+        if (module === 'marka') return i.type === 'marka' || i.type === 'kulüp';
         if (module === 'merch') return i.type === 'ürün' || i.type === 'drop';
         if (module === 'kitap') return i.type === 'kitap_bolum';
         if (module === 'blog') return i.type === 'blog_post';

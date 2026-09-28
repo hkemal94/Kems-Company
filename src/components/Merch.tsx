@@ -5,6 +5,7 @@ import { compressImageBase64 } from '../lib/imageCompressor';
 import ConsistencyChecker from './ConsistencyChecker';
 import { DropKunyesi } from './DropKunyesi';
 import { SayfaRayi, type RayBolumu } from './SayfaRayi';
+import { markaYapisi, KURUM_ALANI } from '../lib/markaYapisi';
 
 /** Merch ekranının bölümleri — bunlar sekme, kaydırma değil */
 const RAY_BOLUMLERI: RayBolumu[] = [
@@ -47,6 +48,8 @@ export default function Merch({
   const [newVariantColor, setNewVariantColor] = useState('');
   const [newCategory, setNewCategory] = useState('giyim');
   const [createFormBrandId, setCreateFormBrandId] = useState('');
+  /** Drop'un evrendeki kurumu (isteğe bağlı) — bkz. markaYapisi.dropBaglari */
+  const [createFormKurumId, setCreateFormKurumId] = useState('');
 
   // Local State for active item inputs to prevent re-render cursor jumping
   const [localNotes, setLocalNotes] = useState('');
@@ -68,6 +71,7 @@ export default function Merch({
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState('');
   const [editBrandId, setEditBrandId] = useState('');
+  const [editKurumId, setEditKurumId] = useState('');
   const [editParentId, setEditParentId] = useState(''); // themeId for drops, dropId for products
   const [editNotes, setEditNotes] = useState('');
   const [editVariantColor, setEditVariantColor] = useState('');
@@ -80,6 +84,7 @@ export default function Merch({
     setActiveDetailTab('editor');
     setEditTitle(activeItem.title);
     setEditBrandId(activeItem.metadata?.brandId || '');
+    setEditKurumId((activeItem.metadata as any)?.[KURUM_ALANI] || '');
     setEditParentId(activeItem.type === 'drop' ? (activeItem.metadata?.themeId || '') : (activeItem.metadata?.dropId || ''));
     setEditNotes(activeItem.notes || '');
     setEditVariantColor(activeItem.metadata?.variantColor || '');
@@ -100,6 +105,9 @@ export default function Merch({
     };
     
     if (activeItem.type === 'drop') {
+      // Kurum bağı: seçilmediyse anahtar silinir (undefined yazılmaz)
+      if (editKurumId) (updatedMetadata as any)[KURUM_ALANI] = editKurumId;
+      else delete (updatedMetadata as any)[KURUM_ALANI];
       updatedMetadata.themeId = editParentId;
       const parentTheme = items.find(t => t.id === editParentId);
       if (parentTheme) {
@@ -155,17 +163,47 @@ export default function Merch({
   const [aiRecommendationsResult, setAiRecommendationsResult] = useState<Array<{ title: string; description: string; slogan: string; price: string }>>([]);
   const [selectedDropForAiRec, setSelectedDropForAiRec] = useState('');
 
-  // Brand list
-  const brands = useMemo(() => items.filter(b => b.type === 'marka' && !b.archived), [items]);
-  const [selectedBrandId, setSelectedBrandId] = useState<string>('all');
+  /*
+   * Marka yapısı (7. madde, adım 3).
+   *
+   * Satan tek marka var: Kems Company. Eskiden buradaki "Marka" süzgeci
+   * kulüpleri de marka sayıyordu. Artık:
+   *   - `brands`   → yalnız gerçek marka(lar). Drop'un brandId'si buradan.
+   *   - `kurumlar` → kurgu içi kurumlar. Drop'un kurumId'si buradan.
+   *   - Üstteki süzgeç kuruma göre: Tümü / Kurumsuz / her kurum.
+   * Ürün kurumunu kendi drop'undan alır.
+   */
+  const yapi = useMemo(() => markaYapisi(items), [items]);
+  const brands = useMemo(
+    () => [yapi.anaMarka, ...yapi.digerMarkalar].filter((b): b is Item => !!b),
+    [yapi]
+  );
+  const kurumlar = yapi.kurumlar;
+  const KURUMSUZ = '__kurumsuz';
+  const [seciliKurum, setSeciliKurum] = useState<string>('all');
+
+  /** Kaydın kurumu: drop'ta kendi alanı, üründe drop'unun alanı */
+  const kurumuNe = (i: Item): string => {
+    const m = i.metadata as any;
+    if (i.type === 'drop') return m?.[KURUM_ALANI] || '';
+    const drop = items.find(d => d.id === m?.dropId);
+    return (drop?.metadata as any)?.[KURUM_ALANI] || '';
+  };
+  const kurumaUyar = (i: Item) => {
+    if (seciliKurum === 'all') return true;
+    const k = kurumuNe(i);
+    return seciliKurum === KURUMSUZ ? !k : k === seciliKurum;
+  };
 
   React.useEffect(() => {
     if (showCreateForm) {
-      setCreateFormBrandId(selectedBrandId !== 'all' ? selectedBrandId : (brands[0]?.id || ''));
+      setCreateFormBrandId(brands[0]?.id || '');
+      setCreateFormKurumId(seciliKurum !== 'all' && seciliKurum !== KURUMSUZ ? seciliKurum : '');
     } else {
       setCreateFormBrandId('');
+      setCreateFormKurumId('');
     }
-  }, [showCreateForm, selectedBrandId, brands]);
+  }, [showCreateForm, seciliKurum, brands]);
 
   // Synchronize local edit states with currently selected active item
   React.useEffect(() => {
@@ -257,9 +295,8 @@ export default function Merch({
       }
     });
     const uniqueList = Array.from(uniqueMap.values());
-    if (selectedBrandId === 'all') return uniqueList;
-    return uniqueList.filter(d => d.metadata?.brandId === selectedBrandId);
-  }, [items, selectedBrandId]);
+    return uniqueList.filter(kurumaUyar);
+  }, [items, seciliKurum]);
 
   const archivedDrops = useMemo(() => {
     const rawDrops = items.filter(i => i.area === 'merch' && i.type === 'drop' && i.archived);
@@ -271,9 +308,8 @@ export default function Merch({
       }
     });
     const uniqueList = Array.from(uniqueMap.values());
-    if (selectedBrandId === 'all') return uniqueList;
-    return uniqueList.filter(d => d.metadata?.brandId === selectedBrandId);
-  }, [items, selectedBrandId]);
+    return uniqueList.filter(kurumaUyar);
+  }, [items, seciliKurum]);
 
   const products = useMemo(() => {
     const rawProducts = items.filter(i => i.area === 'merch' && i.type === 'merch_urun' && !i.archived);
@@ -288,9 +324,8 @@ export default function Merch({
         }
       };
     });
-    if (selectedBrandId === 'all') return mapped;
-    return mapped.filter(p => p.metadata?.brandId === selectedBrandId);
-  }, [items, dropIdMapping, selectedBrandId]);
+    return mapped.filter(kurumaUyar);
+  }, [items, dropIdMapping, seciliKurum]);
 
   const archivedProducts = useMemo(() => {
     const rawProducts = items.filter(i => i.area === 'merch' && i.type === 'merch_urun' && i.archived);
@@ -305,9 +340,8 @@ export default function Merch({
         }
       };
     });
-    if (selectedBrandId === 'all') return mapped;
-    return mapped.filter(p => p.metadata?.brandId === selectedBrandId);
-  }, [items, dropIdMapping, selectedBrandId]);
+    return mapped.filter(kurumaUyar);
+  }, [items, dropIdMapping, seciliKurum]);
 
   const activeItem = useMemo(() => {
     if (!activeItemId) return null;
@@ -373,7 +407,7 @@ export default function Merch({
     const parentDrop = showCreateForm === 'merch_urun' ? items.find(d => d.id === selectedParentId) : null;
     const resolvedBrandId = createFormBrandId
       || (showCreateForm === 'drop'
-        ? (selectedBrandId !== 'all' ? selectedBrandId : (brands[0]?.id || ''))
+        ? (brands[0]?.id || '')
         : (parentDrop?.metadata?.brandId || ''));
 
     const itemData: Omit<Item, 'id' | 'createdAt' | 'updatedAt' | 'userId'> = {
@@ -394,6 +428,8 @@ export default function Merch({
       archived: false,
       metadata: {
         brandId: resolvedBrandId,
+        // Kurum yalnız drop'ta tutulur; boşsa anahtar hiç yazılmaz (Firestore)
+        ...(showCreateForm === 'drop' && createFormKurumId ? { [KURUM_ALANI]: createFormKurumId } : {}),
         ...(showCreateForm === 'drop' ? {
           editionCount: 1,
           editionNotes: "1. Edisyon başlangıcı."
@@ -557,15 +593,17 @@ export default function Merch({
           />
           {/* Brand select filter (Rule 4) */}
           <div className="flex items-center bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] rounded-lg p-1.5 mr-1.5">
-            <span className="text-[9px] font-mono font-bold uppercase text-[#6A5E4C] dark:text-[#A6B0C9] px-2">Marka:</span>
+            <span className="text-[9px] font-mono font-bold uppercase text-[#6A5E4C] dark:text-[#A6B0C9] px-2">Kurum:</span>
             <select
-              value={selectedBrandId}
-              onChange={(e) => setSelectedBrandId(e.target.value)}
+              value={seciliKurum}
+              onChange={(e) => setSeciliKurum(e.target.value)}
               className="bg-transparent text-xs font-serif font-bold py-0.5 outline-hidden border-none text-[#1B2A4A] dark:text-[#F3EFE8] cursor-pointer"
+              title="Satan her zaman Kems Company. Burada ürünün evrende hangi kurumdan geldiğine göre süzülür."
             >
-              <option value="all" className="bg-[#F3EFE8] dark:bg-[#13204A] text-[#1B2A4A] dark:text-white">Tüm Markalar</option>
-              {brands.map(b => (
-                <option key={b.id} value={b.id} className="bg-[#F3EFE8] dark:bg-[#13204A] text-[#1B2A4A] dark:text-white">{b.title}</option>
+              <option value="all" className="bg-[#F3EFE8] dark:bg-[#13204A] text-[#1B2A4A] dark:text-white">Tümü</option>
+              <option value={KURUMSUZ} className="bg-[#F3EFE8] dark:bg-[#13204A] text-[#1B2A4A] dark:text-white">Kurumsuz ({brands[0]?.title || 'marka'})</option>
+              {kurumlar.map(k => (
+                <option key={k.id} value={k.id} className="bg-[#F3EFE8] dark:bg-[#13204A] text-[#1B2A4A] dark:text-white">{k.title}</option>
               ))}
             </select>
           </div>
@@ -1663,6 +1701,9 @@ export default function Merch({
             <div className="flex justify-between items-center bg-white/50 dark:bg-[#1E294B]/20 p-3.5 rounded-xl border border-[#CFC5B4]/30">
               <div className="text-xs font-mono text-[#6A5E4C] dark:text-[#A6B0C9]">
                 Bağlı Olduğu Marka: <span className="font-bold text-[#1B2A4A] dark:text-[#F3EFE8]">{brands.find(b => b.id === activeItem.metadata?.brandId)?.title || "Marka Seçilmemiş"}</span>
+                {kurumuNe(activeItem) && (
+                  <> · Kurum: <span className="font-bold text-[#1B2A4A] dark:text-[#F3EFE8]">{kurumlar.find(k => k.id === kurumuNe(activeItem))?.title || '—'}</span></>
+                )}
               </div>
               <button
                 onClick={() => {
@@ -1709,6 +1750,22 @@ export default function Merch({
                       ))}
                     </select>
                   </div>
+
+                  {activeItem.type === 'drop' && (
+                    <div>
+                      <label className="block text-xs font-mono text-[#6A5E4C] dark:text-[#A6B0C9] mb-1 font-bold">Kurum (evrende)</label>
+                      <select
+                        value={editKurumId}
+                        onChange={(e) => setEditKurumId(e.target.value)}
+                        className="w-full text-xs bg-[#F6F1E7] dark:bg-[#17345A] text-[#1B2A4A] dark:text-[#F3EFE8] border border-[#CFC5B4] rounded p-2"
+                      >
+                        <option value="">Kurumsuz — doğrudan marka</option>
+                        {kurumlar.map(k => (
+                          <option key={k.id} value={k.id}>{k.title}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
 
                   <div>
                     <label className="block text-xs font-mono text-[#6A5E4C] dark:text-[#A6B0C9] mb-1 font-bold">Öncelik *</label>
@@ -2342,6 +2399,27 @@ export default function Merch({
                 ))}
               </select>
             </div>
+
+            {showCreateForm === 'drop' && kurumlar.length > 0 && (
+              <div>
+                <label className="block text-xs font-mono text-[#6A5E4C] mb-1">
+                  Kurum (evrende) — isteğe bağlı
+                </label>
+                <select
+                  value={createFormKurumId}
+                  onChange={(e) => setCreateFormKurumId(e.target.value)}
+                  className="w-full text-xs bg-[#F6F1E7] text-[#1B2A4A] border border-[#CFC5B4] rounded p-2"
+                >
+                  <option value="">Kurumsuz — doğrudan marka</option>
+                  {kurumlar.map(k => (
+                    <option key={k.id} value={k.id}>{k.title}</option>
+                  ))}
+                </select>
+                <p className="mt-1 text-[10px] text-[#9A8C76] leading-snug">
+                  Satan yine marka. Kurum, serinin adada kimden çıktığı.
+                </p>
+              </div>
+            )}
 
             {showCreateForm === 'merch_urun' && (
               <>

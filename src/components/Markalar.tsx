@@ -28,6 +28,7 @@ import {
   MARKA_KUNYELERI, markayiBul, kunyeyiBirlestir, kunyedenYeni
 } from '../data/markaKunyeleri';
 import { SayfaRayi } from './SayfaRayi';
+import { markaYapisi, kurumMu, dropBaglari } from '../lib/markaYapisi';
 
 interface MarkalarProps {
   items: Item[];
@@ -141,10 +142,14 @@ export default function Markalar({
   // AI Recommendation loading
   const [aiGeneratingColors, setAiGeneratingColors] = useState(false);
 
-  // Compute Brands list
-  const brands = useMemo(() => {
-    return items.filter(i => i.type === 'marka' && !i.archived);
-  }, [items]);
+  /**
+   * Marka yapısı (7. madde). Kems Company tek marka; kulüpler kurgu içi
+   * kurum. Ekran ikisini ayrı listeliyor ama gezinme tek liste üzerinden
+   * yürüdüğü için `brands` ikisinin birleşimi kalıyor — aşağıdaki bütün
+   * bağlama, seçme ve künye mantığı olduğu gibi çalışsın diye.
+   */
+  const yapi = useMemo(() => markaYapisi(items), [items]);
+  const brands = yapi.hepsi;
 
   // If no selectedBrandId, default to first brand, or null
   const activeBrandId = selectedBrandId || (brands.length > 0 ? brands[0].id : null) || null;
@@ -344,10 +349,12 @@ export default function Markalar({
     alert(activeBrandId === 'unassigned' ? 'Yeni bağımsız varlık başarıyla oluşturuldu!' : 'Yeni varlık markaya bağlı olarak oluşturuldu!');
   };
 
-  // "Merch yap" — markanın kitiyle doğrudan bir DROP açar (tema yok)
+  // "Merch yap" — markanın kitiyle doğrudan bir DROP açar (tema yok).
+  // Kurum sayfasından açılırsa drop Kems Company'nin olur, kurum yalnızca
+  // "adada kimden çıktığı" olarak işaretlenir (bkz. markaYapisi.dropBaglari).
   const handleCreateBrandMerch = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newThemeTitle.trim() || !activeBrandId) return;
+    if (!newThemeTitle.trim() || !activeBrandId || !activeBrand) return;
 
     const itemData: Omit<Item, 'id' | 'createdAt' | 'updatedAt' | 'userId'> = {
       title: newThemeTitle,
@@ -362,7 +369,7 @@ export default function Markalar({
       isProposal: false,
       archived: false,
       metadata: {
-        brandId: activeBrandId,
+        ...dropBaglari(activeBrand, yapi),
         editionCount: 1,
         editionNotes: '1. Edisyon başlangıcı.'
       }
@@ -430,6 +437,39 @@ export default function Markalar({
     } finally {
       setAiGeneratingColors(false);
     }
+  };
+
+  /**
+   * Yan listedeki tek satır. Marka ve kurum aynı satırı kullanıyor; ayrım
+   * listenin başlığında, satırın kendisinde değil. Kurumun logosu yoksa
+   * kalkan yerine rozet simgesi çıkıyor.
+   */
+  const markaSatiri = (b: Item) => {
+    const isActive = b.id === activeBrandId;
+    const logo = b.metadata?.brandKit?.logoBase64 || b.metadata?.brandKit?.selectedLogo;
+    const hasLogo = !!(logo && (logo.startsWith('http') || logo.startsWith('data:')));
+    const kurum = kurumMu(b);
+    return (
+      <div
+        key={b.id}
+        onClick={() => setSelectedBrandId(b.id)}
+        className={`p-2.5 rounded-lg border cursor-pointer transition-all flex items-center justify-between ${isActive ? 'bg-[#E7EBE6] dark:bg-[#17345A] border-[#9DB0A4] dark:border-[#2C3C72] shadow-xs font-semibold' : 'bg-white dark:bg-[#112440] border-[#E3DCCF] dark:border-[#2C3C72]/30 hover:bg-stone-50'}`}
+      >
+        <div className="flex items-center gap-2 overflow-hidden">
+          {hasLogo ? (
+            <img src={logo} alt="" className="w-5 h-5 rounded object-cover border border-stone-200 shrink-0" referrerPolicy="no-referrer" />
+          ) : kurum ? (
+            <Users className="w-3.5 h-3.5 text-[#6A5E4C] dark:text-[#A6B0C9] shrink-0" />
+          ) : (
+            <Shield className="w-3.5 h-3.5 text-[#D35057] shrink-0" />
+          )}
+          <span className="text-xs text-[#1B2A4A] dark:text-[#F3EFE8] truncate">{b.title}</span>
+        </div>
+        {b.isProposal && (
+          <span className="text-[8px] bg-amber-100 text-amber-700 px-1 py-0.5 rounded font-mono shrink-0">Öneri</span>
+        )}
+      </div>
+    );
   };
 
   return (
@@ -513,43 +553,55 @@ export default function Markalar({
 
         {/* LEFT BAR: BRAND NAVIGATION */}
         <div className="lg:col-span-1 space-y-4">
+          {/*
+            7. madde · adım 1: tek liste yerine iki liste.
+            Üstte marka (Kems Company), altta kurgu içi kurumlar. Kurum
+            drop serisi açabilir; satan yine de her zaman marka.
+          */}
           <div className="bg-[#FAF8F5] dark:bg-[#13204A] border border-[#CFC5B4] dark:border-[#2C3C72] rounded-xl p-4 archive-shadow paper-grain space-y-3">
             <h3 className="text-[10px] font-mono uppercase text-[#6A5E4C] dark:text-[#A6B0C9] font-bold">
-              Markalar & Kimlikler ({brands.length})
+              Marka
             </h3>
 
-            <div className="space-y-1.5 max-h-[350px] overflow-y-auto pr-1">
-              {brands.map(b => {
-                const isActive = b.id === activeBrandId;
-                const logo = b.metadata?.brandKit?.logoBase64 || b.metadata?.brandKit?.selectedLogo;
-                const hasLogo = !!(logo && (logo.startsWith('http') || logo.startsWith('data:')));
-                return (
-                  <div
-                    key={b.id}
-                    onClick={() => setSelectedBrandId(b.id)}
-                    className={`p-2.5 rounded-lg border cursor-pointer transition-all flex items-center justify-between ${isActive ? 'bg-[#E7EBE6] dark:bg-[#17345A] border-[#9DB0A4] dark:border-[#2C3C72] shadow-xs font-semibold' : 'bg-white dark:bg-[#112440] border-[#E3DCCF] dark:border-[#2C3C72]/30 hover:bg-stone-50'}`}
-                  >
-                    <div className="flex items-center gap-2 overflow-hidden">
-                      {hasLogo ? (
-                        <img src={logo} alt="" className="w-5 h-5 rounded object-cover border border-stone-200 shrink-0" referrerPolicy="no-referrer" />
-                      ) : (
-                        <Shield className="w-3.5 h-3.5 text-[#D35057] shrink-0" />
-                      )}
-                      <span className="text-xs text-[#1B2A4A] dark:text-[#F3EFE8] truncate">{b.title}</span>
-                    </div>
-                    {b.isProposal && (
-                      <span className="text-[8px] bg-amber-100 text-amber-700 px-1 py-0.5 rounded font-mono shrink-0">Öneri</span>
-                    )}
-                  </div>
-                );
-              })}
+            <div className="space-y-1.5">
+              {yapi.anaMarka && markaSatiri(yapi.anaMarka)}
+              {yapi.digerMarkalar.map(markaSatiri)}
 
-              {brands.length === 0 && (
+              {!yapi.anaMarka && yapi.digerMarkalar.length === 0 && (
                 <div className="text-center py-6 text-[11px] text-stone-400 italic">
                   Henüz marka bulunmuyor.
                 </div>
               )}
             </div>
+
+            {yapi.digerMarkalar.length > 0 && (
+              <p className="text-[10px] text-[#9A8C76] dark:text-[#6E7CA0] leading-snug">
+                Karar gereği tek marka var: Kems Company. Buradaki fazladan
+                kayıt ya yeni bir marka ya da kurum olması gereken bir kulüp.
+              </p>
+            )}
+          </div>
+
+          <div className="bg-[#FAF8F5] dark:bg-[#13204A] border border-[#CFC5B4] dark:border-[#2C3C72] rounded-xl p-4 archive-shadow paper-grain space-y-3">
+            <h3 className="text-[10px] font-mono uppercase text-[#6A5E4C] dark:text-[#A6B0C9] font-bold">
+              Kurumlar · kurgu içi ({yapi.kurumlar.length})
+            </h3>
+
+            <div className="space-y-1.5 max-h-[280px] overflow-y-auto pr-1">
+              {yapi.kurumlar.map(markaSatiri)}
+
+              {yapi.kurumlar.length === 0 && (
+                <div className="text-center py-5 text-[11px] text-stone-400 italic leading-snug">
+                  Kurum kaydı yok.<br />Kulüpler henüz marka olarak duruyor.
+                </div>
+              )}
+            </div>
+
+            <p className="text-[10px] text-[#9A8C76] dark:text-[#6E7CA0] leading-snug">
+              Kulüpler adanın kurumları: kendi arması, rengi ve künyesi var,
+              altında drop serisi açılabilir. Ama gerçekte satan tek marka
+              Kems Company — kurumun serileri onun ürünü olarak kaydedilir.
+            </p>
           </div>
 
           {/* Bağımsız Varlıklar (Special Section) */}
@@ -579,7 +631,9 @@ export default function Markalar({
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] font-mono bg-[#1B2A4A] text-white px-2 py-0.5 rounded">
-                      {activeBrand.id === 'unassigned' ? 'BAĞIMSIZ SÜREÇ' : 'MARKA / KİMLİK'}
+                      {activeBrand.id === 'unassigned'
+                        ? 'BAĞIMSIZ SÜREÇ'
+                        : kurumMu(activeBrand) ? 'KURUM / KİMLİK' : 'MARKA / KİMLİK'}
                     </span>
                     {activeBrand.isProposal && (
                       <span className="text-[10px] font-mono bg-amber-500 text-white px-2 py-0.5 rounded animate-pulse">
@@ -610,10 +664,12 @@ export default function Markalar({
                     <button
                       onClick={() => setShowMerchForm(true)}
                       className="flex items-center gap-1 bg-emerald-600 hover:bg-emerald-700 text-white font-mono text-xs px-3.5 py-2 rounded-lg cursor-pointer shadow-xs"
-                      title="Bu markanın kitiyle yeni bir drop açın"
+                      title={kurumMu(activeBrand)
+                        ? `${activeBrand.title} serisi olarak yeni bir drop — ürün Kems Company'nin olur`
+                        : 'Bu markanın kitiyle yeni bir drop açın'}
                     >
                       <ShoppingBag className="w-3.5 h-3.5" />
-                      <span>Merch Yap</span>
+                      <span>{kurumMu(activeBrand) ? 'Seri Aç' : 'Merch Yap'}</span>
                     </button>
 
                     {isEditingBrand ? (
@@ -1782,10 +1838,19 @@ export default function Markalar({
               </button>
             </div>
 
-            <p className="text-xs text-stone-500 leading-relaxed font-mono">
-              Bu işlem, <strong>{activeBrand.title}</strong> markasının kurumsal logosunu, fontunu ve 
-              renk paletini kullanarak yeni bir drop başlatır. Zincir: marka → drop → ürün.
-            </p>
+            {kurumMu(activeBrand) ? (
+              <p className="text-xs text-stone-500 leading-relaxed font-mono">
+                Drop <strong>{activeBrand.title}</strong> serisi olarak açılır ve
+                kurumun arması, rengi, fontuyla çalışır. Satan ise{' '}
+                <strong>{yapi.anaMarka?.title ?? 'ana marka'}</strong>: ürün onun ürünü olarak
+                kaydedilir. Zincir: marka → kurum → drop → ürün.
+              </p>
+            ) : (
+              <p className="text-xs text-stone-500 leading-relaxed font-mono">
+                Bu işlem, <strong>{activeBrand.title}</strong> markasının kurumsal logosunu, fontunu ve
+                renk paletini kullanarak yeni bir drop başlatır. Zincir: marka → drop → ürün.
+              </p>
+            )}
 
             <form onSubmit={handleCreateBrandMerch} className="space-y-4 font-mono text-xs">
               <div className="space-y-1">

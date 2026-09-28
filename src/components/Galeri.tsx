@@ -84,11 +84,11 @@ export const Galeri: React.FC<GaleriProps> = ({
     [gorseller, suzgec]
   );
 
-  /** Görselin bağlanabileceği kayıtlar — marka, drop, ürün, mekân, kişi */
+  /** Görselin bağlanabileceği kayıtlar — marka, kurum, drop, ürün, mekân, kişi */
   const hedefler = useMemo(
     () => items.filter(
       i => !i.archived && !i.isProposal
-        && ['marka', 'drop', 'merch_urun', 'mekân', 'yer', 'kisi'].includes(i.type)
+        && ['marka', 'kulüp', 'drop', 'merch_urun', 'mekân', 'yer', 'kisi'].includes(i.type)
     ).sort((a, b) => a.title.localeCompare(b.title, 'tr')),
     [items]
   );

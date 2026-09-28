@@ -247,10 +247,12 @@ export function kunyedenYeni(
     id: kunye.id,
     title: kunye.ad,
     area: 'duzada',
-    type: 'marka',
+    // Marka yapısı (28 Eylül): kulüpler kurgu içi kurum. Kayıt yoksa
+    // doğrudan kurum olarak açılır; ana marka marka olarak.
+    type: kunye.tur === 'kulüp markası' ? 'kulüp' : 'marka',
     status: 'Çalışılıyor',
     priority: 'yüksek',
-    tags: ['marka'],
+    tags: kunye.tur === 'kulüp markası' ? ['marka', 'kurum'] : ['marka'],
     links: [],
     notes: kunye.neYapar,
     images: [],
@@ -275,7 +277,7 @@ export function markayiBul(items: Item[], kunye: MarkaKunyesi): Item | undefined
   return (
     items.find(i => kimlikler.has(i.id))
     || items.find(
-      i => i.type === 'marka'
+      i => (i.type === 'marka' || i.type === 'kulüp')
         && i.title.trim().toLocaleLowerCase('tr') === kunye.ad.toLocaleLowerCase('tr')
     )
   );

@@ -448,7 +448,7 @@ export default function Oyun({
         bookId: activeGame.id,
         chapterIndex: newDayIndex,
         bolum: 'Bölüm I',
-        date: 'Ekim 2008',
+        date: 'Ekim 2003',
         weather: 'Hafif Sisli',
         occupancy: 45,
         memoFrom: 'Resepsiyon Müdürü',
@@ -1217,7 +1217,7 @@ export default function Oyun({
               {/* VINTAGE DAY PARAMETERS SUMMARY CARD */}
               <div className="p-6 bg-[#FAF8F5] dark:bg-[#1a1a1a] rounded-xl border border-[#EAE6DF] dark:border-gray-800 font-serif space-y-4 shadow-sm relative overflow-hidden">
                 <div className="absolute top-4 right-4 text-[9px] font-mono border border-red-500/30 text-red-500/30 px-2 py-0.5 rounded rotate-12 select-none uppercase font-bold">
-                  THE IMPERIAL KEMSKØY • OCT 2008
+                  THE IMPERIAL KEMSKØY • OCT 2003
                 </div>
 
                 <div className="border-b-2 border-dashed border-gray-300 dark:border-gray-700 pb-3 text-center">
@@ -1243,7 +1243,7 @@ export default function Oyun({
                   <div className="space-y-2 p-4 bg-white dark:bg-black/20 border border-gray-100 dark:border-gray-800 rounded shadow-sm">
                     <div className="flex justify-between pb-1.5 border-b border-gray-100 dark:border-gray-800">
                       <span className="text-gray-500 font-bold text-[10px]">Tarih:</span>
-                      <span className="font-mono text-gray-700 dark:text-gray-300">{activeDay.metadata?.date || 'Ekim 2008'}</span>
+                      <span className="font-mono text-gray-700 dark:text-gray-300">{activeDay.metadata?.date || 'Ekim 2003'}</span>
                     </div>
                     <div className="flex justify-between pb-1.5 border-b border-gray-100 dark:border-gray-800">
                       <span className="text-gray-500 font-bold text-[10px]">Hava Durumu:</span>

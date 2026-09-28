@@ -1,6 +1,5 @@
 import { Item } from '../types';
 import { CHARACTERS_IMPORT_DATA } from './charactersImportData';
-import { OTEL_OYUN_BOLUMLERI } from '../lib/donem2008';
 
 export interface KemskoyItem extends Omit<Item, 'createdAt' | 'updatedAt' | 'userId'> {
   id: string;
@@ -56,7 +55,7 @@ export const KEMSKOY_HOTEL: KemskoyItem = {
     'kemskoy_companion_kerem',
     'kemskoy_companion_ingrid'
   ],
-  notes: 'Düzada\'da (Ege Denizi) yer alan, EST. 1954 kuruluş tarihli, neo-klasik üslupta inşa edilmiş prestijli otel. Ekim 2008 ("Sezon Sonu") döneminde geçen olayların merkezidir. Toplam 20 odası (kat 1-4 arasında, her katta x01-x05 olmak üzere 5 oda), lobi ve iç avlusu (avlu) mevcuttur. Tipler: 01-02 Standart, 03 Suite, 04-05 Deluxe. 203 (klima arızası) ve 304 (boya tadilatı) odaları başlangıçta bakımdadır.',
+  notes: 'Düzada\'da (Ege Denizi) yer alan, EST. 1954 kuruluş tarihli, neo-klasik üslupta inşa edilmiş prestijli otel. Ekim 2003 ("Sezon Sonu") döneminde geçen olayların merkezidir. Toplam 20 odası (kat 1-4 arasında, her katta x01-x05 olmak üzere 5 oda), lobi ve iç avlusu (avlu) mevcuttur. Tipler: 01-02 Standart, 03 Suite, 04-05 Deluxe. 203 (klima arızası) ve 304 (boya tadilatı) odaları başlangıçta bakımdadır.',
   images: ['https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=512&auto=format&fit=crop'],
   archived: false,
   isProposal: true,
@@ -65,8 +64,7 @@ export const KEMSKOY_HOTEL: KemskoyItem = {
     haritaKonum: { x: 20, y: 78 },
     wikiSections: [
       { id: '1', title: 'Mimari ve Tarihçe', content: '1954 yılında (EST. 1954) Düzada Eski Liman / Kemskoy bölgesinde inşa edilmiş neo-klasik otel. Liman ve Peron restoran ile bağlantılıdır.', status: 'öneri' },
-      { id: '2', title: 'Oda Yapısı', content: 'Katlar 1-4, her katta 5 oda (x01-x05). 01-02 Standart, 03 Suite, 04-05 Deluxe. 203 numaralı oda klima arızası, 304 numaralı oda boya tadilatı sebebiyle bakım altındadır.', status: 'öneri' },
-      ...OTEL_OYUN_BOLUMLERI
+      { id: '2', title: 'Oda Yapısı', content: 'Katlar 1-4, her katta 5 oda (x01-x05). 01-02 Standart, 03 Suite, 04-05 Deluxe. 203 numaralı oda klima arızası, 304 numaralı oda boya tadilatı sebebiyle bakım altındadır.', status: 'öneri' }
     ]
   }
 };
@@ -80,13 +78,13 @@ export const KEMSKOY_GAME_PROJECT: KemskoyItem = {
   priority: 'yüksek',
   tags: ['oyun-tasarimi', 'kemskoy', 'duzada-kanon', 'öneri'],
   links: ['kemskoy_hotel'],
-  notes: 'Düzada kanonuna dayalı, Ekim 2008 "Sezon Sonu" döneminde geçen otel resepsiyon yönetim ve gizem oyunu projesi. Kuralları, karakterleri, mekanı ve adanın atmosferini (Liman 54, Peron) işler.',
+  notes: 'Düzada kanonuna dayalı, Ekim 2003 "Sezon Sonu" döneminde geçen otel resepsiyon yönetim ve gizem oyunu projesi. Kuralları, karakterleri, mekanı ve adanın atmosferini (Liman 54, Peron) işler.',
   images: [],
   archived: false,
   isProposal: true,
   metadata: {
     wikiSections: [
-      { id: 'lore_seed', title: 'Düzada Lore Tohumu', content: 'Yer: Düzada (Ege\'de hayali ada). Tarih: Ekim 2008, "Sezon Sonu" dönemi. Kuruluş: EST. 1954. Önemli konumlar: Liman 54 (kapanış etkinliği), Peron (yerel restoran). Bölüm I: Hafta 1 (Sezon Sonu, ipuçlu resepsiyonist rehberi ile). Bölüm II: Hafta 2 (Ölü Sezon, ipuçsuz ve kış kapıda, "yakında").', status: 'öneri' }
+      { id: 'lore_seed', title: 'Düzada Lore Tohumu', content: 'Yer: Düzada (Ege\'de hayali ada). Tarih: Ekim 2003, "Sezon Sonu" dönemi. Kuruluş: EST. 1954. Önemli konumlar: Liman 54 (kapanış etkinliği), Peron (yerel restoran). Bölüm I: Hafta 1 (Sezon Sonu, ipuçlu resepsiyonist rehberi ile). Bölüm II: Hafta 2 (Ölü Sezon, ipuçsuz ve kış kapıda, "yakında").', status: 'öneri' }
     ]
   }
 };
@@ -1125,7 +1123,7 @@ export const KEMSKOY_DAYS: KemskoyItem[] = [
       bookId: 'kemskoy_game_project',
       bolum: 'Bölüm I: Sezon Sonu',
       chapterIndex: 1,
-      date: 'Pazartesi · 6 Ekim 2008',
+      date: 'Pazartesi · 6 Ekim 2003',
       weather: '💨 Fırtınalı (Lodos)',
       occupancy: 65,
       memoFrom: 'Cemal Salda',
@@ -1201,7 +1199,7 @@ export const KEMSKOY_DAYS: KemskoyItem[] = [
       bookId: 'kemskoy_game_project',
       bolum: 'Bölüm I: Sezon Sonu',
       chapterIndex: 2,
-      date: 'Salı · 7 Ekim 2008',
+      date: 'Salı · 7 Ekim 2003',
       weather: '🌧️ Sağanak Yağışlı',
       occupancy: 70,
       memoFrom: 'Cemal Salda',
@@ -1274,7 +1272,7 @@ export const KEMSKOY_DAYS: KemskoyItem[] = [
       bookId: 'kemskoy_game_project',
       bolum: 'Bölüm I: Sezon Sonu',
       chapterIndex: 3,
-      date: 'Çarşamba · 8 Ekim 2008',
+      date: 'Çarşamba · 8 Ekim 2003',
       weather: '🌤️ Parçalı Bulutlu',
       occupancy: 55,
       memoFrom: 'Cemal Salda',
@@ -1347,7 +1345,7 @@ export const KEMSKOY_DAYS: KemskoyItem[] = [
       bookId: 'kemskoy_game_project',
       bolum: 'Bölüm I: Sezon Sonu',
       chapterIndex: 4,
-      date: 'Perşembe · 9 Ekim 2008',
+      date: 'Perşembe · 9 Ekim 2003',
       weather: '💨 Fırtınalı (Lodos)',
       occupancy: 50,
       memoFrom: 'Cemal Salda',
@@ -1420,7 +1418,7 @@ export const KEMSKOY_DAYS: KemskoyItem[] = [
       bookId: 'kemskoy_game_project',
       bolum: 'Bölüm I: Sezon Sonu',
       chapterIndex: 5,
-      date: 'Cuma · 10 Ekim 2008',
+      date: 'Cuma · 10 Ekim 2003',
       weather: '🌧️ Sağanak Yağışlı',
       occupancy: 80,
       memoFrom: 'Cemal Salda',
@@ -1493,7 +1491,7 @@ export const KEMSKOY_DAYS: KemskoyItem[] = [
       bookId: 'kemskoy_game_project',
       bolum: 'Bölüm I: Sezon Sonu',
       chapterIndex: 6,
-      date: 'Cumartesi · 11 Ekim 2008',
+      date: 'Cumartesi · 11 Ekim 2003',
       weather: '☁️ Çok Bulutlu',
       occupancy: 85,
       text: 'Resepsiyonda en yoğun saatler. Misafir sirkülasyonu zirve yapıyor.',
@@ -1565,7 +1563,7 @@ export const KEMSKOY_DAYS: KemskoyItem[] = [
       bookId: 'kemskoy_game_project',
       bolum: 'Bölüm I: Sezon Sonu',
       chapterIndex: 7,
-      date: 'Pazar · 12 Ekim 2008',
+      date: 'Pazar · 12 Ekim 2003',
       weather: '🌤️ Parçalı Bulutlu',
       occupancy: 60,
       memoFrom: 'Cemal Salda',
@@ -1641,7 +1639,7 @@ export const KEMSKOY_DAYS: KemskoyItem[] = [
       bookId: 'kemskoy_game_project',
       bolum: 'Bölüm II: Ölü Sezon',
       chapterIndex: 8,
-      date: 'Pazartesi · 13 Ekim 2008',
+      date: 'Pazartesi · 13 Ekim 2003',
       weather: '💨 Fırtınalı (Karayel)',
       occupancy: 40,
       memoFrom: 'Cemal Salda',
@@ -1714,7 +1712,7 @@ export const KEMSKOY_DAYS: KemskoyItem[] = [
       bookId: 'kemskoy_game_project',
       bolum: 'Bölüm II: Ölü Sezon',
       chapterIndex: 9,
-      date: 'Salı · 14 Ekim 2008',
+      date: 'Salı · 14 Ekim 2003',
       weather: '🌧️ Sürekli Yağmurlu',
       occupancy: 35,
       memoFrom: 'Cemal Salda',
@@ -1786,7 +1784,7 @@ export const KEMSKOY_DAYS: KemskoyItem[] = [
       bookId: 'kemskoy_game_project',
       bolum: 'Bölüm II: Ölü Sezon',
       chapterIndex: 10,
-      date: 'Çarşamba · 15 Ekim 2008',
+      date: 'Çarşamba · 15 Ekim 2003',
       weather: '☁️ Yoğun Sisli',
       occupancy: 30,
       memoFrom: 'Cemal Salda',
@@ -1857,7 +1855,7 @@ export const KEMSKOY_DAYS: KemskoyItem[] = [
       bookId: 'kemskoy_game_project',
       bolum: 'Bölüm II: Ölü Sezon',
       chapterIndex: 11,
-      date: 'Perşembe · 16 Ekim 2008',
+      date: 'Perşembe · 16 Ekim 2003',
       weather: '❄️ Soğuk / Açık',
       occupancy: 25,
       memoFrom: 'Cemal Salda',
@@ -1932,7 +1930,7 @@ export const KEMSKOY_DAYS: KemskoyItem[] = [
       bookId: 'kemskoy_game_project',
       bolum: 'Bölüm II: Ölü Sezon',
       chapterIndex: 12,
-      date: 'Cuma · 17 Ekim 2008',
+      date: 'Cuma · 17 Ekim 2003',
       weather: '💨 Fırtınalı (Lodos)',
       occupancy: 45,
       memoFrom: 'Cemal Salda',
@@ -2007,7 +2005,7 @@ export const KEMSKOY_DAYS: KemskoyItem[] = [
       bookId: 'kemskoy_game_project',
       bolum: 'Bölüm II: Ölü Sezon',
       chapterIndex: 13,
-      date: 'Cumartesi · 18 Ekim 2008',
+      date: 'Cumartesi · 18 Ekim 2003',
       weather: '🌧️ Gök Gürültülü Sağanak',
       occupancy: 50,
       memoFrom: 'Cemal Salda',
@@ -2078,7 +2076,7 @@ export const KEMSKOY_DAYS: KemskoyItem[] = [
       bookId: 'kemskoy_game_project',
       bolum: 'Bölüm II: Ölü Sezon',
       chapterIndex: 14,
-      date: 'Pazar · 19 Ekim 2008',
+      date: 'Pazar · 19 Ekim 2003',
       weather: '🌤️ Sakin / Bulutlu',
       occupancy: 20,
       memoFrom: 'Cemal Salda',
