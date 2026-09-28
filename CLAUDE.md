@@ -1,0 +1,123 @@
+# CLAUDE.md — Kems Komuta Merkezi (KKM)
+
+Bu depoda çalışan her yapay zekâ oturumu önce bu dosyayı, sonra `docs/`
+klasöründeki dört belgeyi okur:
+
+| Belge | Ne anlatır |
+|---|---|
+| `docs/01-calisma-kurallari.md` | Nasıl çalışılır — en önemlisi |
+| `docs/02-marka-kiti.md` | Kems Company: renk, font, ton, marka yapısı |
+| `docs/03-duzada-kunyesi.md` | Evrenin kanonu: ada, mahalleler, konmuş adlar |
+| `docs/04-durum.md` | Şu an neredeyiz, ne bitti, ne açık |
+
+Belgeler Kemal'in Claude projesindeki belgelerin kopyası. Çelişki olursa
+Kemal'e sor; kendin seçme.
+
+## Bu uygulama ne
+
+Kemal'in kişisel "ikinci beyni": Düzada adlı kurgusal Ege adası evreninin
+(kitap, merch, marka, harita) yönetildiği tek kullanıcılı bir panel.
+Kimse dışarıdan kullanmıyor, bağlantı gizli.
+
+**Kemal'in kodlama deneyimi yok.** Açıklamalar Türkçe, sade ve teknik
+terimsiz olur. Kodu değil, **ekranda ne değiştiğini** anlat.
+
+## Teknik
+
+- React 19 · TypeScript 5.8 · Vite 6 · Tailwind CSS 4 · Firebase/Firestore 12
+  · MapLibre GL 6 · @google/genai · lucide-react
+- `npm run dev` → `tsx server.ts` (Express; `/api/ai` Gemini'ye buradan gider)
+- `npm run lint` → `tsc --noEmit` · `npm run build` → vite + server paketi
+- **GitHub deposu tek doğru kaynak.** AI Studio yalnızca önizleme penceresi.
+- Tasarım jetonları `src/index.css` içindeki `@theme` bloğunda. Bütün font
+  rolleri (sans, serif, mono, blok…) Poppins; rol adları bilerek duruyor.
+  Tek satır değişince ~1000 yer değişir — jetona dokunmadan önce sor.
+- Arayüz renkleri: lacivert `#1B2A4A` (arayüzün laciverti — markanınki
+  değil), krem `#F3EFE8`, kâğıt `#FAF8F5`.
+
+## Kesin kurallar
+
+**Veri**
+- **Hiçbir kayıt silinmez, arşive kalkar** (`archived: true`). Kişi
+  silinmez; otelden çıkan kişi "ada sakini" olur (`src/lib/adaSakini.ts`).
+- **Firestore:** iç içe dizi yasak. Bir alana `undefined` yazmak bütün
+  kaydı reddettirir — alanı silmek için anahtarı nesneden çıkar.
+  (`src/lib/firebase.ts` ayrıca temizliyor ama buna güvenme.)
+- **Veri göçleri tek seferliktir ve düğmeyle çalışır.** Kalıp:
+  `src/lib/` altında yazılacak kayıtları üreten saf bir fonksiyon + Neyin
+  Eksik panelinde (`src/components/Eksikler.tsx`) yalnızca iş varken
+  görünen bir kart. İkinci basışta hiçbir şey yapmamalı. Örnekler:
+  `temaKaldirma.ts`, `markaYapisi.ts`, `otelTemizligi.ts`.
+
+**Yazı ve ad**
+- **Kurgu metni yazma.** Künye, mekân hikâyesi, slogan, drop anlatısı
+  Kemal'in işi. Boş alan boş kalır, boş olduğu görünür.
+- **Ad koyma.** Mekân, sokak, zirve, ürün, drop adları Kemal'in. Aday
+  önerebilirsin, karar onun. Numaralı adlar ("İskele 3. Sokak") geçicidir.
+- **Uydurma sayı yok.** Takipçi, erişim, fiyat: veri yoksa alan boş.
+- Yazım her yerde **Kemsköy** (Türkçe ö). Norveç ø'sü yok.
+- Kod içindeki değişken adları ve yorumlar Türkçe.
+
+**Kanon**
+- Vikinin bir "şimdi"si yoktur. "Hâlâ", "şu anda", "günümüzde" yazılmaz;
+  tarihler aralık olarak yazılır ("Faaliyette: 1954–").
+- **Oyun verisi vikiye girmez.** Oyun ayrı bir depoda:
+  `hkemal94/TheImperialKemskoy`. **Bu depodan oraya, oradan buraya
+  yazılmaz.** Buradaki eski otel simülasyonu (`#simulasyon` ile açılan
+  gizli prototip, `kemskoyData.ts`) oyunun kaynağı değildir.
+- Otel departmanlarına (Resepsiyon, Kat Hizmetleri, Güvenlik) ad uydurulmaz.
+
+**Marka**
+- **Kems Company tek markadır.** Dirlik Spor Kulübü ve Küçükçetmi Sürek
+  Kulübü kurgu içi **kurum**dur (`type: 'kulüp'`).
+- Drop iki bağ taşır: `brandId` = satan (her zaman Kems Company),
+  `kurumId` = evrende kimden çıktığı (isteğe bağlı). Kurum altında seri
+  açılır, ürün yine Kems Company'nin. Ayrım `src/lib/markaYapisi.ts`'de.
+- Ürün hayat çizgisi: Konsept → Tasarım → Üretim → Satışta.
+
+**Kod**
+- React kancaları (`useState`, `useMemo`…) her zaman erken `return`'den
+  **önce** gelir. `Eksikler.tsx`'te tersi vardı, veri yüklenince hata
+  veriyordu; 28 Eylül'de düzeltildi.
+- Her iş sonunda `npm run lint` ve `vite build` temiz geçmeli.
+
+## Çalışma şekli
+
+1. **Önce dinle.** Kemal bütün isteklerini ve itirazlarını sıralamayı
+   sever. Yarısını duyup başlama; "başka var mı?" diye sor.
+2. **Önce öner, onay gelince yap.** Kapsamı büyük ya da belgelerle çelişen
+   bir işte başlamadan planı kısaca göster.
+3. **Tek seferde tek adım.** Bir adım bitince dur, ekranda ne değiştiğini
+   anlat, Kemal onaylamadan sonrakine geçme.
+4. İşler kodlu paketlerle anılır: **H** harita, **W** viki, **M** marka,
+   **K** küçük işler. Gecede en fazla üç paket.
+5. **Her değişiklik ayrı dalda ve PR ile.** Ana dala kendin birleştirme;
+   Kemal birleştirir. PR açıklaması Türkçe ve şunları söyler:
+   - ekranda ne değişti,
+   - basılması gereken tek seferlik düğme var mı, nerede,
+   - Kemal'in elle yapması gereken bir şey var mı.
+6. **Yapılmayan iş yapıldı diye sunulmaz.** Bir şey çalışmıyorsa, test
+   edilemediyse ya da tahmine dayanıyorsa açıkça söyle.
+7. **Görsel iş görsel gösterilir.** Tasarım değişikliğinde ekran görüntüsü
+   al; anlatmakla yetinme.
+8. Bir karar değişirse `docs/04-durum.md` de güncellenir.
+
+## Kapsam
+
+**Bu deponun işi:** Komuta Merkezi'nin bütün ekranları, ve ileride
+**site / ön yüz** ile **sosyal medya stüdyosu**. İkisi de bu depoda,
+KKM'nin parçası olarak yapılacak.
+
+Site ve sosyal medya henüz tasarlanmadı; Kemal ikisini de yeniden
+düşünüyor. Onun isteklerini duymadan bunlara başlama, kendi başına
+iskelet de kurma.
+
+**Bu deponun işi DEĞİL:** oyun. Ayrı depo, ayrı oturum.
+
+## Açık işler (28 Eylül itibarıyla)
+
+`docs/04-durum.md`'nin "Otel maddesi temizliği" bölümünde, vikide eski
+simülasyondan kalma yazılar listeli (Düzada maddesinde "Ekim 2003"
+paragrafı, otelde Liman 54 / Peron, "Oda Yapısı", odalarda "Deluxe" ve
+"bakımda" durumu). **Bunlar Kemal'in yazısı; kendin düzeltme,** hangisinin
+ne olacağını ona sor.
