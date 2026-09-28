@@ -77,6 +77,17 @@ export default function Oyun({
     return items.filter(i => (i.type === 'yer' || i.type === 'mekân' || i.type === 'dükkân') && !i.archived);
   }, [items]);
 
+  // Tohumlama "var mı" diye bakarken arşivi de sayar: viki arşive kalkınca
+  // (W1) prototip kişi ve odaları yeniden yaratmasın, arşivdekinin üstüne
+  // de yazmasın.
+  const arsivDahilKisiler = useMemo(() => {
+    return items.filter(i => i.type === 'kisi' || i.type === 'karakter');
+  }, [items]);
+
+  const arsivDahilOdalar = useMemo(() => {
+    return items.filter(i => i.type === 'oda' || i.type === 'yer' || i.type === 'mekân' || i.type === 'dükkân');
+  }, [items]);
+
   const allMechanics = useMemo(() => {
     // Merge hardcoded KEMSKOY_MECHANICS to ensure we always have descriptions, or use db
     return KEMSKOY_MECHANICS;
@@ -179,7 +190,7 @@ export default function Oyun({
           const personIdMap: Record<string, string> = {};
           for (const person of KEMSKOY_PEOPLE) {
             const titleLower = person.title.toLowerCase();
-            const existingPerson = allCharacters.find(c => c.title.toLowerCase() === titleLower);
+            const existingPerson = arsivDahilKisiler.find(c => c.title.toLowerCase() === titleLower || c.id === 'kemskoy_p_' + person.id);
             if (!existingPerson) {
               const newId = 'kemskoy_p_' + person.id;
               await onAddItem({
@@ -204,7 +215,7 @@ export default function Oyun({
           const roomIdMap: Record<string, string> = {};
           for (const rm of roomsToCreate) {
             const title = `Oda ${rm.num}`;
-            const existingRoom = allPlaces.find(p => p.title === title);
+            const existingRoom = arsivDahilOdalar.find(p => p.title === title || p.id === 'kemskoy_room_' + rm.num);
             if (!existingRoom) {
               const newId = 'kemskoy_room_' + rm.num;
               await onAddItem({
@@ -313,7 +324,7 @@ export default function Oyun({
       const personIdMap: Record<string, string> = {};
       for (const person of KEMSKOY_PEOPLE) {
         const titleLower = person.title.toLowerCase();
-        const existingPerson = allCharacters.find(c => c.title.toLowerCase() === titleLower);
+        const existingPerson = arsivDahilKisiler.find(c => c.title.toLowerCase() === titleLower || c.id === 'kemskoy_p_' + person.id);
         if (!existingPerson) {
           const newId = 'kemskoy_p_' + person.id;
           await onAddItem({
@@ -342,7 +353,7 @@ export default function Oyun({
       const roomIdMap: Record<string, string> = {};
       for (const room of roomsToCreate) {
         const title = `Oda ${room.num}`;
-        const existingRoom = allPlaces.find(p => p.title === title);
+        const existingRoom = arsivDahilOdalar.find(p => p.title === title || p.id === 'kemskoy_room_' + room.num);
         if (!existingRoom) {
           const newId = 'kemskoy_room_' + room.num;
           await onAddItem({

@@ -1,6 +1,6 @@
 # Durum
 
-**Son güncelleme: 28 Eylül 2026 (belgeler depoya girdi, bekleyen kontroller kapandı)**
+**Son güncelleme: 28 Eylül 2026 (W1: viki baştan kuruluyor)**
 
 Bu belge sık değişir. Brief "bu proje nedir"i anlatır ve aylarca durur;
 burası "şu an neredeyiz"i söyler. Kısa tutulur.
@@ -63,6 +63,24 @@ Sıradan çıkanlar:
 8. **Sosyal medya stüdyosu** — Kemal yeniden düşünecek. Site / ön yüz
    ile birlikte **KKM'nin içinde** yapılacak (ayrı depo değil); ikisi de
    Kemal'in istekleri gelince başlar.
+
+## Viki baştan kuruluyor (28 Eylül, W1)
+
+Kemal'in kararları (tıklamalı soru-cevapla):
+- Mevcut viki kayıtları **arşive** kalkar (silinmez). Kişiler, 20 otel
+  odası, mekânlar ve konmuş adlı kayıtlar dahil.
+- Ada ölçüleri, beş mahalle ve konmuş adlar **kanonda** (docs/03) kalır.
+- Kems Company ve iki kurum kaydı yerinde kalır (droplar bağlı).
+- Sıra: Viki → Harita; site paralel ama yalnızca konuşarak, kod yok.
+- Viki soru-cevapla yeniden kurulacak: panelde küçük bir ekran, soru
+  çıkar, Kemal cevaplar, cevap kayda girer. Planı W1'den sonra.
+
+Neyin Eksik'te "viki baştan kuruluyor" kartı → **Arşive kaldır**. Arşive
+kalkan her kayıtta `viki-sifirlama-2026-09` etiketi var (toplu geri
+getirmek gerekirse). Basılması Kemal'de.
+
+Harita şikâyeti (W1'den sonra): yollar dümdüz, arazi yapay, binalar kutu,
+genel his harita gibi değil. Ekran görüntüsü bekleniyor.
 
 ## Otel maddesi temizliği (28 Eylül)
 
