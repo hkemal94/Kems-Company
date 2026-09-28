@@ -75,8 +75,8 @@ Aralıklar kanon; kesin yıl yoksa uydurulmaz. Ayrıntı `docs/soru-cevap/w3.md`
 
 ## Ada hayatı (28 Eylül 2026, soru-cevap W3)
 
-- **Ulaşım** — her gün feribot, Küçükkuyu'ya; fırtınada iptal. Feribot araç
-  da taşır, adada araba serbest. Sahil Yolu eski patikaların parça parça
+- **Ulaşım** — her gün feribot, Küçükkuyu'ya; fırtınada iptal. Feribot yalnız
+  adalıların aracını alır (W3 36. tur). Sahil Yolu eski patikaların parça parça
   birleşmesiyle oluştu. Su anakaradan boru hattıyla gelir.
 - **Mevsim** — yazın kalabalıklaşır; kışın ada sessizleşir. Otel yıl boyu
   açık (kışın az misafir, az personel).

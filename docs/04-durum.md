@@ -193,6 +193,13 @@ aktarılmayı bekliyor" kartı (`src/lib/w3Aktarimi.ts`): künyelere tarih
 aralıkları, fenere "Faaliyette: 19. yüzyıl–", Merkez'e çarşı satırı, ada
 maddesinde feribot Küçükkuyu ve eski paragraf eski metne.
 
+**W4 aktarım düğmesi (29 Eylül):** W3 bitince Neyin Eksik'te "ada hayatı
+bilgileri (W4) vikiye aktarılmayı bekliyor" kartı çıkar
+(`src/lib/w4Aktarimi.ts`). Kanondaki "Ada hayatı" 1–4 bölümlerinden: 11
+maddenin künyesine satırlar; ada maddesine "Ada hayatı", Liman / Merkez /
+Çiftlik maddelerine "Gündelik hayat" bölümü; iki kulübün künyesi. Yalnız
+ekleme, ikinci basış bir şey yapmaz. Kemal basacak.
+
 **Konut kararı (Kemal, 28 Eylül):** Mahallelerdeki binalar çoğunlukla
 müstakil ev olacak. Apartman / çok katlı blok az; yoksa nüfus istenmeyen
 seviyeye çıkar. Sokak dokusu sıklaşsa da adalar bahçeli müstakil evlerle
