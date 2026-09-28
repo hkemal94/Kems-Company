@@ -39,6 +39,19 @@ sakinler oturuyor. Adanın eğlence mekânları ve ilk oteli burada.
 
 **Çiftlik Mahallesi** — Küçükçetmi Sürek Kulübü.
 
+## Tarihçe iskeleti (28 Eylül 2026, soru-cevap W3)
+
+Aralıklar kanon; kesin yıl yoksa uydurulmaz. Ayrıntı `docs/soru-cevap/w3.md`.
+
+- **Merkez / Düzada Köyü** — antik kökenli; Ada Tepesi'nde kalıntı var.
+- **Kemsköy** — otelden (1954) önce köyün iskelesi ve birkaç balıkçı evi.
+- **The Imperial Kemsköy** — 1954.
+- **Deniz Feneri** — otelden önce; kesin yıl yok.
+- **Dirlik Spor Kulübü** — 1950–1970'ler; önce toprak saha, stat sonra.
+- **Küçükçetmi Sürek Kulübü** — sürek avı köyde eski gelenek; kulüp sonra.
+- **Liman Mahallesi** — 1980–1990'lar; feribot İskele'den yeni limana
+  taşındı, İskele otel, eğlence ve küçük teknelerin yeri olarak kaldı.
+
 ## The Imperial Kemsköy
 
 Bütün projenin başlangıç noktası. Haydarpaşa Gar binasının küçüğü gibi
