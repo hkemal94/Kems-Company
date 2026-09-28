@@ -7,7 +7,11 @@ bilgi uydurulmaz.
 ## Ada
 
 Ege Denizi'nde, zeytin ağaçlarıyla çevrili kurgusal bir ada. Kurgusal ama
-gerçek enlem-boylam kullanıyor: 39,005° K · 25,805° D civarı, açık suda.
+gerçek enlem-boylam kullanıyor: **39,60° K · 25,85° D** civarı —
+Bozcaada'nın güneybatısı, Babakale'nin batısı, Türk suları; Küçükkuyu
+yaklaşık 65 km doğuda (Kemal, 28 Eylül: W3 52. tur). Eski değer 39,005° K ·
+25,805° D Midilli'nin batısına, Yunan sularına düşüyordu. **Harita henüz
+eski koordinatta** — taşınması ayrı iş (H).
 
 | Ölçü | Değer |
 |---|---|
@@ -97,7 +101,7 @@ Aralıklar kanon; kesin yıl yoksa uydurulmaz. Ayrıntı `docs/soru-cevap/w3.md`
   hayvancılık yok; evlerde tavuk, eşek, birkaç keçi.
 - **Şenlikler** — zeytin hasadı, bağ bozumu, deniz şenliği, sürek geleneği
   (irili ufaklı).
-- **Dirlik** — profesyonel alt lige birkaç kez inip çıktı.
+- **Dirlik** — ~~profesyonel alt lige birkaç kez inip çıktı~~ (W3 52. turda kalktı: kulüp hep amatör).
 - **Mekânlar** — Sade Meze: fabrika kapandıktan sonra bir süre boş kaldı,
   1980–1990'larda meyhane oldu. Dondurmacı Kızlar: 2000 sonrası.
 - **Kems Company** — Kemsköy Caddesi'nde bir dükkânı var (adı, yeri sonra);
@@ -112,8 +116,9 @@ Aralıklar kanon; kesin yıl yoksa uydurulmaz. Ayrıntı `docs/soru-cevap/w3.md`
   ayrı küçük bir cep.
 - **Elektrik** — 1950–1960'lar: önce otelin jeneratörü, köy hemen ardından.
 - **Eski kilise** — 18. yüzyıl, İskele'de, boş.
-- **Dirlik** — profesyonel alt ligde 1990'lar ve 2000'lerde; yakın dönemde
-  bölgesel amatör ligden profesyonel lige çıkmak için iddialı. Stat iki
+- **Dirlik** — hep amatör (W3 52. tur: "profesyonel alt lig" geçmişi
+  kalktı); yakın dönemde bölgesel amatör ligden profesyonel lige (3. Lig)
+  çıkmak için iddialı. Stat iki
   tribünlü. İç saha maçlarında ada stada taşınır, deplasmanda Merkez
   kahvehanesinde izlenir.
 - **İskele** — eğlence: meyhane ve bar tarzı birkaç mekân. Kemsköy Caddesi
@@ -206,6 +211,31 @@ Aralıklar kanon; kesin yıl yoksa uydurulmaz. Ayrıntı `docs/soru-cevap/w3.md`
   kısmı Küçükkuyu pazarına gider, cumartesi anakaralı pazarcılar sabah
   feribotuyla gelir.
 - **Otel** — 1960'lardan beri aynı şirketin.
+
+## Ada hayatı · 6 (28 Eylül 2026, W3 52–59. turlar)
+
+- **Koordinat** — 39,60° K · 25,85° D (yukarıda). Liman kuzeybatıda kalır:
+  tek derin, poyraza kapalı koy orada; feribot adayı dolaşır.
+- **Dirlik** — hep amatör. Büyük anı: bölgesel amatör lig şampiyonluğu,
+  yakın dönemde (2010 sonrası); 3. Lig iddiası o sezondan. Stat en fazla
+  ~1.000 kişilik. Her 12 Mayıs kulüp günü: stadda mahallelerin karışık
+  takımlarıyla dostluk maçı.
+- **Otel** — 4 kat ve kuleler, kesme taş; İskele'de yarımada ucunda,
+  uçurumun üstünde (sahili dipte ayrı bir cep). 20 oda.
+- **Doğa** — feribot yolunda yunus. Yaban domuzu (eski sürek avının
+  hedefi), yaban tavşanı, keklik; kıyıda martı ve karabatak; baharda ve
+  güzde göçmen kuşlar. Ada Tepesi'nde yalnız küçük yangınlar olmuş.
+  Liman'ın açığında antik amfora alanı (liman inşaatında bulundu).
+- **Şenlik takvimi** — deniz şenliği temmuz (yelken ve kayık yarışı, yağlı
+  direk, akşam Liman'da balık ekmeği ve müzik), bağ bozumu eylül, zeytin
+  hasadı ekim–kasım (Çiftlik'te kooperatifin önünde), sürek geleneği kış
+  başı. Takvimi Claude önerdi, Kemal onayladı.
+- **İskele'nin dönüşümü** — 1923'te gelen mübadele aileleri, otelden sonra
+  evlerini yazlıkçılara satıp Merkez'e geçti. İskele'de İstanbullu
+  yazlıkçılar, emekli sanatçılar, mekân işletmecileri, otel yöneticileri;
+  yazlık evlerin çoğu kışın kapalı.
+- **Feribot** — hep kamu hattı (1950'lerden beri).
+- **Adanın hafızasında büyük bir felaket yok.**
 
 ## The Imperial Kemsköy
 

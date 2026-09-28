@@ -12,6 +12,7 @@ Ad sorularında Claude aday önerebilir; karar Kemal'in.
 - Küçükçetmi ailesinin soyadı.
 - Dirlik'in rakibi: Küçükkuyu tarafından bir kulüp — adı.
 - Dirlik forması.
+- "Kemsköy" adı nereden geliyor?
 - Liman, Stadyum, Çiftlik mahallelerinin sokak adları (şu an numaralı).
 - Geçici yapı adları: Güney Burnu, Liman Deposu, Düzada İlkokulu, Merkez
   Pazarı, Çarşı Apartmanı, Zeytinli Apartmanı.
@@ -34,3 +35,5 @@ Ad sorularında Claude aday önerebilir; karar Kemal'in.
 
 ## Claude'a iş
 - Dirlik ve kooperatif bilgilerini vikiye aktar (kuruluş 12 Mayıs 1957, renkler, rakip, pazar günü…).
+- **Vikide düzeltme (W5):** W4 kartı Dirlik künyesine "Lig: Profesyonel alt lig 1990'lar ve 2000'ler" yazdı; W3 52. turda kulüp hep amatör oldu. Bu satır eski metne taşınıp düzeltilecek (tek seferlik kart).
+- **Haritayı yeni koordinata taşı (H):** 39,005 K · 25,805 D → 39,60 K · 25,85 D. Üretici (`gen/duzada.py` LAT0/LNG0), `duzadaKot.ts` ve Kemal'in kayıtlı harita düzeni birlikte kaydırılmalı; düzen boylam-enlemle saklanıyorsa tek seferlik düğme gerekir.
