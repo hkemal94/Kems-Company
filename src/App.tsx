@@ -7,7 +7,6 @@ import {
   subscribeToSettings, 
   saveSettings, 
   saveItem, 
-  deleteItemDoc 
 } from './lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { Item, UserSettings, AreaType, ItemType } from './types';
@@ -47,12 +46,11 @@ import Bosluklar from './components/Bosluklar';
 import Galeri from './components/Galeri';
 import OyunEkrani from './components/oyun/OyunEkrani';
 import Markalar from './components/Markalar';
-import { CHARACTERS_IMPORT_DATA } from './data/charactersImportData';
 import DuzadaDirectory from './components/DuzadaDirectory';
 import { Yedekleme } from './components/Yedekleme';
 import HizliNotModal from './components/HizliNotModal';
 import AramaModal from './components/AramaModal';
-import { isEntityUnlinked, generateAiProposalsForUnlinked, cleanupRelationsOnDelete } from './utils/relations';
+import { isEntityUnlinked, generateAiProposalsForUnlinked } from './utils/relations';
 
 export interface WorkspaceUser {
   uid: string;
@@ -326,34 +324,29 @@ export default function App() {
         : [...(item.tags || []), 'otomatik-arsiv']
     });
 
+  /**
+   * "Sil" düğmelerinin hepsi buraya gelir. K (28 Eylül 2026, Kemal'in
+   * kararı): bu projede hiçbir kayıt silinmez — kayıt arşive kalkar, arşivden
+   * geri gelir. Diğer kayıtlardaki bağlar da korunur; geri gelince yerinde.
+   */
   const handleDeleteItem = async (itemId: string) => {
     if (!user) return;
-    
-    // Track all item IDs being deleted in this transaction (target + cascade deletes)
-    const deletedIds = new Set<string>([itemId]);
+
+    const hedefler = new Set<string>([itemId]);
     const targetItem = items.find(i => i.id === itemId);
 
-    if (targetItem && targetItem.area === 'merch') {
-      if (targetItem.type === 'drop') {
-        // Drop silinince altındaki ürünler de gider
-        const childProducts = items.filter(p => p.area === 'merch' && p.type === 'merch_urun' && p.metadata?.dropId === itemId);
-        for (const p of childProducts) {
-          deletedIds.add(p.id);
-        }
-      }
+    if (targetItem && targetItem.area === 'merch' && targetItem.type === 'drop') {
+      // Drop arşive kalkınca altındaki ürünler de kalkar
+      items
+        .filter(p => p.area === 'merch' && p.type === 'merch_urun' && p.metadata?.dropId === itemId)
+        .forEach(p => hedefler.add(p.id));
     }
 
-    // İyimser anlık silme: Sayılar anında güncellenir
-    setItems(prev => prev.filter(i => !deletedIds.has(i.id)));
-    setLastSyncTime(new Date());
-
-    // Exclude all deleted items from the relation-cleanup cycle so we don't accidentally update and resurrect them
-    const activeItemsRemaining = items.filter(i => !deletedIds.has(i.id));
-    await cleanupRelationsOnDelete(itemId, activeItemsRemaining, handleUpdateItem);
-
-    // Delete all collected document IDs from Firestore
-    for (const idToDelete of deletedIds) {
-      await deleteItemDoc(user.uid, idToDelete);
+    for (const id of hedefler) {
+      const kayit = items.find(i => i.id === id);
+      if (kayit && !kayit.archived) {
+        await handleUpdateItem({ ...kayit, archived: true, updatedAt: Date.now() });
+      }
     }
   };
 
@@ -446,111 +439,10 @@ export default function App() {
     }
   }, [items, user]);
 
-  // Import and merge 76 Kemsköy characters as proposals / enriched entries
-  useEffect(() => {
-    if (!user || items.length === 0) return;
-    const storageKey = `kemskoy_characters_imported_v3_${user.uid}`;
-    if (localStorage.getItem(storageKey) === 'true') return;
-
-    console.log(`Starting character import and merge migration for ${CHARACTERS_IMPORT_DATA.length} characters...`);
-
-    const formatKunye = (char: any): string => {
-      const lines: string[] = [];
-      const header = char.yas ? `${char.ad} (${char.yas}) — ${char.rol}` : (char.rol ? `${char.ad} — ${char.rol}` : char.ad);
-      lines.push(header);
-      
-      const checkVal = (v: any) => v && v.toString().trim() !== '' && v.toString().trim().toLowerCase() !== 'belirtilmedi';
-      
-      if (checkVal(char.fizik)) lines.push(`* Fizik: ${char.fizik}`);
-      if (checkVal(char.sac)) lines.push(`* Saç: ${char.sac}`);
-      if (checkVal(char.gozler)) lines.push(`* Gözler: ${char.gozler}`);
-      if (checkVal(char.kisilik)) lines.push(`* Kişilik: ${char.kisilik}`);
-      if (checkVal(char.sevdikleri)) lines.push(`* Sevdikleri: ${char.sevdikleri}`);
-      if (checkVal(char.sevmedikleri)) lines.push(`* Sevmedikleri: ${char.sevmedikleri}`);
-      if (checkVal(char.hobiler)) lines.push(`* Hobiler: ${char.hobiler}`);
-      
-      if (char.ayrinti && char.ayrinti.length > 0) {
-        const validDetails = char.ayrinti.filter((d: any) => checkVal(d));
-        if (validDetails.length > 0) {
-          lines.push(`* Ayrıntı: ${validDetails.join(' ')}`);
-        }
-      }
-      return lines.join('\n');
-    };
-
-    CHARACTERS_IMPORT_DATA.forEach(char => {
-      const formatted = formatKunye(char);
-      const existing = items.find(item => 
-        (item.type === 'kisi' || item.type === 'karakter') && 
-        item.title.trim().toLowerCase() === char.ad.trim().toLowerCase()
-      );
-
-      if (existing) {
-        // Enrich existing character
-        const alreadyEnriched = existing.notes?.includes(char.ad) || existing.notes?.includes('Fizik:') || existing.notes?.includes('Saç:');
-        if (!alreadyEnriched) {
-          const enrichedNotes = existing.notes ? `${existing.notes}\n\n---\n${formatted}` : formatted;
-          handleUpdateItem({
-            ...existing,
-            notes: enrichedNotes,
-            type: 'kisi',
-            tags: Array.from(new Set([...(existing.tags || []), 'öneri'])),
-            links: Array.from(new Set([...(existing.links || []), 'kemskoy_hotel']))
-          }).catch(err => console.error("Error enriching existing character:", err));
-        }
-      } else {
-        // Create as a new proposal
-        const slug = char.ad.toLowerCase()
-          .replace(/ç/g, 'c')
-          .replace(/ğ/g, 'g')
-          .replace(/ı/g, 'i')
-          .replace(/ö/g, 'o')
-          .replace(/ş/g, 's')
-          .replace(/ü/g, 'u')
-          .replace(/[^a-z0-9]/g, '_');
-
-        const isStaff = char.rol.toLowerCase().includes('aşçı') || 
-                        char.rol.toLowerCase().includes('garson') || 
-                        char.rol.toLowerCase().includes('sommelier') || 
-                        char.rol.toLowerCase().includes('bar') || 
-                        char.rol.toLowerCase().includes('müzik') || 
-                        char.rol.toLowerCase().includes('sanatçı') || 
-                        char.rol.toLowerCase().includes('dans') || 
-                        char.rol.toLowerCase().includes('resepsiyon') || 
-                        char.rol.toLowerCase().includes('temizlik') || 
-                        char.rol.toLowerCase().includes('housekeeping') || 
-                        char.rol.toLowerCase().includes('güvenlik');
-        
-        const isEscort = char.rol.toLowerCase().includes('eskort');
-
-        const tags = [
-          isStaff ? 'personel' : (isEscort ? 'eskort' : 'misafir'),
-          'kemskoy',
-          'öneri'
-        ];
-
-        handleAddItem({
-          id: `kemskoy_gen_${slug}_${Date.now()}`,
-          title: char.ad,
-          area: 'duzada',
-          type: 'kisi',
-          status: 'Fikir',
-          priority: 'orta',
-          tags,
-          links: ['kemskoy_hotel'],
-          notes: formatted,
-          images: [],
-          isProposal: true,
-          archived: false,
-          metadata: {
-            region: 'eski liman / kemskoy'
-          }
-        }).catch(err => console.error("Error creating imported character proposal:", err));
-      }
-    });
-
-    localStorage.setItem(storageKey, 'true');
-  }, [items, user]);
+  // K (28 Eylül 2026, Kemal'in kararı): 76 karakteri öneri olarak içe
+  // aktaran eski kod kapatıldı. Yalnızca tarayıcı hafızasıyla korunuyordu;
+  // yeni bir tarayıcıda yeniden çalışıp W1'de arşive kalkan kişileri öneri
+  // olarak geri açabilirdi. Veri dosyası (charactersImportData.ts) duruyor.
 
   // Clean up current events from Düzada directory (Sürek Şenliği and imported game actions/mechanics)
   useEffect(() => {

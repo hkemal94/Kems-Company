@@ -1504,12 +1504,13 @@ export default function Duzada({
     const activeRelations = resolveAllRelations(entity, items);
     const hasRelations = activeRelations.length > 0;
     
+    // K: "Sil" artık arşive kaldırır; bağlar korunur, arşivden geri gelir
     const warningMessage = hasRelations
-      ? `"${entity.title}" maddesi ${activeRelations.length} diğer varlığa doğrudan veya dolaylı olarak bağlıdır. Bu maddeyi silerseniz bağlı olan diğer tüm varlıklardaki ilişkiler de otomatik olarak güvenli bir şekilde kesilecektir.\n\nYine de KALICI olarak silmek istediğinize emin misiniz?`
-      : `"${entity.title}" maddesini ve buna bağlı tüm verileri KALICI olarak silmek istediğinize emin misiniz? Bu işlem geri alınamaz.`;
+      ? `"${entity.title}" maddesi ${activeRelations.length} varlığa bağlı. Arşive kalkar; bağlar korunur, arşivden geri getirilebilir.\n\nArşive kaldırılsın mı?`
+      : `"${entity.title}" maddesi arşive kalkar. Silinmez; arşivden geri getirilebilir.\n\nArşive kaldırılsın mı?`;
 
     triggerConfirm(
-      "Maddeyi Kalıcı Olarak Sil",
+      "Maddeyi Arşive Kaldır",
       warningMessage,
       async () => {
         try {

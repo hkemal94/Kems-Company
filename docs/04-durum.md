@@ -143,9 +143,9 @@ açılışta otel kopyalarını, "yeni varlık" adlı kayıtları ve oyun mekani
 olaylarını siliyordu; artık arşive kaldırıyor (`otomatik-arsiv` etiketi).
 Oda kopyası birleştirme kodu tamamen kalktı: kopyaları siliyor, odalara
 "Deluxe" ve 203/304'e "bakımda" yazıyordu.
-Hâlâ açık: arayüzdeki elle "Sil" düğmeleri (~20 yer) gerçekten siliyor;
-76 karakteri öneri olarak içe aktaran eski kod yeni bir tarayıcıda yeniden
-çalışabilir. Kemal'e soruldu.
+Kemal'in kararıyla ikisi daha: arayüzdeki bütün "Sil" düğmeleri artık
+arşive kaldırıyor (bağlar korunur, drop kalkınca ürünleri de kalkar);
+76 karakteri öneri olarak içe aktaran eski kod kapatıldı.
 
 ## Harita · H1 sokak dokusu (28 Eylül)
 
