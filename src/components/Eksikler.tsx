@@ -7,6 +7,7 @@ import { getRol } from './wiki/kunyeParser';
 import { isEntityUnlinked } from '../utils/relations';
 import { oTemizligi } from '../lib/yaziTemizligi';
 import { temaDurumu, temaKaldirmaYazilari } from '../lib/temaKaldirma';
+import { donem2008Durumu } from '../lib/donem2008';
 
 /**
  * "Neyin eksik" paneli (A1).
@@ -271,6 +272,31 @@ export const Eksikler: React.FC<EksiklerProps> = ({
     }
   };
 
+  /**
+   * Dönem göçü: Ekim 2003 → Ekim 2008, ve oyun kararlarının otel maddesine
+   * yazılması. Tek seferlik; iş bitince satır kendini gizler.
+   */
+  const donem = useMemo(() => donem2008Durumu(items), [items]);
+  const [donemIsi, setDonemIsi] = useState(false);
+  const [donemRaporu, setDonemRaporu] = useState<string | null>(null);
+
+  const donemiTasi = async () => {
+    if (!onUpdateItem || donemIsi) return;
+    setDonemIsi(true);
+    try {
+      let n = 0;
+      for (const kayit of donem.degisenler) { await onUpdateItem(kayit); n++; }
+      setDonemRaporu(
+        `${donem.tarihSayisi} kayıtta tarih Ekim 2008 oldu, otele ${donem.bolumSayisi} oyun bölümü eklendi `
+        + `(${n} kayıt yazıldı).`
+      );
+    } catch (e) {
+      setDonemRaporu(`Hata: ${e instanceof Error ? e.message : 'bilinmeyen'}`);
+    } finally {
+      setDonemIsi(false);
+    }
+  };
+
   const temizle = async () => {
     if (!onUpdateItem || temizleniyor) return;
     setTemizleniyor(true);
@@ -373,6 +399,38 @@ export const Eksikler: React.FC<EksiklerProps> = ({
       {temaRaporu && (
         <p className="mb-2.5 px-4 py-2 rounded-lg bg-[#F3EFE8] dark:bg-[#17345A] text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9]">
           {temaRaporu}
+        </p>
+      )}
+
+      {/* Dönem göçü: Ekim 2003 → Ekim 2008 */}
+      {onUpdateItem && donem.degisenler.length > 0 && (
+        <div className="mb-2.5 flex items-start gap-3 px-4 py-3 rounded-xl border border-[#D35057]/40 bg-[#FAF8F5] dark:bg-[#13204A]">
+          <span className="font-mono text-lg font-bold text-[#D35057] leading-none mt-0.5 shrink-0 tabular-nums">
+            {donem.degisenler.length}
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-[13px] font-semibold text-[#1B2A4A] dark:text-[#F3EFE8]">
+              kayıt Ekim 2008'e taşınmayı bekliyor
+            </span>
+            <span className="block mt-0.5 text-[11px] text-[#9A8C76] dark:text-[#6E7CA0] leading-snug">
+              {donem.tarihSayisi} kayıtta "Ekim 2003" geçiyor; yalnız yıl değişir, gün adları aynı kalır.
+              {donem.bolumSayisi > 0 && ` Otel maddesine ${donem.bolumSayisi} oyun bölümü eklenir.`}
+              {' '}Hiçbir şey silinmez.
+            </span>
+          </span>
+          <button
+            type="button"
+            onClick={donemiTasi}
+            disabled={donemIsi}
+            className="shrink-0 px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#1B2A4A] text-[#F3EFE8] hover:opacity-90 disabled:opacity-40 cursor-pointer"
+          >
+            {donemIsi ? 'Taşınıyor…' : 'Ekim 2008\'e taşı'}
+          </button>
+        </div>
+      )}
+      {donemRaporu && (
+        <p className="mb-2.5 px-4 py-2 rounded-lg bg-[#F3EFE8] dark:bg-[#17345A] text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9]">
+          {donemRaporu}
         </p>
       )}
 

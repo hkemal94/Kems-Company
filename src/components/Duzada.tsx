@@ -673,12 +673,12 @@ export default function Duzada({
         priority: 'yüksek' as const,
         tags: ['evren', 'rehber', 'şemsiye-konteyner'],
         links: [],
-        notes: `Düzada, Ege Denizi'nin serin sularında saklanmış, zamanın daha yavaş aktığı bir takımadanın kalbidir. Tarihi zeytinlikleri, sarp kayalıkların ucunda yükselen deniz feneri, balıkçı teknelerinin sığındığı limanı ve dar sokaklarıyla kendine has melankolik bir atmosfere sahiptir.\n\nAda, özellikle 1954 kuruluş tarihli görkemli "The Imperial Kemsköy" oteli ve çevresindeki sırlar ile bilinir. Ekim 2003 ("Sezon Sonu") dönemi, rüzgarın sertleştiği, turistlerin elini eteğini çektiği ve adanın kendi iç hesaplaşmalarıyla baş başa kaldığı gizemli bir zaman dilimini temsil eder.`,
+        notes: `Düzada, Ege Denizi'nin serin sularında saklanmış, zamanın daha yavaş aktığı bir takımadanın kalbidir. Tarihi zeytinlikleri, sarp kayalıkların ucunda yükselen deniz feneri, balıkçı teknelerinin sığındığı limanı ve dar sokaklarıyla kendine has melankolik bir atmosfere sahiptir.\n\nAda, özellikle 1954 kuruluş tarihli görkemli "The Imperial Kemsköy" oteli ve çevresindeki sırlar ile bilinir. Ekim 2008 ("Sezon Sonu") dönemi, rüzgarın sertleştiği, turistlerin elini eteğini çektiği ve adanın kendi iç hesaplaşmalarıyla baş başa kaldığı gizemli bir zaman dilimini temsil eder.`,
         images: ["https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=512&auto=format&fit=crop"],
         isProposal: false,
         archived: false,
         metadata: {
-          activeEra: 'Ekim 2003, "Sezon Sonu"',
+          activeEra: 'Ekim 2008, "Sezon Sonu"',
           climate: 'Ege / Akdeniz Mikrokliması - Rüzgarlı, Sert',
           atmosphere: 'Melankolik, Sezon Sonu, Sisli ve Gizemli',
           wikiSections: [
