@@ -1,9 +1,10 @@
+import { TYPE_LABELS } from './wiki/wikiSchema';
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { 
   Bold, Italic, Heading2, Quote, Sparkles, Check, 
   Eye, EyeOff, BookOpen, Link, Plus, HelpCircle, X, Maximize2, Minimize2 
 } from 'lucide-react';
-import { Item } from '../types';
+import { Item, ItemType } from '../types';
 
 interface SharedEditorProps {
   key?: string;
@@ -403,7 +404,7 @@ export default function SharedEditor({
                 {s.type === 'link' ? (
                   <>
                     <span className="text-stone-700 dark:text-stone-300">
-                      Metindeki <strong className="text-[#0E1C4F] dark:text-[#F3EFE8]">{s.name}</strong> ismini <strong className="text-[#F26B6F]">{s.entity?.title} ({s.entity?.type === 'kisi' ? 'Kişi' : s.entity?.type === 'mekan' ? 'Mekan' : 'Marka'})</strong> ile bağla?
+                      Metindeki <strong className="text-[#0E1C4F] dark:text-[#F3EFE8]">{s.name}</strong> ismini <strong className="text-[#F26B6F]">{s.entity?.title} ({(s.entity && (TYPE_LABELS[s.entity.type as ItemType] || s.entity.type))})</strong> ile bağla?
                     </span>
                     <button
                       type="button"

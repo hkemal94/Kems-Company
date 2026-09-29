@@ -1,67 +1,104 @@
 /**
- * Künye soruları — her madde türünün doldurulması beklenen alanları.
+ * Künye alanları — her madde türünün kısa künyesi ve Boşluklar'daki sorular.
  *
- * Eskiden `DuzadaWiki.tsx` içinde duruyordu; o bileşen kaldırılınca buraya
- * taşındı. Yeni wiki katmanı (WikiShell) künyedeki boşlukları bu listeye
- * bakarak buluyor.
+ * 29 Eylül 2026 (Kemal): "Boşluklar kısmında sorduğun sorular çok spesifik
+ * ve biraz alakasız" ve "daha kompakt bir künye, diğer bilgiler sayfa
+ * kısmında". Eski liste bir rol yapma şablonundan kalmaydı (gizli sırlar,
+ * gizlilik derecesi, nadirlik, gizli ipuçları…). Yeni liste adanın
+ * kanonuna uygun, kısa ve somut alanlardan oluşur; künyede yalnız bunlar
+ * görünür, künye satırlarının kalanı sayfada "Bilgiler" bölümüne iner.
+ *
+ * Eski alanlara yazılmış değerler kaybolmaz: `ESKI_ALAN_ADLARI` ile
+ * okunur adlarıyla "Bilgiler" bölümünde görünmeye devam eder.
+ *
+ * Sorular sayı istemez (uydurma sayı yok) ve "şu an" demez (vikinin
+ * şimdisi yok).
  */
 
-export const DEFAULT_QUESTIONS_BY_CAT: Record<string, Array<{ id: string; label: string; question: string; fieldPath: string }>> = {
+export interface KunyeSorusu {
+  id: string;
+  label: string;
+  question: string;
+  fieldPath: string;
+  /** Künye satırlarında bu alanın başka adları ("Branşlar" → Faaliyet) */
+  esAdlar?: string[];
+}
+
+export const DEFAULT_QUESTIONS_BY_CAT: Record<string, KunyeSorusu[]> = {
   kisi: [
-    { id: 'title', label: 'Karakter Adı / Unvan', question: 'Karakterin tam adı ve bilinen unvanı nedir?', fieldPath: 'title' },
-    { id: 'notes', label: 'Geçmiş Hikayesi / Özgeçmiş', question: 'Karakterin Düzada\'daki genel geçmişi ve detaylı yaşam hikayesi nedir?', fieldPath: 'notes' },
-    { id: 'profession', label: 'Meslek veya Rol', question: 'Karakterin adadaki aktif mesleği, görevi veya rolü nedir?', fieldPath: 'metadata.profile.profession' },
-    { id: 'personality', label: 'Mizaç ve Kişilik Özellikleri', question: 'Karakterin mizaç özellikleri, belirgin davranış kalıpları ve alışkanlıkları nelerdir?', fieldPath: 'metadata.profile.personality' },
-    { id: 'origin', label: 'Köken ve Soy', question: 'Karakterin kökeni, ailesi, soyu veya adadaki geçmiş bağları nedir?', fieldPath: 'metadata.profile.origin' },
-    { id: 'motivation', label: 'Ana Hedef ve Motivasyon', question: 'Bu karakterin adadaki ana amacı, motivasyonu veya sakladığı sırlar nelerdir?', fieldPath: 'metadata.profile.motivation' },
-    { id: 'socialClass', label: 'Toplumsal Sınıf ve İtibar', question: 'Karakterin adadaki statüsü, saygınlığı ve diğer ada sakinleri üzerindeki etkisi nedir?', fieldPath: 'metadata.profile.socialClass' }
+    { id: 'title', label: 'Ad', question: 'Kişinin adı.', fieldPath: 'title' },
+    { id: 'notes', label: 'Hayatı', question: 'Kişinin hayatı (sayfa metni).', fieldPath: 'notes' },
+    { id: 'profession', label: 'Rol', question: 'Adada ne iş yapar?', fieldPath: 'metadata.profile.profession', esAdlar: ['Meslek', 'Görev'] },
+    { id: 'age', label: 'Yaş', question: 'Kaç yaşında ya da hangi yaş aralığında?', fieldPath: 'metadata.profile.age' },
+    { id: 'region', label: 'Mahalle', question: 'Hangi mahallede yaşar?', fieldPath: 'metadata.region' },
+    { id: 'workplace', label: 'Çalıştığı yer', question: 'Hangi mekânda ya da kurumda çalışır?', fieldPath: 'metadata.profile.workplace' },
+    { id: 'origin', label: 'Köken', question: 'Adalı mı, sonradan mı geldi? Nereden?', fieldPath: 'metadata.profile.origin', esAdlar: ['Nereli', 'Uyruk'] }
   ],
   mekan: [
-    { id: 'title', label: 'Mekan Adı', question: 'Bu mekanın tam adı nedir?', fieldPath: 'title' },
-    { id: 'notes', label: 'Mekan Detayları & Tarihçe', question: 'Mekanın kuruluş hikayesi, adadaki tarihi ve işleyişine dair detaylar nelerdir?', fieldPath: 'notes' },
-    { id: 'shopType', label: 'Mekan Türü', question: 'Bu mekanın işlevi veya türü nedir (bar, restoran, fırın, kayalık, deniz feneri vb.)?', fieldPath: 'metadata.profile.shopType' },
-    { id: 'manager', label: 'Mekan Sorumlusu veya Sahibi', question: 'Mekanı işleten, mülk sahibi olan ya da oradan sorumlu olan kişi kimdir?', fieldPath: 'metadata.profile.manager' },
-    { id: 'style', label: 'Mimari Stil ve Görünüm', question: 'Mekanın dış ve iç mimari tarzı, dekorasyonu ve adadaki genel görünümü nasıldır?', fieldPath: 'metadata.profile.style' },
-    { id: 'secrets', label: 'Önemli Sırlar & Gizemler', question: 'Bu mekanda saklanan gizli bölmeler, sırlar veya dedikodular nelerdir?', fieldPath: 'metadata.profile.secrets' },
-    { id: 'region', label: 'Mahalle / Coğrafi Bölge', question: 'Bu mekan adanın hangi coğrafi bölgesinde veya mahallesinde yer alıyor? (örn: liman, kuzey, orman vb.)', fieldPath: 'metadata.region' }
+    { id: 'title', label: 'Ad', question: 'Mekânın adı.', fieldPath: 'title' },
+    { id: 'notes', label: 'Tarihçe', question: 'Mekânın tarihçesi (sayfa metni).', fieldPath: 'notes' },
+    { id: 'shopType', label: 'Tür', question: 'Ne tür bir yer? (meyhane, dükkân, fener…)', fieldPath: 'metadata.profile.shopType' },
+    { id: 'region', label: 'Mahalle', question: 'Hangi mahallede?', fieldPath: 'metadata.region' },
+    { id: 'faaliyet', label: 'Faaliyette', question: 'Hangi yıllardan beri? (aralık olarak: 1954–)', fieldPath: 'metadata.faaliyet' },
+    { id: 'manager', label: 'Sahibi', question: 'Kim işletiyor ya da kimin?', fieldPath: 'metadata.profile.manager', esAdlar: ['İşleten', 'Sorumlu'] },
+    { id: 'season', label: 'Sezon', question: 'Yıl boyu mu açık, yalnız yazın mı?', fieldPath: 'metadata.profile.season' }
   ],
   marka: [
-    { id: 'title', label: 'Organizasyon / Kulüp Adı', question: 'Bu kuruluşun, kulübün veya markanın tam adı nedir?', fieldPath: 'title' },
-    { id: 'notes', label: 'Tarihçe ve Manifesto', question: 'Organizasyonun adadaki nüfuzu, tarihi ve kuruluş manifestosu nedir?', fieldPath: 'notes' },
-    { id: 'purpose', label: 'Kuruluş Amacı ve Misyon', question: 'Bu kulüp veya markanın var oluş amacı ve adadaki ana misyonu nedir?', fieldPath: 'metadata.profile.purpose' },
-    { id: 'leader', label: 'Liderlik ve Yönetim Yapısı', question: 'Organizasyonu yöneten lider, kurucu meclis veya hiyerarşik yapı nasıldır?', fieldPath: 'metadata.profile.leader' },
-    { id: 'secrecy', label: 'Gizlilik Derecesi ve Üyeler', question: 'Organizasyonun gizlilik derecesi nedir? Üyelik şartları ve üye yapısı nasıldır?', fieldPath: 'metadata.profile.secrecy' },
-    { id: 'influence', label: 'Ekonomik & Siyasi Nüfuz', question: 'Bu kuruluşun adadaki ticari veya yönetimsel gücü nedir?', fieldPath: 'metadata.profile.influence' }
+    { id: 'title', label: 'Ad', question: 'Kurumun ya da markanın adı.', fieldPath: 'title' },
+    { id: 'notes', label: 'Tarihçe', question: 'Tarihçesi (sayfa metni).', fieldPath: 'notes' },
+    { id: 'founded', label: 'Kuruluş', question: 'Ne zaman kuruldu? (yıl ya da aralık)', fieldPath: 'metadata.profile.founded' },
+    { id: 'region', label: 'Yeri', question: 'Adada nerede? (mahalle)', fieldPath: 'metadata.region' },
+    { id: 'field', label: 'Faaliyet', question: 'Ne yapar? (futbol, sürek, zeytinyağı…)', fieldPath: 'metadata.profile.field', esAdlar: ['Branşlar', 'Branş', 'Faaliyet alanı'] },
+    { id: 'leader', label: 'Kurucu', question: 'Kim kurdu, kim yönetir?', fieldPath: 'metadata.profile.leader', esAdlar: ['Yönetim', 'Kurucu aile'] },
+    { id: 'colors', label: 'Renkler', question: 'Renkleri neler? (renk kodlarıyla)', fieldPath: 'metadata.profile.colors', esAdlar: ['Renk'] }
   ],
   olay: [
-    { id: 'title', label: 'Olay / Şenlik Adı', question: 'Bu tarihi olayın veya şenliğin adı nedir?', fieldPath: 'title' },
-    { id: 'notes', label: 'Olay Gelişimi & Hikayesi', question: 'Olayın detaylı gelişi, nasıl sonuçlandığı ve adada bıraktığı miras nedir?', fieldPath: 'notes' },
-    { id: 'date', label: 'Gerçekleşme Tarihi', question: 'Olay ne zaman, hangi yıl veya hangi sezonda gerçekleşti? (örn: 12 Eylül, Her Ekinoks vb.)', fieldPath: 'metadata.date' },
-    { id: 'recurrence', label: 'Tekrarlanma Düzeni', question: 'Bu olay periyodik olarak tekrarlanıyor mu (yıllık, her ekinoksta vb.) yoksa tek seferlik mi?', fieldPath: 'metadata.recurrence' },
-    { id: 'manager', label: 'Ana Aktörler / Katılımcılar', question: 'Olayın merkezindeki ana karakterler, kulüpler veya tanıklar kimlerdir?', fieldPath: 'metadata.profile.manager' },
-    { id: 'consequences', label: 'Sonuçlar ve Etkiler', question: 'Bu olayın ada sakinleri ve adanın geleceği üzerindeki kalıcı etkisi ne oldu?', fieldPath: 'metadata.profile.consequences' }
+    { id: 'title', label: 'Ad', question: 'Olayın ya da şenliğin adı.', fieldPath: 'title' },
+    { id: 'notes', label: 'Anlatım', question: 'Olayın anlatımı (sayfa metni).', fieldPath: 'notes' },
+    { id: 'date', label: 'Tarih', question: 'Ne zaman? (yıl, ay ya da mevsim)', fieldPath: 'metadata.date' },
+    { id: 'recurrence', label: 'Tekrar', question: 'Her yıl mı, tek seferlik mi?', fieldPath: 'metadata.recurrence' },
+    { id: 'region', label: 'Yer', question: 'Adanın neresinde?', fieldPath: 'metadata.region' },
+    { id: 'manager', label: 'Katılanlar', question: 'Kimler katılır ya da düzenler?', fieldPath: 'metadata.profile.manager' }
   ],
   urun: [
-    { id: 'title', label: 'Eşya / Ürün Adı', question: 'Bu kurgusal eşyanın veya drop ürününün adı nedir?', fieldPath: 'title' },
-    { id: 'notes', label: 'Eşyanın Bulunuş Hikayesi ve Efsanesi', question: 'Eşyanın evrendeki hikayesi, kökeni ve adalılar arasındaki önemi nedir?', fieldPath: 'notes' },
-    { id: 'rarity', label: 'Nadirlik Derecesi', question: 'Eşyanın evrendeki nadirlik veya bulunabilirlik derecesi nedir (Efsanevi, Sıradan, Eşsiz vb.)?', fieldPath: 'metadata.profile.rarity' },
-    { id: 'material', label: 'Köken / Malzeme Yapısı', question: 'Eşya hangi malzemelerden yapılmıştır veya kökeni nereye dayanmaktadır?', fieldPath: 'metadata.profile.material' },
-    { id: 'function', label: 'Ana İşlevi ve Gizli Gücü', question: 'Eşyanın kurguda üstlendiği ana işlev, kilit rol veya gizli kullanım amacı nedir?', fieldPath: 'metadata.profile.function' },
-    { id: 'owner', label: 'Şu Anki Sahibi / Bulunduğu Yer', question: 'Eşyanın adada saklandığı yer veya şu anki sahibi kimdir?', fieldPath: 'metadata.profile.owner' }
+    { id: 'title', label: 'Ad', question: 'Eşyanın adı.', fieldPath: 'title' },
+    { id: 'notes', label: 'Anlatım', question: 'Eşyanın anlatımı (sayfa metni).', fieldPath: 'notes' },
+    { id: 'material', label: 'Malzeme', question: 'Neden yapılmış?', fieldPath: 'metadata.profile.material' },
+    { id: 'owner', label: 'Kimin', question: 'Kime ait, nerede durur?', fieldPath: 'metadata.profile.owner' }
   ],
   oda: [
-    { id: 'title', label: 'Oda No / Adı', question: 'Odanın kapı numarası veya adı nedir?', fieldPath: 'title' },
-    { id: 'notes', label: 'Oda Durumu & Atmosfer', question: 'Odanın genel düzeni, dekorasyonu ve sezondaki atmosferi nedir?', fieldPath: 'notes' },
-    { id: 'roomStatus', label: 'Doluluk Durumu', question: 'Oda şu an boş mu, dolu mu, yoksa rezerve mi?', fieldPath: 'metadata.profile.roomStatus' },
-    { id: 'guest', label: 'Odadaki Misafir', question: 'Oda sakinlerinin tam listesi veya odada kalan misafirin adı nedir?', fieldPath: 'metadata.profile.guest' },
-    { id: 'clues', label: 'Gizli İpuçları & Eşyalar', question: 'Oda içinde saklanmış veya unutulmuş kilit deliller, sırlar veya belgeler nelerdir?', fieldPath: 'metadata.profile.clues' },
-    { id: 'floor', label: 'Bulunduğu Kat', question: 'Oda Imperial otelinin hangi katında yer alıyor?', fieldPath: 'metadata.profile.floor' }
+    { id: 'title', label: 'Oda', question: 'Oda numarası.', fieldPath: 'title' },
+    { id: 'notes', label: 'Anlatım', question: 'Odanın anlatımı (sayfa metni).', fieldPath: 'notes' },
+    { id: 'floor', label: 'Kat', question: 'Hangi katta?', fieldPath: 'metadata.profile.floor' },
+    { id: 'roomType', label: 'Tip', question: 'Ne tür bir oda? (standart, suit…)', fieldPath: 'metadata.profile.roomType', esAdlar: ['Oda tipi'] }
   ],
   yer: [
-    { id: 'title', label: 'Mahalle / Bölge Adı', question: 'Mahallenin veya coğrafi bölgenin resmi adı nedir?', fieldPath: 'title' },
-    { id: 'notes', label: 'Geçmişi ve Coğrafyası', question: 'Bölgenin coğrafi yapısı, tarihi kökenleri ve adadaki konumu nedir?', fieldPath: 'notes' },
-    { id: 'population', label: 'Tahmini Nüfus', question: 'Bölgede aktif olarak kaç hane yaşıyor veya tahmini nüfus dağılımı nedir?', fieldPath: 'metadata.profile.population' },
-    { id: 'landmarks', label: 'Önemli Yapılar ve Simgeler', question: 'Bölgede yer alan deniz feneri, kalıntılar veya anıtlar gibi kilit simgeler nelerdir?', fieldPath: 'metadata.profile.landmarks' },
-    { id: 'vibe', label: 'Sosyal Atmosfer', question: 'Bölgenin genel hissiyatı ve adadaki sosyal repütasyonu nedir? (Sakin, tekinsiz, asil vb.)', fieldPath: 'metadata.profile.vibe' }
+    { id: 'title', label: 'Ad', question: 'Mahallenin adı.', fieldPath: 'title' },
+    { id: 'notes', label: 'Tarihçe', question: 'Mahallenin tarihçesi (sayfa metni).', fieldPath: 'notes' },
+    { id: 'konum', label: 'Konum', question: 'Adanın hangi tarafında?', fieldPath: 'metadata.profile.konum' },
+    { id: 'komsular', label: 'Sınır komşuları', question: 'Hangi mahallelerle komşu?', fieldPath: 'metadata.profile.komsular' },
+    { id: 'landmarks', label: 'Simgeler', question: 'Mahallenin simge yapıları neler?', fieldPath: 'metadata.profile.landmarks' },
+    { id: 'sakinler', label: 'Sakinler', question: 'Kimler yaşar?', fieldPath: 'metadata.profile.sakinler' }
   ]
+};
+
+/**
+ * Eski listeden kalan alanlar: değeri doluysa "Bilgiler" bölümünde bu adla
+ * görünür. Boşsa hiçbir yerde sorulmaz. Odaların durum / misafir / ipucu
+ * alanları otel simülasyonundan kalma; gösterilmez (Kemal, 29 Eylül).
+ */
+export const ESKI_ALAN_ADLARI: Record<string, string> = {
+  personality: 'Kişilik',
+  motivation: 'Motivasyon',
+  socialClass: 'Toplumsal konum',
+  style: 'Mimari',
+  secrets: 'Sırlar',
+  purpose: 'Amaç',
+  secrecy: 'Üyelik',
+  influence: 'Nüfuz',
+  consequences: 'Sonuçlar',
+  rarity: 'Nadirlik',
+  function: 'İşlev',
+  population: 'Nüfus',
+  vibe: 'Atmosfer'
 };

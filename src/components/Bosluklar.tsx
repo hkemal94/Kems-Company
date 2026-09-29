@@ -2,8 +2,9 @@ import React, { useMemo, useState } from 'react';
 import { Check, ChevronDown, ChevronRight, PenLine } from 'lucide-react';
 import type { Item, ItemType } from '../types';
 import { DEFAULT_QUESTIONS_BY_CAT } from './wiki/kunyeSorulari';
-import { schemaKeyFor, TYPE_LABELS, WIKI_TYPES } from './wiki/wikiSchema';
+import { schemaKeyFor, TYPE_LABELS, WIKI_TYPES, getKunyeFields, getArticleBody } from './wiki/wikiSchema';
 import { SayfaRayi, type RayBolumu } from './SayfaRayi';
+import { ADA_KIMLIGI } from '../lib/vikiSifirlama';
 
 /**
  * Boşluklar (34 cevabın 17. ve 34. maddeleri).
@@ -77,12 +78,20 @@ export function bosluklariCikar(items: Item[]): Bosluk[] {
   for (const item of items) {
     if (item.archived || item.isProposal) continue;
     if (!WIKI_TYPES.includes(item.type as ItemType)) continue;
+    // Adanın kendisi mahalle şemasını kullanıyor ama "sınır komşuları",
+    // "sakinler" gibi sorular ona uymuyor; ada bilgileri kendi künyesinde.
+    if (item.id === ADA_KIMLIGI) continue;
     const anahtar = schemaKeyFor(item.type as ItemType);
     if (!anahtar) continue;
     const sorular = DEFAULT_QUESTIONS_BY_CAT[anahtar] || [];
+    // Künye satırı notta yazılıysa ("* Kuruluş: 1957") alan dolu sayılır
+    const kunye = new Map(getKunyeFields(item, { includeEmpty: true, includeSecrets: true }).map(f => [f.id, f.value]));
+    const govdeDolu = getArticleBody(item).length > 0;
     for (const s of sorular) {
       if (ATLANAN_ALAN.has(s.id)) continue;
       if (oku(item, s.fieldPath).trim()) continue;
+      if ((kunye.get(s.id) || '').trim()) continue;
+      if (s.id === 'notes' && govdeDolu) continue;
       cikti.push({
         anahtar: `${item.id}::${s.id}`,
         item,

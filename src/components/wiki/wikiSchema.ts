@@ -1,5 +1,5 @@
 import { Item, ItemType } from '../../types';
-import { DEFAULT_QUESTIONS_BY_CAT } from './kunyeSorulari';
+import { DEFAULT_QUESTIONS_BY_CAT, ESKI_ALAN_ADLARI } from './kunyeSorulari';
 import { parseKunye } from './kunyeParser';
 
 /**
@@ -101,36 +101,48 @@ function readPath(item: Item, path: string): unknown {
  * Bir maddenin künye alanlarını şemadan çıkarır.
  * `title` ve `notes` künyeye girmez — onlar sayfanın başlığı ve gövdesidir.
  */
-/** Kısmi eşleşmesi yasak olan künye başlıkları: [ayrıştırılan, şema] (küçük harf) */
-const YANLIS_ESLESMELER: Array<[string, string]> = [
-  ['kuruluş', 'kuruluş amacı ve misyon']
-];
+/**
+ * Künye başlıkları eşleşiyor mu? Ayrıştırılan satırın başlığı ("Kuruluş")
+ * şema alanıyla ("Kuruluş") eşleşir. Kısmi eşleşme sözcük sözcük yapılır ve
+ * yalnız Türkçe ek farkına izin verir ("Yer" ~ "Yeri", "Tür" ~ "Türü");
+ * "Kat" "Kategori"yi, "Kuruluş" "Kuruluş amacı"nı tutmaz.
+ */
+function basliklarEslesir(a: string, b: string): boolean {
+  const x = a.toLocaleLowerCase('tr').trim().split(/\s+/);
+  const y = b.toLocaleLowerCase('tr').trim().split(/\s+/);
+  if (x.length !== y.length) return false;
+  return x.every((w, i) => {
+    const v = y[i];
+    if (w === v) return true;
+    const [kisa, uzun] = w.length <= v.length ? [w, v] : [v, w];
+    return kisa.length >= 3 && uzun.startsWith(kisa) && uzun.length - kisa.length <= 2;
+  });
+}
 
-export function getKunyeFields(
-  item: Item,
-  opts: { includeEmpty?: boolean; includeSecrets?: boolean } = {}
-): KunyeField[] {
+interface KunyeCozumu {
+  /** Şema alanları (kısa künye) */
+  alanlar: KunyeField[];
+  /** Künyeye girmeyen satırlar → sayfada "Bilgiler" */
+  ekler: KunyeField[];
+}
+
+function kunyeyiCoz(item: Item, includeSecrets: boolean): KunyeCozumu | null {
   const key = schemaKeyFor(item.type);
-  if (!key) return [];
+  if (!key) return null;
 
   const schema = DEFAULT_QUESTIONS_BY_CAT[key] || [];
   const parsed = parseKunye(item);
+  const kullanilan = new Set<number>();
 
   /** Şemadaki alan boşsa, notes'tan ayrıştırılan künyeden doldurmayı dener */
-  const fromParsed = (label: string): string => {
-    const want = label.toLocaleLowerCase('tr');
-    const hit = parsed.fields.find(f => {
-      const have = f.label.toLocaleLowerCase('tr');
-      if (have === want) return true;
-      // Kısmi eşleşme yanlış alana düşürmesin: "Kuruluş" (tarih) satırı
-      // "Kuruluş Amacı ve Misyon" alanında görünüyordu (29 Eylül).
-      if (YANLIS_ESLESMELER.some(([a, b]) => a === have && b === want)) return false;
-      return want.includes(have) || have.includes(want);
-    });
-    return hit ? hit.value : '';
+  const fromParsed = (adlar: string[]): string => {
+    const i = parsed.fields.findIndex((f, n) => !kullanilan.has(n) && adlar.some(ad => basliklarEslesir(f.label, ad)));
+    if (i < 0) return '';
+    kullanilan.add(i);
+    return parsed.fields[i].value;
   };
 
-  const schemaFields = schema
+  const alanlar = schema
     .filter(f => f.fieldPath !== 'title' && f.fieldPath !== 'notes')
     .map(f => {
       const raw = readPath(item, f.fieldPath);
@@ -139,32 +151,39 @@ export function getKunyeFields(
         : typeof raw === 'number' ? String(raw)
         : '';
 
-      if (!value) value = fromParsed(f.label);
+      if (!value) value = fromParsed([f.label, ...(f.esAdlar || [])]);
       // Meslek alanı künye başlığından da gelebilir ("Ad (38) — Başaşçı")
       if (!value && f.id === 'profession' && parsed.rol) value = parsed.rol;
+      if (!value && f.id === 'age' && parsed.yas) value = parsed.yas;
+      // Markanın renkleri marka kitinde de durabilir
+      if (!value && f.id === 'colors') {
+        const palet = (item.metadata as { brandKit?: { colorPalette?: unknown } } | undefined)?.brandKit?.colorPalette;
+        if (Array.isArray(palet)) value = palet.filter(c => typeof c === 'string').join(', ');
+      }
       // Ham bölge anahtarı yerine mahallenin adı
       if (f.id === 'region') value = bolgeAdi(value);
 
       return { id: f.id, label: f.label, value };
     })
-    .filter(f => (opts.includeSecrets ? true : !GIZLI_ALANLAR.has(f.id)));
+    .filter(f => (includeSecrets ? true : !GIZLI_ALANLAR.has(f.id)));
 
   /**
-   * Şemada karşılığı olmayan künye alanları (Fizik, Saç, Gözler,
-   * Sevdikleri, Sevmedikleri, Hobiler) kaybolmasın — künyenin altına eklenir.
+   * Künyeye girmeyen satırlar kaybolmaz — sayfada "Bilgiler" bölümünde
+   * görünür (Kemal, 29 Eylül: "daha kompakt bir künye, diğer bilgiler
+   * sayfa kısmında").
    */
-  const used = new Set(
-    schemaFields
-      .filter(f => f.value)
-      .map(f => f.value.toLocaleLowerCase('tr'))
-  );
-
-  const extras: KunyeField[] = parsed.fields
-    .filter(f => !used.has(f.value.toLocaleLowerCase('tr')))
+  const ekler: KunyeField[] = parsed.fields
+    .filter((_, n) => !kullanilan.has(n))
     .map(f => ({ id: `ek_${f.label}`, label: f.label, value: f.value }));
 
-  if (parsed.yas && !schemaFields.some(f => f.id === 'age' && f.value)) {
-    extras.unshift({ id: 'ek_yas', label: 'Yaş', value: parsed.yas });
+  // Eski alan listesine yazılmış değerler
+  const profil = (item.metadata?.profile as Record<string, unknown> | undefined) || {};
+  const semaYollari = new Set(schema.map(f => f.fieldPath));
+  for (const [id, ad] of Object.entries(ESKI_ALAN_ADLARI)) {
+    if (semaYollari.has(`metadata.profile.${id}`)) continue;
+    if (!includeSecrets && GIZLI_ALANLAR.has(id)) continue;
+    const v = profil[id];
+    if (typeof v === 'string' && v.trim()) ekler.push({ id: `eski_${id}`, label: ad, value: v.trim() });
   }
 
   /**
@@ -173,12 +192,34 @@ export function getKunyeFields(
    * kalıcı bir olgudur, "şu anda açık" değildir.
    */
   const faaliyet = item.metadata?.faaliyet;
-  if (typeof faaliyet === 'string' && faaliyet.trim()) {
-    extras.unshift({ id: 'ek_faaliyet', label: 'Faaliyette', value: faaliyet.trim() });
+  if (typeof faaliyet === 'string' && faaliyet.trim() && !semaYollari.has('metadata.faaliyet')) {
+    alanlar.unshift({ id: 'ek_faaliyet', label: 'Faaliyette', value: faaliyet.trim() });
   }
 
-  const all = [...schemaFields, ...extras];
-  return opts.includeEmpty ? all : all.filter(f => f.value.length > 0);
+  return { alanlar, ekler };
+}
+
+/**
+ * Bir maddenin kısa künyesi (yalnız şema alanları).
+ * `title` ve `notes` künyeye girmez — onlar sayfanın başlığı ve gövdesidir.
+ */
+export function getKunyeFields(
+  item: Item,
+  opts: { includeEmpty?: boolean; includeSecrets?: boolean } = {}
+): KunyeField[] {
+  const c = kunyeyiCoz(item, !!opts.includeSecrets);
+  if (!c) return [];
+  return opts.includeEmpty ? c.alanlar : c.alanlar.filter(f => f.value.length > 0);
+}
+
+/** Künyeye girmeyen satırlar — sayfada "Bilgiler" bölümü */
+export function getEkBilgiler(item: Item, opts: { includeSecrets?: boolean } = {}): KunyeField[] {
+  return kunyeyiCoz(item, !!opts.includeSecrets)?.ekler.filter(f => f.value.length > 0) ?? [];
+}
+
+/** Metindeki renk kodları (#0E1C4F) — künyede renk kutucuğu olarak çizilir */
+export function renkKodlari(metin: string): string[] {
+  return Array.from(new Set((metin.match(/#[0-9a-f]{6}\b|#[0-9a-f]{3}\b/gi) || []).map(r => r.toUpperCase())));
 }
 
 /**
@@ -232,7 +273,7 @@ export function getArticleBody(item: Item): { heading?: string; text: string; st
  */
 export function isStub(item: Item): boolean {
   const chars = getArticleBody(item).reduce((n, b) => n + b.text.length, 0);
-  const kunye = getKunyeFields(item);
+  const kunye = [...getKunyeFields(item), ...getEkBilgiler(item)];
   const kunyeChars = kunye.reduce((n, f) => n + f.value.length, 0);
 
   const bilgi = chars + kunyeChars;

@@ -298,7 +298,7 @@ export default function ConsistencyChecker({
                               className="px-3 py-1 text-[10px] font-bold bg-[#F26B6F] hover:bg-[#B23A40] text-white rounded transition-colors flex items-center gap-1 shadow-sm"
                             >
                               <Check className="w-3 h-3" />
-                              Kabul Et
+                              {issue.fixAction.type === 'batch' && issue.fixAction.actions.length === 0 ? 'Anladım' : 'Kabul Et'}
                             </button>
                           </div>
                         </div>

@@ -6,6 +6,7 @@ import ConsistencyChecker from './ConsistencyChecker';
 import { DropKunyesi } from './DropKunyesi';
 import { SayfaRayi, type RayBolumu } from './SayfaRayi';
 import { markaYapisi, KURUM_ALANI } from '../lib/markaYapisi';
+import { KurumOzeti } from './marka/KurumOzeti';
 
 /** Merch ekranının bölümleri — bunlar sekme, kaydırma değil */
 const RAY_BOLUMLERI: RayBolumu[] = [
@@ -22,6 +23,8 @@ interface MerchProps {
   onUpdateItem: (item: Item) => Promise<void>;
   onDeleteItem: (itemId: string) => Promise<void>;
   onAddItem: (item: Omit<Item, 'id' | 'createdAt' | 'updatedAt' | 'userId'>) => Promise<void>;
+  /** Kurumun viki sayfasına gitmek için (kanon kutusu) */
+  onSelectArea?: (area: AreaType, itemId?: string) => void;
 }
 
 export default function Merch({
@@ -30,7 +33,8 @@ export default function Merch({
   onSelectItem,
   onUpdateItem,
   onDeleteItem,
-  onAddItem
+  onAddItem,
+  onSelectArea
 }: MerchProps) {
   const [activeTab, setActiveTab] = useState<'home' | 'droplar' | 'urunler' | 'arsiv'>('home');
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
@@ -1556,6 +1560,15 @@ export default function Merch({
                 onUpdateItem={onUpdateItem}
               />
             )}
+
+            {/* Kanon: drop'un (ya da ürünün drop'unun) kurumu — 29 Eylül */}
+            {(() => {
+              const kurumId = kurumuNe(activeItem);
+              const kurum = kurumId ? items.find(i => i.id === kurumId && !i.archived) : undefined;
+              return kurum ? (
+                <KurumOzeti item={kurum} onVikideAc={id => onSelectArea?.('duzada', id)} />
+              ) : null;
+            })()}
 
             {/* VIEW TAB SELECTOR - GÖSTERİM VE EDİTÖR SEKMELERİ */}
             <div className="flex border-b border-[#CFC5B4] pb-px justify-between items-center gap-4">

@@ -6,8 +6,10 @@ import { AutoLinkedText, LinkIndexEntry } from './autoLink';
 import { WikiRooms } from './WikiRooms';
 import { WikiPeople } from './WikiPeople';
 import { WikiHarita, haritaKarsiligiVar } from './WikiHarita';
+import { KunyeDegeri } from './KunyeDegeri';
 import {
   getKunyeFields,
+  getEkBilgiler,
   getArticleBody,
   kunyeCompleteness,
   isStub,
@@ -92,6 +94,9 @@ export const WikiArticle: React.FC<WikiArticleProps> = ({
     [item, admin]
   );
   const body = useMemo(() => getArticleBody(item), [item]);
+  /** Künyeye girmeyen satırlar — gövdede "Bilgiler" bölümü */
+  const ekBilgiler = useMemo(() => getEkBilgiler(item, { includeSecrets: admin }), [item, admin]);
+  const govdeVar = body.length > 0 || ekBilgiler.length > 0;
   const completeness = useMemo(() => kunyeCompleteness(item), [item]);
   /** W3: yan sütun künye boş olsa da harita kartı için açılabilir */
   const haritada = useMemo(() => haritaKarsiligiVar(item), [item]);
@@ -283,15 +288,33 @@ export const WikiArticle: React.FC<WikiArticleProps> = ({
       */}
       <div
         className={
-          body.length > 0
+          govdeVar
             ? 'lg:grid lg:grid-cols-[1fr_280px] lg:gap-8 items-start'
             : ''
         }
       >
         {/* --- Gövde --- */}
         <div className="min-w-0 order-1">
+          {ekBilgiler.length > 0 && (
+            <section className="mb-7">
+              <h2 className="font-serif text-xl text-lacivert dark:text-krem mb-3">Bilgiler</h2>
+              <dl className="grid sm:grid-cols-2 gap-x-6 gap-y-3">
+                {ekBilgiler.map(f => (
+                  <div key={f.id} className="min-w-0">
+                    <dt className="text-[10px] font-mono uppercase tracking-wide text-gri dark:text-bej/85 mb-0.5">
+                      {f.label}
+                    </dt>
+                    <dd className="text-[14px] text-[#2a2a2a] dark:text-krem/90 leading-snug">
+                      <KunyeDegeri value={f.value} />
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </section>
+          )}
+
           {body.length === 0 ? (
-            admin ? (
+            admin && ekBilgiler.length === 0 ? (
               <p className="text-gri dark:text-bej/85 italic text-sm">
                 Gövde metni yok — bu maddenin bildikleri künyeden ibaret.
               </p>
@@ -380,7 +403,7 @@ export const WikiArticle: React.FC<WikiArticleProps> = ({
         {(kunye.length > 0 || haritada || gorsel) && (
           <aside
             className={
-              body.length > 0
+              govdeVar
                 ? 'order-2 mt-8 lg:mt-0 lg:sticky lg:top-6'
                 : 'order-2 mt-2'
             }
@@ -401,7 +424,7 @@ export const WikiArticle: React.FC<WikiArticleProps> = ({
               )}
               <dl
                 className={
-                  body.length > 0
+                  govdeVar
                     ? 'divide-y divide-bej/30 dark:divide-lacivert-600/30'
                     : 'grid sm:grid-cols-2 lg:grid-cols-3 gap-px bg-bej/30 dark:bg-lacivert-600/30'
                 }
@@ -410,7 +433,7 @@ export const WikiArticle: React.FC<WikiArticleProps> = ({
                   <div
                     key={f.id}
                     className={
-                      body.length > 0
+                      govdeVar
                         ? 'px-4 py-2.5'
                         : 'px-4 py-3 bg-krem-acik/90 dark:bg-lacivert-800/60'
                     }
@@ -419,7 +442,7 @@ export const WikiArticle: React.FC<WikiArticleProps> = ({
                       {f.label}
                     </dt>
                     <dd className="text-[13px] text-lacivert dark:text-krem/90 leading-snug">
-                      {f.value}
+                      <KunyeDegeri value={f.value} />
                     </dd>
                   </div>
                 ))}

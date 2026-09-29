@@ -1,3 +1,5 @@
+import { KanonPaneli } from './wiki/KanonPaneli';
+import { TYPE_LABELS } from './wiki/wikiSchema';
 import React, { useState, useMemo } from 'react';
 import { Book, Sparkles, CheckSquare, Plus, FileText, Check, Trash2, HelpCircle, Compass, ListTodo, RefreshCw } from 'lucide-react';
 import { Item, ItemType, AreaType } from '../types';
@@ -624,7 +626,7 @@ export default function Kitap({
           <div className="lg:col-span-2 bg-[#F6F1E7] dark:bg-[#13204A] border-2 border-[#CFC5B4] dark:border-[#2C3C72] rounded-xl p-6 md:p-10 paper-grain archive-shadow space-y-6 flex flex-col min-h-[600px]">
             
             {/* Header edit info */}
-            <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 pb-4 border-b border-[#CFC5B4]/50">
+            <div className="flex flex-col 2xl:flex-row 2xl:items-start justify-between gap-4 pb-4 border-b border-[#CFC5B4]/50">
               <div className="space-y-1 flex-1 min-w-0">
                 <span className="text-xs font-mono uppercase text-[#F26B6F] font-bold">
                   BÖLÜM YAZIM MASASI
@@ -783,7 +785,7 @@ export default function Kitap({
                       <Compass className="w-3 h-3 text-[#F26B6F] group-hover:animate-spin" />
                       <span>{e.title}</span>
                       <span className="text-[9px] opacity-75">
-                        ({e.type === 'kisi' ? 'Kişi' : e.type === 'mekan' ? 'Mekan' : 'Marka'})
+                        ({TYPE_LABELS[e.type as ItemType] || e.type})
                       </span>
                       {isExplicitlyLinked ? (
                         <button 
@@ -824,6 +826,9 @@ export default function Kitap({
 
           {/* RIGHT PANEL: Manual Todos & AI checkouts */}
           <div className="space-y-6">
+
+            {/* Kanon: bölümde geçen maddeler ve tarih uyarıları (29 Eylül) */}
+            <KanonPaneli metin={activeChapter.notes || ''} items={items} />
             
             {/* MANUAL TODOS - Kalan işler */}
             <div className="bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] dark:border-[#2C3C72] p-5 rounded-xl paper-grain space-y-4">
@@ -946,7 +951,7 @@ export default function Kitap({
                   <option value="">Varlık Seçin...</option>
                   {entities.filter(e => !(activeChapter.links || []).includes(e.id)).map(e => (
                     <option key={e.id} value={e.id}>
-                      {e.title} ({e.type === 'kisi' ? 'Kişi' : e.type === 'mekan' ? 'Mekan' : 'Marka'})
+                      {e.title} ({TYPE_LABELS[e.type as ItemType] || e.type})
                     </option>
                   ))}
                 </select>

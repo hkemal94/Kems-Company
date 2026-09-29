@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Hand, MousePointer2, PenLine, Redo2, Undo2, Check, X, Eye, EyeOff, Home, LayoutGrid, RotateCcw, RotateCw, MapPinned } from 'lucide-react';
+import { Eraser, Hand, MousePointer2, PenLine, Redo2, Undo2, Check, X, Eye, EyeOff, Home, LayoutGrid, RotateCcw, RotateCw, MapPinned } from 'lucide-react';
 import { belgelerAyniMi } from './kurucuHarita';
 import type { KurucuBelge } from '../harita/duzenTipi';
 import { DUZADA_GEO } from '../../data/duzadaGeo';
@@ -37,7 +37,7 @@ import {
  * Geri al / yinele: düğmeler ya da Ctrl+Z / Ctrl+Y.
  */
 
-type Arac = 'gez' | 'sec' | 'ciz' | 'bina' | 'sablon';
+type Arac = 'gez' | 'sec' | 'ciz' | 'bina' | 'sablon' | 'sil';
 
 interface KurucuProps {
   duzen: HaritaDuzeni | null;
@@ -277,10 +277,12 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className }: KurucuProps
       else if (e.key === 'Enter' && arac === 'ciz') bitir();
       else if (e.key === 'Escape') { setCizilen([]); setSecili(null); }
       else if (e.key === 'Backspace' && arac === 'ciz' && cizilen.length) { e.preventDefault(); setCizilen(c => c.slice(0, -1)); }
+      // Seçili yol ya da yapı Delete / Backspace ile kaldırılır
+      else if ((e.key === 'Delete' || e.key === 'Backspace') && arac === 'sec' && secili) { e.preventDefault(); kaldirGeriGetir(secili); setSecili(null); }
     };
     window.addEventListener('keydown', tus);
     return () => window.removeEventListener('keydown', tus);
-  }, [arac, bitir, cizilen.length, geriAl, yinele]);
+  }, [arac, bitir, cizilen.length, geriAl, yinele, secili]);
 
   // ---- işaretçi: kaydır / tıkla / çimdikle ------------------------------------
   const basilanlar = useRef(new Map<number, { x: number; y: number }>());
@@ -359,6 +361,15 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className }: KurucuProps
       const bn = altta.map(el => el.closest('[data-bina]')).find(Boolean);
       const yl = altta.map(el => el.closest('[data-yol]')).find(Boolean);
       setSecili(bn ? bn.getAttribute('data-bina') : yl ? yl.getAttribute('data-yol') : null);
+    } else if (arac === 'sil') {
+      // Kaldır aracı: dokunulan yol ya da yapı tek dokunuşta kaldırılır;
+      // kaldırılmışa dokununca geri gelir (29 Eylül, Kemal: "yolların
+      // silinmesi daha kolay olmalı"). Silinmez; Geri al da çalışır.
+      const altta = document.elementsFromPoint(e.clientX, e.clientY);
+      const bn = altta.map(el => el.closest('[data-bina]')).find(Boolean);
+      const yl = altta.map(el => el.closest('[data-yol]')).find(Boolean);
+      const id = bn ? bn.getAttribute('data-bina') : yl ? yl.getAttribute('data-yol') : null;
+      if (id) kaldirGeriGetir(id);
     } else if (arac === 'bina') {
       binaKoy(ekrandanMetre(e.clientX, e.clientY));
     } else if (arac === 'sablon') {
@@ -396,10 +407,13 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className }: KurucuProps
     }
     return { ...t, turDegisikligi: { ...t.turDegisikligi, [y.id]: tur } };
   });
-  const gizleGoster = (y: KurucuYol) => degistir(t => ({
-    ...t,
-    gizlenen: t.gizlenen.includes(y.id) ? t.gizlenen.filter(x => x !== y.id) : [...t.gizlenen, y.id]
-  }));
+  const gizleGoster = (y: KurucuYol) => kaldirGeriGetir(y.id);
+  function kaldirGeriGetir(id: string) {
+    degistir(t => ({
+      ...t,
+      gizlenen: t.gizlenen.includes(id) ? t.gizlenen.filter(x => x !== id) : [...t.gizlenen, id]
+    }));
+  }
 
   // ---- özet -------------------------------------------------------------------
   const ozet = useMemo(() => {
@@ -452,6 +466,13 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className }: KurucuProps
 
   // ---- çizim ------------------------------------------------------------------
   const px = (n: number) => n / olcek; // piksel → metre (kalınlık için)
+  /**
+   * Yol kalınlığı yakınlaşmaya bağlı: sokak düzeyinde tam kalınlık, adanın
+   * tamamına bakarken üçte birine iner (29 Eylül, Kemal: "zoom out'tayken
+   * yollar çok kalın görünüyor").
+   */
+  const yolOrani = Math.min(1, Math.max(0.35, olcek * 1.4));
+  const yk = (n: number) => px(n * yolOrani);
   const gorunenYollar = [...yollar].sort((a, b) =>
     ['patika', 'toprak', 'sokak', 'ana'].indexOf(a.tur) - ['patika', 'toprak', 'sokak', 'ana'].indexOf(b.tur));
 
@@ -466,7 +487,7 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className }: KurucuProps
       <div
         ref={kutu}
         className={`relative flex-1 min-h-[60vh] lg:min-h-0 rounded-lg overflow-hidden border border-[#B9C7BD] bg-[#C9DCE0] touch-none select-none ${
-          arac === 'ciz' || arac === 'bina' || arac === 'sablon' ? 'cursor-crosshair' : arac === 'gez' ? 'cursor-grab' : 'cursor-pointer'}`}
+          arac === 'ciz' || arac === 'bina' || arac === 'sablon' || arac === 'sil' ? 'cursor-crosshair' : arac === 'gez' ? 'cursor-grab' : 'cursor-pointer'}`}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
@@ -493,7 +514,7 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className }: KurucuProps
             const b = turBilgisi(y.tur);
             if (y.gizli || !b.kenar) return null;
             return <path key={`k-${y.id}`} d={yolYolu(y.m)} fill="none" stroke={b.kenar}
-              strokeWidth={px(b.kalinlik + 2)} strokeLinecap="round" strokeLinejoin="round" />;
+              strokeWidth={yk(b.kalinlik + 2)} strokeLinecap="round" strokeLinejoin="round" />;
           })}
           {gorunenYollar.map(y => {
             if (y.gizli && !gizliGoster) return null;
@@ -504,12 +525,12 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className }: KurucuProps
                 {/* Dokunma payı */}
                 <path d={yolYolu(y.m)} fill="none" stroke="transparent" strokeWidth={px(14)} />
                 {sec && <path d={yolYolu(y.m)} fill="none" stroke="#F26B6F" strokeOpacity={0.45}
-                  strokeWidth={px(b.kalinlik + 8)} strokeLinecap="round" strokeLinejoin="round" />}
+                  strokeWidth={yk(b.kalinlik) + px(6)} strokeLinecap="round" strokeLinejoin="round" />}
                 <path
                   d={yolYolu(y.m)} fill="none"
                   stroke={y.gizli ? '#F26B6F' : b.renk}
                   strokeOpacity={y.gizli ? 0.5 : 1}
-                  strokeWidth={px(y.gizli ? 1.5 : b.kalinlik)}
+                  strokeWidth={y.gizli ? px(1.5) : yk(b.kalinlik)}
                   strokeDasharray={y.gizli ? `${px(4)} ${px(4)}` : b.kesik ? b.kesik.split(' ').map(n => px(Number(n))).join(' ') : undefined}
                   strokeLinecap="round" strokeLinejoin="round"
                 />
@@ -555,7 +576,7 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className }: KurucuProps
             <g style={{ pointerEvents: 'none' }} opacity={0.75}>
               {sablonOnizleme.yollar.map((y, i) => (
                 <path key={i} d={yolYolu(y.m)} fill="none" stroke="#F26B6F"
-                  strokeWidth={px(turBilgisi(y.tur).kalinlik)} strokeLinecap="round" strokeLinejoin="round"
+                  strokeWidth={yk(turBilgisi(y.tur).kalinlik)} strokeLinecap="round" strokeLinejoin="round"
                   strokeDasharray={turBilgisi(y.tur).kesik ? turBilgisi(y.tur).kesik!.split(' ').map(n => px(Number(n))).join(' ') : undefined} />
               ))}
               {sablonOnizleme.binalar.map((b, i) => (
@@ -588,10 +609,10 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className }: KurucuProps
           {arac === 'ciz' && cizilen.length > 0 && (
             <g style={{ pointerEvents: 'none' }}>
               <path d={yolYolu(cizilen.length >= 3 ? egri(cizilen) : cizilen)} fill="none"
-                stroke={turBilgisi(cizTur).kenar ?? turBilgisi(cizTur).renk} strokeWidth={px(turBilgisi(cizTur).kalinlik + 2)}
+                stroke={turBilgisi(cizTur).kenar ?? turBilgisi(cizTur).renk} strokeWidth={yk(turBilgisi(cizTur).kalinlik + 2)}
                 strokeLinecap="round" strokeLinejoin="round" />
               <path d={yolYolu(cizilen.length >= 3 ? egri(cizilen) : cizilen)} fill="none"
-                stroke="#F26B6F" strokeWidth={px(turBilgisi(cizTur).kalinlik)} strokeLinecap="round" strokeLinejoin="round" />
+                stroke="#F26B6F" strokeWidth={yk(turBilgisi(cizTur).kalinlik)} strokeLinecap="round" strokeLinejoin="round" />
               {imlec && (
                 <path d={yolYolu([cizilen[cizilen.length - 1], imlec])} fill="none" stroke="#F26B6F"
                   strokeWidth={px(1.5)} strokeDasharray={`${px(5)} ${px(4)}`} />
@@ -645,6 +666,12 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className }: KurucuProps
           </div>
         )}
 
+        {arac === 'sil' && (
+          <div className="absolute left-2 top-2 max-w-[70%] px-2.5 py-1.5 rounded-md bg-[#0E1C4F]/85 text-[11px] text-[#F3EFE8] pointer-events-none">
+            Kaldırmak istediğin yola ya da yapıya dokun. Silinmez: kesikli kırmızı görünür, tekrar dokununca ya da Geri al ile geri gelir.
+          </div>
+        )}
+
         {/* Çizim ipucu */}
         {arac === 'ciz' && (
           <div className="absolute left-2 top-2 max-w-[70%] px-2.5 py-1.5 rounded-md bg-[#0E1C4F]/85 text-[11px] text-[#F3EFE8] pointer-events-none">
@@ -659,10 +686,10 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className }: KurucuProps
       <div className="lg:w-72 shrink-0 flex flex-col gap-3 text-[#0E1C4F] dark:text-[#F3EFE8]">
         <div className="rounded-lg border border-[#CFC5B4] dark:border-[#2C3C72] bg-[#F3EFE8] dark:bg-[#13204A] p-3">
           <div className="text-[10px] font-mono uppercase tracking-wider text-[#6A5E4C] dark:text-[#A6B0C9] mb-2">Araç</div>
-          <div className="grid grid-cols-5 lg:grid-cols-3 gap-1.5">
+          <div className="grid grid-cols-6 lg:grid-cols-3 gap-1.5">
             {([
               ['gez', 'Gez', Hand], ['sec', 'Seç', MousePointer2], ['ciz', 'Yol çiz', PenLine],
-              ['bina', 'Bina', Home], ['sablon', 'Şablon', LayoutGrid]
+              ['bina', 'Bina', Home], ['sablon', 'Şablon', LayoutGrid], ['sil', 'Kaldır', Eraser]
             ] as const).map(([id, ad, Ikon]) => (
               <button key={id} type="button" onClick={() => { setArac(id); setCizilen([]); setImlec(null); if (id !== 'sec') setSecili(null); }}
                 className={`flex flex-col items-center gap-1 py-2 rounded-md text-[11px] cursor-pointer border ${

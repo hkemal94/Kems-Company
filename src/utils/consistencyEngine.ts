@@ -1,5 +1,31 @@
 import { Item, WikiSection } from '../types';
 import { getCharacterKunye } from '../components/Duzada';
+import { tarihUyarilari } from '../lib/kanonTarihleri';
+
+/**
+ * Kanonla çelişen tarihler (29 Eylül 2026). Otomatik düzeltme yok —
+ * metni Kemal düzeltir; "Kabul Et" yalnız uyarıyı kapatır.
+ */
+function tarihSorunlari(items: Item[], module: ConsistencyIssue['module']): ConsistencyIssue[] {
+  const issues: ConsistencyIssue[] = [];
+  for (const item of items) {
+    const bolumler = ((item.metadata?.wikiSections as WikiSection[] | undefined) || [])
+      .map(b => b.content || '').join('\n\n');
+    const metin = [item.notes || '', bolumler].join('\n\n');
+    for (const u of tarihUyarilari(metin)) {
+      issues.push({
+        id: `kanon_tarih_${item.id}_${u.kural.ad}_${u.yil}`,
+        module,
+        title: 'Kanonla Çelişen Tarih',
+        type: 'warning',
+        message: `"${item.title}" metninde ${u.yil} geçen bir paragrafta ${u.kural.ad} var. ${u.kural.not} (“${u.alinti}…”)`,
+        proposedFix: 'Metni elle düzelt ya da yılı gözden geçir. Otomatik düzeltme yok.',
+        fixAction: { type: 'batch', actions: [] }
+      });
+    }
+  }
+  return issues;
+}
 
 export interface ConsistencyIssue {
   id: string;
@@ -346,6 +372,7 @@ export function checkKitapConsistency(items: Item[]): ConsistencyIssue[] {
     }
   }
 
+  issues.push(...tarihSorunlari(chapters, 'kitap'));
   return issues;
 }
 
@@ -407,6 +434,7 @@ export function checkBlogConsistency(items: Item[]): ConsistencyIssue[] {
     }
   }
 
+  issues.push(...tarihSorunlari(posts, 'blog'));
   return issues;
 }
 
@@ -479,6 +507,7 @@ export function checkDuzadaConsistency(items: Item[]): ConsistencyIssue[] {
     }
   }
 
+  issues.push(...tarihSorunlari(items.filter(i => !i.archived && ['yer', 'mekân', 'dükkân', 'kulüp', 'marka', 'kisi', 'karakter', 'olay'].includes(i.type)), 'duzada'));
   return issues;
 }
 

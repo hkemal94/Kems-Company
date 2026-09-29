@@ -26,7 +26,7 @@ Ad sorularında Claude aday önerebilir; karar Kemal'in.
 - Antik yerleşim hangi dönemden? (W3 60. tur: sonra)
 
 ## Harita
-- Kems Company dükkânı: yerini Kemal şehir kurucuda seçecek (adı da açık; 2024'te yeni yapılmış bir bina).
+- ~~Kems Company dükkânının yeri~~ — Kemsköy Caddesi (Kemal, 29 Eylül). Adı açık.
 - Küçükçetmi Çiftliği: Çiftlik'in iç tarafında, tepeye yakın (W3 62. tur) — tam yerini Kemal kurucuda seçecek.
 
 ## Metin (Kemal yazacak)
