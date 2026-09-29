@@ -623,6 +623,52 @@ Canva "Başlık" planı; ilk dil Türkçe; içerik paneldeki kayıtlardan;
 anasayfada şimdilik 3D harita görüntüsü; bülten ayrıca konuşulacak).
 Liste dışı: Arazi aracı, kendi adrese taşıma (şimdilik Google'da).
 
+## 29 Eylül gece — Sosyal medya (tek PR)
+
+Araçlar'da yeni sayfa: **Sosyal medya** (masaüstünde rayda megafon simgesi,
+telefonda Diğer → Araçlar). Kemal'in kararları:
+
+- **Takvim:** ay takvimi. Yanında tarihsiz **fikir kutusu**; fikir bir güne
+  sürüklenince tarih alır, günden kutuya sürüklenince tarihi kalkar.
+  Telefonda takvim gün listesi; sekmeler Takvim · Fikirler · Seriler · Izgara.
+- **Kanallar:** Instagram · TikTok + YouTube Shorts (aynı içerik, tek kanal)
+  · X / Threads · Pinterest. Bir gönderi birden çok kanala gider; her kanal
+  ayrı "paylaşıldı" işaretlenir, hepsi işaretlenince gönderi "Paylaşıldı"ya
+  geçer. Hesap adları Markalar'daki kanal kayıtlarından okunur.
+- **Aşama:** Fikir → Taslak → Hazır → Paylaşıldı. **Biçim:** tek görsel ·
+  kaydırmalı · video / reels.
+- **Tür** (yalnız KKM içinde, dışarı yansımaz): Ürün · Nostalji · Afiş ·
+  Hayat · Marka. Takvimde nokta rengi.
+- **Seriler** (Kemal: "ben serileri çok severim"): adı (Kemal koyar), rengi,
+  düzeni (haftanın bir günü · ayın bir günü · düzensiz), varsayılan
+  kanalları. Takvimde gönderinin sol kenarı seri renginde; düzenli serinin
+  boş günleri kesikli görünür, **kayıt oluşmaz** — basınca gönderi açılır.
+  Seriler sekmesinde her seri: gönderi sayısı, son paylaşılan, sıradaki boş
+  yer, son gönderilerin tür renkleri, "Takvimde göster" (takvimi o seriye
+  süzer). Seri silinince gönderileri kalır, yalnız seriden çıkar.
+- **Gönderi kartı:** başlık, tarih, saat, tür, seri, biçim, kanallar,
+  görsel (galeriden seç + Canva bağlantısı), metin, hashtag, Pinterest ilham
+  bağlantısı, bağlar (drop / ürün, viki, blog, kitap, oyun), not, paylaşılan
+  bağlantı. Yazdıkça kaydeder. "Metni kopyala", "Görseli indir".
+- **Izgara önizlemesi:** Instagram'a işaretli gönderilerin sade kareleri;
+  paylaşılmamışlar soluk. Masaüstünde gizlenebilir. Numara yok.
+- **Stüdyo:** yeni "Sosyal medya" grubu — Hashtag öner (Ekle → hashtag
+  alanına), Metin taslağı (Ekle → metnin yerine; kurgu uyarılı). Gönderi
+  kartında yalnız "✨ Stüdyoda aç".
+- **Pinterest:** Galeri'de "Pinterest panoları". Pano adresi eklenir,
+  "Pinleri getir"e basınca herkese açık panonun pinleri gelir, "Galeriye al"
+  ile galeri görseli olur. Bu ortamdan Pinterest kapalı olduğu için **pin
+  getirme test edilemedi**; yalnız hata ekranı görüldü.
+- **Buffer:** 2. adım. Kartta soluk "Buffer'a gönder · 2. adım" duruyor;
+  Kemal Buffer hesabı açınca bağlanacak.
+- **Ürün hatları:** Kems Watch Co, Kems Coffee Co, KC's Objects Kems
+  Company'nin ürün hatları; tek marka kuralı değişmedi.
+
+Kayıtlar: `sosyal_gonderi`, `sosyal_seri`, `ilham_kaynak` (Pinterest
+panosu). Kod: `src/lib/sosyal.ts`, `src/components/sosyal/`,
+`src/components/galeri/PinterestPanolari.tsx`. Görseller:
+`docs/gorseller/s-*.png` (önizleme, **örnek veri**).
+
 ## Sıradaki
 
 - Oyunun tasarım belgesinin doldurulması (13 başlık)

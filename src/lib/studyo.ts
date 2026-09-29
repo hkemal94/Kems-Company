@@ -19,19 +19,20 @@ import { aiCagir, AiHatasi } from './aiCagir';
  * Firestore iç içe dizi kabul etmez; sonuçlar düz dizi ya da nesne dizisi.
  */
 
-export type StudyoGrubu = 'viki' | 'yazi' | 'marka' | 'kanon';
+export type StudyoGrubu = 'viki' | 'yazi' | 'marka' | 'kanon' | 'sosyal';
 
 export const GRUP_ADLARI: Record<StudyoGrubu, string> = {
   viki: 'Viki',
   yazi: 'Yazı',
   marka: 'Marka ve Merch',
-  kanon: 'Kanon'
+  kanon: 'Kanon',
+  sosyal: 'Sosyal medya'
 };
 
 export type SonucTuru = 'metin' | 'liste' | 'bolumler' | 'kunye' | 'renkler' | 'urunler';
 
 /** "Ekle" düğmesinin ne yaptığı; null ise yalnız kopyalanır */
-export type Uygulama = 'notlara-ekle' | 'bolum-ekle' | 'kunye-ekle' | 'baslik-yap' | 'metnin-yerine' | 'renk-ekle' | 'urun-ekle' | null;
+export type Uygulama = 'notlara-ekle' | 'bolum-ekle' | 'kunye-ekle' | 'baslik-yap' | 'metnin-yerine' | 'renk-ekle' | 'urun-ekle' | 'hashtag-ekle' | null;
 
 export interface StudyoAraci {
   id: string;
@@ -134,6 +135,19 @@ export const STUDYO_ARACLARI: StudyoAraci[] = [
     aciklama: 'Metnin vikideki hangi maddelerle bağlanabileceğini önerir.',
     hedefTurleri: [...YAZI, ...VIKI], sonuc: 'metin', uygulama: null, task: 'lore-bagi',
     veri: (h, _s, items) => ({ text: h?.notes || '', existingEntities: vikiBaglami(items).map(e => ({ title: e.title, type: e.type })) })
+  },
+  // ---- Sosyal medya (gönderi kartındaki "Stüdyoda aç")
+  {
+    id: 'sosyal-hashtag', grup: 'sosyal', ad: 'Hashtag öner',
+    aciklama: 'Gönderinin metnine ve bağlarına bakıp hashtag önerir. Ekle deyince hashtag alanına eklenir.',
+    hedefTurleri: ['sosyal_gonderi'], sonuc: 'liste', uygulama: 'hashtag-ekle', task: 'sosyal-hashtag',
+    veri: (h, _s, items) => ({ baslik: h?.title || '', metin: h?.notes || '', baglar: (h?.links || []).map(id => items.find(i => i.id === id)?.title).filter(Boolean) })
+  },
+  {
+    id: 'sosyal-metin', grup: 'sosyal', ad: 'Metin taslağı', kurgu: true,
+    aciklama: 'Gönderi için kısa bir metin taslağı. Ekle deyince metnin yerine geçer.',
+    hedefTurleri: ['sosyal_gonderi'], serbest: 'Ne anlatsın? (isteğe bağlı)', sonuc: 'metin', uygulama: 'metnin-yerine', task: 'sosyal-metin',
+    veri: (h, s, items) => ({ baslik: h?.title || '', metin: h?.notes || '', istek: s, baglar: (h?.links || []).map(id => items.find(i => i.id === id)).filter(Boolean).map(i => ({ title: i!.title, notes: (i!.notes || '').slice(0, 400) })) })
   }
 ];
 
@@ -270,6 +284,13 @@ export function oneriyiUygula(
       const kit = hedef.metadata?.brandKit || { selectedLogo: '', ideaLogos: [], colorPalette: [], exemplaryWorks: [] };
       const palet = Array.from(new Set([...(kit.colorPalette || []), ...(oneri.renkler || []).map(r => r.hex)]));
       return { guncel: { ...hedef, metadata: { ...hedef.metadata, brandKit: { ...kit, colorPalette: palet } }, updatedAt: simdi } };
+    }
+    case 'hashtag-ekle': {
+      const g = (hedef.metadata?.gonderi as Record<string, unknown>) || {};
+      const eski = String(g.hashtag || '').split(/\s+/).filter(Boolean);
+      const yeni = (oneri.liste || []).map(x => '#' + x.replace(/^#+/, '').replace(/\s+/g, ''));
+      const hepsi = Array.from(new Set([...eski, ...yeni])).join(' ');
+      return { guncel: { ...hedef, metadata: { ...hedef.metadata, gonderi: { ...g, hashtag: hepsi } }, updatedAt: simdi } };
     }
     case 'urun-ekle': {
       const u = oneri.urunler?.[typeof s.secim === 'number' ? s.secim : 0];

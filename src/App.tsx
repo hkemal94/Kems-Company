@@ -29,7 +29,8 @@ import {
   Map as MapIcon,
   Sun,
   Moon,
-  UserRound
+  UserRound,
+  Megaphone
 } from 'lucide-react';
 import Durum from './components/Durum';
 import Duzada from './components/Duzada';
@@ -43,6 +44,7 @@ import Kitap from './components/Kitap';
 import HizliFikir from './components/HizliFikir';
 import Bosluklar from './components/Bosluklar';
 import Galeri from './components/Galeri';
+import Sosyal from './components/sosyal/Sosyal';
 import OyunEkrani from './components/oyun/OyunEkrani';
 import Markalar from './components/Markalar';
 import DuzadaDirectory from './components/DuzadaDirectory';
@@ -55,7 +57,7 @@ import { Zil } from './components/kabuk/Zil';
 import { useBildirimler, type Bildirim } from './lib/bildirimler';
 
 /** Uygulamanın sayfaları. 'komuta' ana sayfa; eski Komuta Merkezi 'durum'. */
-type Sayfa = 'komuta' | 'durum' | 'eksikler' | 'markalar' | 'duzada' | 'merch' | 'yazi' | 'oyun' | 'galeri' | 'studyo';
+type Sayfa = 'komuta' | 'durum' | 'eksikler' | 'markalar' | 'duzada' | 'merch' | 'yazi' | 'oyun' | 'galeri' | 'studyo' | 'sosyal';
 
 export interface WorkspaceUser {
   uid: string;
@@ -576,6 +578,7 @@ export default function App() {
     { id: 'oyun', ad: 'Oyun', simge: Gamepad2 },
     { id: 'galeri', ad: 'Galeri', simge: ImageIcon },
     { id: 'studyo', ad: 'Yapay zekâ stüdyosu · öneri tepsisi', simge: Sparkles, nokta: bildirimVar('aday') },
+    { id: 'sosyal', ad: 'Sosyal medya · takvim ve seriler', simge: Megaphone },
     { id: 'eksikler', ad: 'Neyin Eksik', simge: ListChecks, nokta: bildirimVar('dugme') },
     { id: 'durum', ad: 'Durum · yüzdeler ve boşluklar', simge: Percent }
   ];
@@ -592,6 +595,7 @@ export default function App() {
     ] },
     { grup: 'Araçlar', satirlar: [
       { hedef: 'studyo', ad: 'Stüdyo', simge: Sparkles, nokta: bildirimVar('aday') },
+      { hedef: 'sosyal', ad: 'Sosyal medya', simge: Megaphone },
       { hedef: 'eksikler', ad: 'Neyin Eksik', simge: ListChecks, nokta: bildirimVar('dugme') },
       { hedef: 'durum', ad: 'Durum ve boşluklar', simge: Percent }
     ] }
@@ -608,7 +612,7 @@ export default function App() {
 
   const SAYFA_ADI: Record<Sayfa, string> = {
     komuta: 'Ana sayfa', duzada: 'Düzada', markalar: 'Markalar', merch: 'Merch', yazi: 'Yazı',
-    oyun: 'Oyun', galeri: 'Galeri', eksikler: 'Neyin Eksik', durum: 'Durum', studyo: 'Yapay zekâ stüdyosu'
+    oyun: 'Oyun', galeri: 'Galeri', eksikler: 'Neyin Eksik', durum: 'Durum', studyo: 'Yapay zekâ stüdyosu', sosyal: 'Sosyal medya'
   };
 
   const logo = hasKemsLogo ? (
@@ -835,11 +839,16 @@ export default function App() {
               <Studyo {...studyoIslemleri} onTemizlik={() => git('eksikler')} />
             )}
 
+            {activeTab === 'sosyal' && (
+              <Sosyal items={items} onAddItem={handleAddItem} onUpdateItem={handleUpdateItem} onDeleteItem={handleDeleteItem} />
+            )}
+
             {activeTab === 'galeri' && (
               <Galeri
                 items={items}
                 onAddItem={handleAddItem}
                 onUpdateItem={handleUpdateItem}
+                onDeleteItem={handleDeleteItem}
                 onSelectItem={(id) => {
                   const it = items.find(i => i.id === id);
                   if (it) handleSelectResult(it);

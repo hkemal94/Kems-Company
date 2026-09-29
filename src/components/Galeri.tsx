@@ -6,6 +6,7 @@ import {
 } from '../lib/imageCompressor';
 import { SayfaRayi, type RayBolumu } from './SayfaRayi';
 import { CanvaAynasi } from './galeri/CanvaAynasi';
+import { PinterestPanolari } from './galeri/PinterestPanolari';
 
 /**
  * Galeri.
@@ -32,6 +33,7 @@ import { CanvaAynasi } from './galeri/CanvaAynasi';
 const RAY_BOLUMLERI: RayBolumu[] = [
   { id: 'gal-yukle', label: 'Yükle' },
   { id: 'gal-liste', label: 'Görseller' },
+  { id: 'gal-pinterest', label: 'Pinterest' },
   { id: 'gal-canva', label: 'Canva aynası' }
 ];
 
@@ -58,11 +60,12 @@ export interface GaleriProps {
   items: Item[];
   onAddItem: (item: Omit<Item, 'id' | 'createdAt' | 'updatedAt' | 'userId'>) => Promise<void>;
   onUpdateItem: (item: Item) => Promise<void>;
+  onDeleteItem?: (id: string) => Promise<void>;
   onSelectItem?: (id: string) => void;
 }
 
 export const Galeri: React.FC<GaleriProps> = ({
-  items, onAddItem, onUpdateItem, onSelectItem
+  items, onAddItem, onUpdateItem, onDeleteItem, onSelectItem
 }) => {
   const girdi = useRef<HTMLInputElement | null>(null);
   const [yukleniyor, setYukleniyor] = useState(false);
@@ -372,6 +375,12 @@ export const Galeri: React.FC<GaleriProps> = ({
             })}
           </div>
         )}
+      </section>
+
+      {/* Pinterest panoları (sosyal medya, 29 Eylül gece) */}
+      <section id="gal-pinterest" className="scroll-mt-24">
+        <h2 className="mb-2 text-[11px] font-mono font-bold uppercase tracking-[0.18em] text-[#6A5E4C] dark:text-[#A6B0C9]">Pinterest panoları · ilham</h2>
+        <PinterestPanolari items={items} onAddItem={onAddItem} onDeleteItem={onDeleteItem} />
       </section>
 
       {/* Canva aynası (Paket 5): Canva'daki Kems / Düzada tasarımları */}

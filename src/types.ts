@@ -1,4 +1,4 @@
-export type AreaType = 'duzada' | 'merch' | 'blog' | 'kitap' | 'brainstorm' | 'ilham' | 'komuta' | 'markalar' | 'oyun' | 'bosluklar' | 'galeri';
+export type AreaType = 'duzada' | 'merch' | 'blog' | 'kitap' | 'brainstorm' | 'ilham' | 'komuta' | 'markalar' | 'oyun' | 'bosluklar' | 'galeri' | 'sosyal';
 
 export type GeneralStatus = 'Fikir' | 'Planlandı' | 'Çalışılıyor' | 'Bitti' | 'Yayınlandı';
 export type DropStatus = 'Konsept' | 'Tasarım' | 'Üretim' | 'Satışta';
@@ -32,7 +32,9 @@ export type ItemType =
   // Onay bekleyen aday (Paket 4): günün sorusu cevabı, atölye taslağı
   | 'aday'
   // Oyunun tanıtım künyesi (Paket 5): durum, özet, açıklama, ekran görüntüleri
-  | 'oyun_tanitim';
+  | 'oyun_tanitim'
+  // Sosyal medya (29 Eylül gece): gönderi, seri, Pinterest panosu
+  | 'sosyal_gonderi' | 'sosyal_seri' | 'ilham_kaynak';
 
 export interface WikiSection {
   id: string;

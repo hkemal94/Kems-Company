@@ -156,7 +156,7 @@ export const OneriTepsisi: React.FC<Props> = ({
         <div className="flex flex-wrap gap-2">
           {arac?.uygulama && !['baslik-yap', 'urun-ekle'].includes(arac.uygulama) && (
             <button type="button" disabled={is} onClick={() => ekle(a, o)} className={DUGME_LAC}>
-              {arac.uygulama === 'metnin-yerine' ? 'Metnin yerine koy' : arac.uygulama === 'bolum-ekle' ? 'Maddeye ekle (öneri olarak)' : arac.uygulama === 'kunye-ekle' ? 'Boş künye alanlarına yaz' : arac.uygulama === 'renk-ekle' ? 'Paletine ekle' : 'Metne ekle'}
+              {arac.uygulama === 'metnin-yerine' ? 'Metnin yerine koy' : arac.uygulama === 'bolum-ekle' ? 'Maddeye ekle (öneri olarak)' : arac.uygulama === 'kunye-ekle' ? 'Boş künye alanlarına yaz' : arac.uygulama === 'renk-ekle' ? 'Paletine ekle' : arac.uygulama === 'hashtag-ekle' ? 'Hashtaglere ekle' : 'Metne ekle'}
             </button>
           )}
           {o.metin && <button type="button" onClick={() => kopyala(o.metin!)} className={`${DUGME_BOS} inline-flex items-center gap-1`}><Copy className="w-3 h-3" /> Kopyala</button>}
