@@ -381,10 +381,10 @@ export default function Kitap({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#CFC5B4]">
         <div>
           <span className="text-xs font-mono uppercase text-[#6A5E4C] dark:text-[#A6B0C9]">
-            Kems Company • Hikaye & Söylenceler
+            Kems Company · Kitap
           </span>
-          <h1 className="font-serif font-bold text-2xl text-[#0E1C4F] dark:text-[#F3EFE8] mt-1">
-            Yazar Masası (Kitap Taslakları)
+          <h1 className="font-sans font-bold text-2xl text-[#0E1C4F] dark:text-[#F3EFE8] mt-1 tracking-tight">
+            Kitap
           </h1>
         </div>
 
@@ -417,6 +417,48 @@ export default function Kitap({
       {/* VIEW 1: HOME BOOKSHELF */}
       {activeTab === 'home' && (
         <div className="space-y-8 animate-in fade-in duration-200">
+          {/*
+            Nereden başlasam (Paket 5, 29 Eylül). Kemal (yapısal 1. set, 8. tur):
+            yazıyı durduran "nereden başlayacağını bilmemek, telefonda zor, vakit
+            yok". Rafın en üstünde tek bir sonraki adım: kitap yoksa aç, bölüm
+            yoksa ilk bölümü aç, varsa kaldığın bölüme dön.
+          */}
+          {(() => {
+            const kitaplar = books.filter(b => !(b.tags || []).includes('oyun-tasarimi'));
+            const bolumler = chapters.filter(c => !(c.tags || []).includes('oyun-tasarimi'));
+            const son = [...bolumler].sort((a, b) => b.updatedAt - a.updatedAt)[0];
+            const kelime = (t: string) => (t || '').trim().split(/\s+/).filter(Boolean).length;
+            const toplamKelime = bolumler.reduce((n, c) => n + kelime(c.notes), 0);
+            const gun = son ? Math.floor((Date.now() - son.updatedAt) / 86_400_000) : 0;
+            const kutu = 'rounded-2xl bg-[#0E1C4F] dark:bg-[#13204A] dark:border dark:border-[#2C3C72] text-[#F3EFE8] p-4 lg:p-5 flex flex-wrap items-center gap-4';
+            const dugme = 'px-4 py-2.5 rounded-xl bg-[#F26B6F] text-white text-[13px] font-semibold hover:opacity-90 cursor-pointer';
+            return (
+              <div className={kutu}>
+                <div className="flex-1 min-w-[220px]">
+                  <div className="text-[10px] font-mono font-bold uppercase tracking-[0.18em] text-[#A6B0C9]">Nereden başlasam</div>
+                  {!kitaplar.length ? (
+                    <p className="mt-1 text-[15px] font-semibold">Henüz kitap yok. Önce kitabı aç; adını sen koyarsın.</p>
+                  ) : !son ? (
+                    <p className="mt-1 text-[15px] font-semibold">Kitap açık, bölüm yok. İlk bölümü aç — bir paragraf bile yeter.</p>
+                  ) : (
+                    <>
+                      <p className="mt-1 text-[15px] font-semibold">Kaldığın yer: {son.title}</p>
+                      <p className="text-[12px] text-[#C9D0E3]">
+                        {kelime(son.notes)} kelime · {gun === 0 ? 'bugün' : gun === 1 ? 'dün' : `${gun} gün önce`} dokundun · toplam {bolumler.length} bölüm, {toplamKelime} kelime
+                      </p>
+                    </>
+                  )}
+                </div>
+                {!kitaplar.length ? (
+                  <button type="button" onClick={() => setShowCreateBook(true)} className={dugme}>Kitabı aç</button>
+                ) : !son ? (
+                  <button type="button" onClick={() => { setSelectedBookId(kitaplar[0].id); setShowCreateChapter(true); }} className={dugme}>İlk bölümü aç</button>
+                ) : (
+                  <button type="button" onClick={() => { onSelectItem(son.id); setActiveTab('bölüm_editör'); }} className={dugme}>Devam et</button>
+                )}
+              </div>
+            );
+          })()}
           
           {/* Book selector panel */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-[#CFC5B4]/50">
@@ -456,7 +498,7 @@ export default function Kitap({
           {/* Overlays for creations */}
           {showCreateBook && (
             <form onSubmit={handleCreateBook} className="bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] p-5 rounded-xl max-w-sm space-y-3 paper-grain">
-              <h4 className="font-serif font-bold text-[#0E1C4F] dark:text-[#F3EFE8]">Yeni Kitap Projesi</h4>
+              <h4 className="font-sans font-bold text-[#0E1C4F] dark:text-[#F3EFE8] tracking-tight">Yeni Kitap Projesi</h4>
               <input
                 type="text"
                 required
@@ -474,7 +516,7 @@ export default function Kitap({
 
           {showCreateChapter && (
             <form onSubmit={handleCreateChapter} className="bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] p-5 rounded-xl max-w-sm space-y-3 paper-grain">
-              <h4 className="font-serif font-bold text-[#0E1C4F] dark:text-[#F3EFE8]">Yeni Bölüm Ekle</h4>
+              <h4 className="font-sans font-bold text-[#0E1C4F] dark:text-[#F3EFE8] tracking-tight">Yeni Bölüm Ekle</h4>
               <input
                 type="text"
                 required
@@ -499,7 +541,7 @@ export default function Kitap({
                 <div className="flex justify-between items-center">
                   <div>
                     <div className="flex items-center gap-2">
-                      <h3 className="font-serif font-bold text-lg text-[#0E1C4F] dark:text-[#F3EFE8]">
+                      <h3 className="font-sans font-bold text-lg text-[#0E1C4F] dark:text-[#F3EFE8] tracking-tight">
                         {activeBook.title}
                       </h3>
                       <button
@@ -834,7 +876,7 @@ export default function Kitap({
             <div className="bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] dark:border-[#2C3C72] p-5 rounded-xl paper-grain space-y-4">
               <div className="flex items-center gap-2 border-b border-[#CFC5B4]/50 pb-2">
                 <ListTodo className="w-5 h-5 text-[#F26B6F]" />
-                <h4 className="font-serif font-bold text-base text-[#0E1C4F] dark:text-[#F3EFE8]">
+                <h4 className="font-sans font-bold text-base text-[#0E1C4F] dark:text-[#F3EFE8] tracking-tight">
                   Kalan İşler / Yapılacaklar
                 </h4>
               </div>
@@ -939,7 +981,7 @@ export default function Kitap({
 
             {/* Link varlık kancası */}
             <div className="bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] dark:border-[#2C3C72] p-5 rounded-xl space-y-3 w-full overflow-hidden box-border">
-              <h4 className="font-serif font-bold text-sm text-[#0E1C4F] dark:text-[#F3EFE8] truncate">
+              <h4 className="font-sans font-bold text-sm text-[#0E1C4F] dark:text-[#F3EFE8] truncate tracking-tight">
                 Bölüme Karakter/Yer Kancala
               </h4>
               <div className="flex flex-col sm:flex-row gap-2 w-full">

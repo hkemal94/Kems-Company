@@ -6,7 +6,7 @@ import { buildLinkIndex } from './autoLink';
 import { WikiArticle } from './WikiArticle';
 import { WikiGiris } from './WikiGiris';
 import { WIKI_TYPES, TYPE_LABELS, isStub, bolgeAdi } from './wikiSchema';
-import { OYUN_VAKA_IDLERI } from '../../data/kemskoyVenues';
+import { OYUN_VAKA_IDLERI } from '../../lib/temizlik';
 
 interface WikiShellProps {
   items: Item[];
@@ -220,7 +220,7 @@ export const WikiShell: React.FC<WikiShellProps> = ({
           <>
             {!listeGorunumu && (
               <header className="mb-7">
-                <h1 className="font-serif text-4xl mb-1.5">Düzada</h1>
+                <h1 className="font-sans text-4xl mb-1.5 tracking-tight">Düzada</h1>
                 <p className="text-[15px] text-gri dark:text-bej/85 max-w-xl leading-relaxed">
                   Ege Denizi'nde, zeytin ağaçlarıyla çevrili bir ada. {health.total} madde.
                 </p>

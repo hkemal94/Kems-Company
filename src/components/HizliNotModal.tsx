@@ -51,7 +51,7 @@ export default function HizliNotModal({ isOpen, onClose, onSave }: HizliNotModal
         <div className="flex items-center justify-between px-6 py-4 border-b border-[#CFC5B4] dark:border-[#2C3C72]">
           <div className="flex items-center gap-2 text-[#0E1C4F] dark:text-[#F3EFE8]">
             <Lightbulb className="w-5 h-5 text-[#F26B6F]" />
-            <h3 className="font-serif font-bold text-lg">Hızlı Not Al</h3>
+            <h3 className="font-sans font-bold text-lg tracking-tight">Hızlı Not Al</h3>
           </div>
           <button 
             onClick={onClose}

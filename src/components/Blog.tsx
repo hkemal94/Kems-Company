@@ -341,7 +341,7 @@ export default function Blog({
           <span className="text-xs font-mono uppercase text-[#6A5E4C] dark:text-[#A6B0C9]">
             Kems Company • Yazı Atölyesi
           </span>
-          <h1 className="font-serif font-bold text-2xl text-[#0E1C4F] dark:text-[#F3EFE8] mt-1">
+          <h1 className="font-sans font-bold text-2xl text-[#0E1C4F] dark:text-[#F3EFE8] mt-1 tracking-tight">
             Blog & İçerik Yönetimi
           </h1>
         </div>
@@ -377,7 +377,7 @@ export default function Blog({
         <div className="space-y-8 animate-in fade-in duration-200">
           
           <div className="flex justify-between items-center pb-2 border-b border-[#CFC5B4]/40">
-            <h3 className="font-serif font-bold text-lg text-[#0E1C4F] dark:text-[#F3EFE8]">
+            <h3 className="font-sans font-bold text-lg text-[#0E1C4F] dark:text-[#F3EFE8] tracking-tight">
               Yazı Masası ve Taslaklar ({posts.length})
             </h3>
             <button
@@ -391,7 +391,7 @@ export default function Blog({
           {/* Create Post overlay/form */}
           {showCreateForm && (
             <form onSubmit={handleCreatePost} className="bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] dark:border-[#2C3C72] p-5 rounded-xl max-w-md space-y-4 shadow-md paper-grain">
-              <h4 className="font-serif font-bold text-[#0E1C4F] dark:text-[#F3EFE8] border-b border-[#CFC5B4]/50 pb-2">
+              <h4 className="font-sans font-bold text-[#0E1C4F] dark:text-[#F3EFE8] border-b border-[#CFC5B4]/50 pb-2 tracking-tight">
                 Yeni Yazı Başlat
               </h4>
               <div>
@@ -510,7 +510,7 @@ export default function Blog({
             </div>
 
             {/* Varlığa Bağlı Yazılar */}
-            <div className="bg-[#E7EBE6] dark:bg-[#13204A] border border-[#B9C7BD] dark:border-[#2C3C72] rounded-xl p-5 paper-grain space-y-3 archive-shadow">
+            <div className="bg-[#E7EBE6] dark:bg-[#13204A] border border-[#CFC5B4] dark:border-[#2C3C72] rounded-xl p-5 paper-grain space-y-3 archive-shadow">
               <span className="text-[10px] font-mono text-[#4A5E68] dark:text-[#A6B0C9] font-bold block uppercase">
                 Varlığa Bağlı Yazılar ({linkedToEntities.length})
               </span>
@@ -521,7 +521,7 @@ export default function Blog({
                     <div 
                       key={p.id}
                       onClick={() => { onSelectItem(p.id); setActiveTab('editor'); }}
-                      className="p-2 bg-white/60 dark:bg-[#17345A]/40 border border-[#B9C7BD] rounded hover:border-[#4A5E68] cursor-pointer transition-all flex items-center justify-between gap-2 group/item"
+                      className="p-2 bg-white/60 dark:bg-[#17345A]/40 border border-[#CFC5B4] rounded hover:border-[#4A5E68] cursor-pointer transition-all flex items-center justify-between gap-2 group/item"
                     >
                       <div className="flex-1 min-w-0">
                         <h5 className="font-serif font-bold text-xs text-[#0E1C4F] dark:text-[#F3EFE8] line-clamp-1">{p.title}</h5>
@@ -780,7 +780,7 @@ export default function Blog({
               >
                 <div className="flex items-center gap-2">
                   <Sparkles className="w-5 h-5 text-[#F26B6F]" />
-                  <h4 className="font-serif font-bold text-base text-[#0E1C4F] dark:text-[#F3EFE8] group-hover:text-[#F26B6F] transition-colors">
+                  <h4 className="font-sans font-bold text-base text-[#0E1C4F] dark:text-[#F3EFE8] group-hover:text-[#F26B6F] transition-colors tracking-tight">
                     AI (istersen) Yazı Yardımı
                   </h4>
                 </div>
@@ -873,7 +873,7 @@ export default function Blog({
 
             {/* Hook an entity to this post manual selector */}
             <div className="bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] dark:border-[#2C3C72] p-5 rounded-xl space-y-3">
-              <h4 className="font-serif font-bold text-sm text-[#0E1C4F] dark:text-[#F3EFE8]">
+              <h4 className="font-sans font-bold text-sm text-[#0E1C4F] dark:text-[#F3EFE8] tracking-tight">
                 Varlık Kancası Ekle
               </h4>
               <p className="text-xs text-[#6A5E4C] dark:text-[#A6B0C9]">
@@ -961,7 +961,7 @@ export default function Blog({
       {showSendToBookModal && activePost && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
           <div className="bg-[#F6F1E7] dark:bg-[#13204A] border border-[#CFC5B4] dark:border-[#2C3C72] p-6 rounded-2xl w-full max-w-md archive-shadow space-y-4 text-[#0E1C4F] dark:text-[#F3EFE8] relative mx-4 paper-grain">
-            <h3 className="font-serif font-bold text-lg italic text-[#F26B6F] flex items-center gap-1.5 border-b border-[#CFC5B4]/50 pb-2.5">
+            <h3 className="font-sans font-bold text-lg text-[#F26B6F] flex items-center gap-1.5 border-b border-[#CFC5B4]/50 pb-2.5 tracking-tight">
               <BookOpen className="w-5 h-5 text-[#F26B6F]" />
               <span>Yazıyı Kitaba Gönder</span>
             </h3>

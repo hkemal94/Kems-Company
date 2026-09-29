@@ -82,7 +82,14 @@ export function aiGozcusunuKur() {
               + 'AI düğmeleri bu yüzden bir şey yapmıyor.'
           });
         } else if (!yanit.ok) {
-          yay({ hal: 'hata', mesaj: `Yapay zekâ sunucusu ${yanit.status} döndü.` });
+          // Sunucunun Türkçe gerekçesi varsa onu göster; yalnız "500" bir
+          // şey anlatmıyordu (Kemal, 29 Eylül).
+          let neden = '';
+          try {
+            const g = await yanit.clone().json();
+            if (typeof g?.error === 'string') neden = g.error;
+          } catch { /* gövde okunamadı */ }
+          yay({ hal: 'hata', mesaj: neden || `Yapay zekâ sunucusu ${yanit.status} döndü.` });
         } else if (durum.hal !== 'calisiyor') {
           yay({ hal: 'calisiyor' });
         }

@@ -1,0 +1,75 @@
+import type { Item } from '../types';
+
+/**
+ * Temizlik (29 Eylül). Kemal: "Arka tarafta kullanmadığımız ne varsa sil,
+ * arşiv işi beni sinirlendirdi." Kural değişti: kullanılmayan kayıt arşive
+ * kalkmaz, silinir. Silmeden önce tam yedek indirilir (Neyin Eksik kartı).
+ *
+ * Silinecekler:
+ *   - arşivdeki bütün kayıtlar (eski viki, eski temalar, kaldırılan sayfalar…)
+ *   - onaylanmamış eski öneriler (isProposal), otel simülasyonunun kişileri
+ *   - otel simülasyonunun resepsiyon vakaları (oyun verisi vikiye girmez)
+ *   - Sürek Şenliği Tertip Komitesi (Kemal: "bunu sil")
+ *   - ilk günün örnek verisi (Kamil Efendi, Küçükçetmi Dropu…)
+ * Silinmezler: günün sorusu cevapları (aday kaydı), not defteri sayfaları,
+ * uygulamanın kendi kayıtları (harita ayarı, kanal).
+ */
+
+/** Otel simülasyonunun resepsiyon vakaları — karakter değil, oyun verisi */
+export const OYUN_VAKA_IDLERI = new Set<string>([
+  'kemskoy_guest_erdal',
+  'kemskoy_guest_priya',
+  'kemskoy_guest_mei',
+  'kemskoy_guest_ceren',
+  'kemskoy_guest_mehmet',
+  'kemskoy_guest_klaus',
+  'kemskoy_guest_lena',
+  'kemskoy_guest_can',
+  'kemskoy_guest_neslihan',
+  'kemskoy_guest_osman',
+  'kemskoy_guest_cem',
+  'kemskoy_guest_hans',
+  'kemskoy_guest_yusuf',
+  'kemskoy_guest_ahmet',
+  'kemskoy_guest_sofia',
+  'kemskoy_guest_selim',
+  'kemskoy_companion_kerem',
+  'kemskoy_companion_ingrid',
+]);
+
+const SILINECEK_ADLAR = [/^sürek şenliği tertip komitesi$/i];
+
+/**
+ * İlk günün örnek verisi (uygulama kurulurken kendiliğinden yazılan
+ * kayıtlar): Kamil Efendi, Küçükçetmi Köy Meydanı, Küçükçetmi Dropu (hazır
+ * bir adam fotoğrafıyla), Ege Rüzgarları teması…
+ */
+const ORNEK_ONEKLERI = [
+  'kamil_efendi', 'kucukcetmi_meydan', 'surek_komitesi', 'surek_senligi', 'ege_ruzgarlari',
+  'kucukcetmi_drop', 'senlik_tisort', 'kayip_amblemler_post', 'duzada_kitap_proje',
+  'duzada_kitap_bolum_1', 'proposal_wiki_amblem'
+];
+
+export interface SilmeNedeni { item: Item; neden: string }
+
+export function silinecekler(items: Item[]): SilmeNedeni[] {
+  const cikti: SilmeNedeni[] = [];
+  for (const i of items) {
+    if (i.type === 'map_settings' || i.type === 'channel') continue;
+    if (i.type === 'aday' && !i.archived) continue;
+    if ((i.tags || []).includes('gunluk-not') && !i.archived) continue;
+    if (i.archived) cikti.push({ item: i, neden: 'arşivde' });
+    else if (i.isProposal) cikti.push({ item: i, neden: 'onaylanmamış eski öneri' });
+    else if (OYUN_VAKA_IDLERI.has(i.id) || /^kemskoy_(guest|companion)_/.test(i.id)) cikti.push({ item: i, neden: 'otel simülasyonu vakası' });
+    else if (ORNEK_ONEKLERI.some(o => i.id.startsWith(o))) cikti.push({ item: i, neden: 'ilk günün örnek verisi' });
+    else if (SILINECEK_ADLAR.some(r => r.test(i.title.trim()))) cikti.push({ item: i, neden: 'Kemal: sil' });
+  }
+  return cikti;
+}
+
+/** "312 arşivde · 76 eski öneri · 1 Kemal: sil" */
+export function silmeOzeti(liste: SilmeNedeni[]): string {
+  const say = new Map<string, number>();
+  for (const s of liste) say.set(s.neden, (say.get(s.neden) || 0) + 1);
+  return [...say.entries()].map(([n, k]) => `${k} ${n}`).join(' · ');
+}

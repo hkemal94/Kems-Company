@@ -30,7 +30,9 @@ export type ItemType =
   // Komuta types
   | 'channel'
   // Onay bekleyen aday (Paket 4): günün sorusu cevabı, atölye taslağı
-  | 'aday';
+  | 'aday'
+  // Oyunun tanıtım künyesi (Paket 5): durum, özet, açıklama, ekran görüntüleri
+  | 'oyun_tanitim';
 
 export interface WikiSection {
   id: string;

@@ -1106,7 +1106,7 @@ export default function DuzadaWiki({
               <Compass className="w-3.5 h-3.5 text-[#F26B6F]" />
               <span>DÜZADA COĞRAFYA & EVREN ATLASI</span>
             </div>
-            <h2 className="font-serif font-bold text-3xl text-[#0E1C4F] dark:text-[#F3EFE8] mt-1.5 leading-tight">
+            <h2 className="font-sans font-bold text-3xl text-[#0E1C4F] dark:text-[#F3EFE8] mt-1.5 leading-tight tracking-tight">
               Düzada Dünyası Wiki
             </h2>
             <p className="text-xs text-[#6A5E4C] dark:text-[#A6B0C9] mt-1 font-serif italic">
@@ -1187,7 +1187,7 @@ export default function DuzadaWiki({
               <div className="border-b border-[#CFC5B4]/40 pb-2 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <BookOpen className="w-5 h-5 text-[#F26B6F]" />
-                  <h3 className="font-serif font-bold text-xl text-[#0E1C4F] dark:text-[#F3EFE8]">
+                  <h3 className="font-sans font-bold text-xl text-[#0E1C4F] dark:text-[#F3EFE8] tracking-tight">
                     Genel Bakış ve Tanım
                   </h3>
                 </div>
@@ -1218,7 +1218,7 @@ export default function DuzadaWiki({
               <div className="border-b border-[#CFC5B4]/40 pb-2 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Sparkles className="w-5 h-5 text-[#F26B6F]" />
-                  <h3 className="font-serif font-bold text-xl text-[#0E1C4F] dark:text-[#F3EFE8]">
+                  <h3 className="font-sans font-bold text-xl text-[#0E1C4F] dark:text-[#F3EFE8] tracking-tight">
                     Kanonik Lore & Atmosfer
                   </h3>
                 </div>
@@ -1314,7 +1314,7 @@ export default function DuzadaWiki({
                         </div>
                       ) : (
                         <>
-                          <h4 className="font-serif font-bold text-sm text-[#0E1C4F] dark:text-[#F3EFE8]">
+                          <h4 className="font-sans font-bold text-sm text-[#0E1C4F] dark:text-[#F3EFE8] tracking-tight">
                             {sec.title}
                           </h4>
                           <div className="text-xs text-stone-600 dark:text-[#A6B0C9] leading-relaxed font-serif whitespace-pre-wrap">
@@ -1344,12 +1344,12 @@ export default function DuzadaWiki({
               
               <div className="flex items-center gap-2 mb-3">
                 <Map className="w-5 h-5 text-[#F26B6F]" />
-                <h4 className="font-serif font-bold text-lg text-[#0E1C4F] dark:text-[#F3EFE8]">
+                <h4 className="font-sans font-bold text-lg text-[#0E1C4F] dark:text-[#F3EFE8] tracking-tight">
                   Harita Arayüzü Portal
                 </h4>
               </div>
 
-              <div className="bg-[#E7EBE6] dark:bg-[#0F172A] border border-[#B9C7BD] dark:border-[#334155] rounded-lg p-3 text-center relative overflow-hidden aspect-video flex flex-col items-center justify-center space-y-2">
+              <div className="bg-[#E7EBE6] dark:bg-[#0F172A] border border-[#CFC5B4] dark:border-[#334155] rounded-lg p-3 text-center relative overflow-hidden aspect-video flex flex-col items-center justify-center space-y-2">
                 <div className="absolute inset-0 opacity-15 pointer-events-none select-none flex items-center justify-center">
                   <MapPinned className="w-24 h-24 text-emerald-800 dark:text-stone-400" />
                 </div>
@@ -1376,7 +1376,7 @@ export default function DuzadaWiki({
               <div className="border-b border-[#CFC5B4]/40 pb-2 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Search className="w-4.5 h-4.5 text-[#F26B6F]" />
-                  <h4 className="font-serif font-bold text-lg text-[#0E1C4F] dark:text-[#F3EFE8]">
+                  <h4 className="font-sans font-bold text-lg text-[#0E1C4F] dark:text-[#F3EFE8] tracking-tight">
                     Ansiklopedi &amp; Arama
                   </h4>
                 </div>
@@ -1469,7 +1469,7 @@ export default function DuzadaWiki({
 
             {/* Section 5: Coğrafya Nested Tree */}
             <div className="bg-[#FAF8F5] dark:bg-[#1E293B]/40 border border-[#CFC5B4] dark:border-[#2C3C72] p-5 rounded-xl archive-shadow paper-grain space-y-4">
-              <h4 className="font-serif font-bold text-lg text-[#0E1C4F] dark:text-[#F3EFE8] border-b border-[#CFC5B4]/40 pb-2 flex items-center gap-2">
+              <h4 className="font-sans font-bold text-lg text-[#0E1C4F] dark:text-[#F3EFE8] border-b border-[#CFC5B4]/40 pb-2 flex items-center gap-2 tracking-tight">
                 <Trees className="w-4 h-4 text-[#F26B6F]" />
                 <span>Coğrafi Yerleşim Ağacı</span>
               </h4>
@@ -1621,7 +1621,7 @@ export default function DuzadaWiki({
             <div className="lg:col-span-1 bg-[#FAF8F5] dark:bg-[#1E293B]/40 border border-[#CFC5B4] dark:border-[#2C3C72] p-5 rounded-xl archive-shadow paper-grain space-y-4">
               <div className="border-b border-[#CFC5B4]/40 pb-2 flex items-center gap-2">
                 <Search className="w-4.5 h-4.5 text-[#F26B6F]" />
-                <h4 className="font-serif font-bold text-lg text-[#0E1C4F] dark:text-[#F3EFE8]">
+                <h4 className="font-sans font-bold text-lg text-[#0E1C4F] dark:text-[#F3EFE8] tracking-tight">
                   Varlık &amp; Detay Dizinleri
                 </h4>
               </div>
@@ -1752,7 +1752,7 @@ export default function DuzadaWiki({
                           <span className="text-[9px] font-mono uppercase bg-amber-500/10 text-amber-600 dark:text-amber-400 px-2 py-0.5 rounded font-bold">
                             Kategori Şablonu
                           </span>
-                          <h3 className="font-serif font-bold text-xl text-[#0E1C4F] dark:text-[#F3EFE8] mt-1">
+                          <h3 className="font-sans font-bold text-xl text-[#0E1C4F] dark:text-[#F3EFE8] mt-1 tracking-tight">
                             "{compFilterType}" Sorularını Düzenle
                           </h3>
                         </div>
@@ -1898,7 +1898,7 @@ export default function DuzadaWiki({
                     <div className="p-4 bg-[#FAF6EE] dark:bg-[#17345A]/30 rounded-full text-[#F26B6F]">
                       <HelpCircle className="w-12 h-12" />
                     </div>
-                    <h3 className="font-serif font-bold text-xl text-[#0E1C4F] dark:text-[#F3EFE8]">
+                    <h3 className="font-sans font-bold text-xl text-[#0E1C4F] dark:text-[#F3EFE8] tracking-tight">
                       Düzada Evren Doluluk Portalı
                     </h3>
                     <p className="text-xs text-stone-500 dark:text-[#A6B0C9] max-w-sm leading-relaxed font-serif">
@@ -1940,7 +1940,7 @@ export default function DuzadaWiki({
                             <span className="text-[9px] font-mono uppercase bg-[#F26B6F]/10 text-[#F26B6F] px-2 py-0.5 rounded font-bold">
                               {currentItem.type}
                             </span>
-                            <h3 className="font-serif font-bold text-xl text-[#0E1C4F] dark:text-[#F3EFE8] mt-1">
+                            <h3 className="font-sans font-bold text-xl text-[#0E1C4F] dark:text-[#F3EFE8] mt-1 tracking-tight">
                               {currentItem.title}
                             </h3>
                           </div>

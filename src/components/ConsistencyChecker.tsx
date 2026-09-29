@@ -193,7 +193,7 @@ export default function ConsistencyChecker({
               <div className="flex items-center gap-2">
                 <ShieldCheck className="w-5 h-5 text-[#F26B6F] dark:text-[#EFA39F]" />
                 <div>
-                  <h3 className="font-serif font-bold text-base text-[#0E1C4F] dark:text-[#F3EFE8]">
+                  <h3 className="font-sans font-bold text-base text-[#0E1C4F] dark:text-[#F3EFE8] tracking-tight">
                     {module.toUpperCase()} Tutarlılık Denetimi
                   </h3>
                   <p className="text-[10px] font-mono text-stone-500 dark:text-stone-400 uppercase">KEMS EVREN ENTEGRASYON PROTOKOLÜ</p>

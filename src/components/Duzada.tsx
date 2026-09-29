@@ -1,11 +1,6 @@
 import React, { useState, useMemo, useEffect, useRef, lazy, Suspense } from 'react';
 import { MapPin, Shield, Users, Compass, Store, ShoppingBag, Calendar, BookOpen, ChevronDown, ChevronUp, Sparkles, Plus, Check, Trash2, Edit3, Save, Eye, EyeOff, MoreVertical, Database, Trash, AlertTriangle, Link } from 'lucide-react';
 import { Item, ItemType, WikiSection, BrandKit, AreaType } from '../types';
-import { 
-  KEMSKOY_HOTEL, 
-  KEMSKOY_PEOPLE 
-} from '../data/kemskoyData';
-import { CHARACTERS_IMPORT_DATA } from '../data/charactersImportData';
 import { compressImageBase64 } from '../lib/imageCompressor';
 import { resolveAllRelations, getRelationLabels, cleanupRelationsOnDelete } from '../utils/relations';
 import ConsistencyChecker from './ConsistencyChecker';
@@ -162,9 +157,9 @@ export function getCharacterKunye(activeEntity: any) {
     return cleanVal.substring(0, 97).trim() + '...';
   };
 
-  const imported = CHARACTERS_IMPORT_DATA.find(
-    c => c.ad.trim().toLowerCase() === activeEntity.title.trim().toLowerCase()
-  );
+  // Eski otel simülasyonunun kişi listesi silindi (29 Eylül); künye yalnız
+  // kaydın kendisinden okunur.
+  const imported: null | Record<string, any> = null as any;
 
   let ad = cleanShortField(activeEntity.title);
   let yas: string | number = '';
@@ -582,9 +577,7 @@ export default function Duzada({
   const [loadingAiBrand, setLoadingAiBrand] = useState(false);
 
   // Import / Cleanup Feedback States
-  const [importFeedback, setImportFeedback] = useState<string | null>(null);
   const [cleanupFeedback, setCleanupFeedback] = useState<string | null>(null);
-  const [isImporting, setIsImporting] = useState(false);
   const [isCleaning, setIsCleaning] = useState(false);
   const [showCleanupConfirm, setShowCleanupConfirm] = useState(false);
 
@@ -601,102 +594,21 @@ export default function Duzada({
     return entities.find(e => e.id === activeItemId) || items.find(i => i.id === activeItemId) || null;
   }, [activeItemId, entities, items]);
 
-  // Ensure the 6 region items exist in Firestore
-  useEffect(() => {
-    if (!items || items.length === 0 || regionsCreatedRef.current) return;
-    
-    // Check which ones are already present as type 'yer' (matching by metadata.region or title)
-    const existingRegions = items.filter(i => i.area === 'duzada' && i.type === 'yer');
-    const regionKeys = Object.keys(activeRegionSummaries);
-    
-    // If the user already has some regions in the database, we do not auto-create missing ones.
-    // This allows the user to delete or archive specific regions without them being automatically recreated!
-    const hasAnyRegion = existingRegions.some(reg => 
-      regionKeys.includes(reg.metadata?.region || '') ||
-      regionKeys.includes(reg.title.toLowerCase()) ||
-      reg.id === 'region_eski_liman_kemskoy'
-    );
-    
-    if (hasAnyRegion) {
-      regionsCreatedRef.current = true;
-      return;
-    }
-
-    const missingKeys = regionKeys.filter(key => {
-      return !existingRegions.some(reg => 
-        reg.metadata?.region === key || 
-        reg.title.toLowerCase() === key ||
-        (key === 'eski liman / kemskoy' && reg.id === 'region_eski_liman_kemskoy')
-      );
-    });
-
-    if (missingKeys.length > 0) {
-      regionsCreatedRef.current = true;
-      console.log("Auto-creating missing region items as 'yer':", missingKeys);
-      missingKeys.forEach(async (key) => {
-        // Başlık anahtardan türetilirse "Eski_liman" gibi çirkin adlar çıkıyordu
-        const title = mahalleler.find(m => m.id === key)?.name
-          || key.charAt(0).toLocaleUpperCase('tr') + key.slice(1);
-        const id = `region_${key.replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '')}`;
-        const description = activeRegionSummaries[key] || "";
-        
-        await onAddItem({
-          id,
-          title,
-          area: 'duzada',
-          type: 'yer',
-          status: 'Bitti',
-          priority: 'orta',
-          tags: ['bölge', 'coğrafya', 'yer', key.replace(/\s+/g, '-')],
-          links: [],
-          notes: description,
-          images: key === 'fener' ? ["https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=512&auto=format&fit=crop"] :
-                  key === 'liman' ? ["https://images.unsplash.com/photo-1518005020951-eccb494ad742?q=80&w=512&auto=format&fit=crop"] :
-                  key === 'eski liman / kemskoy' ? ["https://images.unsplash.com/photo-1543783207-ec64e4d95325?q=80&w=512&auto=format&fit=crop"] : [],
-          isProposal: false,
-          archived: false,
-          metadata: {
-            region: key,
-            wikiSections: [
-              { id: "coğrafi_yapı", title: "Coğrafi Yapı ve Genel Özellikler", content: `${title} bölgesi, Düzada'nın önemli referans noktalarından biridir. ${description}`, status: "resmi" }
-            ]
-          }
-        });
-      });
-    }
-  }, [items, activeRegionSummaries]);
+  /*
+   * Otomatik bölge oluşturma SİLİNDİ (29 Eylül). Bölge maddesi eksikse
+   * sayfa açılınca kendiliğinden yazılıyordu (hazır internet fotoğrafları
+   * ve uydurma metinlerle); Kemal: "Google yapay zekâsı onları bulup bulup
+   * geri getiriyor." Kaldırılan geri gelmez.
+   */
 
   // Synchronize 'duzada_world_details' umbrella container and establish two-way links
   useEffect(() => {
     if (!items || items.length === 0 || worldDetailsSyncedRef.current) return;
 
     const worldItem = items.find(i => i.id === 'duzada_world_details');
+    // Ada maddesi yoksa artık kendiliğinden yazılmaz (29 Eylül)
     if (!worldItem) {
       worldDetailsSyncedRef.current = true;
-      console.log("Auto-creating 'duzada_world_details' as the world umbrella container");
-      const defaultWorldDetails = {
-        id: 'duzada_world_details',
-        title: 'Düzada',
-        area: 'duzada' as const,
-        type: 'yer' as const,
-        status: 'Bitti',
-        priority: 'yüksek' as const,
-        tags: ['evren', 'rehber', 'şemsiye-konteyner'],
-        links: [],
-        notes: `Düzada, Ege Denizi'nin serin sularında saklanmış, zamanın daha yavaş aktığı bir takımadanın kalbidir. Tarihi zeytinlikleri, sarp kayalıkların ucunda yükselen deniz feneri, balıkçı teknelerinin sığındığı limanı ve dar sokaklarıyla kendine has melankolik bir atmosfere sahiptir.\n\nAda, özellikle 1954 kuruluş tarihli görkemli "The Imperial Kemsköy" oteli ve çevresindeki sırlar ile bilinir. Ekim 2003 ("Sezon Sonu") dönemi, rüzgarın sertleştiği, turistlerin elini eteğini çektiği ve adanın kendi iç hesaplaşmalarıyla baş başa kaldığı gizemli bir zaman dilimini temsil eder.`,
-        images: ["https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=512&auto=format&fit=crop"],
-        isProposal: false,
-        archived: false,
-        metadata: {
-          climate: 'Ege / Akdeniz Mikrokliması - Rüzgarlı, Sert',
-          atmosphere: 'Melankolik, Sezon Sonu, Sisli ve Gizemli',
-          wikiSections: [
-            { id: 'sec_1', title: 'Tarihçe', content: "Düzada yerleşimi antik çağlara uzanmakla birlikte, modern hüviyetini 20. yüzyılın ortalarında kazanmıştır. 1954 yılında açılan The Imperial Kemsköy, adanın güneyindeki Eski Liman bölgesini canlandırmış ve adayı seçkin misafirlerin uğrak noktası haline getirmiştir.", status: 'resmi' as const },
-            { id: 'sec_2', title: 'Adaya Ulaşım', content: "Düzada'ya ulaşım yalnızca haftada iki kez kalkan nostaljik Kems ticaret gemileri ve kıyı şeridindeki limandan kalkan özel balıkçı tekneleriyle sağlanır. Fırtınalı sonbahar günlerinde adanın dış dünya ile olan tüm deniz bağı kesilebilir.", status: 'resmi' as const }
-          ]
-        }
-      };
-      onAddItem(defaultWorldDetails);
       return;
     }
 
@@ -751,63 +663,6 @@ export default function Duzada({
     worldDetailsSyncedRef.current = true;
   }, [items]);
 
-  // Import Kemskoy Lore to Wiki (as actual entities)
-  const handleImportKemskoyLore = async () => {
-    setIsImporting(true);
-    setImportFeedback("Kemsköy verileri hazırlanıyor...");
-    try {
-      const existingIds = new Set(items.map(i => i.id));
-      const toImport: any[] = [];
-
-      // 1. Hotel (Yer/Mekan)
-      if (!existingIds.has(KEMSKOY_HOTEL.id)) {
-        toImport.push({
-          ...KEMSKOY_HOTEL,
-          area: 'duzada'
-        });
-      }
-
-      // 2. People (Kişiler)
-      for (const p of KEMSKOY_PEOPLE) {
-        if (!existingIds.has(p.id)) {
-          toImport.push({
-            ...p,
-            area: 'duzada',
-            metadata: {
-              ...p.metadata,
-              region: 'eski liman / kemskoy',
-              haritaKonum: { x: 20, y: 78 }
-            }
-          });
-        }
-      }
-
-      if (toImport.length === 0) {
-        setImportFeedback("Kemsköy verileri zaten aktarılmış durumda (0 yeni veri eklendi).");
-        setTimeout(() => setImportFeedback(null), 5000);
-        return;
-      }
-
-      // Import in parallel chunks of 10 to be extremely fast and robust
-      const batchSize = 10;
-      for (let i = 0; i < toImport.length; i += batchSize) {
-        const chunk = toImport.slice(i, i + batchSize);
-        const percent = Math.round((i / toImport.length) * 100);
-        setImportFeedback(`Aktarılıyor: %${percent} tamamlandı (${i}/${toImport.length})...`);
-        await Promise.all(chunk.map(item => onAddItem(item)));
-      }
-
-      setImportFeedback(`Başarıyla ${toImport.length} adet Kemsköy Lore verisi aktarıldı!`);
-      setTimeout(() => setImportFeedback(null), 6000);
-    } catch (err) {
-      console.error(err);
-      const errMsg = err instanceof Error ? err.message : String(err);
-      setImportFeedback(`Aktarım hatası: ${errMsg}`);
-      setTimeout(() => setImportFeedback(null), 10000);
-    } finally {
-      setIsImporting(false);
-    }
-  };
 
   // Cleanup Mock Seed Data
   const handleCleanupMockData = async () => {
@@ -1652,7 +1507,7 @@ export default function Duzada({
           <span className="text-xs font-mono uppercase text-[#6A5E4C] dark:text-[#A6B0C9]">
             Düzada · Ada & Lore
           </span>
-          <h1 className="font-serif font-bold text-2xl text-[#0E1C4F] dark:text-[#F3EFE8] mt-1">
+          <h1 className="font-sans font-bold text-2xl text-[#0E1C4F] dark:text-[#F3EFE8] mt-1 tracking-tight">
             Ada Evreni & Karakterler
           </h1>
         </div>
@@ -1695,7 +1550,7 @@ export default function Duzada({
 
       {/* KURUCU — şehir kurucu, 1. adım: yol aracı */}
       {activeTab === 'kurucu' && (
-        <div className="bg-[#E7EBE6] dark:bg-[#13204A] border border-[#B9C7BD] dark:border-[#2C3C72] rounded-xl p-4 archive-shadow relative">
+        <div className="bg-[#E7EBE6] dark:bg-[#13204A] border border-[#CFC5B4] dark:border-[#2C3C72] rounded-xl p-4 archive-shadow relative">
           <div className="flex items-center justify-between mb-2">
             <span className="text-[10px] font-mono uppercase text-[#4A5E68] dark:text-[#A6B0C9] font-bold">
               KURUCU · YOLLAR (TASLAK — HARİTA DEĞİŞMEZ)
@@ -1704,7 +1559,7 @@ export default function Duzada({
           {haritaDuzeni.ilkYukleme ? (
             <Suspense
               fallback={
-                <div className="h-[78vh] flex items-center justify-center rounded-lg border border-[#B9C7BD] bg-[#F3EFE8] font-mono text-xs text-[#6A5E4C]">
+                <div className="h-[78vh] flex items-center justify-center rounded-lg border border-[#CFC5B4] bg-[#F3EFE8] font-mono text-xs text-[#6A5E4C]">
                   Kurucu yükleniyor…
                 </div>
               }
@@ -1728,7 +1583,7 @@ export default function Duzada({
               />
             </Suspense>
           ) : (
-            <div className="h-[78vh] flex items-center justify-center rounded-lg border border-[#B9C7BD] bg-[#F3EFE8] font-mono text-xs text-[#6A5E4C]">
+            <div className="h-[78vh] flex items-center justify-center rounded-lg border border-[#CFC5B4] bg-[#F3EFE8] font-mono text-xs text-[#6A5E4C]">
               Kayıtlı düzen okunuyor…
             </div>
           )}
@@ -1737,7 +1592,7 @@ export default function Duzada({
 
       {/* HARİTA — DÜZENLEME (H2) */}
       {activeTab === 'harita' && haritaDuzenleniyor && (
-        <div className="bg-[#E7EBE6] border border-[#B9C7BD] rounded-xl p-4 archive-shadow relative paper-grain">
+        <div className="bg-[#E7EBE6] border border-[#CFC5B4] rounded-xl p-4 archive-shadow relative paper-grain">
           <div className="flex items-center justify-between mb-2">
             <span className="text-[10px] font-mono uppercase text-[#4A5E68] dark:text-[#A6B0C9] font-bold">
               DÜZADA HARİTASI · DÜZENLEME
@@ -1746,13 +1601,13 @@ export default function Duzada({
           {haritaDuzeni.ilkYukleme ? (
             <Suspense
               fallback={
-                <div className="h-[78vh] flex items-center justify-center rounded-lg border border-[#B9C7BD] bg-[#F3EFE8] font-mono text-xs text-[#6A5E4C]">
+                <div className="h-[78vh] flex items-center justify-center rounded-lg border border-[#CFC5B4] bg-[#F3EFE8] font-mono text-xs text-[#6A5E4C]">
                   Düzenleyici yükleniyor…
                 </div>
               }
             >
               <HaritaDuzenleyici
-                className="w-full h-[78vh] rounded-lg overflow-hidden border border-[#B9C7BD]"
+                className="w-full h-[78vh] rounded-lg overflow-hidden border border-[#CFC5B4]"
                 duzen={haritaDuzeni.duzen}
                 kaydet={haritaDuzeni.kaydet}
                 durum={haritaDuzeni.durum}
@@ -1761,7 +1616,7 @@ export default function Duzada({
               />
             </Suspense>
           ) : (
-            <div className="h-[78vh] flex items-center justify-center rounded-lg border border-[#B9C7BD] bg-[#F3EFE8] font-mono text-xs text-[#6A5E4C]">
+            <div className="h-[78vh] flex items-center justify-center rounded-lg border border-[#CFC5B4] bg-[#F3EFE8] font-mono text-xs text-[#6A5E4C]">
               Kayıtlı düzen okunuyor…
             </div>
           )}
@@ -1773,7 +1628,7 @@ export default function Duzada({
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           
           {/* 3B arazi haritası — gen/duzada.py + gen/dem.py üretimi */}
-          <div className="lg:col-span-2 bg-[#E7EBE6] border border-[#B9C7BD] rounded-xl p-4 archive-shadow relative paper-grain">
+          <div className="lg:col-span-2 bg-[#E7EBE6] border border-[#CFC5B4] rounded-xl p-4 archive-shadow relative paper-grain">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-[10px] font-mono uppercase text-[#4A5E68] dark:text-[#A6B0C9] font-bold">
                   DÜZADA ARAZİ HARİTASI
@@ -1788,13 +1643,13 @@ export default function Duzada({
               </div>
               <Suspense
                 fallback={
-                  <div className="h-[70vh] flex items-center justify-center rounded-lg border border-[#B9C7BD] bg-[#F3EFE8] font-mono text-xs text-[#6A5E4C]">
+                  <div className="h-[70vh] flex items-center justify-center rounded-lg border border-[#CFC5B4] bg-[#F3EFE8] font-mono text-xs text-[#6A5E4C]">
                     Harita yükleniyor…
                   </div>
                 }
               >
                 <DuzadaHarita
-                  className="h-[70vh] rounded-lg overflow-hidden border border-[#B9C7BD]"
+                  className="h-[70vh] rounded-lg overflow-hidden border border-[#CFC5B4]"
                   onSelect={haritaMaddesiniAc}
                   duzen={haritaDuzeni.duzen}
                 />
@@ -1816,7 +1671,7 @@ export default function Duzada({
                   <span className="text-[9px] font-mono uppercase bg-[#0E1C4F]/10 dark:bg-[#2C3C72] px-1.5 py-0.5 rounded-sm font-bold tracking-wider text-stone-600 dark:text-stone-300">
                     COĞRAFYA SİSTEMİ
                   </span>
-                  <h3 className="font-serif font-bold text-base text-[#0E1C4F] dark:text-[#F3EFE8] mt-0.5">
+                  <h3 className="font-sans font-bold text-base text-[#0E1C4F] dark:text-[#F3EFE8] mt-0.5 tracking-tight">
                     Düzada Yerleşim Ağacı
                   </h3>
                 </div>
@@ -1844,7 +1699,7 @@ export default function Duzada({
                 {/* Add Mahalle Form */}
                 {showAddMahalleForm && (
                   <div className="p-3 bg-white dark:bg-[#12224A]/40 border border-stone-200 dark:border-[#2C3C72] rounded-lg space-y-2 text-xs">
-                    <h4 className="font-bold font-serif text-[#0E1C4F] dark:text-[#F3EFE8]">Yeni Mahalle / Köy Ekle</h4>
+                    <h4 className="font-bold font-sans text-[#0E1C4F] dark:text-[#F3EFE8] tracking-tight">Yeni Mahalle / Köy Ekle</h4>
                     <input
                       type="text"
                       placeholder="Mahalle Adı (örn: Kuzey Yamacı)"
@@ -1870,7 +1725,7 @@ export default function Duzada({
                 {/* Edit Mahalle Form */}
                 {editingMahalleId && (
                   <div className="p-3 bg-white dark:bg-[#12224A]/40 border border-stone-200 dark:border-[#2C3C72]/50 rounded-lg space-y-2 text-xs">
-                    <h4 className="font-bold font-serif text-[#0E1C4F] dark:text-[#F3EFE8]">Mahalleyi Düzenle</h4>
+                    <h4 className="font-bold font-sans text-[#0E1C4F] dark:text-[#F3EFE8] tracking-tight">Mahalleyi Düzenle</h4>
                     <input
                       type="text"
                       value={editingMahalleName}
@@ -1979,7 +1834,7 @@ export default function Duzada({
                 {/* Add Sokak Form */}
                 {showAddSokakForm && (
                   <div className="p-3 bg-white dark:bg-[#12224A]/40 border border-stone-200 dark:border-[#2C3C72] rounded-lg space-y-2 text-xs">
-                    <h4 className="font-bold font-serif text-[#0E1C4F] dark:text-[#F3EFE8]">Yeni Cadde / Sokak Ekle</h4>
+                    <h4 className="font-bold font-sans text-[#0E1C4F] dark:text-[#F3EFE8] tracking-tight">Yeni Cadde / Sokak Ekle</h4>
                     <p className="text-[10px] text-[#6A5E4C] dark:text-stone-400">Bu sokak, seçili mahalle olan <b>{mahalleler.find(m => m.id === selectedRegion)?.name}</b> içinde oluşturulacaktır.</p>
                     <div className="flex gap-1.5">
                       <input
@@ -2284,7 +2139,7 @@ export default function Duzada({
           <div className="bg-white dark:bg-[#12224A] border-2 border-[#CFC5B4] dark:border-[#2C3C72] max-w-md w-full rounded-2xl p-6 space-y-4 shadow-xl animate-in zoom-in-95 duration-200">
             <div className="flex items-center gap-3 text-red-500">
               <AlertTriangle className="w-8 h-8 shrink-0" />
-              <h3 className="font-serif font-bold text-lg text-stone-800 dark:text-[#F3EFE8]">{confirmModal.title}</h3>
+              <h3 className="font-sans font-bold text-lg text-stone-800 dark:text-[#F3EFE8] tracking-tight">{confirmModal.title}</h3>
             </div>
             
             <p className="text-sm text-stone-600 dark:text-stone-300 leading-relaxed">
@@ -2324,7 +2179,7 @@ export default function Duzada({
             onClick={e => e.stopPropagation()}
           >
             <div>
-              <h3 className="font-serif font-bold text-lg text-stone-800 dark:text-[#F3EFE8]">
+              <h3 className="font-sans font-bold text-lg text-stone-800 dark:text-[#F3EFE8] tracking-tight">
                 {eksikMadde.ad}
               </h3>
               <p className="mt-1 font-mono text-[11px] text-stone-500 dark:text-[#95A1C2]">

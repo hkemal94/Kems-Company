@@ -40,8 +40,15 @@ terimsiz olur. Kodu değil, **ekranda ne değiştiğini** anlat.
 ## Kesin kurallar
 
 **Veri**
-- **Hiçbir kayıt silinmez, arşive kalkar** (`archived: true`). Kişi
-  silinmez; otelden çıkan kişi "ada sakini" olur (`src/lib/adaSakini.ts`).
+- **Kullanılmayan kayıt ve kod silinir** (Kemal, 29 Eylül: "arka tarafta
+  kullanmadığımız ne varsa sil, arşiv işi beni sinirlendirdi"). Eski
+  "arşive kalkar" kuralı kalktı. Toplu silme Neyin Eksik'teki Temizlik
+  kartıyla yapılır; önce bütün kayıtların yedeği iner (`src/lib/temizlik.ts`).
+  Kişi bilgileri için `src/lib/adaSakini.ts` duruyor.
+- **Kayıtlara kendiliğinden yazan kod yazılmaz.** Sayfa açılınca kayıt
+  oluşturan / düzelten "otomatik" etkiler kaldırıldı (örnek veri tohumu,
+  bölge ve ada maddesi yaratma, otel simülasyonu); kayıt yalnız Kemal bir
+  düğmeye basınca değişir.
 - **Firestore:** iç içe dizi yasak. Bir alana `undefined` yazmak bütün
   kaydı reddettirir — alanı silmek için anahtarı nesneden çıkar.
   (`src/lib/firebase.ts` ayrıca temizliyor ama buna güvenme.)
@@ -115,6 +122,10 @@ düşünüyor. Onun isteklerini duymadan bunlara başlama, kendi başına
 iskelet de kurma.
 
 **Bu deponun işi DEĞİL:** oyun. Ayrı depo, ayrı oturum.
+
+**Veri alanı:** Kayıtlar Google hesabının alanında (14 Eylül'e kadar Google
+girişi vardı). Tarayıcı Kemal'i tanımazsa "ortak alan"a düşülür; sayfanın
+üstünde "Google ile bağlan" çıkar.
 
 ## Açık işler (28 Eylül itibarıyla)
 

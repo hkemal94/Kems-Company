@@ -196,7 +196,9 @@ const BoslukSatiri: React.FC<BoslukSatiriProps> = ({ bosluk, onKaydet }) => {
 export const Bosluklar: React.FC<{
   items: Item[];
   onUpdateItem: (item: Item) => Promise<void>;
-}> = ({ items, onUpdateItem }) => {
+  /** Durum sayfasının içinde (29 Eylül, Kemal: "Durum ile boşlukları birleştir") */
+  gomulu?: boolean;
+}> = ({ items, onUpdateItem, gomulu = false }) => {
   const bosluklar = useMemo(() => bosluklariCikar(items), [items]);
   const [acikTur, setAcikTur] = useState<string | null>(null);
   const [acikMadde, setAcikMadde] = useState<string | null>(null);
@@ -227,8 +229,16 @@ export const Bosluklar: React.FC<{
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
+      {gomulu ? (
+        <div className="pt-2">
+          <h2 className="text-[10px] font-mono font-bold uppercase tracking-[0.18em] text-[#6A5E4C] dark:text-[#A6B0C9]">Boşluklar</h2>
+          <p className="mt-1 text-[12px] text-[#6A5E4C] dark:text-[#A6B0C9] max-w-2xl leading-relaxed">
+            Evrende doldurulmamış her alan. Kutulara ben bir şey yazmıyorum; yazdığın anda kaydın kendisine geçiyor. Ctrl/⌘ + Enter da kaydeder.
+          </p>
+        </div>
+      ) : (
       <div className="pb-4 border-b border-[#CFC5B4] dark:border-[#2C3C72]">
-        <h1 className="font-serif font-bold text-xl text-[#0E1C4F] dark:text-[#F3EFE8] italic">
+        <h1 className="font-sans font-bold text-xl text-[#0E1C4F] dark:text-[#F3EFE8] tracking-tight">
           Boşluklar
         </h1>
         <p className="mt-1 text-[12px] text-[#6A5E4C] dark:text-[#A6B0C9] max-w-2xl leading-relaxed">
@@ -237,8 +247,9 @@ export const Bosluklar: React.FC<{
           geçiyor. Ctrl/⌘ + Enter da kaydeder.
         </p>
       </div>
+      )}
 
-      <SayfaRayi baslik="Boşluklar" bolumler={RAY_BOLUMLERI} />
+      {!gomulu && <SayfaRayi baslik="Boşluklar" bolumler={RAY_BOLUMLERI} />}
 
       <section id="bos-ozet" className="scroll-mt-24">
         <div className="flex flex-wrap gap-3">

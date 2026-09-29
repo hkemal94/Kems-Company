@@ -52,7 +52,7 @@ export async function aiCagir<T = unknown>(
       const g = await yanit.json();
       ayrinti = typeof g?.error === 'string' ? ` — ${g.error}` : '';
     } catch { /* gövde okunamadı */ }
-    throw new AiHatasi(`Sunucu ${yanit.status} döndü${ayrinti}`);
+    throw new AiHatasi(ayrinti ? ayrinti.replace(/^ — /, '') : `Sunucu ${yanit.status} döndü.`);
   }
 
   const govde = await yanit.json();

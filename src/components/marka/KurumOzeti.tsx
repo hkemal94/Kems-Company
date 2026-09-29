@@ -30,7 +30,7 @@ export const KurumOzeti: React.FC<KurumOzetiProps> = ({ item, items = [], onViki
   const bos = !kunye.length && !ekler.length && !govde.length;
 
   return (
-    <div className="bg-white/80 dark:bg-[#13204A]/60 border border-[#B9C7BD] dark:border-[#2C3C72] p-5 rounded-xl space-y-4">
+    <div className="bg-white/80 dark:bg-[#13204A]/60 border border-[#CFC5B4] dark:border-[#2C3C72] p-5 rounded-xl space-y-4">
       <div className="flex items-center justify-between gap-3">
         <h4 className="text-[10px] font-mono uppercase text-[#6A5E4C] dark:text-[#A6B0C9] tracking-wider font-bold">
           Viki sayfası

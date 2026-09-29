@@ -1,16 +1,19 @@
 import React, { useState, useMemo } from 'react';
 import { ShoppingBag, Sparkles, FolderDot, Bookmark, ChevronRight, ChevronLeft, ChevronDown, ChevronUp, RotateCcw, Palette, Image, Plus, Layers, Check, Trash2, Archive, Edit3 } from 'lucide-react';
 import { Item, ItemType, AreaType } from '../types';
+import { hazirFotosuz, merchYedekGorseli } from '../lib/gorselSecimi';
 import { compressImageBase64 } from '../lib/imageCompressor';
 import ConsistencyChecker from './ConsistencyChecker';
 import { DropKunyesi } from './DropKunyesi';
 import { SayfaRayi, type RayBolumu } from './SayfaRayi';
 import { markaYapisi, KURUM_ALANI } from '../lib/markaYapisi';
 import { KurumOzeti } from './marka/KurumOzeti';
+import { MerchPano } from './merch/MerchPano';
 
 /** Merch ekranının bölümleri — bunlar sekme, kaydırma değil */
 const RAY_BOLUMLERI: RayBolumu[] = [
   { id: 'home', label: 'Genel bakış' },
+  { id: 'pano', label: 'Pano' },
   { id: 'droplar', label: 'Dropler' },
   { id: 'urunler', label: 'Ürünler' },
   { id: 'arsiv', label: 'Arşiv' }
@@ -28,7 +31,7 @@ interface MerchProps {
 }
 
 export default function Merch({
-  items,
+  items: hamItems,
   activeItemId,
   onSelectItem,
   onUpdateItem,
@@ -36,7 +39,11 @@ export default function Merch({
   onAddItem,
   onSelectArea
 }: MerchProps) {
-  const [activeTab, setActiveTab] = useState<'home' | 'droplar' | 'urunler' | 'arsiv'>('home');
+  // Hazır internet fotoğrafları gösterilmez (29 Eylül); görseli olmayan
+  // drop/ürüne kurumun arması konur (merchYedekGorseli).
+  const items = useMemo(() => hamItems.map(hazirFotosuz), [hamItems]);
+  const kapak = (i: Item) => (i.images && i.images[0]) || merchYedekGorseli(i, items);
+  const [activeTab, setActiveTab] = useState<'home' | 'pano' | 'droplar' | 'urunler' | 'arsiv'>('home');
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [archiveConfirmId, setArchiveConfirmId] = useState<string | null>(null);
   
@@ -423,10 +430,10 @@ export default function Merch({
       tags: ['merch', showCreateForm],
       links: selectedParentId ? [selectedParentId] : [],
       notes: newNotes,
-      images: showCreateForm === 'drop' 
-        ? ["https://images.unsplash.com/photo-1521572267360-ee0c2909d518?q=80&w=512&auto=format&fit=crop"] 
+      images: showCreateForm === 'drop'
+        ? [] 
         : showCreateForm === 'merch_urun'
-        ? ["https://images.unsplash.com/photo-1521572267360-ee0c2909d518?q=80&w=256&auto=format&fit=crop"]
+        ? []
         : [],
       isProposal: false,
       archived: false,
@@ -543,7 +550,7 @@ export default function Merch({
       tags: ['merch', 'merch_urun', 'ai-öneri'],
       links: [targetDropId],
       notes: `${rec.description}\n\nSlogan: ${rec.slogan}\nÖnerilen Fiyat: ${rec.price}`,
-      images: ["https://images.unsplash.com/photo-1521572267360-ee0c2909d518?q=80&w=256&auto=format&fit=crop"],
+      images: [],
       isProposal: true, // Mark as an AI proposal so it gets approval controls
       archived: false,
       metadata: {
@@ -582,7 +589,7 @@ export default function Merch({
           <span className="text-xs font-mono uppercase text-[#6A5E4C] dark:text-[#A6B0C9]">
             Kems Company • Merch Atölyesi
           </span>
-          <h1 className="font-serif font-bold text-2xl text-[#0E1C4F] dark:text-[#F3EFE8] mt-1 italic">
+          <h1 className="font-sans font-bold text-2xl text-[#0E1C4F] dark:text-[#F3EFE8] mt-1 tracking-tight">
             Tema, Drop & Ürünler
           </h1>
         </div>
@@ -612,22 +619,21 @@ export default function Merch({
             </select>
           </div>
 
-          {[
-            { id: 'home', label: 'Merch Home' },
-            { id: 'droplar', label: 'Droplar' },
-            { id: 'urunler', label: 'Ürünler' },
-            { id: 'arsiv', label: 'Arşiv' }
-          ].map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => { setActiveTab(tab.id as any); onSelectItem(null); }}
-              className={`px-3 py-1.5 rounded-lg cursor-pointer transition-all ${activeTab === tab.id ? 'bg-[#F26B6F] text-white' : 'bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] text-[#6A5E4C] dark:text-[#A6B0C9]'}`}
-            >
-              {tab.label}
-            </button>
-          ))}
+          {/* Sekmeler sayfa rayında (masaüstünde solda, telefonda üstte) — burada tekrar edilmez */}
         </div>
       </div>
+
+      {/* PANO (Paket 5): Konsept → Tasarım → Üretim → Satışta */}
+      {activeTab === 'pano' && !activeItem && (
+        <MerchPano
+          urunler={products.filter(kurumaUyar)}
+          items={items}
+          kapak={kapak}
+          onUpdateItem={onUpdateItem}
+          onAddItem={onAddItem}
+          onAc={id => { onSelectItem(id); setActiveTab('urunler'); }}
+        />
+      )}
 
       {/* MERCH HOME DASHBOARD */}
       {activeTab === 'home' && !activeItem && (
@@ -718,7 +724,7 @@ export default function Merch({
 
           {/* Active Merch Showcase */}
           <div className="space-y-4">
-            <h3 className="font-serif font-bold text-lg text-[#0E1C4F] dark:text-[#F3EFE8] italic">
+            <h3 className="font-sans font-bold text-lg text-[#0E1C4F] dark:text-[#F3EFE8] tracking-tight">
               Aktif Drops Lookbook
             </h3>
             
@@ -732,9 +738,9 @@ export default function Merch({
                     className="group bg-[#F6F1E7] dark:bg-[#13204A] border border-[#CFC5B4] rounded-xl overflow-hidden cursor-pointer hover:scale-[1.01] transition-all archive-shadow"
                   >
                     <div className="h-40 bg-gradient-to-r from-[#F26B6F] to-[#B23A40] relative flex items-end p-4">
-                      {drop.images && drop.images[0] && (
+                      {kapak(drop) && (
                         <img 
-                          src={drop.images[0]} 
+                          src={kapak(drop)} 
                           alt={drop.title} 
                           className="absolute inset-0 w-full h-full object-cover mix-blend-multiply opacity-55"
                         />
@@ -750,7 +756,7 @@ export default function Merch({
                             </span>
                           )}
                         </div>
-                        <h4 className="font-serif font-bold text-lg text-[#F3EFE8] italic group-hover:text-amber-200 transition-colors">
+                        <h4 className="font-sans font-bold text-lg text-[#F3EFE8] group-hover:text-amber-200 transition-colors tracking-tight">
                           {drop.title}
                         </h4>
                       </div>
@@ -785,7 +791,7 @@ export default function Merch({
               <div className="flex items-center gap-2">
                 <Sparkles className="w-5 h-5 text-[#F26B6F]" />
                 <div>
-                  <h3 className="font-serif font-bold text-lg text-[#0E1C4F] dark:text-[#F3EFE8] italic group-hover:text-[#F26B6F] transition-colors">
+                  <h3 className="font-sans font-bold text-lg text-[#0E1C4F] dark:text-[#F3EFE8] group-hover:text-[#F26B6F] transition-colors tracking-tight">
                     Yapay Zeka Merchandise Tasarım ve Öneri Masası
                   </h3>
                   <p className="text-xs text-[#6A5E4C] dark:text-[#A6B0C9]">
@@ -896,7 +902,7 @@ export default function Merch({
                               <span className="text-[10px] bg-[#F26B6F]/10 text-[#F26B6F] font-mono px-1.5 py-0.5 rounded font-bold uppercase">
                                 {rec.price}
                               </span>
-                              <h4 className="font-serif font-bold text-sm text-[#0E1C4F] dark:text-[#F3EFE8] mt-1.5">
+                              <h4 className="font-sans font-bold text-sm text-[#0E1C4F] dark:text-[#F3EFE8] mt-1.5 tracking-tight">
                                 {rec.title}
                               </h4>
                               <p className="text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9] leading-relaxed line-clamp-4 mt-1">
@@ -931,7 +937,7 @@ export default function Merch({
       {activeTab === 'droplar' && !activeItem && (
         <div className="space-y-4 animate-in fade-in duration-200">
           <div className="flex justify-between items-center pb-2 border-b border-[#CFC5B4]/50">
-            <h3 className="font-serif font-bold text-lg text-[#0E1C4F] dark:text-[#F3EFE8]">
+            <h3 className="font-sans font-bold text-lg text-[#0E1C4F] dark:text-[#F3EFE8] tracking-tight">
               Drop Listesi ({activeDrops.length})
             </h3>
             <button
@@ -1021,7 +1027,7 @@ export default function Merch({
       {activeTab === 'urunler' && !activeItem && (
         <div className="space-y-6 animate-in fade-in duration-200">
           <div className="flex justify-between items-center pb-2 border-b border-[#CFC5B4]/50">
-            <h3 className="font-serif font-bold text-lg text-[#0E1C4F] dark:text-[#F3EFE8]">
+            <h3 className="font-sans font-bold text-lg text-[#0E1C4F] dark:text-[#F3EFE8] tracking-tight">
               Tüm Ürün Kataloğu ({products.length})
             </h3>
             <button
@@ -1056,7 +1062,7 @@ export default function Merch({
                         <ChevronDown className="w-4 h-4 text-[#F26B6F] transition-transform" />
                       )}
                       <FolderDot className="w-4 h-4 text-[#F26B6F]" />
-                      <h4 className="font-serif font-bold text-base text-[#0E1C4F] dark:text-[#F3EFE8] group-hover:text-[#F26B6F] transition-colors">
+                      <h4 className="font-sans font-bold text-base text-[#0E1C4F] dark:text-[#F3EFE8] group-hover:text-[#F26B6F] transition-colors tracking-tight">
                         {drop.title}
                       </h4>
                       <span className="text-[10px] font-mono bg-[#F26B6F]/10 text-[#F26B6F] px-2 py-0.5 rounded-sm font-bold">
@@ -1080,8 +1086,8 @@ export default function Merch({
                           className="group bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] rounded-xl overflow-hidden cursor-pointer hover:border-[#F26B6F] transition-all archive-shadow p-3.5 space-y-3"
                         >
                           <div className="h-32 bg-stone-100 rounded-lg overflow-hidden relative">
-                            {p.images && p.images[0] ? (
-                              <img src={p.images[0]} alt={p.title} className="w-full h-full object-cover" />
+                            {kapak(p) ? (
+                              <img src={kapak(p)} alt={p.title} className="w-full h-full object-contain p-2" />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center bg-stone-200">
                                 <ShoppingBag className="w-8 h-8 text-stone-500 dark:text-stone-400" />
@@ -1104,7 +1110,7 @@ export default function Merch({
                               )}
                             </div>
                             <div className="flex justify-between items-center gap-1.5">
-                              <h4 className="font-serif font-bold text-sm text-[#0E1C4F] dark:text-[#F3EFE8] line-clamp-1 group-hover:text-[#F26B6F] flex-1">
+                              <h4 className="font-sans font-bold text-sm text-[#0E1C4F] dark:text-[#F3EFE8] line-clamp-1 group-hover:text-[#F26B6F] flex-1 tracking-tight">
                                 {p.title}
                               </h4>
                               <button 
@@ -1148,7 +1154,7 @@ export default function Merch({
                       <ChevronDown className="w-4 h-4 text-stone-500 dark:text-stone-400 transition-transform" />
                     )}
                     <FolderDot className="w-4 h-4 text-stone-500 dark:text-stone-400" />
-                    <h4 className="font-serif font-bold text-base text-[#0E1C4F] dark:text-[#F3EFE8] group-hover:text-[#F26B6F] transition-colors">
+                    <h4 className="font-sans font-bold text-base text-[#0E1C4F] dark:text-[#F3EFE8] group-hover:text-[#F26B6F] transition-colors tracking-tight">
                       Diğer / Bağımsız Ürünler
                     </h4>
                     <span className="text-[10px] font-mono bg-stone-200 text-stone-700 px-2 py-0.5 rounded-sm font-bold">
@@ -1166,8 +1172,8 @@ export default function Merch({
                         className="group bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] rounded-xl overflow-hidden cursor-pointer hover:border-[#F26B6F] transition-all archive-shadow p-3.5 space-y-3"
                       >
                         <div className="h-32 bg-stone-100 rounded-lg overflow-hidden relative">
-                          {p.images && p.images[0] ? (
-                            <img src={p.images[0]} alt={p.title} className="w-full h-full object-cover" />
+                          {kapak(p) ? (
+                            <img src={kapak(p)} alt={p.title} className="w-full h-full object-contain p-2" />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center bg-stone-200">
                               <ShoppingBag className="w-8 h-8 text-stone-500 dark:text-stone-400" />
@@ -1185,7 +1191,7 @@ export default function Merch({
                             </span>
                           </div>
                           <div className="flex justify-between items-center gap-1.5">
-                            <h4 className="font-serif font-bold text-sm text-[#0E1C4F] dark:text-[#F3EFE8] line-clamp-1 group-hover:text-[#F26B6F] flex-1">
+                            <h4 className="font-sans font-bold text-sm text-[#0E1C4F] dark:text-[#F3EFE8] line-clamp-1 group-hover:text-[#F26B6F] flex-1 tracking-tight">
                               {p.title}
                             </h4>
                             <button 
@@ -1220,7 +1226,7 @@ export default function Merch({
       {activeTab === 'arsiv' && (
         <div className="space-y-6 animate-in fade-in duration-200">
           <div className="border-b border-[#CFC5B4] pb-2">
-            <h3 className="font-serif font-bold text-lg text-[#0E1C4F] dark:text-[#F3EFE8] flex items-center gap-2">
+            <h3 className="font-sans font-bold text-lg text-[#0E1C4F] dark:text-[#F3EFE8] flex items-center gap-2 tracking-tight">
               <Archive className="w-5 h-5 text-[#F26B6F]" />
               Geçmiş / Arşivlenmiş Drops ({archivedDrops.length})
             </h3>
@@ -1230,7 +1236,7 @@ export default function Merch({
             {archivedDrops.map(d => (
               <div key={d.id} className="bg-white/40 dark:bg-[#13204A]/40 border border-[#CFC5B4] rounded-xl p-5 opacity-75 hover:opacity-100 transition-opacity">
                 <div className="flex justify-between items-start">
-                  <h4 className="font-serif font-bold text-base text-[#0E1C4F] dark:text-[#F3EFE8]">
+                  <h4 className="font-sans font-bold text-base text-[#0E1C4F] dark:text-[#F3EFE8] tracking-tight">
                     {d.title}
                   </h4>
                   <span className="text-[10px] font-mono bg-[#3E8E5E]/10 text-[#3E8E5E] px-2 py-0.5 rounded uppercase">
@@ -1314,10 +1320,18 @@ export default function Merch({
                         )}
                       </>
                     ) : (
+                      kapak(activeItem) ? (
+                        // Görsel yok: kurumun arması (Canva) — hazır fotoğraf değil
+                        <div className="w-full h-full flex flex-col items-center justify-center gap-3 p-10 bg-[#F3EFE8]">
+                          <img src={kapak(activeItem)} alt="" className="max-h-[70%] object-contain" />
+                          <p className="text-[11px] text-stone-500 font-mono">Bu drop'un kendi görseli yok · kurum arması gösteriliyor</p>
+                        </div>
+                      ) : (
                       <div className="text-center p-8 space-y-3">
                         <Image className="w-16 h-16 mx-auto text-stone-300" />
                         <p className="text-sm text-stone-500 dark:text-stone-400 font-mono">Bu koleksiyon için henüz görsel bulunmuyor.</p>
                       </div>
+                      )
                     )}
                   </div>
 
@@ -1357,7 +1371,7 @@ export default function Merch({
                         {activeItem.status}
                       </span>
                     </div>
-                    <h1 className="font-serif font-bold text-3xl text-[#0E1C4F] dark:text-[#F3EFE8] italic leading-tight">
+                    <h1 className="font-sans font-bold text-3xl text-[#0E1C4F] dark:text-[#F3EFE8] leading-tight tracking-tight">
                       {activeItem.title}
                     </h1>
                     <p className="text-xs font-mono text-[#6A5E4C] dark:text-[#A6B0C9]">
@@ -1388,7 +1402,7 @@ export default function Merch({
 
                   {/* Specification Grid */}
                   <div className="bg-[#FAF8F5]/40 dark:bg-[#172554]/5 border border-[#CFC5B4] rounded-xl p-5 space-y-3">
-                    <h3 className="font-serif font-bold text-sm text-[#0E1C4F] dark:text-[#F3EFE8] border-b border-[#CFC5B4]/30 pb-2">
+                    <h3 className="font-sans font-bold text-sm text-[#0E1C4F] dark:text-[#F3EFE8] border-b border-[#CFC5B4]/30 pb-2 tracking-tight">
                       Koleksiyon Öznitelikleri
                     </h3>
                     <div className="grid grid-cols-2 gap-4 text-xs">
@@ -1426,7 +1440,7 @@ export default function Merch({
                 <div className="pt-6 border-t border-[#CFC5B4]/50 space-y-4 text-left">
                   <div className="flex justify-between items-center">
                     <div>
-                      <h2 className="font-serif font-bold text-xl text-[#0E1C4F] dark:text-[#F3EFE8] italic">
+                      <h2 className="font-sans font-bold text-xl text-[#0E1C4F] dark:text-[#F3EFE8] tracking-tight">
                         🛍️ Koleksiyon Parçaları & Modeller
                       </h2>
                       <p className="text-xs text-[#6A5E4C] dark:text-[#A6B0C9]">
@@ -1477,7 +1491,7 @@ export default function Merch({
                             <span className="text-[9px] font-mono uppercase text-[#F26B6F] font-bold tracking-wider">
                               {p.status}
                             </span>
-                            <h4 className="font-serif font-bold text-sm text-[#0E1C4F] dark:text-[#F3EFE8] group-hover:text-[#F26B6F] transition-colors line-clamp-1">
+                            <h4 className="font-sans font-bold text-sm text-[#0E1C4F] dark:text-[#F3EFE8] group-hover:text-[#F26B6F] transition-colors line-clamp-1 tracking-tight">
                               {p.title}
                             </h4>
                           </div>
@@ -1517,9 +1531,9 @@ export default function Merch({
           
           {/* Cover style panel */}
           <div className="h-44 bg-gradient-to-r from-[#F26B6F] to-[#B23A40] relative flex items-end p-6">
-            {activeItem.images && activeItem.images[0] && (
+            {kapak(activeItem) && (
               <img 
-                src={activeItem.images[0]} 
+                src={kapak(activeItem)} 
                 alt={activeItem.title} 
                 className="absolute inset-0 w-full h-full object-cover mix-blend-multiply opacity-50"
               />
@@ -1533,7 +1547,7 @@ export default function Merch({
                   {activeItem.status}
                 </span>
               </div>
-              <h2 className="font-serif font-bold text-2xl text-white italic tracking-tight">
+              <h2 className="font-sans font-bold text-2xl text-white tracking-tight">
                 {activeItem.title}
               </h2>
             </div>
@@ -1627,7 +1641,7 @@ export default function Merch({
                   <div className="flex items-center gap-2">
                     <Sparkles className="w-5 h-5 text-[#F26B6F] shrink-0" />
                     <div>
-                      <h4 className="font-serif font-bold text-sm text-[#F26B6F] uppercase">
+                      <h4 className="font-sans font-bold text-sm text-[#F26B6F] uppercase tracking-tight">
                         ✨ YAPAY ZEKA ÖNERİSİ DETAYI
                       </h4>
                     </div>
@@ -1734,7 +1748,7 @@ export default function Merch({
 
             {isEditing ? (
               <div className="bg-white/80 dark:bg-[#1E294B]/45 border border-[#CFC5B4]/50 p-5 rounded-xl space-y-4 animate-in fade-in duration-200 text-left">
-                <h3 className="font-serif font-bold text-sm text-[#0E1C4F] dark:text-[#F3EFE8] border-b border-[#CFC5B4]/30 pb-2">
+                <h3 className="font-sans font-bold text-sm text-[#0E1C4F] dark:text-[#F3EFE8] border-b border-[#CFC5B4]/30 pb-2 tracking-tight">
                   Detayları Düzenle ({activeItem.type})
                 </h3>
                 
@@ -2136,7 +2150,7 @@ export default function Merch({
             {activeItem.type === 'drop' && (
               <div className="pt-4 border-t border-[#CFC5B4]/40 space-y-3">
                 <div className="flex justify-between items-center">
-                  <h4 className="font-serif font-bold text-base text-[#0E1C4F] dark:text-[#F3EFE8]">
+                  <h4 className="font-sans font-bold text-base text-[#0E1C4F] dark:text-[#F3EFE8] tracking-tight">
                     Bu Droptaki Tüm Ürünler
                   </h4>
                   <button
@@ -2304,7 +2318,7 @@ export default function Merch({
                           <span>•</span>
                           <span>{brands.find(b => b.id === activeItem.metadata?.brandId)?.title || "Genel Serisi"}</span>
                         </div>
-                        <h2 className="font-serif italic font-bold text-3xl text-[#0E1C4F] tracking-tight leading-tight">
+                        <h2 className="font-sans font-bold text-3xl text-[#0E1C4F] tracking-tight leading-tight">
                           {activeItem.title}
                         </h2>
                         <div className="inline-flex items-center gap-2 font-mono text-[10px] bg-stone-100 px-2.5 py-1 rounded-sm text-[#0E1C4F] border border-[#CFC5B4]/40 font-semibold">
@@ -2331,7 +2345,7 @@ export default function Merch({
                       {/* Catalog pieces list inside fullscreen modal */}
                       {activeItem.type === 'drop' && (
                         <div className="space-y-3 pt-4 border-t border-[#CFC5B4]/30">
-                          <h4 className="font-serif font-bold text-sm text-[#0E1C4F] italic">Koleksiyondaki Modeller ({products.filter(p => p.metadata?.dropId === activeItem.id).length})</h4>
+                          <h4 className="font-sans font-bold text-sm text-[#0E1C4F] tracking-tight">Koleksiyondaki Modeller ({products.filter(p => p.metadata?.dropId === activeItem.id).length})</h4>
                           <div className="grid grid-cols-2 gap-3 max-h-[220px] overflow-y-auto pr-1">
                             {products.filter(p => p.metadata?.dropId === activeItem.id).map(p => (
                               <div
@@ -2378,7 +2392,7 @@ export default function Merch({
       {showCreateForm && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
           <form onSubmit={handleCreateMerch} className="bg-[#F3EFE8] border-2 border-[#CFC5B4] rounded-xl max-w-md w-full p-6 space-y-4 paper-grain animate-in zoom-in-95 duration-200">
-            <h3 className="font-serif font-bold text-lg text-[#0E1C4F] border-b border-[#CFC5B4]/50 pb-2 capitalize">
+            <h3 className="font-sans font-bold text-lg text-[#0E1C4F] border-b border-[#CFC5B4]/50 pb-2 capitalize tracking-tight">
               Yeni {showCreateForm === 'drop' ? 'Drop' : 'Ürün'} Tasarla
             </h3>
 

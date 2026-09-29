@@ -24,6 +24,77 @@ function getAI(): GoogleGenAI {
   return aiClient;
 }
 
+/**
+ * Model seçimi (29 Eylül). Sunucu ilk günden beri tek bir sabit modele
+ * ("gemini-3.5-flash") bağlıydı; o ad Google'da yoksa her istek 500'e
+ * düşüyordu. Artık sırayla denenir: GEMINI_MODEL (Secrets'ta verilirse),
+ * sonra yedekler. Çalışan model hatırlanır.
+ */
+const MODEL_ADAYLARI = [
+  process.env.GEMINI_MODEL,
+  "gemini-3.5-flash",
+  "gemini-flash-latest",
+  "gemini-2.5-flash",
+].filter((m, i, a): m is string => !!m && a.indexOf(m) === i);
+let calisanModel: string | null = null;
+
+/** Google'ın hatasını Kemal'in okuyacağı Türkçe bir cümleye çevirir */
+function hatayiAcikla(error: any): { durum: number; mesaj: string; modelYok: boolean; mesgul?: boolean } {
+  const ham = String(error?.message || error || "");
+  const kod = Number(error?.status || error?.code || 0);
+  if (/GEMINI_API_KEY/.test(ham)) {
+    return { durum: 500, modelYok: false, mesaj: "Yapay zekâ anahtarı (GEMINI_API_KEY) tanımlı değil. AI Studio'da Secrets panelinden eklenmeli." };
+  }
+  if (/API_KEY_INVALID|API key not valid|PERMISSION_DENIED/i.test(ham) || kod === 401 || kod === 403) {
+    return { durum: 502, modelYok: false, mesaj: "Yapay zekâ anahtarı geçersiz ya da yetkisiz. Secrets'taki GEMINI_API_KEY yenilenmeli." };
+  }
+  if (/RESOURCE_EXHAUSTED|quota|rate limit/i.test(ham) || kod === 429) {
+    return { durum: 429, modelYok: false, mesaj: "Yapay zekâ kotası doldu. Bir süre sonra yeniden dene." };
+  }
+  if (/NOT_FOUND|is not found|not supported for generateContent|unknown model/i.test(ham) || kod === 404) {
+    return { durum: 502, modelYok: true, mesaj: "Yapay zekâ modeli bulunamadı." };
+  }
+  if (/UNAVAILABLE|overloaded|high demand|503/i.test(ham) || kod === 503) {
+    return { durum: 503, modelYok: false, mesgul: true, mesaj: "Yapay zekâ modelleri şu an çok yoğun (Google tarafında). Birkaç dakika sonra yeniden dene." };
+  }
+  return { durum: 500, modelYok: false, mesaj: `Yapay zekâ hatası: ${ham.slice(0, 300) || "bilinmeyen"}` };
+}
+
+/** İsteği sırayla modellere dener; model yoksa bir sonrakine geçer */
+async function uret(ai: GoogleGenAI, istek: { contents: string; config: any }) {
+  const sira = calisanModel ? [calisanModel, ...MODEL_ADAYLARI.filter(m => m !== calisanModel)] : MODEL_ADAYLARI;
+  let sonHata: any = null;
+  for (const model of sira) {
+    try {
+      const yanit = await ai.models.generateContent({ model, ...istek });
+      calisanModel = model;
+      return yanit;
+    } catch (e: any) {
+      sonHata = e;
+      const h = hatayiAcikla(e);
+      // Kemal'in gördüğü: 503 "This model is currently experiencing high
+      // demand". Model meşgulse kısa bir bekleyişle bir kez daha, olmazsa
+      // sıradaki model.
+      if (h.mesgul) {
+        await new Promise(r => setTimeout(r, 1200));
+        try {
+          const yanit = await ai.models.generateContent({ model, ...istek });
+          calisanModel = model;
+          return yanit;
+        } catch (e2: any) {
+          sonHata = e2;
+          if (!hatayiAcikla(e2).mesgul) throw e2;
+        }
+        console.warn(`Model meşgul: ${model}, sıradakine geçiliyor.`);
+        continue;
+      }
+      if (!h.modelYok) throw e;
+      console.warn(`Model bulunamadı: ${model}, sıradakine geçiliyor.`);
+    }
+  }
+  throw sonHata;
+}
+
 // API Routes
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok", time: new Date().toISOString() });
@@ -331,8 +402,7 @@ Süreç ve kurallar:
         return res.status(400).json({ error: "Bilinmeyen AI görevi." });
     }
 
-    const response = await ai.models.generateContent({
-      model: "gemini-3.5-flash",
+    const response = await uret(ai, {
       contents: prompt,
       config: {
         systemInstruction: systemInstruction,
@@ -345,7 +415,26 @@ Süreç ve kurallar:
     res.json({ result: reply });
   } catch (error: any) {
     console.error("Gemini API Hatası:", error);
-    res.status(500).json({ error: error.message || "AI yanıtı alınırken bir hata oluştu." });
+    const h = hatayiAcikla(error);
+    res.status(h.durum).json({
+      error: h.modelYok ? `${h.mesaj} Denenenler: ${MODEL_ADAYLARI.join(", ")}.` : h.mesaj
+    });
+  }
+});
+
+/**
+ * Yapay zekâ sağlık kontrolü: anahtar var mı, hangi model cevap veriyor.
+ * Tarayıcıda /api/ai-durum açılınca okunur.
+ */
+app.get("/api/ai-durum", async (_req, res) => {
+  if (!process.env.GEMINI_API_KEY) {
+    return res.json({ anahtar: false, mesaj: hatayiAcikla(new Error("GEMINI_API_KEY")).mesaj });
+  }
+  try {
+    await uret(getAI(), { contents: "Yalnız 'tamam' yaz.", config: { temperature: 0 } });
+    res.json({ anahtar: true, calisiyor: true, model: calisanModel });
+  } catch (e: any) {
+    res.json({ anahtar: true, calisiyor: false, mesaj: hatayiAcikla(e).mesaj, denenenler: MODEL_ADAYLARI });
   }
 });
 
