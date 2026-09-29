@@ -1,7 +1,8 @@
 import { KanonPaneli } from './wiki/KanonPaneli';
 import { TYPE_LABELS } from './wiki/wikiSchema';
 import React, { useState, useMemo } from 'react';
-import { Book, Sparkles, CheckSquare, Plus, FileText, Check, Trash2, HelpCircle, Compass, ListTodo, RefreshCw } from 'lucide-react';
+import { Book, CheckSquare, Plus, FileText, Check, Trash2, HelpCircle, Compass, ListTodo, RefreshCw } from 'lucide-react';
+import { StudyodaAc } from './studyo/StudyodaAc';
 import { Item, ItemType, AreaType } from '../types';
 import { getCachedAccessToken } from '../lib/firebase';
 import { createGoogleDoc } from '../lib/googleApi';
@@ -39,9 +40,6 @@ export default function Kitap({
   const [newTodoText, setNewTodoText] = useState('');
 
   // AI responses
-  const [isAiBoxOpen, setIsAiBoxOpen] = useState(true);
-  const [loadingAi, setLoadingAi] = useState<string | null>(null);
-  const [aiResponseText, setAiResponseText] = useState('');
 
   // Connected entities selection
   const [selectedEntityId, setSelectedEntityId] = useState('');
@@ -253,98 +251,6 @@ export default function Kitap({
     });
   };
 
-  // AI Bölüm Özeti (Chapter Summary)
-  const handleAiChapterSummary = async () => {
-    if (!activeChapter) return;
-    setLoadingAi('özet');
-    setAiResponseText('');
-    try {
-      const response = await fetch('/api/ai', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          task: 'devam-et',
-          data: {
-            text: activeChapter.notes,
-            notes: `Lütfen bu roman bölümünün edebi bir Türkçe özetini çıkar.`
-          }
-        })
-      });
-      const data = await response.json();
-      if (data.result) {
-        setAiResponseText(data.result);
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoadingAi(null);
-    }
-  };
-
-  // AI Devamı için Fikir/Taslak (Next Ideas)
-  const handleAiContinuationIdeas = async () => {
-    if (!activeChapter) return;
-    setLoadingAi('devam_fikir');
-    setAiResponseText('');
-    try {
-      const response = await fetch('/api/ai', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          task: 'devam-et',
-          data: {
-            text: activeChapter.notes,
-            notes: `Bu bölümden sonra hikayenin nasıl akabileceğine dair 3 adet yaratıcı kurgusal fikir üret.`
-          }
-        })
-      });
-      const data = await response.json();
-      if (data.result) {
-        setAiResponseText(data.result);
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoadingAi(null);
-    }
-  };
-
-  // AI Tutarlılık Kontrolü (Consistency with lore)
-  const handleAiConsistencyCheck = async () => {
-    if (!activeChapter) return;
-    setLoadingAi('tutarlılık');
-    setAiResponseText('');
-    try {
-      // Send active entities lore/wiki for consistency checking
-      const wikiContext = entities.map(e => ({
-        title: e.title,
-        type: e.type,
-        notes: e.notes,
-        wikiSections: e.metadata?.wikiSections || []
-      }));
-
-      const response = await fetch('/api/ai', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          task: 'tutarlilik-kontrolu',
-          data: {
-            text: activeChapter.notes,
-            wikiContext: wikiContext
-          }
-        })
-      });
-      const data = await response.json();
-      if (data.result) {
-        setAiResponseText(data.result);
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoadingAi(null);
-    }
-  };
-
   const handleLinkEntity = async () => {
     if (!activeChapter || !selectedEntityId) return;
     const currentLinks = activeChapter.links || [];
@@ -394,7 +300,6 @@ export default function Kitap({
             items={items} 
             onUpdateItem={onUpdateItem} 
             onAddItem={onAddItem} 
-            aiContextText={activeChapter?.notes || ''}
             buttonClassName="px-4 py-2 bg-[#FAF8F5] hover:bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] text-[#6A5E4C] dark:text-[#A6B0C9] rounded-lg cursor-pointer transition-all flex items-center gap-1"
           />
           <button
@@ -925,58 +830,13 @@ export default function Kitap({
               </div>
             </div>
 
-            {/* AI kurgusal consistency and checkout center */}
-            <div className="bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] dark:border-[#2C3C72] p-5 rounded-xl paper-grain space-y-4">
-              <div 
-                className="flex items-center justify-between border-b border-[#CFC5B4]/50 pb-2 cursor-pointer select-none group"
-                onClick={() => setIsAiBoxOpen(!isAiBoxOpen)}
-              >
-                <div className="flex items-center gap-1.5">
-                  <Sparkles className="w-4 h-4 text-[#F26B6F]" />
-                  <span className="font-serif font-bold text-[#0E1C4F] dark:text-[#F3EFE8] group-hover:text-[#F26B6F] transition-colors">Yapay Zeka Editörü</span>
-                </div>
-                <span className="text-[10px] font-mono text-[#F26B6F] hover:underline bg-[#F26B6F]/10 px-2 py-0.5 rounded">
-                  {isAiBoxOpen ? 'Kapat [-]' : 'Aç [+]'}
-                </span>
-              </div>
-
-              {isAiBoxOpen && (
-                <>
-                  <div className="flex flex-col gap-2 text-xs font-mono">
-                    <button
-                      onClick={handleAiChapterSummary}
-                      className="py-2 px-3 bg-white dark:bg-[#17345A] text-[#0E1C4F] dark:text-[#F3EFE8] border border-[#CFC5B4] dark:border-[#2C3C72] hover:border-[#F26B6F] rounded-lg text-left"
-                    >
-                      Bölüm Özetini Hazırla
-                    </button>
-                    <button
-                      onClick={handleAiContinuationIdeas}
-                      className="py-2 px-3 bg-white dark:bg-[#17345A] text-[#0E1C4F] dark:text-[#F3EFE8] border border-[#CFC5B4] dark:border-[#2C3C72] hover:border-[#F26B6F] rounded-lg text-left"
-                    >
-                      Gelecek Bölüm Fikirleri Üret
-                    </button>
-                    <button
-                      onClick={handleAiConsistencyCheck}
-                      className="py-2 px-3 bg-[#F26B6F]/10 text-[#F26B6F] border border-[#F26B6F]/30 hover:bg-[#F26B6F]/20 rounded-lg text-left font-bold"
-                    >
-                      Tutarlılık Kontrolü Yap (Anti-Contradiction)
-                    </button>
-                  </div>
-
-                  {loadingAi && (
-                    <div className="p-3 bg-white dark:bg-[#17345A] text-[#0E1C4F] dark:text-[#F3EFE8] rounded border border-[#CFC5B4] dark:border-[#2C3C72] text-center text-xs animate-pulse font-mono text-[#F26B6F]">
-                      AI kurgusal evreni tarıyor... ({loadingAi})
-                    </div>
-                  )}
-
-                  {aiResponseText && !loadingAi && (
-                    <div className="p-3.5 bg-[#FBF3E4] dark:bg-amber-950/20 text-[#0E1C4F] dark:text-[#F3EFE8] border border-dashed border-[#F26B6F] rounded-lg text-xs leading-relaxed space-y-2">
-                      <span className="text-[10px] font-mono uppercase text-[#F26B6F] font-bold block">Editör Değerlendirmesi:</span>
-                      <p className="whitespace-pre-line font-serif">{aiResponseText}</p>
-                    </div>
-                  )}
-                </>
-              )}
+            {/* Yapay zekâ işleri stüdyoda (29 Eylül akşamı) */}
+            <div className="bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] dark:border-[#2C3C72] p-5 rounded-xl space-y-2">
+              <h4 className="font-sans font-bold text-sm text-[#0E1C4F] dark:text-[#F3EFE8] tracking-tight">Yapay zekâ</h4>
+              <p className="text-xs text-[#6A5E4C] dark:text-[#A6B0C9] leading-relaxed">
+                Bölüm özeti, sonraki bölüm için fikir, devam et ve tutarlılık kontrolü stüdyoda.
+              </p>
+              <StudyodaAc grup="yazi" hedefId={activeChapter.id} />
             </div>
 
             {/* Link varlık kancası */}

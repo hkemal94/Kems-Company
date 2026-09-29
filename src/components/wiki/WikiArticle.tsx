@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { AlertCircle, Link2, PencilLine, Unlink } from 'lucide-react';
+import { StudyodaAc } from '../studyo/StudyodaAc';
 import { Item } from '../../types';
 import { resolveAllRelations, getRelationLabels, isEntityUnlinked } from '../../utils/relations';
 import { AutoLinkedText, LinkIndexEntry } from './autoLink';
@@ -226,11 +227,18 @@ export const WikiArticle: React.FC<WikiArticleProps> = ({
               adı henüz konmadı
             </span>
           )}
+          {admin && (
+            <StudyodaAc
+              grup="viki"
+              hedefId={item.id}
+              className="ml-auto flex items-center gap-1.5 text-[11px] font-mono text-gri hover:text-kiremit dark:text-bej/85 transition-colors cursor-pointer"
+            />
+          )}
           {admin && onEdit && (
             <button
               type="button"
               onClick={() => onEdit(item.id)}
-              className="ml-auto flex items-center gap-1.5 text-[11px] font-mono text-gri hover:text-lacivert dark:text-bej/85 dark:hover:text-krem transition-colors"
+              className="flex items-center gap-1.5 text-[11px] font-mono text-gri hover:text-lacivert dark:text-bej/85 dark:hover:text-krem transition-colors"
             >
               <PencilLine size={12} /> düzenle
             </button>

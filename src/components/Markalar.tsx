@@ -12,7 +12,6 @@ import {
   MapPin, 
   Calendar, 
   ShoppingBag, 
-  Sparkles, 
   Check, 
   X,
   Upload,
@@ -20,6 +19,7 @@ import {
   ArrowRight,
   Search
 } from 'lucide-react';
+import { StudyodaAc } from './studyo/StudyodaAc';
 import { Item, ItemType, BrandKit, AreaType, WikiSection } from '../types';
 import { compressImageBase64 } from '../lib/imageCompressor';
 import { resolveAllRelations, cleanupRelationsOnDelete } from '../utils/relations';
@@ -144,7 +144,6 @@ export default function Markalar({
   const [newThemeNotes, setNewThemeNotes] = useState('');
 
   // AI Recommendation loading
-  const [aiGeneratingColors, setAiGeneratingColors] = useState(false);
 
   /**
    * Marka yapısı (7. madde). Kems Company tek marka; kulüpler kurgu içi
@@ -406,56 +405,6 @@ export default function Markalar({
     onSelectArea('merch');
   };
 
-  // AI palette generation suggestion
-  const handleAiColorPalette = async () => {
-    if (!activeBrand) return;
-    setAiGeneratingColors(true);
-    try {
-      const response = await fetch('/api/ai', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          task: 'logo-renk-cikar',
-          data: {
-            logoDescription: (isEditingBrand ? editBrandNotes : activeBrand.notes) || activeBrand.title
-          }
-        })
-      });
-      const data = await response.json();
-      if (data.result) {
-        const colors: { hex: string, name: string }[] = JSON.parse(data.result);
-        const palette = colors.map(c => c.hex);
-
-        if (isEditingBrand) {
-          setEditColorPalette(prev => Array.from(new Set([...prev, ...palette])));
-          alert('AI renk önerileri düzenleme formuna eklendi!');
-        } else {
-          const currentKit = activeBrand.metadata?.brandKit || {
-            selectedLogo: '',
-            ideaLogos: [],
-            colorPalette: [],
-            exemplaryWorks: [],
-            selectedFont: 'Inter'
-          };
-          await onUpdateItem({
-            ...activeBrand,
-            metadata: {
-              ...activeBrand.metadata,
-              brandKit: {
-                ...currentKit,
-                colorPalette: Array.from(new Set([...currentKit.colorPalette, ...palette]))
-              }
-            }
-          });
-          alert('AI renk önerileri marka kitine eklendi!');
-        }
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setAiGeneratingColors(false);
-    }
-  };
 
   /**
    * Yan listedeki tek satır. Marka ve kurum aynı satırı kullanıyor; ayrım
@@ -1095,14 +1044,12 @@ export default function Markalar({
                             <h4 className="text-[10px] font-mono uppercase text-[#6A5E4C] dark:text-[#A6B0C9] tracking-wider font-bold">
                               2. Kurumsal Renk Paleti
                             </h4>
-                            <button
-                              onClick={handleAiColorPalette}
-                              disabled={aiGeneratingColors}
+                            <StudyodaAc
+                              arac="marka-renk"
+                              hedefId={activeBrand.id}
+                              etiket="Renk önerisi · stüdyoda"
                               className="text-[9px] font-mono text-[#F26B6F] hover:underline flex items-center gap-1 cursor-pointer font-bold"
-                            >
-                              <Sparkles className="w-3 h-3" />
-                              {aiGeneratingColors ? 'AI Öneriyor...' : 'AI ile Renk Öner'}
-                            </button>
+                            />
                           </div>
 
                           {!isEditingBrand ? (

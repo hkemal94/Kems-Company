@@ -405,12 +405,10 @@ export default function Duzada({
   const [editingWikiTitle, setEditingWikiTitle] = useState('');
   const [editingWikiContent, setEditingWikiContent] = useState('');
   const [newSectionTitle, setNewSectionTitle] = useState('');
-  const [aiGeneratingSections, setAiGeneratingSections] = useState(false);
   const [activeDropdownId, setActiveDropdownId] = useState<string | null>(null);
 
   // Map Region Selected
   const [selectedRegion, setSelectedRegion] = useState<string>('merkez');
-  const [aiSummarizingRegion, setAiSummarizingRegion] = useState(false);
 
   // Filter entities
   const entities = useMemo(() => {
@@ -587,20 +585,11 @@ export default function Duzada({
   const [newRoadName, setNewRoadName] = useState('');
 
   // Logo color extraction / font suggestion loading
-  const [loadingAiBrand, setLoadingAiBrand] = useState(false);
 
   // Import / Cleanup Feedback States
   const [cleanupFeedback, setCleanupFeedback] = useState<string | null>(null);
   const [isCleaning, setIsCleaning] = useState(false);
   const [showCleanupConfirm, setShowCleanupConfirm] = useState(false);
-
-  // States for AI Künye Suggestions
-  const [loadingKunyaAi, setLoadingKunyaAi] = useState(false);
-  const [kunyaAiSuggestions, setKunyaAiSuggestions] = useState<Record<string, string> | null>(null);
-
-  useEffect(() => {
-    setKunyaAiSuggestions(null);
-  }, [activeItemId]);
 
   const activeEntity = useMemo(() => {
     if (!activeItemId) return null;
@@ -825,174 +814,6 @@ export default function Duzada({
   // Eski parşömen pin haritası kaldırıldı; pin sürükleme, pin kaydetme ve
   // SVG tıklama işleyicileri onunla birlikte gitti. Konum artık haritanın
   // kendi coğrafyasından geliyor (src/components/harita).
-
-  // AI Sections generator based on entity type
-  const handleAiGenerateWikiSections = async () => {
-    if (!activeEntity) return;
-    setAiGeneratingSections(true);
-    try {
-      const response = await fetch('/api/ai', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          task: 'wiki-section-oner',
-          data: {
-            title: activeEntity.title,
-            type: activeEntity.type,
-            notes: activeEntity.notes || activeEntity.title
-          }
-        })
-      });
-      const data = await response.json();
-      if (data.result) {
-        const sections: { title: string, content: string }[] = JSON.parse(data.result);
-        const newSections: WikiSection[] = sections.map((s, idx) => ({
-          id: `wiki_${Date.now()}_${idx}`,
-          title: s.title,
-          content: s.content,
-          status: 'öneri' // Marks as proposal
-        }));
-
-        await onUpdateItem({
-          ...activeEntity,
-          metadata: {
-            ...activeEntity.metadata,
-            wikiSections: [...(activeEntity.metadata?.wikiSections || []), ...newSections]
-          }
-        });
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setAiGeneratingSections(false);
-    }
-  };
-
-  // AI Profile (Künye) Suggestions Generator
-  const handleAiGenerateKunya = async () => {
-    if (!activeEntity) return;
-    setLoadingKunyaAi(true);
-    setKunyaAiSuggestions(null);
-    try {
-      const response = await fetch('/api/ai', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          task: 'kunya-cikar',
-          data: {
-            title: activeEntity.title,
-            type: activeEntity.type,
-            notes: activeEntity.notes || ""
-          }
-        })
-      });
-      const data = await response.json();
-      if (data.result) {
-        const parsed = JSON.parse(data.result);
-        if (parsed.profile) {
-          setKunyaAiSuggestions(parsed.profile);
-        }
-      }
-    } catch (err) {
-      console.error(err);
-      alert("AI künye önerisi alınırken bir hata oluştu.");
-    } finally {
-      setLoadingKunyaAi(false);
-    }
-  };
-
-  // AI Palette extraction or suggestion based on brand notes
-  const handleAiBrandKit = async () => {
-    if (!activeEntity) return;
-    setLoadingAiBrand(true);
-    try {
-      const response = await fetch('/api/ai', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          task: 'logo-renk-cikar',
-          data: {
-            logoDescription: activeEntity.metadata?.brandKit?.selectedLogo || activeEntity.notes || activeEntity.title
-          }
-        })
-      });
-      const data = await response.json();
-      if (data.result) {
-        const colors: { hex: string, name: string }[] = JSON.parse(data.result);
-        const palette = colors.map(c => `${c.hex} (${c.name})`);
-
-        // Suggest Font choices also
-        const fontRes = await fetch('/api/ai', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            task: 'baslik-oner',
-            data: {
-              notes: `Typography suggestions for brand: ${activeEntity.title}`
-            }
-          })
-        });
-        const fontData = await fontRes.json();
-        const suggestedFonts = fontData.result ? JSON.parse(fontData.result) : ['Inter', 'Space Grotesk'];
-
-        await onUpdateItem({
-          ...activeEntity,
-          metadata: {
-            ...activeEntity.metadata,
-            brandKit: {
-              ...(activeEntity.metadata?.brandKit || { selectedLogo: '', ideaLogos: [], colorPalette: [], exemplaryWorks: [] }),
-              colorPalette: palette,
-              selectedFont: suggestedFonts[0] || 'Inter'
-            }
-          }
-        });
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoadingAiBrand(false);
-    }
-  };
-
-  // AI Text continuation helper
-  const handleWikiSectionDevamEt = async (sectionId: string) => {
-    if (!activeEntity) return;
-    const section = activeEntity.metadata?.wikiSections?.find(s => s.id === sectionId);
-    if (!section) return;
-
-    try {
-      const response = await fetch('/api/ai', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          task: 'devam-et',
-          data: {
-            text: section.content,
-            notes: `Varlık: ${activeEntity.title}, Türü: ${activeEntity.type}, Açıklama: ${activeEntity.notes}`
-          }
-        })
-      });
-      const data = await response.json();
-      if (data.result) {
-        const updatedSections = (activeEntity.metadata?.wikiSections || []).map(s => {
-          if (s.id === sectionId) {
-            return { ...s, content: s.content + ' ' + data.result };
-          }
-          return s;
-        });
-
-        await onUpdateItem({
-          ...activeEntity,
-          metadata: {
-            ...activeEntity.metadata,
-            wikiSections: updatedSections
-          }
-        });
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  };
 
   const handleSaveWikiSection = async (sectionId: string) => {
     if (!activeEntity) return;
@@ -1344,38 +1165,6 @@ export default function Duzada({
     });
   };
 
-  // AI Region Summarizer
-  const handleAiRegionLore = async () => {
-    setAiSummarizingRegion(true);
-    try {
-      const regionEntities = entities.filter(e => e.metadata?.region === selectedRegion);
-      const entitySummary = regionEntities.map(e => `${e.title} (${e.type})`).join(", ");
-
-      const response = await fetch('/api/ai', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          task: 'devam-et',
-          data: {
-            text: activeRegionSummaries[selectedRegion] || "",
-            notes: `Ege bölgesindeki ${selectedRegion} bölgesi için zengin lore özeti yap. Bölgedeki varlıklar: ${entitySummary}`
-          }
-        })
-      });
-      const data = await response.json();
-      if (data.result) {
-        await handleSaveRegionSummaries({
-          ...activeRegionSummaries,
-          [selectedRegion]: data.result
-        });
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setAiSummarizingRegion(false);
-    }
-  };
-
   // Warning for links before delete or archive
   const handleDeleteEntity = (entity: Item) => {
     const activeRelations = resolveAllRelations(entity, items);
@@ -1404,91 +1193,6 @@ export default function Duzada({
     );
   };
 
-  // Action helper for three-dots menu on wiki sections in Read Mode
-  const renderSectionActions = (id: string, isIntro: boolean, sec?: WikiSection) => {
-    return (
-      <div className="relative inline-block text-left font-sans shrink-0">
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            setActiveDropdownId(activeDropdownId === id ? null : id);
-          }}
-          className="text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 p-1 rounded-full hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors cursor-pointer"
-          title="Bölüm İşlemleri"
-        >
-          <MoreVertical className="w-4 h-4" />
-        </button>
-
-        {activeDropdownId === id && (
-          <>
-            <div 
-              className="fixed inset-0 z-10" 
-              onClick={(e) => {
-                e.stopPropagation();
-                setActiveDropdownId(null);
-              }}
-            />
-            <div className="absolute right-0 mt-1 w-44 bg-white dark:bg-[#17345A] border border-stone-200 dark:border-[#2C3C72] rounded-lg shadow-lg py-1 z-20 text-[11px] font-semibold text-stone-700 dark:text-stone-200">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setEditingWikiId(id);
-                  if (isIntro) {
-                    setEditingWikiTitle("1. Genel Bilgiler & Özet");
-                    const isChar = activeEntity && (activeEntity.type === 'kisi' || activeEntity.type === 'karakter');
-                    if (isChar) {
-                      const kunye = getCharacterKunye(activeEntity);
-                      setEditingWikiContent(kunye.summaryText);
-                    } else {
-                      setEditingWikiContent(activeEntity?.notes || '');
-                    }
-                  } else if (sec) {
-                    setEditingWikiTitle(sec.title);
-                    setEditingWikiContent(sec.content);
-                  }
-                  setActiveDropdownId(null);
-                }}
-                className="w-full text-left px-3 py-1.5 hover:bg-stone-50 dark:hover:bg-[#13204A] flex items-center gap-2 cursor-pointer"
-              >
-                <Edit3 className="w-3.5 h-3.5 text-indigo-500" />
-                <span>Bölümü Düzenle</span>
-              </button>
-
-              {!isIntro && (
-                <>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleWikiSectionDevamEt(id);
-                      setActiveDropdownId(null);
-                    }}
-                    className="w-full text-left px-3 py-1.5 hover:bg-stone-50 dark:hover:bg-[#13204A] flex items-center gap-2 cursor-pointer"
-                  >
-                    <Sparkles className="w-3.5 h-3.5 text-[#F26B6F]" />
-                    <span>AI ile Devam Yazdır</span>
-                  </button>
-
-                  <div className="border-t border-stone-100 dark:border-stone-800 my-1" />
-
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteWikiSection(id);
-                      setActiveDropdownId(null);
-                    }}
-                    className="w-full text-left px-3 py-1.5 hover:bg-red-50 dark:hover:bg-red-950/30 text-red-600 dark:text-red-400 flex items-center gap-2 cursor-pointer"
-                  >
-                    <Trash2 className="w-3.5 h-3.5 text-red-500" />
-                    <span>Bölümü Sil</span>
-                  </button>
-                </>
-              )}
-            </div>
-          </>
-        )}
-      </div>
-    );
-  };
 
   // Cross links: Merch or Blog items linked to active entity
   const connectedMerchItems = useMemo(() => {
@@ -1574,7 +1278,7 @@ export default function Duzada({
                   bakis={haritaBakisi.current}
                   onBakis={bakisiTut}
                 />
-                <div className="absolute left-3 top-3 sm:top-auto sm:bottom-3 z-10">{gorunumDugmesi}</div>
+                <div className="absolute left-3 top-3 z-10">{gorunumDugmesi}</div>
               </div>
             ) : (
               <Kurucu

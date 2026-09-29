@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { ShieldCheck, AlertTriangle, Info, Check, X, RefreshCw, Sparkles, BookOpen } from 'lucide-react';
+import { ShieldCheck, AlertTriangle, Info, Check, X, RefreshCw } from 'lucide-react';
+import { StudyodaAc } from './studyo/StudyodaAc';
 import { Item } from '../types';
 import { 
   ConsistencyIssue, 
@@ -18,8 +19,6 @@ interface ConsistencyCheckerProps {
   onUpdateItem: (item: any) => Promise<void>;
   onAddItem: (item: any) => Promise<void>;
   buttonClassName?: string;
-  // Optional custom context for AI checks
-  aiContextText?: string;
 }
 
 export default function ConsistencyChecker({
@@ -27,19 +26,15 @@ export default function ConsistencyChecker({
   items,
   onUpdateItem,
   onAddItem,
-  buttonClassName = '',
-  aiContextText = ''
+  buttonClassName = ''
 }: ConsistencyCheckerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [isAiLoading, setIsAiLoading] = useState(false);
   const [issues, setIssues] = useState<ConsistencyIssue[]>([]);
   const [dismissedIds, setDismissedIds] = useState<Set<string>>(new Set());
-  const [aiAnalysis, setAiAnalysis] = useState<string | null>(null);
 
   const runCheck = async () => {
     setIsLoading(true);
-    setAiAnalysis(null);
     setDismissedIds(new Set());
     
     // Mimic real scan delay for satisfying UX
@@ -73,54 +68,6 @@ export default function ConsistencyChecker({
     setIssues(scanResults);
     setIsLoading(false);
     setIsOpen(true);
-  };
-
-  const handleRunAiAnalysis = async () => {
-    setIsAiLoading(true);
-    setAiAnalysis(null);
-
-    try {
-      const activeModuleItems = items.filter(i => {
-        if (module === 'kisi') return i.type === 'kisi' || i.type === 'karakter';
-        if (module === 'duzada') return i.type === 'mekân' || i.type === 'yer' || i.type === 'dükkân';
-        if (module === 'marka') return i.type === 'marka' || i.type === 'kulüp';
-        if (module === 'merch') return i.type === 'ürün' || i.type === 'drop';
-        if (module === 'kitap') return i.type === 'kitap_bolum';
-        if (module === 'blog') return i.type === 'blog_post';
-        if (module === 'oyun') return i.type === 'map_settings';
-        return false;
-      });
-
-      const wikiContext = items.filter(i => i.type === 'karakter' || i.type === 'mekân' || i.type === 'marka').map(e => ({
-        title: e.title,
-        type: e.type,
-        notes: e.notes
-      }));
-
-      const response = await fetch('/api/ai', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          task: 'tutarlilik-kontrolu',
-          data: {
-            text: aiContextText || JSON.stringify(activeModuleItems.map(i => ({ title: i.title, notes: i.notes, type: i.type }))),
-            wikiContext: wikiContext
-          }
-        })
-      });
-
-      const data = await response.json();
-      if (data.result) {
-        setAiAnalysis(data.result);
-      } else {
-        setAiAnalysis("Gemini AI herhangi bir çelişki tespit edemedi. Modül verileriniz kurguyla uyumlu görünüyor.");
-      }
-    } catch (err) {
-      console.error(err);
-      setAiAnalysis("Yapay zekâ analizi sırasında bağlantı hatası oluştu.");
-    } finally {
-      setIsAiLoading(false);
-    }
   };
 
   const handleAcceptFix = async (issue: ConsistencyIssue) => {
@@ -308,48 +255,10 @@ export default function ConsistencyChecker({
                 )}
               </div>
 
-              {/* AI DEEP ANALYSIS PANEL */}
-              <div className="pt-6 border-t border-stone-200 dark:border-stone-800 space-y-3">
-                <div className="flex items-center justify-between">
-                  <h4 className="text-xs font-bold text-[#0E1C4F] dark:text-[#F3EFE8] uppercase tracking-wider font-mono flex items-center gap-1">
-                    <Sparkles className="w-3.5 h-3.5 text-indigo-500 animate-pulse" />
-                    Derin Yapay Zekâ Analizi (Gemini 2.5)
-                  </h4>
-                  <button
-                    onClick={handleRunAiAnalysis}
-                    disabled={isAiLoading}
-                    className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 disabled:opacity-50"
-                  >
-                    {isAiLoading ? (
-                      <RefreshCw className="w-3 h-3 animate-spin" />
-                    ) : (
-                      <Sparkles className="w-3 h-3" />
-                    )}
-                    Gelişmiş Lore Taraması Yap
-                  </button>
-                </div>
-
-                {isAiLoading && (
-                  <div className="p-6 text-center border border-dashed border-indigo-200 dark:border-indigo-900/60 rounded-xl bg-indigo-50/10 space-y-2">
-                    <RefreshCw className="w-6 h-6 animate-spin text-indigo-500 mx-auto" />
-                    <div className="text-xs font-bold text-indigo-900 dark:text-indigo-400">Gemini Edebî Tutarlılık Süzgeci Çalışıyor</div>
-                    <p className="text-[10px] text-stone-500 dark:text-stone-400 max-w-xs mx-auto leading-relaxed">
-                      Edebî üslup, saklı sırlar ve adanın geçmiş lore'u analiz edilerek derinlemesine bir rapor hazırlanıyor...
-                    </p>
-                  </div>
-                )}
-
-                {aiAnalysis && (
-                  <div className="p-4 bg-indigo-50/30 dark:bg-indigo-950/10 border border-indigo-100 dark:border-indigo-950/50 rounded-xl space-y-2 animate-fadeIn">
-                    <div className="flex items-center gap-1.5 text-indigo-900 dark:text-indigo-300 font-bold text-xs">
-                      <BookOpen className="w-4 h-4 text-indigo-600" />
-                      <span>Edebî Tutarlılık Raporu</span>
-                    </div>
-                    <p className="text-xs text-stone-700 dark:text-stone-300 leading-relaxed font-serif whitespace-pre-wrap">
-                      {aiAnalysis}
-                    </p>
-                  </div>
-                )}
+              {/* Yapay zekâ ile tutarlılık kontrolü stüdyoda (29 Eylül akşamı) */}
+              <div className="pt-6 border-t border-stone-200 dark:border-stone-800 space-y-2">
+                <p className="text-[11px] text-stone-600 dark:text-stone-400">Bir yazıyı ya da maddeyi yapay zekâyla vikiye karşı denetlemek istersen:</p>
+                <StudyodaAc arac="kanon-tutarlilik" etiket="Tutarlılık kontrolü · stüdyoda" />
               </div>
 
             </div>

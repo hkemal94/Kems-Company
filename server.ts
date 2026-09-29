@@ -204,14 +204,13 @@ ${JSON.stringify(data.existingEntities || [])}
         break;
 
       case "logo-renk-cikar":
-        prompt = `Şu logo açıklaması veya görsel temaya uygun, Düzada ve Kems Company marka dna'sına (lacivert, krem, mercan, ada renkleri) uyumlu 4 adet renk paleti öner. Her renk için HEX kodu ve şiirsel bir Türkçe isim ver (örneğin: #9DB0A4 - Ada Adaçayı). Yanıtı bir JSON dizisi olarak ver. Örnek: [{"hex": "#1B2A4A", "name": "Derin Deniz Laciverti"}]
+        prompt = `Şu logo açıklaması veya görsel temaya uygun, Düzada ve Kems Company marka dna'sına (lacivert, krem, mercan, ada renkleri) uyumlu 4 adet renk paleti öner. Her renk için HEX kodu ve şiirsel bir Türkçe isim ver (örneğin: #9DB0A4 - Ada Adaçayı). Yanıtı bir JSON dizisi olarak ver. Örnek: [{"hex": "#0E1C4F", "name": "Derin Deniz Laciverti"}]
 Açıklama:
 "${data.logoDescription || ""}"`;
         systemInstruction += " Sadece saf bir JSON dizisi döndür.";
         break;
 
       case "wiki-section-oner":
-      case "wiki-bolum-oner":
         prompt = `Aşağıdaki ${data.type} türündeki varlık için lore-rich wiki başlıkları ve kısa öneri içerikleri üret. En az 3 adet başlık öner. Yanıtı JSON dizisi olarak döndür. Örnek format: [{"title": "Kökeni", "content": "Adadaki gizemli başlangıcı..."}, {"title": "Sırrı", "content": "Kimsenin bilmediği..."}]
 Varlık Adı: "${data.title}"
 Varlık Notları: "${data.notes || ""}"`;
@@ -219,29 +218,29 @@ Varlık Notları: "${data.notes || ""}"`;
         break;
 
       case "kunya-cikar":
-        prompt = `Aşağıdaki ${data.type} türündeki varlık için lore-rich künye kartı (profile) bilgilerini çıkar veya akıllıca tahmin et.
+        prompt = `Aşağıdaki ${data.type} türündeki varlık için lore-rich künye kartı (profile) bilgilerini metinden çıkar. Metinde olmayan bilgiyi uydurma; yeni özel ad ya da sayı yazma, o alanı yazma.
 Varlık Adı: "${data.title}"
 Varlık Açıklaması/Notları: "${data.notes || ""}"
 
 İlgili varlık türüne göre SADECE aşağıdaki alanları doldur:
 - Eğer tür 'kisi' veya 'karakter' ise:
-  - "profession" (Meslek / Rol, örn: Otel Müdürü, Dedektif)
+  - "profession" (Meslek / Rol)
   - "personality" (Mizaç / Kişilik, örn: Melankolik, Detaycı)
-  - "origin" (Köken / Soy, örn: Isola, Kemskøy Hanedanı)
-  - "motivation" (Hedef / Motivasyon, örn: İntikam almak, Gerçeği bulmak)
+  - "origin" (Köken / Soy)
+  - "motivation" (Hedef / Motivasyon)
 - Eğer tür 'mekân', 'dükkân' veya 'yer' ise:
-  - "shopType" (İşletme/Mekan Türü, örn: Bar, Otel Lobisi, Mağara)
-  - "manager" (Sorumlu / Sahibi, örn: Alper Kansu)
-  - "style" (Mimari Tarz, örn: Gotik, Modern, Yarı Harabe)
-  - "secrets" (Önemli Sırlar, örn: Gizli tünel girişi var)
+  - "shopType" (İşletme / mekân türü)
+  - "manager" (Sorumlu / sahibi — metinde geçmiyorsa boş bırak, ad uydurma)
+  - "style" (Mimari tarz)
+  - "secrets" (Önemli sırlar)
 - Eğer tür 'marka' veya 'kulüp' ise:
-  - "purpose" (Kuruluş Amacı, örn: Gizli Cemiyet, Tekstil Holdingi)
-  - "leader" (Liderlik, örn: Aile Konseyi, Kurucu Başkan)
-  - "secrecy" (Gizlilik / Üye Sayısı, örn: Derece 3, Çok Gizli, 15 Aktif Üye)
+  - "purpose" (Kuruluş amacı)
+  - "leader" (Liderlik — metinde geçmiyorsa boş bırak)
+  - "secrecy" (Gizlilik — sayı uydurma)
 - Eğer tür 'ürün' ise:
-  - "rarity" (Nadirik Derecesi, örn: Efsanevi, Nadir, Standart)
-  - "material" (Köken / Malzeme, örn: Çelik, Obsidyen, Antik Pirinç)
-  - "function" (Ana İşlevi, örn: Resepsiyon Odası Anahtarı)
+  - "rarity" (Nadirlik)
+  - "material" (Köken / malzeme)
+  - "function" (Ana işlevi)
 
 Yanıtı mutlaka ve sadece aşağıdaki saf JSON formatında döndür, başka hiçbir şey (markdown işaretlemesi vb.) ekleme:
 {
@@ -251,6 +250,19 @@ Yanıtı mutlaka ve sadece aşağıdaki saf JSON formatında döndür, başka hi
   }
 }`;
         systemInstruction += " Sadece saf bir JSON nesnesi döndür.";
+        break;
+
+      // Stüdyo (29 Eylül akşamı): kitap bölümü özeti ve sonraki bölüm için fikir
+      case "bolum-ozeti":
+        prompt = `Aşağıdaki roman bölümünün kısa bir Türkçe özetini çıkar (en fazla 6 cümle). Metinde olmayan olay ekleme.
+Bölüm:
+"${data.text || ""}"`;
+        break;
+
+      case "sonraki-fikir":
+        prompt = `Aşağıdaki roman bölümünden sonra hikâyenin nereye gidebileceğine dair 3 kısa fikir yaz. Yeni özel ad (kişi, yer, kurum) uydurma; yalnız metinde geçen adları kullan. Madde madde yaz.
+Bölüm:
+"${data.text || ""}"`;
         break;
 
       case "tutarlilik-kontrolu":
@@ -280,121 +292,14 @@ Yanıtı saf JSON dizisi olarak döndür: ["seçenek 1", "seçenek 2", "seçenek
         systemInstruction = "Kurgusal bir evrenin vikisi için kısa, sade, kanona bağlı seçenekler öneriyorsun. Sadece saf bir JSON dizisi döndür.";
         break;
 
-      case "fikir-uret":
-        const count = data.mode === "hızlı" ? "6 adet kısa ve çarpıcı" : "3 adet detaylı, derinlikli";
-        prompt = `Bağlam: "${data.context || "Genel Düzada Fikirleri"}" üzerinde ${data.mode === "hızlı" ? "Hızlı" : "Derin"} modda fikirler üret.
-Bize ${count} adet yaratıcı öneri sun. Her fikrin bir başlığı, bir açıklaması, bir de önerilen türü olsun (örneğin: 'karakter', 'mekân', 'ürün', 'olay' veya 'drop'). Yanıtı saf JSON formatında döndür. Örnek format: [{"title": "Fikir Başlığı", "notes": "Fikir detayları...", "type": "olay"}]`;
-        systemInstruction += " Sadece saf bir JSON dizisi döndür.";
-        break;
-
       case "merch-oner":
-        prompt = `Aşağıdaki tema, açıklama veya marka kurgusu için 3 adet göz alıcı ve Düzada estetiğine (lacivert, krem, mercan, arşiv rüzgarları) uygun eşsiz merchandise (ürün/tasarım/drop) önerisi üret. Her ürün için bir başlık, derinlemesine tasarım açıklaması (desenler, kumaş dokusu, kesim detayları), şiirsel bir Türkçe slogan ve önerilen perakende fiyatı (TL veya USD simgesi ile) sun. Yanıtı mutlaka saf bir JSON dizisi formatında döndür, başka hiçbir şey ekleme. Örnek format: [{"title": "Ürün Adı", "description": "Detaylı tasarım ve kumaş açıklaması...", "slogan": "Şiirsel Türkçe slogan...", "price": "1450 ₺"}]
+        // Fiyat istenmez: uydurma sayı yok (Kemal'in kuralı)
+        prompt = `Aşağıdaki drop ya da tema için 3 adet Düzada estetiğine (lacivert, kiremit, krem) uygun ürün fikri üret. Her ürün için bir başlık, kısa tasarım açıklaması (desen, kumaş, kesim) ve kısa bir Türkçe slogan önerisi yaz. Fiyat, sayı ya da yeni özel ad uydurma. Yanıtı mutlaka saf bir JSON dizisi formatında döndür, başka hiçbir şey ekleme. Örnek format: [{"title": "Ürün Adı", "description": "Tasarım ve kumaş açıklaması...", "slogan": "Kısa slogan"}]
 Tema/Marka Bilgisi:
 "${data.brandInfo || ""}"
 Kategori/Seçim: ${data.category || "hepsi"}
 Ek Açıklama ve Notlar:
 "${data.notes || ""}"`;
-        systemInstruction += " Sadece saf bir JSON dizisi döndür.";
-        break;
-
-      case "oyun-senaryo":
-        prompt = `Sen bir oyun tasarımcısısın. Düzada ve Kems Company evreni için günlük senaryolar ve kurgular üretiyorsun.
-Aşağıdaki bilgilere göre oyunumuz için detaylı bir GÜNLÜK SENARYO ve program planla:
-Seçilen Gün/Tema: "${data.theme || ""}"
-Bulunması İstenen Karakterler:
-${JSON.stringify(data.selectedCharacters || [])}
-Bulunması İstenen Mekânlar:
-${JSON.stringify(data.selectedPlaces || [])}
-
-Evrenin Genel Lore/Wiki Bilgileri (Bağlam):
-${JSON.stringify(data.wikiContext || [])}
-
-Senden ricamız, bu gün için şunları içeren zengin bir kurgu hazırlaman:
-1. GÜNÜN ÖZETİ (Giriş, ana gizem veya olay): Sürükleyici, edebi bir anlatım.
-2. GÜNLÜK AKIŞ PROGRAMI (Sabah, Öğle, Akşam, Gece): Her dilimde ne oluyor, hangi karakter nerede bulunuyor.
-3. ADIMLAR & RESEPSİYON GÖREVLERİ: Oyuncunun (resepsiyonist veya ana karakter) bu gün içinde çözmesi gereken 2-3 adet gizli görev veya evrak işi.
-4. KARAKTER ETKİLEŞİMLERİ: Belirtilen karakterlerin bu gün içindeki gizli motivasyonları ve mini diyalog örüntüleri.
-
-Yanıtını profesyonelce başlıklandırılmış, estetik Markdown formatında döndür.`;
-        break;
-
-      case "oyun-senaryo-duzenle":
-        prompt = `Aşağıdaki oyun senaryosu üzerinde yaratıcı bir düzenleme veya detaylandırma yap.
-Kullanıcı Talebi: "${data.userRequest}"
-Mevcut Senaryo:
-"${data.currentScenario}"
-
-Evrenin Genel Lore/Wiki Bilgileri (Bağlam):
-${JSON.stringify(data.wikiContext || [])}
-
-Lütfen yeni, güncellenmiş ve geliştirilmiş senaryonun tamamını estetik Markdown formatında döndür.`;
-        break;
-
-      case "oyun-islem-oner":
-        prompt = `Aşağıdaki Günün detayları ve mevcut işlem akışına göre, sıradaki gerçekçi ve bitmiş görünümlü tek bir OYUN İŞLEMİ (operation) önerisi oluştur.
-Gün Detayları:
-- Bölüm: ${data.dayMetadata?.bolum || "Bölüm I"}
-- Gün Başlığı: ${data.dayMetadata?.title || ""}
-- Tarih: ${data.dayMetadata?.date || ""}
-- Hava: ${data.dayMetadata?.weather || ""}
-- Doluluk %: ${data.dayMetadata?.occupancy || ""}
-- Müdür Notu: ${data.dayMetadata?.memoText || ""}
-
-Mevcut İşlemler (Bu sıradan sonra gelecek):
-${JSON.stringify(data.currentOperations || [])}
-
-Mevcut Karakterler (Düzada Sakinleri):
-${JSON.stringify(data.charactersContext || [])}
-
-Mevcut Mekanikler (Oyun Kuralları):
-${JSON.stringify(data.mechanicsContext || [])}
-
-Süreç ve kurallar:
-- Öneri, otel yönetimi ("işlem mühendisliği") mantığına uygun olmalıdır.
-- Sonuç mutlaka bir JSON objesi olmalıdır. Başka hiçbir açıklayıcı metin ekleme.
-- JSON objesi şu anahtarları içermelidir:
-  - "type": "check-in" | "walk-in" | "escort" | "check-out" | "call" | "post-it" | "event" değerlerinden biri.
-  - "whoWhat": Türkçe kısa kim/ne tanımı (örn. "Alper Kansu", "Teknik Servis Çağrısı")
-  - "description": Türkçe zengin işlem açıklaması (ne istiyor, evrakı tam mı, lobide ne konuşuyor)
-  - "correctAction": Türkçe doğru karar/aksiyon (örn. "Kimliğini kontrol et, oda 201'e yerleştir.")
-  - "linkedMechanicId": Eşleşen mekanik ID'si (seçenekler arasından bul, yoksa boş)
-  - "linkedCharacterId": Eşleşen karakter ID'si (seçenekler arasından bul, yoksa boş)
-  - "linkedRoomId": Eşleşen oda/yer ID'si (seçenekler arasından bul, yoksa boş)
-  - "effect": Puan ve lore etkisi (örn. "+10 Puan, Alper Kansu otelde konaklamaya başlar.")`;
-        systemInstruction += " Sadece saf bir JSON objesi döndür.";
-        break;
-
-      case "oyun-akis-taslakla":
-        prompt = `Aşağıdaki Günün detaylarına ve mevcut el yapımı işlemlere göre, otelde geçecek en az 4, en fazla 8 ila 10 adet ardışık, gerçekçi ve bitmiş görünümlü OYUN İŞLEMİ (operation) akışı taslakla. Üreteceğin yeni işlemler mevcut işlemleri tamamlamalı, onlarla çelişmemeli ve toplam işlem sayısının (mevcut olanlar + yeni üreteceklerin) kesinlikle minimum 4, maksimum 8-10 adet arasında kalmasını sağlamalıdır.
-Gün Detayları:
-- Bölüm: ${data.dayMetadata?.bolum || "Bölüm I"}
-- Gün Başlığı: ${data.dayMetadata?.title || ""}
-- Tarih: ${data.dayMetadata?.date || ""}
-- Hava: ${data.dayMetadata?.weather || ""}
-- Doluluk %: ${data.dayMetadata?.occupancy || ""}
-- Müdür Notu: ${data.dayMetadata?.memoText || ""}
-
-Mevcut El Yapımı İşlemler (Bu işlemleri tekrar üretme, bunları devam ettirecek veya aralara girecek ek işlemler üret):
-${JSON.stringify(data.currentOperations || [])}
-
-Mevcut Karakterler (Düzada Sakinleri):
-${JSON.stringify(data.charactersContext || [])}
-
-Mevcut Mekanikler (Oyun Kuralları):
-${JSON.stringify(data.mechanicsContext || [])}
-
-Süreç ve kurallar:
-- İşlemler sırayla günün sabahından gecesine doğru bir akış oluşturmalı ve birbirini beslemelidir.
-- Sonuç mutlaka geçerli bir JSON dizisi (array) olmalıdır. Başka hiçbir açıklayıcı metin ekleme.
-- Her dizi elemanı şu anahtarları içeren bir obje olmalıdır:
-  - "type": "check-in" | "walk-in" | "escort" | "check-out" | "call" | "post-it" | "event" değerlerinden biri.
-  - "whoWhat": Türkçe kısa kim/ne tanımı
-  - "description": Türkçe zengin açıklama
-  - "correctAction": Türkçe doğru aksiyon / çözüm
-  - "linkedMechanicId": Eşleşen mekanik ID'si veya boş
-  - "linkedCharacterId": Eşleşen karakter ID'si veya boş
-  - "linkedRoomId": Eşleşen oda/yer ID'si veya boş
-  - "effect": Puan ve lore etkisi`;
         systemInstruction += " Sadece saf bir JSON dizisi döndür.";
         break;
 

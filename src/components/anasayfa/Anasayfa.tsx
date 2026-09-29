@@ -7,7 +7,8 @@ import { gununSorusuBitti } from '../../lib/bildirimler';
 import { eksikleriCikar } from '../Eksikler';
 import { YuzdeSeridi, type SeritHedefi } from './YuzdeSeridi';
 import { SoruKarti } from './SoruKarti';
-import { AdaylarKutusu } from './AdaylarKutusu';
+import { OneriTepsisi } from '../studyo/OneriTepsisi';
+import type { StudyoIslemleri } from '../studyo/StudyoBaglami';
 import { EksikOzeti } from './EksikOzeti';
 import { NotDefteri } from './NotDefteri';
 import { DuzadaKarti } from './DuzadaKarti';
@@ -18,11 +19,11 @@ import { ETIKET, KART, IKINCIL, YAZI } from './stil';
  *   Masaüstü: tek ekran — yüzde şeridi, üretim atölyesi, günün sorusu,
  *   adaylar, neyin eksik, not defteri, Düzada kartı.
  *   Telefon: sekmeli — Bugün · Atölye · Notlar · Durum. Açılışta Bugün
- *   (günün sorusu + adaylar, altında neyin eksik).
+ *   (en üstte neyin eksik, altında günün sorusu + adaylar).
  *
- * Atölye şimdilik yalnız kanon sorusu getirir. Sosyal medya ve merch
- * taslakları sosyal medya stüdyosuyla (Paket 6) gelecek; Kemal'in
- * isteklerini duymadan kurulmuyor.
+ * Atölye yalnız kanon sorusu getirir. Yapay zekâ seçenekleri artık
+ * stüdyoda (29 Eylül akşamı): ana sayfa açılınca kendiliğinden yapay
+ * zekâya sorulmuyor. Adaylar kutusu yerine öneri tepsisinin ilk üçü.
  */
 
 export type TelSekmesi = 'bugun' | 'atolye' | 'notlar' | 'durum';
@@ -36,7 +37,8 @@ interface Props {
   onMaddeyiAc: (item: Item) => void;
   onAddItem: (item: Omit<Item, 'id' | 'createdAt' | 'updatedAt' | 'userId'> & { id?: string }) => Promise<void>;
   onUpdateItem: (item: Item) => Promise<void>;
-  onAcceptProposal: (id: string) => Promise<void>;
+  /** Öneri tepsisi (stüdyoyla ortak) */
+  studyo: StudyoIslemleri;
   onOpenSearch: () => void;
   /** Günün sorusu cevaplanınca bildirimler yeniden sayılsın */
   onBildirimYenile: () => void;
@@ -59,7 +61,7 @@ function selam(): string {
 }
 
 export const Anasayfa: React.FC<Props> = ({
-  items, bugunDugmeler, onGit, onMaddeyiAc, onAddItem, onUpdateItem, onAcceptProposal,
+  items, bugunDugmeler, onGit, onMaddeyiAc, onAddItem, onUpdateItem, studyo,
   onOpenSearch, onBildirimYenile, zil, yeniNotBekliyor, onYeniNot, onYeniNotAcildi, sekme, onSekme
 }) => {
   const [nabiz, setNabiz] = useState(0);
@@ -75,7 +77,6 @@ export const Anasayfa: React.FC<Props> = ({
     return [...kalan.slice(bas), ...kalan.slice(0, bas)].slice(0, 3);
   }, [sorular, kaydirma]);
   const adaySayisi = items.filter(i => i.type === 'aday' && !i.archived).length;
-
   const cevapla = (gunun: boolean) => async (b: NonNullable<typeof gununSorusu>, cevap: string, secenektenMi: boolean) => {
     await onAddItem(adayKaydi(b, cevap, secenektenMi));
     if (gunun) { gununSorusuBitti(); onBildirimYenile(); }
@@ -144,6 +145,13 @@ export const Anasayfa: React.FC<Props> = ({
         ))}
       </nav>
 
+      {/* Telefonda Neyin Eksik en üstte (Kemal, 29 Eylül): açınca ilk görülen */}
+      {sekme === 'bugun' && (
+        <div className="lg:hidden">
+          <EksikOzeti eksikler={eksikler} dugmeler={bugunDugmeler} onAc={a => onGit('eksikler', a)} />
+        </div>
+      )}
+
       {/* Yüzde şeridi */}
       <div className={gorunur('durum')}>
         <YuzdeSeridi oranlar={oranlar} onSec={h => onGit(h)} />
@@ -152,15 +160,13 @@ export const Anasayfa: React.FC<Props> = ({
       <div className="grid gap-3 lg:gap-4 lg:grid-cols-[2fr_1fr] items-start">
         {/* Üretim atölyesi */}
         <section className={`${gorunur('atolye')} rounded-2xl bg-[#0E1C4F] dark:bg-[#13204A] dark:border dark:border-[#2C3C72] text-[#F3EFE8] p-4 lg:p-5`}>
-          <div className="text-[10px] font-mono font-bold uppercase tracking-[0.18em] text-[#A6B0C9]">Üretim atölyesi · yapay zekâ</div>
-          <h2 className="mt-1 text-[18px] font-bold">Kanondan beslenen öneriler</h2>
+          <div className="text-[10px] font-mono font-bold uppercase tracking-[0.18em] text-[#A6B0C9]">Üretim atölyesi</div>
+          <h2 className="mt-1 text-[18px] font-bold">Vikideki boşluklardan sorular</h2>
           <p className="mt-1 text-[12px] leading-relaxed text-[#C9D0E3]">
-            Sorular vikideki gerçek boşluklardan gelir; seçenekler kanonu bilir. Hiçbiri sen onaylamadan vikiye girmez — önce Adaylar'a düşer.
+            Cevabını yaz ya da "✨ Stüdyoda aç" ile yapay zekâdan seçenek iste. Hiçbiri sen onaylamadan vikiye girmez — önce öneri tepsisine düşer.
           </p>
           <div className="mt-3 flex gap-1.5 overflow-x-auto -mx-4 px-4 lg:mx-0 lg:px-0">
             <span className="shrink-0 px-3 py-1.5 rounded-full bg-[#F26B6F] text-white text-[11px] font-semibold">Kanon sorusu</span>
-            <span title="Sosyal medya stüdyosuyla gelecek (Paket 6)" className="shrink-0 px-3 py-1.5 rounded-full bg-white/10 text-[#A6B0C9] text-[11px] font-semibold">Sosyal medya · sonra</span>
-            <span title="Sosyal medya stüdyosuyla gelecek (Paket 6)" className="shrink-0 px-3 py-1.5 rounded-full bg-white/10 text-[#A6B0C9] text-[11px] font-semibold">Merch fikri · sonra</span>
             <button type="button" onClick={() => setKaydirma(k => k + 3)} className="shrink-0 flex items-center gap-1 px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-[#F3EFE8] text-[11px] font-semibold cursor-pointer">
               <RefreshCw className="w-3 h-3" /> Başka sorular
             </button>
@@ -171,7 +177,7 @@ export const Anasayfa: React.FC<Props> = ({
                 <div key={b.anahtar} className="rounded-xl bg-[#FAF8F5] dark:bg-[#0F1A40] p-3 min-w-0">
                   <div className={ETIKET}>Kanon sorusu</div>
                   <div className="mt-1.5">
-                    <SoruKarti bosluk={b} items={items} onCevap={(c, s) => cevapla(false)(b, c, s)} onSonra={() => ertele(false, b.anahtar)} />
+                    <SoruKarti bosluk={b} onCevap={(c, s) => cevapla(false)(b, c, s)} onSonra={() => ertele(false, b.anahtar)} />
                   </div>
                 </div>
               ))}
@@ -189,8 +195,6 @@ export const Anasayfa: React.FC<Props> = ({
               {gununSorusu ? (
                 <SoruKarti
                   bosluk={gununSorusu}
-                  items={items}
-                  kendiliginden
                   buyuk
                   onCevap={(c, s) => cevapla(true)(gununSorusu, c, s)}
                   onSonra={() => ertele(true, gununSorusu.anahtar)}
@@ -202,13 +206,13 @@ export const Anasayfa: React.FC<Props> = ({
           </section>
 
           <div className={gorunur('bugun')}>
-            <AdaylarKutusu items={items} onUpdateItem={onUpdateItem} onAcceptProposal={onAcceptProposal} onMaddeyiAc={onMaddeyiAc} onTemizlik={() => onGit('eksikler')} />
+            <OneriTepsisi {...studyo} sinir={3} />
           </div>
         </div>
       </div>
 
       <div className="grid gap-3 lg:gap-4 lg:grid-cols-[1.1fr_1.3fr_1fr] items-start">
-        <div className={gorunur('bugun')}>
+        <div className="hidden lg:block min-w-0">
           <EksikOzeti eksikler={eksikler} dugmeler={bugunDugmeler} onAc={a => onGit('eksikler', a)} />
         </div>
         <div className={gorunur('notlar')}>

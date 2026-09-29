@@ -56,7 +56,7 @@ terimsiz olur. Kodu değil, **ekranda ne değiştiğini** anlat.
   `src/lib/` altında yazılacak kayıtları üreten saf bir fonksiyon + Neyin
   Eksik panelinde (`src/components/Eksikler.tsx`) yalnızca iş varken
   görünen bir kart. İkinci basışta hiçbir şey yapmamalı. Örnekler:
-  `temaKaldirma.ts`, `markaYapisi.ts`, `otelTemizligi.ts`.
+  `kanonKararlari.ts`, `markaYapisi.ts`, `otelTemizligi.ts`.
 
 **Yazı ve ad**
 - **Kurgu metni yazma.** Künye, mekân hikâyesi, slogan, drop anlatısı
@@ -83,6 +83,12 @@ terimsiz olur. Kodu değil, **ekranda ne değiştiğini** anlat.
   `kurumId` = evrende kimden çıktığı (isteğe bağlı). Kurum altında seri
   açılır, ürün yine Kems Company'nin. Ayrım `src/lib/markaYapisi.ts`'de.
 - Ürün hayat çizgisi: Konsept → Tasarım → Üretim → Satışta.
+
+**Yapay zekâ** (29 Eylül)
+- Bütün yapay zekâ çağrıları stüdyodan geçer (`src/lib/studyo.ts`,
+  `src/components/studyo/`). Sayfalara yeni AI düğmesi konmaz; yalnız
+  "✨ Stüdyoda aç". Sonuç öneri tepsisine düşer, Kemal "Ekle" demeden
+  kayda yazılmaz. Sayfa açılınca kendiliğinden yapay zekâya sorulmaz.
 
 **Kod**
 - React kancaları (`useState`, `useMemo`…) her zaman erken `return`'den
@@ -127,10 +133,9 @@ iskelet de kurma.
 girişi vardı). Tarayıcı Kemal'i tanımazsa "ortak alan"a düşülür; sayfanın
 üstünde "Google ile bağlan" çıkar.
 
-## Açık işler (28 Eylül itibarıyla)
+## Açık işler (29 Eylül itibarıyla)
 
-`docs/04-durum.md`'nin "Otel maddesi temizliği" bölümünde, vikide eski
-simülasyondan kalma yazılar listeli (Düzada maddesinde "Ekim 2003"
-paragrafı, otelde Liman 54 / Peron, "Oda Yapısı", odalarda "Deluxe" ve
-"bakımda" durumu). **Bunlar Kemal'in yazısı; kendin düzeltme,** hangisinin
-ne olacağını ona sor.
+Eski otel yazıları ve ad / tarih soruları için Kemal karar verdi; Neyin
+Eksik'teki kanon kartı işler (`src/lib/kanonKararlari.ts`). Kalan açık
+sorular `docs/soru-cevap/acik-sorular.md`'de. "Eylül Hanım" yalnız bir
+ad; bu karakter hakkında hiçbir şey yazma ya da önerme.

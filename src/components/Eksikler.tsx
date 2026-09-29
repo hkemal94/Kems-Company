@@ -9,11 +9,11 @@ import { soruCevapAktarimi } from '../lib/soruCevapAktarimi';
 import { w3Aktarimi } from '../lib/w3Aktarimi';
 import { w4Aktarimi } from '../lib/w4Aktarimi';
 import { w5Aktarimi, w5GorselAdresi, W5_ETIKETI } from '../lib/w5Aktarimi';
-import { eskiYaziTemizligi } from '../lib/eskiYaziTemizligi';
 import { useHaritaDuzeni } from '../lib/haritaDuzeni';
 import { markaYapisi } from '../lib/markaYapisi';
 import { TemizlikKarti } from './TemizlikKarti';
 import { GaleriYedegiKarti } from './GaleriYedegiKarti';
+import { KanonKarti } from './KanonKarti';
 
 /**
  * "Neyin eksik" paneli (A1).
@@ -505,27 +505,6 @@ export const Eksikler: React.FC<EksiklerProps> = ({
     }
   };
 
-  /** Eski otel simülasyonundan kalan yazılar — tek düğmeyle "eski metin"e */
-  const eskiYazi = useMemo(() => eskiYaziTemizligi(items), [items]);
-  const [eskiIsi, setEskiIsi] = useState(false);
-  const [eskiRaporu, setEskiRaporu] = useState<string | null>(null);
-  const [eskiOnay, setEskiOnay] = useState(false);
-
-  const eskiYazilariKaldir = async () => {
-    if (!onUpdateItem || eskiIsi) return;
-    setEskiOnay(false);
-    setEskiIsi(true);
-    let n = 0;
-    try {
-      for (const kayit of eskiYazi.degisenler) { await onUpdateItem(kayit); n++; }
-      setEskiRaporu(`${n} kayıttan eski yazılar kaldırıldı. Silinmedi — kaydın "eski metin" alanında duruyor.`);
-    } catch (e) {
-      setEskiRaporu(`${n} kayıt yazıldı, sonra hata: ${e instanceof Error ? e.message : 'bilinmeyen'}. Kalanlar için tekrar bas.`);
-    } finally {
-      setEskiIsi(false);
-    }
-  };
-
   // Veri henüz yüklenmediyse panel açılmasın: boş listeyi "her şey tamam"
   // diye göstermek yanlış olur.
   // Bu satır bütün useMemo/useState'lerin ALTINDA olmalı: üstte dururken veri
@@ -685,60 +664,8 @@ export const Eksikler: React.FC<EksiklerProps> = ({
         </p>
       )}
 
-      {/* Eski simülasyon yazıları — tek seferlik */}
-      {onUpdateItem && eskiYazi.degisenler.length > 0 && (
-        <div className="mb-2.5 flex flex-wrap sm:flex-nowrap items-start gap-3 px-4 py-3 rounded-xl border border-[#F26B6F]/40 bg-[#FAF8F5] dark:bg-[#13204A]">
-          <span className="font-mono text-lg font-bold text-[#F26B6F] leading-none mt-0.5 shrink-0 tabular-nums">
-            {eskiYazi.degisenler.length}
-          </span>
-          <span className="min-w-0 flex-1">
-            <span className="block text-[13px] font-semibold text-[#0E1C4F] dark:text-[#F3EFE8]">
-              eski otel simülasyonundan kalan yazılar vikide duruyor
-            </span>
-            <span className="block mt-0.5 text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9] leading-snug">
-              {eskiYazi.parca} parça: Ekim 2003 / Sezon Sonu, Liman 54, Peron, Oda Yapısı, Deluxe, bakımda.
-              Vikiden kalkar; silinmez, kaydın "eski metin" alanına taşınır.
-            </span>
-          </span>
-          {eskiOnay ? (
-            <span className="shrink-0 flex flex-col items-end gap-1.5">
-              <span className="text-[11px] font-semibold text-[#F26B6F]">
-                {eskiYazi.degisenler.length} kayıttan kaldırılsın mı?
-              </span>
-              <span className="flex gap-1.5">
-                <button
-                  type="button"
-                  onClick={() => setEskiOnay(false)}
-                  className="px-3 py-1.5 text-[11px] font-mono rounded-lg border border-[#CFC5B4] dark:border-[#2C3C72] text-[#6A5E4C] dark:text-[#A6B0C9] hover:border-[#0E1C4F] cursor-pointer"
-                >
-                  Vazgeç
-                </button>
-                <button
-                  type="button"
-                  onClick={eskiYazilariKaldir}
-                  className="px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#F26B6F] text-[#F3EFE8] hover:opacity-90 cursor-pointer"
-                >
-                  Evet, kaldır
-                </button>
-              </span>
-            </span>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setEskiOnay(true)}
-              disabled={eskiIsi}
-              className="shrink-0 px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#0E1C4F] dark:bg-[#2C3C72] text-[#F3EFE8] hover:opacity-90 disabled:opacity-40 cursor-pointer"
-            >
-              {eskiIsi ? 'Kaldırılıyor…' : 'Vikiden kaldır'}
-            </button>
-          )}
-        </div>
-      )}
-      {eskiRaporu && (
-        <p className="mb-2.5 px-4 py-2 rounded-lg bg-[#F3EFE8] dark:bg-[#17345A] text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9]">
-          {eskiRaporu}
-        </p>
-      )}
+      {/* Kanon kararları ve eski otel yazıları (29 Eylül akşamı) — tek seferlik, önce yedek */}
+      {onUpdateItem && <KanonKarti items={items} onUpdateItem={onUpdateItem} />}
 
       {/* Viki düzeltmeleri + Canva görselleri (W5) — tek seferlik; önce W4 */}
       {onUpdateItem && onAddItem && w3.guncellenenler.length === 0 && w4.guncellenenler.length === 0 && w5Is > 0 && (

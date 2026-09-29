@@ -1,7 +1,8 @@
 import { KanonPaneli } from './wiki/KanonPaneli';
 import { TYPE_LABELS } from './wiki/wikiSchema';
 import React, { useState, useMemo } from 'react';
-import { BookOpen, Sparkles, Send, Tag, HelpCircle, Check, Trash2, ArrowRight, Plus, Compass, RefreshCw, FileText } from 'lucide-react';
+import { BookOpen, Send, Tag, HelpCircle, Check, Trash2, ArrowRight, Plus, Compass, RefreshCw, FileText } from 'lucide-react';
+import { StudyodaAc } from './studyo/StudyodaAc';
 import { Item, AreaType, ItemType } from '../types';
 import { getCachedAccessToken } from '../lib/firebase';
 import { createGoogleDoc } from '../lib/googleApi';
@@ -28,12 +29,8 @@ export default function Blog({
   const [activeTab, setActiveTab] = useState<'home' | 'editor'>('home');
   
   // Editorial and AI help states
-  const [loadingAi, setLoadingAi] = useState<string | null>(null);
-  const [aiSuggestions, setAiSuggestions] = useState<string[]>([]);
-  const [aiLoreBagiSuggestions, setAiLoreBagiSuggestions] = useState<string>('');
 
   // Creation State
-  const [isAiBoxOpen, setIsAiBoxOpen] = useState(true);
   const [newTitle, setNewTitle] = useState('');
   const [newCategory, setNewCategory] = useState<'lore yazısı' | 'duyuru' | 'kişisel' | 'rehber'>('lore yazısı');
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -171,125 +168,6 @@ export default function Blog({
     setActiveTab('editor');
   };
 
-  // AI Devam Et (Continue writing)
-  const handleAiDevamEt = async () => {
-    if (!activePost) return;
-    setLoadingAi('devam-et');
-    setAiSuggestions([]);
-    try {
-      const response = await fetch('/api/ai', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          task: 'devam-et',
-          data: {
-            text: activePost.notes,
-            notes: `Başlık: ${activePost.title}, Kategori: ${activePost.metadata?.categoryType || "Genel"}`
-          }
-        })
-      });
-      const data = await response.json();
-      if (data.result) {
-        await onUpdateItem({
-          ...activePost,
-          notes: activePost.notes + '\n\n' + data.result
-        });
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoadingAi(null);
-    }
-  };
-
-  // AI Başlık Öner (Suggest creative titles)
-  const handleAiBaslikOner = async () => {
-    if (!activePost) return;
-    setLoadingAi('baslik-oner');
-    setAiSuggestions([]);
-    try {
-      const response = await fetch('/api/ai', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          task: 'baslik-oner',
-          data: {
-            text: activePost.notes
-          }
-        })
-      });
-      const data = await response.json();
-      if (data.result) {
-        setAiSuggestions(JSON.parse(data.result));
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoadingAi(null);
-    }
-  };
-
-  // AI Ton Düzelt (Fix & refine tone)
-  const handleAiTonDuzelt = async (style: string) => {
-    if (!activePost) return;
-    setLoadingAi('ton-duzelt');
-    setAiSuggestions([]);
-    try {
-      const response = await fetch('/api/ai', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          task: 'ton-duzelt',
-          data: {
-            text: activePost.notes,
-            style: style
-          }
-        })
-      });
-      const data = await response.json();
-      if (data.result) {
-        await onUpdateItem({
-          ...activePost,
-          notes: data.result
-        });
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoadingAi(null);
-    }
-  };
-
-  // AI Lore Bağı (Lore relation suggest)
-  const handleAiLoreBagi = async () => {
-    if (!activePost) return;
-    setLoadingAi('lore-bagi');
-    setAiLoreBagiSuggestions('');
-    try {
-      const simplifiedEntities = entities.map(e => ({ id: e.id, title: e.title, type: e.type, notes: e.notes }));
-      
-      const response = await fetch('/api/ai', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          task: 'lore-bagi',
-          data: {
-            text: activePost.notes,
-            existingEntities: simplifiedEntities
-          }
-        })
-      });
-      const data = await response.json();
-      if (data.result) {
-        setAiLoreBagiSuggestions(data.result);
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoadingAi(null);
-    }
-  };
-
   // Copy to Blog action (simulates external blog export and flips status to Yayında!)
   const handleCopyToBlog = async () => {
     if (!activePost) return;
@@ -352,7 +230,6 @@ export default function Blog({
             items={items} 
             onUpdateItem={onUpdateItem} 
             onAddItem={onAddItem} 
-            aiContextText={activePost?.notes || ''}
             buttonClassName="px-4 py-2 bg-[#FAF8F5] hover:bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] text-[#6A5E4C] dark:text-[#A6B0C9] rounded-lg cursor-pointer transition-all flex items-center gap-1"
           />
           <button
@@ -772,103 +649,13 @@ export default function Blog({
             {/* Kanon: yazıda geçen maddeler ve tarih uyarıları (29 Eylül) */}
             <KanonPaneli metin={activePost.notes || ''} items={items} />
             
-            {/* AI Tools Box */}
-            <div className="bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] dark:border-[#2C3C72] p-5 rounded-xl paper-grain space-y-4">
-              <div 
-                className="flex items-center justify-between border-b border-[#CFC5B4]/50 pb-2 cursor-pointer select-none group"
-                onClick={() => setIsAiBoxOpen(!isAiBoxOpen)}
-              >
-                <div className="flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-[#F26B6F]" />
-                  <h4 className="font-sans font-bold text-base text-[#0E1C4F] dark:text-[#F3EFE8] group-hover:text-[#F26B6F] transition-colors tracking-tight">
-                    AI (istersen) Yazı Yardımı
-                  </h4>
-                </div>
-                <span className="text-[10px] font-mono text-[#F26B6F] hover:underline bg-[#F26B6F]/10 px-2 py-0.5 rounded">
-                  {isAiBoxOpen ? 'Kapat [-]' : 'Aç [+]'}
-                </span>
-              </div>
-
-              {isAiBoxOpen && (
-                <>
-                  <p className="text-xs text-[#6A5E4C] dark:text-[#A6B0C9] leading-relaxed">
-                    Yazılarınızı zenginleştirmek, edebi ton ayarlamak veya adadaki ilişkileri kurmak için araçları tetikleyin.
-                  </p>
-
-                  <div className="grid grid-cols-2 gap-2 text-xs font-mono">
-                    <button
-                      onClick={handleAiDevamEt}
-                      disabled={!!loadingAi}
-                      className="py-2.5 px-2.5 bg-white dark:bg-[#17345A] text-[#0E1C4F] dark:text-[#F3EFE8] border border-[#CFC5B4] dark:border-[#2C3C72] hover:border-[#F26B6F] dark:hover:border-[#F26B6F] rounded-lg transition-colors flex flex-col items-center justify-center gap-1 text-center cursor-pointer"
-                    >
-                      <span className="font-bold text-[#F26B6F]">Devam Et</span>
-                      <span className="text-[8px] opacity-75">Yazıyı sürdür</span>
-                    </button>
-
-                    <button
-                      onClick={handleAiBaslikOner}
-                      disabled={!!loadingAi}
-                      className="py-2.5 px-2.5 bg-white dark:bg-[#17345A] text-[#0E1C4F] dark:text-[#F3EFE8] border border-[#CFC5B4] dark:border-[#2C3C72] hover:border-[#F26B6F] dark:hover:border-[#F26B6F] rounded-lg transition-colors flex flex-col items-center justify-center gap-1 text-center cursor-pointer"
-                    >
-                      <span className="font-bold text-[#F26B6F]">Başlık Öner</span>
-                      <span className="text-[8px] opacity-75">5 adet başlık</span>
-                    </button>
-
-                    <button
-                      onClick={() => handleAiTonDuzelt('Nostaljik Arşivsel')}
-                      disabled={!!loadingAi}
-                      className="py-2.5 px-2.5 bg-white dark:bg-[#17345A] text-[#0E1C4F] dark:text-[#F3EFE8] border border-[#CFC5B4] dark:border-[#2C3C72] hover:border-[#F26B6F] dark:hover:border-[#F26B6F] rounded-lg transition-colors flex flex-col items-center justify-center gap-1 text-center cursor-pointer"
-                    >
-                      <span className="font-bold text-[#F26B6F]">Ton Düzelt</span>
-                      <span className="text-[8px] opacity-75">Nostaljik yap</span>
-                    </button>
-
-                    <button
-                      onClick={handleAiLoreBagi}
-                      disabled={!!loadingAi}
-                      className="py-2.5 px-2.5 bg-white dark:bg-[#17345A] text-[#0E1C4F] dark:text-[#F3EFE8] border border-[#CFC5B4] dark:border-[#2C3C72] hover:border-[#F26B6F] dark:hover:border-[#F26B6F] rounded-lg transition-colors flex flex-col items-center justify-center gap-1 text-center cursor-pointer"
-                    >
-                      <span className="font-bold text-[#F26B6F]">Lore Bağı</span>
-                      <span className="text-[8px] opacity-75">Varlık ilişkileri</span>
-                    </button>
-                  </div>
-
-                  {/* Display AI outputs */}
-                  {loadingAi && (
-                    <div className="p-3 bg-white dark:bg-[#17345A] text-[#0E1C4F] dark:text-[#F3EFE8] rounded-lg border border-[#CFC5B4] dark:border-[#2C3C72] text-center text-xs animate-pulse font-mono text-[#F26B6F]">
-                      Yapay Zeka kurguyu inceliyor... ({loadingAi})
-                    </div>
-                  )}
-
-                  {aiSuggestions.length > 0 && (
-                    <div className="p-3 bg-[#FBF3E4] dark:bg-amber-950/20 text-[#0E1C4F] dark:text-[#F3EFE8] border border-dashed border-[#F26B6F] rounded-lg space-y-2">
-                      <span className="text-[10px] font-mono uppercase text-[#F26B6F] font-bold">Önerilen Başlıklar:</span>
-                      <ul className="text-xs list-disc pl-4 space-y-1 font-serif">
-                        {aiSuggestions.map((title, idx) => (
-                          <li 
-                            key={idx} 
-                            className="cursor-pointer hover:text-[#F26B6F]"
-                            onClick={async () => {
-                              await onUpdateItem({ ...activePost, title });
-                              setAiSuggestions([]);
-                            }}
-                          >
-                            {title}
-                          </li>
-                        ))}
-                      </ul>
-                      <span className="text-[9px] text-[#6A5E4C] dark:text-[#A6B0C9] block mt-1">Başlığa tıklayarak yazı başlığı yapabilirsiniz.</span>
-                    </div>
-                  )}
-
-                  {aiLoreBagiSuggestions && (
-                    <div className="p-3.5 bg-[#FBF3E4] dark:bg-amber-950/20 text-[#0E1C4F] dark:text-[#F3EFE8] border border-dashed border-[#F26B6F] rounded-lg space-y-2 text-xs leading-relaxed">
-                      <span className="text-[10px] font-mono uppercase text-[#F26B6F] font-bold block">Önerilen Lore Bağları:</span>
-                      <p className="whitespace-pre-line font-serif">{aiLoreBagiSuggestions}</p>
-                    </div>
-                  )}
-                </>
-              )}
+            {/* Yapay zekâ işleri stüdyoda (29 Eylül akşamı) */}
+            <div className="bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] dark:border-[#2C3C72] p-5 rounded-xl space-y-2">
+              <h4 className="font-sans font-bold text-sm text-[#0E1C4F] dark:text-[#F3EFE8] tracking-tight">Yapay zekâ</h4>
+              <p className="text-xs text-[#6A5E4C] dark:text-[#A6B0C9] leading-relaxed">
+                Devam et, başlık, ton ve lore bağı stüdyoda. Sonuç öneri tepsisine düşer; sen eklemeden yazıya girmez.
+              </p>
+              <StudyodaAc grup="yazi" hedefId={activePost.id} />
             </div>
 
             {/* Hook an entity to this post manual selector */}

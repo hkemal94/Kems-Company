@@ -106,7 +106,9 @@ export function getRelationLabels(
 }
 
 // Resolve all bidirectional relationships for a given item, deduplicating them
-export function resolveAllRelations(item: Item, allItems: Item[]): BidirectionalRelation[] {
+export function resolveAllRelations(item: Item, tumu: Item[]): BidirectionalRelation[] {
+  // Öneri tepsisindeki kayıtlar (aday) madde değildir; bağlantı sayılmaz
+  const allItems = tumu.filter(i => i.type !== 'aday');
   const relationsMap = new Map<string, BidirectionalRelation>();
 
   const addRelation = (rel: Omit<BidirectionalRelation, 'id'>) => {
