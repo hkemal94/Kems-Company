@@ -1,5 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Hand, MousePointer2, PenLine, Redo2, Undo2, Check, X, Eye, EyeOff, Home, LayoutGrid, RotateCcw, RotateCw } from 'lucide-react';
+import { Hand, MousePointer2, PenLine, Redo2, Undo2, Check, X, Eye, EyeOff, Home, LayoutGrid, RotateCcw, RotateCw, MapPinned } from 'lucide-react';
+import { belgelerAyniMi } from './kurucuHarita';
+import type { KurucuBelge } from '../harita/duzenTipi';
 import { DUZADA_GEO } from '../../data/duzadaGeo';
 import { duzeniUygula, bosDuzen, type HaritaDuzeni } from '../harita/duzenKatmani';
 import { catmullRom, type Nokta } from '../harita/sinirBolgeleri';
@@ -41,6 +43,11 @@ interface KurucuProps {
   duzen: HaritaDuzeni | null;
   kaydet: (d: HaritaDuzeni) => Promise<void>;
   durum: KayitDurumu;
+  /**
+   * "Haritaya işle"de haritanın önceki Kurucu hâli buraya verilir; Düzada
+   * onu arşivli bir kayıt olarak saklar (hiçbir şey silinmez).
+   */
+  arsivle?: (onceki: KurucuBelge) => Promise<void>;
   className?: string;
 }
 
@@ -54,15 +61,16 @@ const halkaYolu = (h: Nokta[][]) =>
 
 const km = (m: number) => (m >= 1000 ? `${(m / 1000).toFixed(1)} km` : `${Math.round(m)} m`);
 
-export function Kurucu({ duzen, kaydet, durum, className }: KurucuProps) {
+export function Kurucu({ duzen, kaydet, durum, arsivle, className }: KurucuProps) {
   // ---- veri -------------------------------------------------------------------
   // Zemin bugünkü haritadır; Kurucu açıkken harita düzeni değişse bile zemin
   // açılıştaki hâlde kalır (çizerken altındaki yolların kaymaması için).
-  const [zemin] = useState(() => zeminCikar(duzeniUygula(DUZADA_GEO, duzen)));
+  // Haritaya işlenmiş Kurucu katmanı zemine katılmaz: o zaten taslakta.
+  const [zemin] = useState(() => zeminCikar(duzeniUygula(DUZADA_GEO, duzen, { kurucuHaric: true })));
 
   // Geri al / yinele: taslağın her hâli sırayla saklanır (en fazla 100)
   const [tarihce, setTarihce] = useState<{ hal: KurucuTaslak[]; i: number }>(
-    () => ({ hal: [belgedenTaslak(duzen?.kurucu)], i: 0 })
+    () => ({ hal: [belgedenTaslak(duzen?.kurucu ?? duzen?.kurucuIslenen)], i: 0 })
   );
   const taslak = tarihce.hal[tarihce.i];
   const gecmis = tarihce.hal;
@@ -184,7 +192,7 @@ export function Kurucu({ duzen, kaydet, durum, className }: KurucuProps) {
       const u = hattaUzaklik(m, h);
       if (u.d < en.d) en = u;
     }
-    if (en.d < 35 && !['meydan', 'agac', 'cesme'].includes(tur)) {
+    if (en.d < 35 && !['meydan', 'agac', 'cesme', 'bag'].includes(tur)) {
       const yan = Math.sign((m[0] - en.q[0]) * -Math.sin(en.aci) + (m[1] - en.q[1]) * Math.cos(en.aci)) || 1;
       const d = 3.5 + b.boy / 2;
       return { tur, m: [en.q[0] - Math.sin(en.aci) * d * yan, en.q[1] + Math.cos(en.aci) * d * yan] as Nokta, en: b.en, boy: b.boy, aci: en.aci };
@@ -409,6 +417,34 @@ export function Kurucu({ duzen, kaydet, durum, className }: KurucuProps) {
     };
   }, [taslak]);
 
+  // ---- Haritaya işle ------------------------------------------------------------
+  const taslakBelgesi = useMemo(() => taslaktanBelge(taslak), [taslak]);
+  // Kayıt buluttan geri dönene kadar az önce işlenen hâl burada tutulur
+  const [yerelIslenen, setYerelIslenen] = useState<KurucuBelge | undefined>(undefined);
+  const islenmemis = !belgelerAyniMi(taslakBelgesi, duzen?.kurucuIslenen)
+    && !belgelerAyniMi(taslakBelgesi, yerelIslenen);
+  const [isleOnay, setIsleOnay] = useState(false);
+  const [isleniyor, setIsleniyor] = useState(false);
+  const [isleRaporu, setIsleRaporu] = useState<string | null>(null);
+  const haritayaIsle = async () => {
+    if (isleniyor) return;
+    setIsleOnay(false);
+    setIsleniyor(true);
+    try {
+      const onceki = yerelIslenen ?? duzen?.kurucuIslenen;
+      if (onceki && !belgelerAyniMi(onceki, undefined) && arsivle) await arsivle(onceki);
+      const d = sonDuzen.current ?? bosDuzen();
+      await kaydet({ ...d, guncelleme: Date.now(), kurucu: taslakBelgesi, kurucuIslenen: taslakBelgesi });
+      setYerelIslenen(taslakBelgesi);
+      setIsleRaporu('Haritaya işlendi. "Düzada Haritası" sekmesinde görünür.'
+        + (onceki && arsivle ? ' Önceki hâl arşive kalktı.' : ''));
+    } catch (e) {
+      setIsleRaporu(`İşlenemedi: ${e instanceof Error ? e.message : 'bilinmeyen hata'}. Taslak duruyor, tekrar dene.`);
+    } finally {
+      setIsleniyor(false);
+    }
+  };
+
   const cizimUzunlugu = useMemo(() => {
     const hat = imlec && arac === 'ciz' && cizilen.length ? [...cizilen, imlec] : cizilen;
     return hat.length >= 2 ? uzunluk(hat.map(derceye)) : 0;
@@ -490,7 +526,7 @@ export function Kurucu({ duzen, kaydet, durum, className }: KurucuProps) {
             if (bn.gizli && !gizliGoster) return null;
             const bi = bn.tur ? binaBilgisi(bn.tur) : null;
             const sec = bn.id === secili;
-            const acik = bn.tur && ['meydan', 'saha'].includes(bn.tur);
+            const acik = bn.tur && ['meydan', 'saha', 'bag'].includes(bn.tur);
             return (
               <g key={bn.id} data-bina={bn.id}>
                 {bi?.yuvarlak ? (
@@ -839,8 +875,36 @@ export function Kurucu({ duzen, kaydet, durum, className }: KurucuProps) {
             {gizliGoster ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
             {gizliGoster ? 'Kaldırılanları gizle' : 'Kaldırılanları göster'}
           </button>
-          <div className="mt-2 pt-2 border-t border-[#CFC5B4] dark:border-[#2C3C72] text-[10px] text-[#6A5E4C] dark:text-[#A6B0C9] leading-snug">
-            {kayitYazisi[durum]}. Harita değişmez; "Haritaya işle" sonraki adımda gelecek.
+          <div className="mt-2 pt-2 border-t border-[#CFC5B4] dark:border-[#2C3C72]">
+            {isleOnay ? (
+              <div className="flex flex-col gap-1.5">
+                <span className="text-[11px] font-semibold text-[#F26B6F] leading-snug">
+                  Taslak haritaya işlensin mi? Haritanın önceki Kurucu hâli silinmez, arşive kalkar.
+                </span>
+                <span className="flex gap-1.5">
+                  <button type="button" onClick={() => setIsleOnay(false)}
+                    className="flex-1 py-1.5 rounded-md border border-[#CFC5B4] dark:border-[#2C3C72] text-[11px] cursor-pointer">
+                    Vazgeç
+                  </button>
+                  <button type="button" onClick={haritayaIsle}
+                    className="flex-1 py-1.5 rounded-md bg-[#F26B6F] text-white text-[11px] font-semibold cursor-pointer">
+                    Evet, işle
+                  </button>
+                </span>
+              </div>
+            ) : (
+              <button type="button" onClick={() => { setIsleRaporu(null); setIsleOnay(true); }}
+                disabled={!islenmemis || isleniyor}
+                className="w-full flex items-center justify-center gap-1.5 py-2 rounded-md bg-[#0E1C4F] dark:bg-[#2C3C72] text-[#F3EFE8] text-[12px] font-semibold cursor-pointer disabled:opacity-40">
+                <MapPinned className="w-4 h-4" />
+                {isleniyor ? 'İşleniyor…' : 'Haritaya işle'}
+              </button>
+            )}
+            <p className="mt-1.5 text-[10px] text-[#6A5E4C] dark:text-[#A6B0C9] leading-snug">
+              {isleRaporu ?? (islenmemis
+                ? `${kayitYazisi[durum]}. Haritada henüz yok.`
+                : 'Harita taslakla aynı.')}
+            </p>
           </div>
         </div>
       </div>

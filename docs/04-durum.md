@@ -263,6 +263,18 @@ sahil yazlıkları; yön ve boyut ayarlı, tek adımda geri alınır), Seç → 
 Binalar taslakta (`kurucu.yeniBinalar`); harita yine değişmez. Sıradaki:
 **Kurucu 3 — Haritaya işle**.
 
+**Kurucu 3. adım — Haritaya işle (29 Eylül):** Kurucu'nun Taslak kutusunda
+**Haritaya işle** düğmesi (onaylı). Basınca taslak `duzada/haritaDuzeni`
+belgesinin `kurucuIslenen` alanına yazılır; harita (3B ve künyeler) bunu
+üretilmiş verinin üstüne bindirir (`src/components/kurucu/kurucuHarita.ts`):
+kaldırılanlar gizlenir, türü değişen yollar yeniden çizilir, yeni yol ve
+yapılar eklenir (adsız). Önceki işlenmiş hâl silinmez: Düzada kayıtlarına
+arşivli bir "Harita arşivi — Kurucu, <tarih>" maddesi (`type: map_settings`,
+`metadata.kurucuArsiv`) olarak kalkar. Haritada toprak yol kesikli
+kahverengi, patika noktalı çizilir; meydan / saha / bağ düz alan. Dört yeni
+şablon: balıkçı mahallesi, kamu çevresi, liman arkası, bağ evleri; yeni
+"bağ / bahçe parseli" türü. Yalnız yerel önizlemede (sahte veri) denendi.
+
 **Kanon KKM'nin başka alanlarında:** Merch'te drop açılınca bağlı kurumun
 kanon bilgisi; Kitap'ta geçen yer/kişi adlarının vikiye bağlanması ve
 tarihle çelişki uyarısı (ör. 1970'lerde feribot Liman'da olamaz); Blog'da

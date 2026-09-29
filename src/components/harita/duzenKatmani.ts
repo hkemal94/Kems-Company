@@ -7,6 +7,7 @@ import {
 import {
   DUZEN_SURUMU, type HaritaDuzeni, type MekanDuzeni, type MekanKaydi
 } from './duzenTipi';
+import { kurucuKatmani } from '../kurucu/kurucuHarita';
 
 export { DUZEN_SURUMU, type HaritaDuzeni, type MekanDuzeni, type MekanKaydi };
 
@@ -175,9 +176,16 @@ function kmKare(dereceKare: number, enlem: number): number {
  */
 export function duzeniUygula(
   geo: FeatureCollection = DUZADA_GEO,
-  duzen: HaritaDuzeni | null
+  duzen: HaritaDuzeni | null,
+  secenek: { kurucuHaric?: boolean } = {}
 ): FeatureCollection {
-  if (duzenBosMu(duzen)) return geo;
+  // Kurucu katmanı (haritaya işlenmiş şehir kurucu işi) en üste biner.
+  // Kurucu'nun kendisi zemini bu katman OLMADAN açar: katman zaten
+  // taslağın içinde, iki kez çizilmesin.
+  const kurucu = !secenek.kurucuHaric ? duzen?.kurucuIslenen : undefined;
+  if (duzenBosMu(duzen)) {
+    return kurucu ? { ...geo, features: kurucuKatmani(geo.features, kurucu) } : geo;
+  }
   const d = duzen!;
 
   const sinirDegisti = Object.keys(d.hatlar).length > 0;
@@ -328,5 +336,5 @@ export function duzeniUygula(
     });
   }
 
-  return { ...geo, features };
+  return { ...geo, features: kurucu ? kurucuKatmani(features, kurucu) : features };
 }

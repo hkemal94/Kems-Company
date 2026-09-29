@@ -1710,6 +1710,17 @@ export default function Duzada({
                 duzen={haritaDuzeni.duzen}
                 kaydet={haritaDuzeni.kaydet}
                 durum={haritaDuzeni.durum}
+                arsivle={async onceki => {
+                  // Haritanın önceki Kurucu hâli arşivli bir kayıt olarak kalır
+                  const tarih = new Date().toLocaleString('tr-TR');
+                  await onAddItem({
+                    title: `Harita arşivi — Kurucu, ${tarih}`,
+                    area: 'duzada', type: 'map_settings', status: 'Bitti', priority: 'düşük',
+                    tags: ['harita-arsivi', 'kurucu'], links: [], notes: '', images: [],
+                    archived: true, isProposal: false,
+                    metadata: { kurucuArsiv: onceki }
+                  });
+                }}
               />
             </Suspense>
           ) : (

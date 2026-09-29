@@ -73,4 +73,10 @@ export interface HaritaDuzeni {
   mekanlar?: MekanDuzeni;
   /** Kurucu taslağı. Eski kayıtlarda yok. */
   kurucu?: KurucuBelge;
+  /**
+   * Kurucu'da "Haritaya işle"ye basıldığı andaki taslak (3. adım). Harita
+   * bunu üretilmiş verinin üstüne bindirir. Önceki hâl, basışta Düzada
+   * kayıtlarına arşivli bir "Harita arşivi" maddesi olarak kalkar.
+   */
+  kurucuIslenen?: KurucuBelge;
 }

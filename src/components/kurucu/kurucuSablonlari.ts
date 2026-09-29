@@ -14,7 +14,7 @@ import type { YolTuru } from './kurucuTipi';
 
 export type BinaTuru =
   | 'ev' | 'dukkanli' | 'kamu' | 'ciftlik' | 'yazlik'
-  | 'saha' | 'tribun' | 'meydan' | 'cesme' | 'agac' | 'depo';
+  | 'saha' | 'tribun' | 'meydan' | 'cesme' | 'agac' | 'depo' | 'bag';
 
 export const BINA_TURLERI: Array<{
   id: BinaTuru; ad: string; aciklama: string;
@@ -29,6 +29,7 @@ export const BINA_TURLERI: Array<{
   { id: 'depo', ad: 'Depo / atölye', aciklama: 'Liman, çiftlik', en: 18, boy: 12, kat: 1, renk: '#C4B9A8', kenar: '#7A6F5E', elle: true },
   { id: 'meydan', ad: 'Meydan', aciklama: 'Taş döşeli açık alan', en: 36, boy: 30, kat: 0, renk: '#E9E1D0', kenar: '#B7A488', elle: true },
   { id: 'cesme', ad: 'Çeşme', aciklama: 'Meydan çeşmesi', en: 3, boy: 3, kat: 0, renk: '#9EC0CB', kenar: '#5E7F8A', elle: true },
+  { id: 'bag', ad: 'Bağ / bahçe parseli', aciklama: 'Açık alan: bağ, zeytinlik, bostan', en: 60, boy: 40, kat: 0, renk: '#CBD1A0', kenar: '#8C9160', elle: true },
   { id: 'agac', ad: 'Büyük ağaç', aciklama: 'Çınar, meydan ağacı', en: 14, boy: 14, kat: 0, renk: '#8FA876', kenar: '#5F7A4C', yuvarlak: true, elle: true },
   { id: 'saha', ad: 'Futbol sahası', aciklama: '105 × 68 m', en: 105, boy: 68, kat: 0, renk: '#A9C08F', kenar: '#6F8A5A', elle: false },
   { id: 'tribun', ad: 'Tribün', aciklama: 'Saha kenarı', en: 90, boy: 12, kat: 1, renk: '#B7A488', kenar: '#7A6A55', elle: false }
@@ -219,6 +220,77 @@ function sahilYazliklari(): SablonCikti {
   return { yollar, binalar };
 }
 
+/** Balıkçı mahallesi: kıyıda çekek yeri ve kayık depoları, dar sokaklarda sık küçük evler */
+function balikciMahallesi(): SablonCikti {
+  const r = tohumlu(83);
+  const kiyi: Nokta[] = [[-150, 0], [0, 6], [150, 0]];
+  const yollar: SablonYol[] = [{ tur: 'sokak', m: kiyi }];
+  const binalar: SablonBina[] = [bina('meydan', -20, -18, 0, 0.8)];
+  for (const x of [-120, -60, 60, 120]) binalar.push(bina('depo', x, -16, 0, 0.6));
+  const sokaklar: Nokta[][] = [
+    [[-130, 36], [0, 42], [130, 36]],
+    [[-100, 74], [0, 80], [100, 72]]
+  ];
+  for (const h of sokaklar) {
+    yollar.push({ tur: 'sokak', m: h });
+    binalar.push(...hatBoyuBinalar(h, 'ev', 12, 2, [1, -1], r, 0.05).map(b => ({ ...b, en: b.en * 0.8, boy: b.boy * 0.8 })));
+  }
+  binalar.push(...hatBoyuBinalar(kiyi, 'ev', 12, 2, [1], r, 0.1).map(b => ({ ...b, en: b.en * 0.8, boy: b.boy * 0.8 })));
+  for (const x of [-90, -20, 50, 110]) yollar.push({ tur: 'patika', m: [[x, 4], [x + 3, 40], [x, 76]] });
+  return { yollar, binalar };
+}
+
+/** Kamu çevresi: meydanın çevresinde okul, belediye, sağlık, cami, kahvehane */
+function kamuCevresi(): SablonCikti {
+  const r = tohumlu(89);
+  const halka: Nokta[] = [[-70, -55], [70, -55], [70, 55], [-70, 55], [-70, -55]];
+  const yollar: SablonYol[] = [
+    { tur: 'sokak', m: halka },
+    { tur: 'ana', m: [[-200, 0], [-70, 0]] }, { tur: 'ana', m: [[70, 0], [200, 4]] },
+    { tur: 'sokak', m: [[0, 55], [4, 170]] }, { tur: 'sokak', m: [[0, -55], [-4, -160]] }
+  ];
+  const binalar: SablonBina[] = [
+    bina('meydan', 0, 0, 0, 1.3), bina('agac', -15, -10), bina('cesme', 12, 8),
+    bina('kamu', -38, -80, 0, 1.2), bina('kamu', 40, -80), bina('kamu', -40, 80, 0, 0.9),
+    bina('kamu', 40, 82, 0, 0.8), bina('dukkanli', -96, -20, Math.PI / 2), bina('dukkanli', 96, 22, Math.PI / 2)
+  ];
+  binalar.push(...hatBoyuBinalar([[0, 90], [4, 170]], 'ev', 16, 3, [1, -1], r, 0.15));
+  binalar.push(...hatBoyuBinalar([[0, -90], [-4, -160]], 'ev', 16, 3, [1, -1], r, 0.15));
+  return { yollar, binalar };
+}
+
+/** Liman arkası: depolar, atölyeler, geniş manevra alanı, yük yolu */
+function limanArkasi(): SablonCikti {
+  const r = tohumlu(97);
+  const yol: Nokta[] = [[-180, 0], [180, 0]];
+  const yollar: SablonYol[] = [
+    { tur: 'ana', m: yol },
+    { tur: 'sokak', m: [[-100, 0], [-100, 90]] }, { tur: 'sokak', m: [[40, 0], [40, 90]] },
+    { tur: 'sokak', m: [[-100, 90], [140, 90]] }
+  ];
+  const binalar: SablonBina[] = [bina('meydan', -30, -40, 0, 1.6)];
+  binalar.push(...hatBoyuBinalar(yol, 'depo', 26, 5, [1, -1], r, 0.2));
+  binalar.push(...hatBoyuBinalar([[-100, 90], [140, 90]], 'depo', 26, 4, [1], r, 0.3));
+  return { yollar, binalar };
+}
+
+/** Bağ evleri: bağlar arasında tek tük küçük evler, toprak yol ve patikalar */
+function bagEvleri(): SablonCikti {
+  const r = tohumlu(101);
+  const ana = kivrim([-240, -30], [240, 30], -30, 8);
+  const yollar: SablonYol[] = [{ tur: 'toprak', m: ana }];
+  const binalar: SablonBina[] = [];
+  const parseller: Nokta[] = [[-170, 60], [-60, -80], [40, 70], [150, -60], [210, 80]];
+  for (const [x, y] of parseller) {
+    binalar.push({ tur: 'bag', m: [x, y + (y > 0 ? 34 : -34)], en: 70, boy: 45, aci: (r() - 0.5) * 0.4 });
+    binalar.push(bina('ev', x, y, (r() - 0.5) * 0.5, 0.8));
+    let en = ana[0];
+    for (const p of ana) if (Math.hypot(p[0] - x, p[1] - y) < Math.hypot(en[0] - x, en[1] - y)) en = p;
+    yollar.push({ tur: 'patika', m: [[x, y + (y > 0 ? -7 : 7)], en] });
+  }
+  return { yollar, binalar };
+}
+
 export interface Sablon {
   id: string;
   ad: string;
@@ -234,7 +306,11 @@ export const SABLONLAR: Sablon[] = [
   { id: 'ciftlik', ad: 'Dağınık çiftlik', aciklama: 'Toprak yol, avlulu taş evler, depolar, patikalar', kiyi: false, uret: daginikCiftlik },
   { id: 'stat', ad: 'Stat çevresi', aciklama: 'Saha, iki tribün, meydan / otopark, birahane, ev sırası', kiyi: false, uret: statCevresi },
   { id: 'tepe', ad: 'Tepe köyü', aciklama: 'Adatepe gibi: yamaçta kıvrılan sokaklar, sık taş evler', kiyi: false, uret: tepeKoyu },
-  { id: 'sahil', ad: 'Sahil yazlıkları', aciklama: 'Kıyıya paralel yol, geniş bahçeli yazlıklar. Deniz yukarıda.', kiyi: true, uret: sahilYazliklari }
+  { id: 'sahil', ad: 'Sahil yazlıkları', aciklama: 'Kıyıya paralel yol, geniş bahçeli yazlıklar. Deniz yukarıda.', kiyi: true, uret: sahilYazliklari },
+  { id: 'balikci', ad: 'Balıkçı mahallesi', aciklama: 'Kıyıda çekek yeri ve kayık depoları, dar sokaklarda sık küçük evler. Deniz yukarıda.', kiyi: true, uret: balikciMahallesi },
+  { id: 'kamu', ad: 'Kamu çevresi', aciklama: 'Meydanın çevresinde okul, belediye, sağlık ocağı, cami, kahvehane', kiyi: false, uret: kamuCevresi },
+  { id: 'liman-arkasi', ad: 'Liman arkası', aciklama: 'Depolar, atölyeler, yük yolu, manevra alanı', kiyi: false, uret: limanArkasi },
+  { id: 'bag', ad: 'Bağ evleri', aciklama: 'Bağ parselleri arasında tek tük evler, toprak yol, patikalar', kiyi: false, uret: bagEvleri }
 ];
 
 /** Şablonu döndürüp ölçekleyip verilen merkeze taşır (metre düzleminde) */
