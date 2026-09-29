@@ -367,7 +367,7 @@ export function binaKonabilirMi(
     if (o.gizli) continue;
     if (Math.hypot(o.m[0] - b.m[0], o.m[1] - b.m[1]) < (o.r * 0.75 + r)) return false;
   }
-  if (['meydan', 'agac', 'cesme', 'saha'].includes(b.tur)) return true;
+  if (['meydan', 'agac', 'cesme', 'saha', 'bag'].includes(b.tur)) return true;
   for (const h of yollar) {
     if (hattaUzaklik(b.m, h).d < r + 1.5) return false;
   }

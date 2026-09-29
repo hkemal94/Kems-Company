@@ -364,7 +364,8 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
       ] as unknown as maplibregl.ExpressionSpecification);
 
       const surulebilir: maplibregl.FilterSpecification = [
-        'all', ['==', ['get', 'katman'], 'yol'], ['!=', ['get', 'tur'], 'merdiven']
+        'all', ['==', ['get', 'katman'], 'yol'],
+        ['!', ['in', ['get', 'tur'], ['literal', ['merdiven', 'toprak', 'patika']]]]
       ];
 
       map.addLayer({
@@ -434,6 +435,34 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
         }
       });
 
+      // ---- Kurucu'dan gelen toprak yol ve patika ----
+      map.addLayer({
+        id: 'toprak-yol',
+        type: 'line',
+        source: src,
+        filter: ['all', ['==', ['get', 'katman'], 'yol'], ['==', ['get', 'tur'], 'toprak']],
+        layout: { 'line-cap': 'butt', 'line-join': 'round' },
+        paint: {
+          'line-color': '#B08F72',
+          'line-opacity': 0.85,
+          'line-width': ['interpolate', ['linear'], ['zoom'], 11, 1, 16, 4],
+          'line-dasharray': [3, 1.5]
+        }
+      });
+      map.addLayer({
+        id: 'patika',
+        type: 'line',
+        source: src,
+        filter: ['all', ['==', ['get', 'katman'], 'yol'], ['==', ['get', 'tur'], 'patika']],
+        layout: { 'line-cap': 'round', 'line-join': 'round' },
+        paint: {
+          'line-color': '#6F5E48',
+          'line-opacity': 0.75,
+          'line-width': ['interpolate', ['linear'], ['zoom'], 12, 0.8, 17, 2.5],
+          'line-dasharray': [1, 1.6]
+        }
+      });
+
       // ---- zemin öğeleri: teras ve bahçe ----
       // Düz plaka DEĞİL, araziye giydirilen dolgu. Uçurumun başındaki
       // teras prizma olarak çizilince tabanı düz kalıyor ve yamacın
@@ -446,7 +475,9 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
         filter: ['==', ['get', 'katman'], 'zemin'],
         paint: {
           'fill-color': [
-            'case', ['==', ['get', 'tur'], 'bahçe'], ZEMIN.bahce, ZEMIN.teras
+            'case', ['==', ['get', 'tur'], 'bahçe'], ZEMIN.bahce,
+            ['==', ['get', 'tur'], 'saha'], '#A9C08F',
+            ZEMIN.teras
           ],
           'fill-opacity': 0.92
         }

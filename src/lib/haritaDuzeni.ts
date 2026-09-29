@@ -42,6 +42,8 @@ interface Belge {
   mekanlar: MekanDuzeni;
   /** Kurucu taslağı. Eski kayıtlarda yok; yoksa hiç yazılmaz. */
   kurucu?: KurucuBelge;
+  /** Kurucu'nun haritaya işlenmiş hâli. Yoksa hiç yazılmaz. */
+  kurucuIslenen?: KurucuBelge;
 }
 
 const duzle = (h: SinirHatlari): DuzHatlar =>
@@ -119,6 +121,7 @@ const belgeye = (d: HaritaDuzeni): Belge => {
   };
   // Tanımsız alan yazılmaz: Firestore bütün kaydı reddeder
   if (d.kurucu) b.kurucu = kurucuyuTemizle(d.kurucu);
+  if (d.kurucuIslenen) b.kurucuIslenen = kurucuyuTemizle(d.kurucuIslenen);
   return b;
 };
 
@@ -155,6 +158,9 @@ const belgeden = (b: unknown): HaritaDuzeni | null => {
     mekanlar: mekanlariCoz(v.mekanlar),
     ...(v.kurucu && typeof v.kurucu === 'object'
       ? { kurucu: kurucuyuTemizle(v.kurucu as KurucuBelge) }
+      : {}),
+    ...(v.kurucuIslenen && typeof v.kurucuIslenen === 'object'
+      ? { kurucuIslenen: kurucuyuTemizle(v.kurucuIslenen as KurucuBelge) }
       : {})
   };
 };
@@ -270,6 +276,7 @@ export function useHaritaDuzeni() {
   const kaydet = useCallback(async (yeni: HaritaDuzeni) => {
     const d: HaritaDuzeni = { ...yeni, guncelleme: yeni.guncelleme || Date.now() };
     if (!('kurucu' in yeni) && sonDuzen.current?.kurucu) d.kurucu = sonDuzen.current.kurucu;
+    if (!('kurucuIslenen' in yeni) && sonDuzen.current?.kurucuIslenen) d.kurucuIslenen = sonDuzen.current.kurucuIslenen;
     sonYazilan.current = d.guncelleme;
     yereleYaz(d);
     setDuzen(d);
