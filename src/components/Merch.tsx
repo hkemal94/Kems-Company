@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { ShoppingBag, Sparkles, FolderDot, Bookmark, ChevronRight, ChevronLeft, ChevronDown, ChevronUp, RotateCcw, Palette, Image, Plus, Layers, Check, Trash2, Archive, Edit3 } from 'lucide-react';
+import { StudyodaAc } from './studyo/StudyodaAc';
 import { Item, ItemType, AreaType } from '../types';
 import { hazirFotosuz, merchYedekGorseli } from '../lib/gorselSecimi';
 import { compressImageBase64 } from '../lib/imageCompressor';
@@ -47,8 +48,6 @@ export default function Merch({
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [archiveConfirmId, setArchiveConfirmId] = useState<string | null>(null);
   
-  // Collapsible states for AI sections - isAiMasaOpen is set to false by default as requested
-  const [isAiMasaOpen, setIsAiMasaOpen] = useState(false);
   const [isAiOneriOpen, setIsAiOneriOpen] = useState(true);
 
   // Creation State
@@ -167,12 +166,6 @@ export default function Merch({
   };
 
   // AI Merchandise Recommendation states
-  const [aiRecommendationTopic, setAiRecommendationTopic] = useState('');
-  const [aiRecommendationNotes, setAiRecommendationNotes] = useState('');
-  const [aiRecommendationCategory, setAiRecommendationCategory] = useState<'giyim' | 'aksesuar' | 'baskı' | 'hepsi'>('hepsi');
-  const [aiGeneratingRecommendations, setAiGeneratingRecommendations] = useState(false);
-  const [aiRecommendationsResult, setAiRecommendationsResult] = useState<Array<{ title: string; description: string; slogan: string; price: string }>>([]);
-  const [selectedDropForAiRec, setSelectedDropForAiRec] = useState('');
 
   /*
    * Marka yapısı (7. madde, adım 3).
@@ -492,78 +485,6 @@ export default function Merch({
     setActiveTab('droplar');
   };
 
-  const handleGenerateAiMerch = async () => {
-    if (!aiRecommendationTopic.trim()) {
-      alert("Lütfen bir ana tema veya fikir yazın.");
-      return;
-    }
-    setAiGeneratingRecommendations(true);
-    setAiRecommendationsResult([]);
-    try {
-      const response = await fetch('/api/ai', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          task: 'merch-oner',
-          data: {
-            brandInfo: aiRecommendationTopic,
-            notes: aiRecommendationNotes,
-            category: aiRecommendationCategory
-          }
-        })
-      });
-      const data = await response.json();
-      if (data.result) {
-        const parsed = JSON.parse(data.result);
-        if (Array.isArray(parsed)) {
-          setAiRecommendationsResult(parsed);
-          // Set first active drop as default choice if any exists
-          if (activeDrops.length > 0) {
-            setSelectedDropForAiRec(activeDrops[0].id);
-          }
-        } else {
-          alert("Beklenmeyen formatta bir yanıt alındı. Tekrar deneyiniz.");
-        }
-      }
-    } catch (err) {
-      console.error(err);
-      alert("AI ürün önerileri üretilirken hata oluştu.");
-    } finally {
-      setAiGeneratingRecommendations(false);
-    }
-  };
-
-  const handleSaveAiRecToDrop = async (rec: any, targetDropId: string) => {
-    if (!targetDropId) {
-      alert("Lütfen ürünü eklemek için bir Drop seçin.");
-      return;
-    }
-
-    const selectedDrop = activeDrops.find(d => d.id === targetDropId);
-
-    const itemData: Omit<Item, 'id' | 'createdAt' | 'updatedAt' | 'userId'> = {
-      title: rec.title,
-      area: 'merch',
-      type: 'merch_urun',
-      status: 'Konsept',
-      priority: 'orta',
-      tags: ['merch', 'merch_urun', 'ai-öneri'],
-      links: [targetDropId],
-      notes: `${rec.description}\n\nSlogan: ${rec.slogan}\nÖnerilen Fiyat: ${rec.price}`,
-      images: [],
-      isProposal: true, // Mark as an AI proposal so it gets approval controls
-      archived: false,
-      metadata: {
-        dropId: targetDropId,
-        themeId: selectedDrop?.metadata?.themeId || '',
-        category: 'giyim',
-        variantColor: '#F3EFE8'
-      }
-    };
-
-    await onAddItem(itemData);
-    alert(`"${rec.title}" başarıyla bir Yapay Zeka Önerisi (isProposal: true) olarak seçilen droba eklendi!`);
-  };
 
   const handleUpdateProductStatus = async (p: Item, status: string) => {
     await onUpdateItem({ ...p, status });
@@ -782,152 +703,12 @@ export default function Merch({
             </div>
           </div>
 
-          {/* AI PRODUCT RECOMMENDATION PLUGIN */}
-          <div className={`bg-[#F3EFE8]/80 dark:bg-[#13204A]/60 border border-[#CFC5B4] dark:border-[#2C3C72] rounded-xl paper-grain transition-all ${isAiMasaOpen ? 'p-6 space-y-4' : 'p-3.5 space-y-0'}`}>
-            <div 
-              className="flex items-center justify-between border-b border-[#CFC5B4]/50 pb-3 cursor-pointer select-none group"
-              onClick={() => setIsAiMasaOpen(!isAiMasaOpen)}
-            >
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-[#F26B6F]" />
-                <div>
-                  <h3 className="font-sans font-bold text-lg text-[#0E1C4F] dark:text-[#F3EFE8] group-hover:text-[#F26B6F] transition-colors tracking-tight">
-                    Yapay Zeka Merchandise Tasarım ve Öneri Masası
-                  </h3>
-                  <p className="text-xs text-[#6A5E4C] dark:text-[#A6B0C9]">
-                    Düzada ve Kems Company marka kimliklerine uygun benzersiz fiziksel ürün kurguları ve drops tasarlayın.
-                  </p>
-                </div>
-              </div>
-              <span className="text-[10px] font-mono text-[#F26B6F] hover:underline bg-[#F26B6F]/10 px-2.5 py-1 rounded font-bold">
-                {isAiMasaOpen ? 'Masayı Kapat [-]' : 'Masayı Aç [+]'}
-              </span>
-            </div>
-
-            {isAiMasaOpen && (
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-                <div className="lg:col-span-1 space-y-3">
-                  <div>
-                    <label className="block text-xs font-mono text-[#6A5E4C] dark:text-[#A6B0C9] mb-1">
-                      Ana Tema / Konsept Başlığı
-                    </label>
-                    <input
-                      type="text"
-                      value={aiRecommendationTopic}
-                      onChange={(e) => setAiRecommendationTopic(e.target.value)}
-                      placeholder="Örn: Ege Rüzgarları Koleksiyonu"
-                      className="w-full text-xs bg-white dark:bg-[#17345A] border border-[#CFC5B4] rounded p-2 focus:outline-hidden focus:border-[#F26B6F]"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-mono text-[#6A5E4C] dark:text-[#A6B0C9] mb-1">
-                      Ürün Kategorisi
-                    </label>
-                    <select
-                      value={aiRecommendationCategory}
-                      onChange={(e) => setAiRecommendationCategory(e.target.value as any)}
-                      className="w-full text-xs bg-white dark:bg-[#17345A] border border-[#CFC5B4] rounded p-2"
-                    >
-                      <option value="hepsi">Tüm Kategoriler (Giyim, Aksesuar, Baskı)</option>
-                      <option value="giyim">Giyim (Keten Gömlek, Tişört, Fular)</option>
-                      <option value="aksesuar">Aksesuar (Çanta, Şapka, Bardak)</option>
-                      <option value="baskı">Sanatsal Baskı (Poster, Amblem Baskısı)</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-mono text-[#6A5E4C] dark:text-[#A6B0C9] mb-1">
-                      Ek Tasarım Notları ve Estetik Sınırları
-                    </label>
-                    <textarea
-                      value={aiRecommendationNotes}
-                      onChange={(e) => setAiRecommendationNotes(e.target.value)}
-                      placeholder="Örn: Krem keten kumaşlar, lacivert el dikişi nakışlar, nostaljik ada siluetleri..."
-                      className="w-full text-xs bg-white dark:bg-[#17345A] border border-[#CFC5B4] rounded p-2 focus:outline-hidden focus:border-[#F26B6F] h-20"
-                    />
-                  </div>
-
-                  <button
-                    onClick={handleGenerateAiMerch}
-                    disabled={aiGeneratingRecommendations}
-                    className="w-full py-2 bg-[#F26B6F] text-white hover:bg-[#B23A40] text-xs font-mono rounded-lg transition-colors cursor-pointer flex items-center justify-center gap-1.5 font-bold"
-                  >
-                    {aiGeneratingRecommendations ? (
-                      <>
-                        <RotateCcw className="w-3.5 h-3.5 animate-spin" />
-                        <span>Fikirler Tasarlanıyor...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles className="w-3.5 h-3.5" />
-                        <span>Yapay Zeka Önerileri Üret</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-
-                <div className="lg:col-span-2 bg-[#F6F1E7]/50 dark:bg-[#17345A]/20 border border-dashed border-[#CFC5B4] rounded-xl p-4 min-h-[200px] flex flex-col justify-center">
-                  {aiRecommendationsResult.length === 0 ? (
-                    <div className="text-center text-xs text-[#6A5E4C] dark:text-[#A6B0C9] py-10">
-                      <ShoppingBag className="w-8 h-8 mx-auto text-[#CFC5B4] mb-2" />
-                      <span>Konsept bilgisi girip butonuna tıklayarak ilk AI ürün önerilerinizi oluşturun.</span>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      <div className="flex justify-between items-center pb-2 border-b border-[#CFC5B4]/50">
-                        <span className="text-xs font-mono text-[#F26B6F] font-bold">
-                          Üretilen 3 Kreatif Ürün Önerisi:
-                        </span>
-                        {activeDrops.length > 0 && (
-                          <div className="flex items-center gap-1.5 text-xs font-mono">
-                            <span>Hedef Drop:</span>
-                            <select
-                              value={selectedDropForAiRec}
-                              onChange={(e) => setSelectedDropForAiRec(e.target.value)}
-                              className="bg-white dark:bg-[#17345A] border border-[#CFC5B4] rounded p-1 text-xs"
-                            >
-                              {activeDrops.map(d => (
-                                <option key={d.id} value={d.id}>{d.title}</option>
-                              ))}
-                            </select>
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                        {aiRecommendationsResult.map((rec, idx) => (
-                          <div key={idx} className="bg-white dark:bg-[#13204A] border border-[#CFC5B4] p-3 rounded-lg flex flex-col justify-between space-y-2.5 text-xs">
-                            <div>
-                              <span className="text-[10px] bg-[#F26B6F]/10 text-[#F26B6F] font-mono px-1.5 py-0.5 rounded font-bold uppercase">
-                                {rec.price}
-                              </span>
-                              <h4 className="font-sans font-bold text-sm text-[#0E1C4F] dark:text-[#F3EFE8] mt-1.5 tracking-tight">
-                                {rec.title}
-                              </h4>
-                              <p className="text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9] leading-relaxed line-clamp-4 mt-1">
-                                {rec.description}
-                              </p>
-                              <p className="text-[10px] italic text-[#6A5E4C] dark:text-stone-400 mt-2">
-                                "{rec.slogan}"
-                              </p>
-                            </div>
-
-                            <button
-                              onClick={() => handleSaveAiRecToDrop(rec, selectedDropForAiRec)}
-                              className="w-full py-1 text-[11px] font-mono bg-[#0E1C4F] dark:bg-[#2C3C72] text-[#F3EFE8] hover:bg-slate-800 rounded transition-colors flex items-center justify-center gap-1 cursor-pointer"
-                            >
-                              <Plus className="w-3 h-3" />
-                              <span>Sisteme Ekle</span>
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
+          {/* Ürün fikri yapay zekâdan: stüdyoda (29 Eylül akşamı) */}
+          <div className="flex flex-wrap items-center gap-3 bg-[#F3EFE8]/80 dark:bg-[#13204A]/60 border border-[#CFC5B4] dark:border-[#2C3C72] rounded-xl p-4">
+            <p className="flex-1 min-w-[220px] text-xs text-[#6A5E4C] dark:text-[#A6B0C9]">
+              Bir drop için ürün fikri stüdyoda. Eklediğin fikir drop'a "Konsept" olarak girer; fiyat önerilmez.
+            </p>
+            <StudyodaAc arac="merch-oner" />
           </div>
 
         </div>

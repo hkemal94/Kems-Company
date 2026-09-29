@@ -620,7 +620,7 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
 
 
       {/* Başlık kartuşu */}
-      <div className="hidden sm:block absolute top-4 left-4 px-4 py-3 rounded-sm bg-[#f4efe4]/94 backdrop-blur-[2px] border border-[#8a7757]/45 shadow-[2px_3px_0_0_rgba(90,76,56,0.14)] pointer-events-none">
+      <div className="hidden sm:block absolute top-[4.25rem] left-4 px-4 py-3 rounded-sm bg-[#f4efe4]/94 backdrop-blur-[2px] border border-[#8a7757]/45 shadow-[2px_3px_0_0_rgba(90,76,56,0.14)] pointer-events-none">
         <p className="font-serif text-xl leading-none text-[#0e1c4f] tracking-wide">Düzada</p>
         <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-[#6f6047] mt-1.5">
           Ege Denizi

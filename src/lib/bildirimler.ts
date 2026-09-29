@@ -53,7 +53,7 @@ export function useBildirimler(items: Item[], yenile = 0): Bildirim[] {
     if (!items.length) return [];
     const liste: Bildirim[] = [];
     const aday = bekleyenAdaylar(items).length;  // eski öneriler bildirim değil; Temizlik kartında
-    if (aday) liste.push({ tur: 'aday', sayi: aday, baslik: 'Onay bekleyen aday', ayrinti: 'Ana sayfada, Adaylar kutusunda' });
+    if (aday) liste.push({ tur: 'aday', sayi: aday, baslik: 'Onay bekleyen öneri', ayrinti: 'Öneri tepsisinde · stüdyo' });
     if (!gununSorusuBittiMi() && sorulacaklar(items, 1).length) {
       liste.push({ tur: 'soru', sayi: 1, baslik: 'Günün sorusu', ayrinti: 'Henüz cevaplanmadı' });
     }

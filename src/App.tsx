@@ -13,7 +13,6 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { Item, UserSettings, AreaType, ItemType } from './types';
 import { maddeGorseli } from './lib/maddeGorseli';
 import {
-  AlertTriangle,
   ShoppingBag,
   BookOpen,
   Search,
@@ -26,7 +25,7 @@ import {
   Home,
   ListChecks,
   Percent,
-  Hammer,
+  Sparkles,
   Map as MapIcon,
   Sun,
   Moon,
@@ -37,9 +36,8 @@ import Duzada from './components/Duzada';
 import Merch from './components/Merch';
 import YaziAtolyesi from './components/YaziAtolyesi';
 import { SAYFA_RAYI_YUVASI } from './components/SayfaRayi';
-import {
-  aiGozcusunuKur, aiDurumunuDinle, aiDurumu, aiUyarisiniKapat, type AiDurum
-} from './lib/aiGozcusu';
+import { Studyo, StudyoPaneli } from './components/studyo/Studyo';
+import { StudyoSaglayici, type StudyoIslemleri } from './components/studyo/StudyoBaglami';
 import Blog from './components/Blog';
 import Kitap from './components/Kitap';
 import HizliFikir from './components/HizliFikir';
@@ -57,7 +55,7 @@ import { Zil } from './components/kabuk/Zil';
 import { useBildirimler, type Bildirim } from './lib/bildirimler';
 
 /** Uygulamanın sayfaları. 'komuta' ana sayfa; eski Komuta Merkezi 'durum'. */
-type Sayfa = 'komuta' | 'durum' | 'eksikler' | 'markalar' | 'duzada' | 'merch' | 'yazi' | 'oyun' | 'galeri';
+type Sayfa = 'komuta' | 'durum' | 'eksikler' | 'markalar' | 'duzada' | 'merch' | 'yazi' | 'oyun' | 'galeri' | 'studyo';
 
 export interface WorkspaceUser {
   uid: string;
@@ -440,16 +438,6 @@ export default function App() {
     [items]
   );
 
-  /**
-   * Yapay zekâ ucunun durumu. 20 ayrı çağrı yeri hatayı sessizce yutuyordu;
-   * gözcü onları izliyor, sonucu tek bir şeritte gösteriyoruz.
-   */
-  const [aiHal, setAiHal] = useState<AiDurum>(() => aiDurumu());
-  useEffect(() => {
-    aiGozcusunuKur();
-    return aiDurumunuDinle(setAiHal);
-  }, []);
-
   /** Menüdeki kırmızı noktalar ve zil (Paket 4) */
   const bildirimler = useBildirimler(items, bildirimNabzi);
   const bildirimVar = (t: Bildirim['tur']) => bildirimler.some(b => b.tur === t);
@@ -485,6 +473,7 @@ export default function App() {
     if (madde) { maddeyiAc(madde); return; }
     if (b.tur === 'dugme') git('eksikler');
     else if (b.tur === 'kanon') { if (b.maddeler?.[0]) maddeyiAc(b.maddeler[0]); }
+    else if (b.tur === 'aday') git('studyo');
     else { setTelSekme('bugun'); git('komuta'); }
   };
 
@@ -586,6 +575,7 @@ export default function App() {
     { id: 'yazi', ad: 'Yazı · kitap ve blog', simge: PenTool },
     { id: 'oyun', ad: 'Oyun', simge: Gamepad2 },
     { id: 'galeri', ad: 'Galeri', simge: ImageIcon },
+    { id: 'studyo', ad: 'Yapay zekâ stüdyosu · öneri tepsisi', simge: Sparkles, nokta: bildirimVar('aday') },
     { id: 'eksikler', ad: 'Neyin Eksik', simge: ListChecks, nokta: bildirimVar('dugme') },
     { id: 'durum', ad: 'Durum · yüzdeler ve boşluklar', simge: Percent }
   ];
@@ -601,7 +591,7 @@ export default function App() {
       { hedef: 'galeri', ad: 'Galeri', simge: ImageIcon }
     ] },
     { grup: 'Araçlar', satirlar: [
-      { hedef: 'kurucu', ad: 'Kurucu', simge: Hammer },
+      { hedef: 'studyo', ad: 'Stüdyo', simge: Sparkles, nokta: bildirimVar('aday') },
       { hedef: 'eksikler', ad: 'Neyin Eksik', simge: ListChecks, nokta: bildirimVar('dugme') },
       { hedef: 'durum', ad: 'Durum ve boşluklar', simge: Percent }
     ] }
@@ -613,12 +603,12 @@ export default function App() {
     { id: 'viki', ad: 'Viki', simge: Compass, aktif: activeTab === 'duzada' && !haritada, nokta: bildirimVar('kanon') },
     { id: 'harita', ad: 'Harita', simge: MapIcon, aktif: haritada },
     { id: 'merch', ad: 'Merch', simge: ShoppingBag, aktif: activeTab === 'merch' },
-    { id: 'diger', ad: 'Diğer', simge: Menu, aktif: digerAcik || !['komuta', 'duzada', 'merch'].includes(activeTab), nokta: bildirimVar('dugme') }
+    { id: 'diger', ad: 'Diğer', simge: Menu, aktif: digerAcik || !['komuta', 'duzada', 'merch'].includes(activeTab), nokta: bildirimVar('dugme') || bildirimVar('aday') }
   ];
 
   const SAYFA_ADI: Record<Sayfa, string> = {
     komuta: 'Ana sayfa', duzada: 'Düzada', markalar: 'Markalar', merch: 'Merch', yazi: 'Yazı',
-    oyun: 'Oyun', galeri: 'Galeri', eksikler: 'Neyin Eksik', durum: 'Durum'
+    oyun: 'Oyun', galeri: 'Galeri', eksikler: 'Neyin Eksik', durum: 'Durum', studyo: 'Yapay zekâ stüdyosu'
   };
 
   const logo = hasKemsLogo ? (
@@ -636,10 +626,23 @@ export default function App() {
     </span>
   );
 
+  /** Stüdyonun işlemleri: sayfa, yan panel ve öneri tepsisi aynı işlemleri kullanır */
+  const studyoIslemleri: StudyoIslemleri = {
+    items,
+    onAddItem: handleAddItem,
+    onUpdateItem: handleUpdateItem,
+    onDeleteItem: handleDeleteItem,
+    onAcceptProposal: handleAcceptProposal,
+    onMaddeyiAc: maddeyiAc,
+    onStudyoSayfasi: () => git('studyo')
+  };
+
   const temaSimgesi = settings.theme === 'dark' ? Sun : Moon;
   const TemaSimgesi = temaSimgesi;
 
   return (
+    <StudyoSaglayici>
+    <StudyoPaneli {...studyoIslemleri} />
     <div className="min-h-screen bg-[#E4DCCD] dark:bg-[#0B132B] text-[#0E1C4F] dark:text-[#F3EFE8] font-sans transition-colors duration-200 paper-grain selection:bg-[#F26B6F] selection:text-white">
 
       {/* MASAÜSTÜ: ince simge çubuğu */}
@@ -727,15 +730,6 @@ export default function App() {
               </div>
             )}
 
-            {/* AI ucu ulaşılamıyorsa tek yerden söyle — düğmeler sessiz kalmasın */}
-            {(aiHal.hal === 'sunucu-yok' || aiHal.hal === 'hata') && (
-              <div className="mb-4 flex items-start gap-3 px-4 py-3 rounded-xl border border-[#F26B6F]/45 bg-[#F26B6F]/8">
-                <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0 text-[#F26B6F]" />
-                <p className="flex-1 text-[12px] leading-snug text-[#B23A40] dark:text-[#F26B6F]">{aiHal.mesaj}</p>
-                <button onClick={aiUyarisiniKapat} className="shrink-0 text-[#B23A40] dark:text-[#F26B6F] hover:opacity-70 cursor-pointer text-xs font-mono">kapat</button>
-              </div>
-            )}
-
             {activeTab === 'komuta' && (
               <Anasayfa
                 items={items}
@@ -744,7 +738,7 @@ export default function App() {
                 onMaddeyiAc={maddeyiAc}
                 onAddItem={handleAddItem}
                 onUpdateItem={handleUpdateItem}
-                onAcceptProposal={handleAcceptProposal}
+                studyo={studyoIslemleri}
                 onOpenSearch={() => setIsSearchOpen(true)}
                 onBildirimYenile={() => setBildirimNabzi(n => n + 1)}
                 zil={<Zil bildirimler={bildirimler} onSec={bildirimSec} />}
@@ -835,6 +829,10 @@ export default function App() {
                   setActiveItemId(itemId || null);
                 }}
               />
+            )}
+
+            {activeTab === 'studyo' && (
+              <Studyo {...studyoIslemleri} onTemizlik={() => git('eksikler')} />
             )}
 
             {activeTab === 'galeri' && (
@@ -943,5 +941,6 @@ export default function App() {
       />
 
     </div>
+    </StudyoSaglayici>
   );
 }

@@ -63,6 +63,8 @@ export function silinecekler(items: Item[]): SilmeNedeni[] {
     else if (OYUN_VAKA_IDLERI.has(i.id) || /^kemskoy_(guest|companion)_/.test(i.id)) cikti.push({ item: i, neden: 'otel simülasyonu vakası' });
     else if (ORNEK_ONEKLERI.some(o => i.id.startsWith(o))) cikti.push({ item: i, neden: 'ilk günün örnek verisi' });
     else if (SILINECEK_ADLAR.some(r => r.test(i.title.trim()))) cikti.push({ item: i, neden: 'Kemal: sil' });
+    // Otel odaları (Kemal, 29 Eylül): tek tek odalar ansiklopedi maddesi değil
+    else if (i.type === 'oda') cikti.push({ item: i, neden: 'otel odası' });
   }
   return cikti;
 }

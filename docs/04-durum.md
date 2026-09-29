@@ -570,6 +570,59 @@ Arazi aracı sonra.
   `duzadaKot`), çalışmayan `wiki-demo` sayfası.
 - Ekran görüntüleri: `docs/gorseller/h1…h5`.
 
+## 29 Eylül gece — Paket 1 ve 2 (tek PR)
+
+Kemal'in yapı kararları (tıklamalı sorular, 29 Eylül akşamı):
+
+**Paket 1 — Neyin Eksik ve kanon**
+- Telefonda ana sayfanın "Bugün" sekmesinde Neyin Eksik kartı en üstte.
+- Zildeki "yeni öneri" aslında günün sorusuna verilen cevaptı (aday);
+  artık "Onay bekleyen öneri" diye yazıyor ve öneri tepsisine götürüyor.
+- Diğer → Araçlar'daki eski "Kurucu" satırı kalktı, yerine Stüdyo.
+- Neyin Eksik'te tek seferlik **kanon kartı** (önce yedek iner, sonra
+  "Vikiye işle"): Eskibey Ailesi (Küçükçetmi), kooperatifin Yağ Fabrikası
+  (kuruluş 1950–1970 arası, kapanış belirsiz), Dirlik'in rakibi Küçükkuyu
+  Gençlerbirliği (gerçek kulüp, easter egg), Dondurmacı Kızlar'ın sahibi
+  şimdilik "Eylül Hanım" (yalnız ad — Kemal'in eşine sürpriz karakter;
+  hakkında hiçbir şey yazılmaz, önerilmez), "Kemsköy" adı yerel söyleyiş,
+  antik yerleşim Bizans ağırlıklı (yer yer Antik Yunan izleri), altı
+  yapının adı kesinleşti (Güney Burnu, Liman Deposu, Düzada İlkokulu,
+  Merkez Pazarı, Çarşı Apartmanı, Zeytinli Apartmanı).
+- Aynı kartla eski otel yazıları silinir: Düzada notundaki "Ekim 2003
+  (Sezon Sonu)" paragrafı, "Liman 54" ve "Peron" geçen cümleler, otelin
+  "Oda Yapısı" bölümü. 20 oda kaydı Temizlik kartıyla silinir.
+- Değişmeyen kararlar: otel şirketinin adı geçmez; sokaklar numaralı
+  kalır; Liman'daki kafe adsız ("Liman'daki yeni kafe"); fabrikanın özel
+  adı yok; Dirlik forması merch'le birlikte düşünülecek; tarihler aralık
+  (fener 19. yy, eski fabrika 19. yy sonu–1920'ler, belediye 1980 sonrası,
+  mahalle 1954 sonrası).
+- Haritada 3D'de maddeye bağlı yapıya tıklayınca "Viki maddesini aç"
+  çıkıyor, madde açılıyor (denendi). 2D/3D düğmesi sol üste taşındı.
+
+**Paket 2 — Yapay zekâ stüdyosu** (Araçlar; masaüstünde ✨ simgesi)
+- Bütün yapay zekâ işleri stüdyoda; sayfalarda yalnız "✨ Stüdyoda aç"
+  (yan panel, telefonda tam ekran). Kartlar sayfaya göre: Viki (bölüm
+  öner, künye önerisi, devam et) · Yazı (devam et, başlık, ton, bölüm
+  özeti, sonraki bölüm için fikir) · Marka ve Merch (renk paleti, ürün
+  fikri — fiyat önermez) · Kanon (tutarlılık, lore bağı, soru seçenekleri).
+- **Tek öneri tepsisi:** günün sorusu cevapları ve yapay zekâ sonuçları
+  aynı yerde; ana sayfada ilk üçü, stüdyoda tamamı. "Ekle" demeden hiçbir
+  kayda yazılmaz; ekleyince ya da "Sil" deyince öneri silinir.
+- Günün sorusu artık sayfa açılınca kendiliğinden yapay zekâya sormuyor
+  (kotanın asıl yiyicisi buydu). Kota dolunca yalnız stüdyo "yarın tekrar
+  dene" der; uygulamanın üstündeki kırmızı şerit kalktı.
+- Eski, kendiliğinden kayda yazan yapay zekâ kodları (Düzada'da hiç
+  kullanılmayan dört işlev, Merch'teki "öneri" işaretli ürün ekleme) silindi.
+- Google AI Pro paketi uygulamanın ücretsiz günlük hakkını büyütmüyor
+  (doğrulanmadı); Kemal ek ödeme istemiyor.
+
+**Sıraya girenler:** 3. Sosyal medya (Araçlar'da kendi sayfası; ay
+takvimi, Fikir → Taslak → Hazır → Paylaşıldı, kanallar Markalar'dan,
+drop bağı, Canva görseli; paylaşımı Kemal yapar). 4. Site (kems.company,
+Canva "Başlık" planı; ilk dil Türkçe; içerik paneldeki kayıtlardan;
+anasayfada şimdilik 3D harita görüntüsü; bülten ayrıca konuşulacak).
+Liste dışı: Arazi aracı, kendi adrese taşıma (şimdilik Google'da).
+
 ## Sıradaki
 
 - Oyunun tasarım belgesinin doldurulması (13 başlık)
