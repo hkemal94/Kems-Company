@@ -1,8 +1,8 @@
 import React, { useMemo, useState } from 'react';
-import { ArrowRight, CircleCheck, Compass } from 'lucide-react';
+import { ArrowRight, ChevronDown, CircleCheck, Compass } from 'lucide-react';
 import type { AreaType, Item } from '../types';
 import { DUZADA_GEO } from '../data/duzadaGeo';
-import { isStub } from './wiki/wikiSchema';
+import { isStub, getKunyeFields, getArticleBody } from './wiki/wikiSchema';
 import { getRol } from './wiki/kunyeParser';
 import { isEntityUnlinked } from '../utils/relations';
 import { oTemizligi } from '../lib/yaziTemizligi';
@@ -14,6 +14,7 @@ import { soruCevapAktarimi } from '../lib/soruCevapAktarimi';
 import { w3Aktarimi } from '../lib/w3Aktarimi';
 import { w4Aktarimi } from '../lib/w4Aktarimi';
 import { w5Aktarimi, w5GorselAdresi, W5_ETIKETI } from '../lib/w5Aktarimi';
+import { eskiYaziTemizligi } from '../lib/eskiYaziTemizligi';
 
 /**
  * "Neyin eksik" paneli (A1).
@@ -39,6 +40,20 @@ export interface Eksik {
   alan: AreaType;
   /** Tıklayınca açılacak madde — varsa doğrudan oraya gider */
   hedefId?: string;
+  /**
+   * Bu başlığın altındaki kayıtlar ve her birinde eksik olan (29 Eylül,
+   * Kemal: "basınca genel bir yere varıyor, direkt o başlığı öneri olarak
+   * görebilmek isterim"). Satıra basınca liste yerinde açılır.
+   */
+  kayitlar?: Array<{ id?: string; ad: string; not?: string }>;
+}
+
+/** Maddenin künyesinde boş kalan alanlar — "neyi eksik" satırı */
+function bosAlanlar(i: Item): string {
+  const bos = getKunyeFields(i, { includeEmpty: true }).filter(f => !f.value).map(f => f.label.toLocaleLowerCase('tr'));
+  const govde = getArticleBody(i).length === 0;
+  const parcalar = [...(govde ? ['sayfa metni'] : []), ...bos];
+  return parcalar.length ? `boş: ${parcalar.slice(0, 4).join(', ')}${parcalar.length > 4 ? '…' : ''}` : '';
 }
 
 /** Haritada maddesi olması gereken yapılar */
@@ -81,7 +96,8 @@ export function eksikleriCikar(items: Item[]): Eksik[] {
       aciklama: maddesiz.slice(0, 3).map(b => b.ad).join(', ')
         + (maddesiz.length > 3 ? '…' : '')
         + ' · haritada üstüne tıkla, künyesi haritadan dolsun',
-      alan: 'duzada'
+      alan: 'duzada',
+      kayitlar: maddesiz.map(b => ({ ad: b.ad || b.wikiId, not: 'Düzada Haritası\'nda yapının üstüne tıkla' }))
     });
   }
 
@@ -97,7 +113,8 @@ export function eksikleriCikar(items: Item[]): Eksik[] {
       baslik: 'madde taslak hâlde',
       aciklama: 'künyesi ya da gövdesi doldurulmayı bekliyor',
       alan: 'duzada',
-      hedefId: taslaklar[0].id
+      hedefId: taslaklar[0].id,
+      kayitlar: taslaklar.map(i => ({ id: i.id, ad: i.title, not: bosAlanlar(i) }))
     });
   }
 
@@ -112,7 +129,8 @@ export function eksikleriCikar(items: Item[]): Eksik[] {
       baslik: 'madde hiçbir şeye bağlı değil',
       aciklama: 'bağlanmayan madde wiki\'yi ölü gösterir — en az bir ilişki kur',
       alan: 'duzada',
-      hedefId: kopuk[0].id
+      hedefId: kopuk[0].id,
+      kayitlar: kopuk.map(i => ({ id: i.id, ad: i.title, not: 'hiçbir maddeye bağlı değil' }))
     });
   }
 
@@ -127,7 +145,8 @@ export function eksikleriCikar(items: Item[]): Eksik[] {
       baslik: 'kişinin rolü belli değil',
       aciklama: 'künyesinde ne iş yaptığı yazmıyor',
       alan: 'duzada',
-      hedefId: gorevsiz[0].id
+      hedefId: gorevsiz[0].id,
+      kayitlar: gorevsiz.map(i => ({ id: i.id, ad: i.title, not: 'rolü yazılmamış' }))
     });
   }
 
@@ -140,7 +159,8 @@ export function eksikleriCikar(items: Item[]): Eksik[] {
       baslik: 'yerin adı hâlâ geçici',
       aciklama: adsiz.slice(0, 3).map(i => i.title).join(', '),
       alan: 'duzada',
-      hedefId: adsiz[0].id
+      hedefId: adsiz[0].id,
+      kayitlar: adsiz.map(i => ({ id: i.id, ad: i.title, not: 'ad geçici; asıl adı sen koyacaksın' }))
     });
   }
 
@@ -171,7 +191,16 @@ export function eksikleriCikar(items: Item[]): Eksik[] {
       aciklama: varsayilanMarka.map(i => i.title).join(', ')
         + ' · Markalar\'daki "Canva künyelerini uygula" düğmesi bunu doldurur',
       alan: 'markalar',
-      hedefId: varsayilanMarka[0].id
+      hedefId: varsayilanMarka[0].id,
+      kayitlar: varsayilanMarka.map(i => {
+        const bk = i.metadata?.brandKit;
+        const neler = [
+          ...(!bk?.selectedFont || bk.selectedFont.trim() === 'Inter' ? ['yazı tipi'] : []),
+          ...(!bk?.colorPalette?.length ? ['renkler'] : []),
+          ...(!bk?.slogan?.trim() && !bk?.voiceTone?.trim() ? ['slogan / ses tonu'] : [])
+        ];
+        return { id: i.id, ad: i.title, not: neler.length ? `varsayılan: ${neler.join(', ')}` : '' };
+      })
     });
   }
 
@@ -188,7 +217,8 @@ export function eksikleriCikar(items: Item[]): Eksik[] {
       baslik: 'ürün bir dropa bağlı değil',
       aciklama: dropsuzUrun.slice(0, 3).map(i => i.title).join(', '),
       alan: 'merch',
-      hedefId: dropsuzUrun[0].id
+      hedefId: dropsuzUrun[0].id,
+      kayitlar: dropsuzUrun.map(i => ({ id: i.id, ad: i.title, not: 'bir dropa bağla' }))
     });
   }
 
@@ -212,7 +242,8 @@ export function eksikleriCikar(items: Item[]): Eksik[] {
       baslik: 'drop bir markaya bağlı değil',
       aciklama: markasizDrop.map(i => i.title).join(', '),
       alan: 'merch',
-      hedefId: markasizDrop[0].id
+      hedefId: markasizDrop[0].id,
+      kayitlar: markasizDrop.map(i => ({ id: i.id, ad: i.title, not: 'satan marka seçilmemiş (Kems Company)' }))
     });
   }
 
@@ -253,6 +284,8 @@ export const Eksikler: React.FC<EksiklerProps> = ({
   items, onSelectArea, onUpdateItem, onAddItem
 }) => {
   const eksikler = useMemo(() => eksikleriCikar(items), [items]);
+  /** Listesi açık olan eksik başlığı */
+  const [acikEksik, setAcikEksik] = useState<string | null>(null);
 
   /**
    * Norveç ø'sü. Veriye bir kere girmiş ve her yere yayılmış; tek tek
@@ -577,6 +610,27 @@ export const Eksikler: React.FC<EksiklerProps> = ({
     }
   };
 
+  /** Eski otel simülasyonundan kalan yazılar — tek düğmeyle "eski metin"e */
+  const eskiYazi = useMemo(() => eskiYaziTemizligi(items), [items]);
+  const [eskiIsi, setEskiIsi] = useState(false);
+  const [eskiRaporu, setEskiRaporu] = useState<string | null>(null);
+  const [eskiOnay, setEskiOnay] = useState(false);
+
+  const eskiYazilariKaldir = async () => {
+    if (!onUpdateItem || eskiIsi) return;
+    setEskiOnay(false);
+    setEskiIsi(true);
+    let n = 0;
+    try {
+      for (const kayit of eskiYazi.degisenler) { await onUpdateItem(kayit); n++; }
+      setEskiRaporu(`${n} kayıttan eski yazılar kaldırıldı. Silinmedi — kaydın "eski metin" alanında duruyor.`);
+    } catch (e) {
+      setEskiRaporu(`${n} kayıt yazıldı, sonra hata: ${e instanceof Error ? e.message : 'bilinmeyen'}. Kalanlar için tekrar bas.`);
+    } finally {
+      setEskiIsi(false);
+    }
+  };
+
   /** İçi boş proje kayıtları — tek düğmeyle arşive */
   const bosProje = useMemo(() => bosProjeler(items), [items]);
   const [projeIsi, setProjeIsi] = useState(false);
@@ -775,6 +829,61 @@ export const Eksikler: React.FC<EksiklerProps> = ({
       {w4Raporu && (
         <p className="mb-2.5 px-4 py-2 rounded-lg bg-[#F3EFE8] dark:bg-[#17345A] text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9]">
           {w4Raporu}
+        </p>
+      )}
+
+      {/* Eski simülasyon yazıları — tek seferlik */}
+      {onUpdateItem && eskiYazi.degisenler.length > 0 && (
+        <div className="mb-2.5 flex flex-wrap sm:flex-nowrap items-start gap-3 px-4 py-3 rounded-xl border border-[#F26B6F]/40 bg-[#FAF8F5] dark:bg-[#13204A]">
+          <span className="font-mono text-lg font-bold text-[#F26B6F] leading-none mt-0.5 shrink-0 tabular-nums">
+            {eskiYazi.degisenler.length}
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-[13px] font-semibold text-[#0E1C4F] dark:text-[#F3EFE8]">
+              eski otel simülasyonundan kalan yazılar vikide duruyor
+            </span>
+            <span className="block mt-0.5 text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9] leading-snug">
+              {eskiYazi.parca} parça: Ekim 2003 / Sezon Sonu, Liman 54, Peron, Oda Yapısı, Deluxe, bakımda.
+              Vikiden kalkar; silinmez, kaydın "eski metin" alanına taşınır.
+            </span>
+          </span>
+          {eskiOnay ? (
+            <span className="shrink-0 flex flex-col items-end gap-1.5">
+              <span className="text-[11px] font-semibold text-[#F26B6F]">
+                {eskiYazi.degisenler.length} kayıttan kaldırılsın mı?
+              </span>
+              <span className="flex gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setEskiOnay(false)}
+                  className="px-3 py-1.5 text-[11px] font-mono rounded-lg border border-[#CFC5B4] dark:border-[#2C3C72] text-[#6A5E4C] dark:text-[#A6B0C9] hover:border-[#0E1C4F] cursor-pointer"
+                >
+                  Vazgeç
+                </button>
+                <button
+                  type="button"
+                  onClick={eskiYazilariKaldir}
+                  className="px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#F26B6F] text-[#F3EFE8] hover:opacity-90 cursor-pointer"
+                >
+                  Evet, kaldır
+                </button>
+              </span>
+            </span>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setEskiOnay(true)}
+              disabled={eskiIsi}
+              className="shrink-0 px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#0E1C4F] dark:bg-[#2C3C72] text-[#F3EFE8] hover:opacity-90 disabled:opacity-40 cursor-pointer"
+            >
+              {eskiIsi ? 'Kaldırılıyor…' : 'Vikiden kaldır'}
+            </button>
+          )}
+        </div>
+      )}
+      {eskiRaporu && (
+        <p className="mb-2.5 px-4 py-2 rounded-lg bg-[#F3EFE8] dark:bg-[#17345A] text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9]">
+          {eskiRaporu}
         </p>
       )}
 
@@ -1060,12 +1169,16 @@ export const Eksikler: React.FC<EksiklerProps> = ({
         </div>
       ) : (
         <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-          {eksikler.map(e => (
-            <li key={e.anahtar}>
+          {eksikler.map(e => {
+            const acik = acikEksik === e.anahtar;
+            const liste = e.kayitlar || [];
+            return (
+            <li key={e.anahtar} className={acik ? 'sm:col-span-2' : ''}>
               <button
                 type="button"
-                onClick={() => onSelectArea(e.alan, e.hedefId)}
-                className="w-full text-left flex items-start gap-3 px-4 py-3 rounded-xl border border-[#CFC5B4] dark:border-[#2C3C72] bg-[#FAF8F5] dark:bg-[#13204A] hover:border-[#F26B6F] dark:hover:border-[#F26B6F] transition-colors cursor-pointer group archive-shadow"
+                onClick={() => liste.length ? setAcikEksik(acik ? null : e.anahtar) : onSelectArea(e.alan, e.hedefId)}
+                aria-expanded={liste.length ? acik : undefined}
+                className={`w-full text-left flex items-start gap-3 px-4 py-3 border border-[#CFC5B4] dark:border-[#2C3C72] bg-[#FAF8F5] dark:bg-[#13204A] hover:border-[#F26B6F] dark:hover:border-[#F26B6F] transition-colors cursor-pointer group archive-shadow ${acik ? 'rounded-t-xl border-[#F26B6F] dark:border-[#F26B6F]' : 'rounded-xl'}`}
               >
                 <span className="font-mono text-lg font-bold text-[#F26B6F] leading-none mt-0.5 shrink-0 tabular-nums">
                   {e.sayi}
@@ -1078,10 +1191,39 @@ export const Eksikler: React.FC<EksiklerProps> = ({
                     {e.aciklama}
                   </span>
                 </span>
-                <ArrowRight className="w-3.5 h-3.5 mt-1 shrink-0 text-[#CFC5B4] dark:text-[#2C3C72] group-hover:text-[#F26B6F] transition-colors" />
+                {liste.length
+                  ? <ChevronDown className={`w-3.5 h-3.5 mt-1 shrink-0 transition-transform ${acik ? 'rotate-180 text-[#F26B6F]' : 'text-[#6A5E4C] dark:text-[#95A1C2]'} group-hover:text-[#F26B6F]`} />
+                  : <ArrowRight className="w-3.5 h-3.5 mt-1 shrink-0 text-[#6A5E4C] dark:text-[#95A1C2] group-hover:text-[#F26B6F] transition-colors" />}
               </button>
+              {acik && (
+                <div className="border border-t-0 border-[#F26B6F] rounded-b-xl bg-white/70 dark:bg-[#0E1C4F]/60 max-h-80 overflow-y-auto">
+                  <ul className="divide-y divide-[#CFC5B4]/50 dark:divide-[#2C3C72]/60">
+                    {liste.map((k, n) => (
+                      <li key={(k.id || k.ad) + n}>
+                        {k.id ? (
+                          <button
+                            type="button"
+                            onClick={() => onSelectArea(e.alan, k.id)}
+                            className="w-full text-left flex items-baseline gap-3 px-4 py-2 hover:bg-[#F3EFE8] dark:hover:bg-[#17345A] cursor-pointer"
+                          >
+                            <span className="text-[12px] font-semibold text-[#0E1C4F] dark:text-[#F3EFE8] shrink-0 max-w-[45%] truncate">{k.ad}</span>
+                            <span className="text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9] min-w-0 truncate flex-1">{k.not}</span>
+                            <ArrowRight className="w-3 h-3 shrink-0 self-center text-[#F26B6F]" />
+                          </button>
+                        ) : (
+                          <div className="flex items-baseline gap-3 px-4 py-2">
+                            <span className="text-[12px] font-semibold text-[#0E1C4F] dark:text-[#F3EFE8] shrink-0 max-w-[45%] truncate">{k.ad}</span>
+                            <span className="text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9] min-w-0 truncate">{k.not}</span>
+                          </div>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </li>
-          ))}
+            );
+          })}
         </ul>
       )}
     </div>

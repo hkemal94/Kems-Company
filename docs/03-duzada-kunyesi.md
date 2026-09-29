@@ -111,7 +111,7 @@ Aralıklar kanon; kesin yıl yoksa uydurulmaz. Ayrıntı `docs/soru-cevap/w3.md`
   1980–1990'larda meyhane oldu. Dondurmacı Kızlar: 2000 sonrası; Liman'da, iskelenin
   yakınında; kışın tatlıcı / kafe olur. Liman'daki kafe ayrı bir yer: 2010
   sonrası açılmış yeni bir kafe (adsız; W3 60–61. tur).
-- **Kems Company** — Kemsköy Caddesi'nde bir dükkânı var (adı, yeri sonra;
+- **Kems Company** — Kemsköy Caddesi'nde bir dükkânı var (yeri cadde — Kemal, 29 Eylül; adı sonra;
   yıl boyu açık);
   Kems Company ürünleri ve kulüp serileri satılır.
 

@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Upload, X, Link2, Check, Image as ImageIcon, Trash2 } from 'lucide-react';
 import type { Item } from '../types';
 import {
@@ -69,6 +69,16 @@ export const Galeri: React.FC<GaleriProps> = ({
   const [suzgec, setSuzgec] = useState<GorselTuru | 'hepsi'>('hepsi');
   const [buyuk, setBuyuk] = useState<Item | null>(null);
   const [bagliyor, setBagliyor] = useState<string | null>(null);
+  /** Büyük görünümdeki görselin gerçek boyutu */
+  const [boyut, setBoyut] = useState<{ en: number; boy: number } | null>(null);
+  useEffect(() => {
+    setBoyut(null);
+    const kaynak = buyuk?.images?.[0];
+    if (!kaynak) return;
+    const img = new Image();
+    img.onload = () => setBoyut({ en: img.naturalWidth, boy: img.naturalHeight });
+    img.src = kaynak;
+  }, [buyuk]);
 
   const gorseller = useMemo(
     () => items
@@ -295,7 +305,7 @@ export const Galeri: React.FC<GaleriProps> = ({
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
             {suzulmus.map(g => {
               const m = (g.metadata as any) || {};
               const bagli = items.find(i => i.id === m.bagliId);
@@ -318,7 +328,7 @@ export const Galeri: React.FC<GaleriProps> = ({
                       alt={g.title}
                       loading="lazy"
                       className="w-full object-contain"
-                      style={{ height: 130, padding: 10 }}
+                      style={{ height: 170, padding: 8 }}
                     />
                   </button>
                   <div className="px-3 py-2 border-t border-[#CFC5B4]/60 dark:border-[#2C3C72]">
@@ -369,8 +379,8 @@ export const Galeri: React.FC<GaleriProps> = ({
           onClick={() => setBuyuk(null)}
         >
           <div
-            className="max-w-3xl w-full rounded-xl bg-[#FAF8F5] dark:bg-[#13204A]
-                       border border-[#CFC5B4] dark:border-[#2C3C72] p-4 max-h-[90vh] overflow-y-auto"
+            className="max-w-6xl w-full rounded-xl bg-[#FAF8F5] dark:bg-[#13204A]
+                       border border-[#CFC5B4] dark:border-[#2C3C72] p-4 max-h-[96vh] overflow-y-auto"
             onClick={e => e.stopPropagation()}
           >
             <div className="flex items-start justify-between gap-3 mb-3">
@@ -382,6 +392,8 @@ export const Galeri: React.FC<GaleriProps> = ({
                   {TUR_ADI[((buyuk.metadata as any)?.gorselTuru as GorselTuru) || 'diger']}
                   {' · '}
                   {Math.round(kabaBoyut(buyuk.images![0]) / 1024)} KB
+                  {boyut ? ` · ${boyut.en}×${boyut.boy} piksel` : ''}
+                  {boyut && Math.max(boyut.en, boyut.boy) < 800 ? ' · küçük dosya, büyütünce bulanık görünür' : ''}
                 </p>
               </div>
               <button
@@ -392,11 +404,12 @@ export const Galeri: React.FC<GaleriProps> = ({
               </button>
             </div>
             <div style={{ background: '#F3EFE8', borderRadius: 6, padding: 16 }}>
+              {/* Ekranı dolduracak kadar büyür (küçük görseller de) */}
               <img
                 src={buyuk.images![0]}
                 alt={buyuk.title}
-                className="w-full object-contain"
-                style={{ maxHeight: '60vh' }}
+                className="block mx-auto w-full object-contain"
+                style={{ height: '78vh' }}
               />
             </div>
             <div className="mt-3 flex items-center justify-between gap-3">

@@ -29,6 +29,7 @@ import {
 } from '../data/markaKunyeleri';
 import { SayfaRayi } from './SayfaRayi';
 import { markaYapisi, kurumMu, dropBaglari } from '../lib/markaYapisi';
+import { KurumOzeti } from './marka/KurumOzeti';
 
 interface MarkalarProps {
   items: Item[];
@@ -225,22 +226,36 @@ export default function Markalar({
     setIsCreatingNew(false);
   };
 
+  /**
+   * Bu markaya / kuruma bağlı mı? Kurumlar (Dirlik → Dirlik Stadı) vikide
+   * bağlantıyla bağlı, `brandId` ile değil; ikisi de sayılır (29 Eylül).
+   */
+  const bagliMi = (i: Item) => {
+    if (!activeBrandId || isUnassignedSelected) return false;
+    if (i.metadata?.brandId === activeBrandId) return true;
+    if ((i.links || []).includes(activeBrandId)) return true;
+    return (activeBrand?.links || []).includes(i.id);
+  };
+
   // Get children entities (Kişiler, Yerler, Olaylar) belonging to activeBrand
   const brandKisiler = useMemo(() => {
     return items.filter(i => 
       !i.archived && 
       (i.type === 'kisi' || i.type === 'karakter') && 
-      (isUnassignedSelected ? !i.metadata?.brandId : i.metadata?.brandId === activeBrandId)
+      (isUnassignedSelected ? !i.metadata?.brandId : bagliMi(i))
     );
-  }, [items, activeBrandId, isUnassignedSelected]);
+  }, [items, activeBrandId, isUnassignedSelected, activeBrand]);
 
+  // Bağımsız görünümünde mahalleler (type 'yer') listelenmez: mahalle bir
+  // markaya bağlanacak "varlık" değil, adanın kendisi (Kemal, 29 Eylül).
   const brandYerler = useMemo(() => {
     return items.filter(i => 
       !i.archived && 
-      (i.type === 'yer' || i.type === 'mekân' || i.type === 'dükkân') && 
-      (isUnassignedSelected ? !i.metadata?.brandId : i.metadata?.brandId === activeBrandId)
+      (isUnassignedSelected
+        ? (i.type === 'mekân' || i.type === 'dükkân') && !i.metadata?.brandId
+        : (i.type === 'yer' || i.type === 'mekân' || i.type === 'dükkân') && bagliMi(i))
     );
-  }, [items, activeBrandId, isUnassignedSelected]);
+  }, [items, activeBrandId, isUnassignedSelected, activeBrand]);
 
   const brandOlaylar = useMemo(() => {
     return items.filter(i => 
@@ -615,7 +630,7 @@ export default function Markalar({
                 <span className="text-xs text-[#0E1C4F] dark:text-[#F3EFE8]">Bağımsız Varlıklar</span>
               </div>
               <span className="text-[9px] font-mono text-stone-500 dark:text-stone-400 bg-stone-100 dark:bg-[#13204A] px-1.5 py-0.5 rounded-full">
-                {items.filter(i => !i.archived && (i.type === 'kisi' || i.type === 'karakter' || i.type === 'yer' || i.type === 'mekân' || i.type === 'dükkân' || i.type === 'olay') && !i.metadata?.brandId).length}
+                {items.filter(i => !i.archived && (i.type === 'kisi' || i.type === 'karakter' || i.type === 'mekân' || i.type === 'dükkân' || i.type === 'olay') && !i.metadata?.brandId).length}
               </span>
             </div>
           </div>
@@ -1559,7 +1574,10 @@ export default function Markalar({
                 );
               })()}
 
-              {/* Brand Notes Description (Künye Altında) */}
+              {/* Viki özeti: künye, bilgiler, sayfa metni (29 Eylül) */}
+              {!isEditingBrand && !isUnassignedSelected ? (
+                <KurumOzeti item={activeBrand} onVikideAc={id => onSelectArea('duzada', id)} />
+              ) : (
               <div className="bg-white/80 dark:bg-[#13204A]/60 border border-[#B9C7BD] dark:border-[#2C3C72] p-5 rounded-xl space-y-2">
                 <h4 className="text-[10px] font-mono uppercase text-[#6A5E4C] dark:text-[#A6B0C9] tracking-wider font-bold">
                   Marka Hikayesi & Kapsamı
@@ -1577,6 +1595,7 @@ export default function Markalar({
                   </p>
                 )}
               </div>
+              )}
 
               {/* CHILD ENTITIES SEGMENT */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">

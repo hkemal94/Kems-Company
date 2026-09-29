@@ -1,3 +1,5 @@
+import { KanonPaneli } from './wiki/KanonPaneli';
+import { TYPE_LABELS } from './wiki/wikiSchema';
 import React, { useState, useMemo } from 'react';
 import { BookOpen, Sparkles, Send, Tag, HelpCircle, Check, Trash2, ArrowRight, Plus, Compass, RefreshCw, FileText } from 'lucide-react';
 import { Item, AreaType, ItemType } from '../types';
@@ -766,6 +768,9 @@ export default function Blog({
 
           {/* RIGHT SIDE: AI Tools & linkage selection panel */}
           <div className="space-y-6">
+
+            {/* Kanon: yazıda geçen maddeler ve tarih uyarıları (29 Eylül) */}
+            <KanonPaneli metin={activePost.notes || ''} items={items} />
             
             {/* AI Tools Box */}
             <div className="bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] dark:border-[#2C3C72] p-5 rounded-xl paper-grain space-y-4">
@@ -884,7 +889,7 @@ export default function Blog({
                   <option value="">Varlık Seçin...</option>
                   {entities.filter(e => !(activePost.links || []).includes(e.id)).map(e => (
                     <option key={e.id} value={e.id}>
-                      {e.title} ({e.type === 'kisi' ? 'Kişi' : e.type === 'mekan' ? 'Mekan' : 'Marka'})
+                      {e.title} ({TYPE_LABELS[e.type as ItemType] || e.type})
                     </option>
                   ))}
                 </select>

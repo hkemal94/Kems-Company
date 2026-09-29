@@ -944,6 +944,7 @@ export default function App() {
               onUpdateItem={handleUpdateItem}
               onDeleteItem={handleDeleteItem}
               onAddItem={handleAddItem}
+              onSelectArea={handleSelectArea}
             />
           )}
 

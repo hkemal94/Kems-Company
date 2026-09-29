@@ -200,6 +200,38 @@ maddenin künyesine satırlar; ada maddesine "Ada hayatı", Liman / Merkez /
 Çiftlik maddelerine "Gündelik hayat" bölümü; iki kulübün künyesi. Yalnız
 ekleme, ikinci basış bir şey yapmaz. Kemal basacak.
 
+**Paket 1 + 2 (29 Eylül akşamı, Kemal'in yorum turu):**
+- K · Eski simülasyon yazıları: Neyin Eksik'te "eski otel simülasyonundan
+  kalan yazılar" kartı (`src/lib/eskiYaziTemizligi.ts`). Ekim 2003 / Sezon
+  Sonu, Liman 54, Peron, Oda Yapısı, Deluxe, bakımda → vikiden kalkar,
+  `eskiMetin`e taşınır. Kemal basacak. Oyun sekmesindeki eski "odaları
+  kur" düğmesi Deluxe odaları yeniden kurabilir; oyun sekmesi Paket 5'te
+  yenilenecek.
+- K · Neyin Eksik satırına basınca o başlığın kayıtları ve her birinin neyi
+  eksik olduğu yerinde açılır. Anasayfadaki toplu yükleme paneli kaldırıldı.
+  Galeride büyük görünüm ekranı doldurur; küçük dosyada uyarı yazar.
+- W · Künye alanları yenilendi (`kunyeSorulari.ts`): rol yapma şablonundan
+  kalan "gizli sırlar, gizlilik derecesi, nadirlik…" kalktı; kanona uygun
+  kısa alanlar geldi. Künye yalnız bu alanları gösterir; kalan künye
+  satırları sayfada "Bilgiler" bölümünde. Renk kodları renk kutucuğu olur.
+  Eski alanlara yazılmış değerler kaybolmaz ("Bilgiler"de görünür).
+  Boşluklar yeni sorularla çalışır; notta yazılı satırı yeniden sormaz.
+- M · Markalar'da kurum / marka sayfasında "Viki sayfası" kutusu (künye,
+  bilgiler, metin, "Vikide aç"); bağlantıyla bağlı mekânlar da listelenir.
+  Bağımsız Varlıklar'da mahalleler listelenmez.
+- H · Kurucu'da yol kalınlığı yakınlaşmaya bağlı (uzaktan ince). Yeni
+  "Kaldır" aracı: dokunulan yol / yapı kalkar, tekrar dokununca geri gelir;
+  Seç'te Delete tuşu da kaldırır.
+- W · Kanon başka alanlarda: `src/lib/kanonTarihleri.ts` tarih kuralları
+  (Liman 1980, otel 1954, Dirlik 1957, stat 1980, belediye 1980, sağlık
+  ocağı 1980, Sade Meze 1980, Dondurmacı Kızlar 2000, şaraphane 2000,
+  dükkân 2024; fener bekçisi 1979'a kadar, sürek avı 2000'e kadar). Kitap
+  ve Blog'da "Kanon" paneli (geçen maddeler + tarih uyarısı); Merch'te
+  kuruma bağlı drop'ta kurumun viki özeti; tutarlılık denetçisi (Düzada,
+  Kitap, Blog) tarih çelişkisini uyarır.
+- Kararlar: 25 → Kems Company dükkânının yeri Kemsköy Caddesi. 26 → W5
+  düğmesine basıldı, PR birleşti.
+
 **Okunurluk denetimi ve kiremit kararı (K, 29 Eylül):** Bütün sekmeler
 aydınlık/karanlık, masaüstü/telefon genişliğinde tarandı. Soluk gri alt
 yazılar tek griye (`#6A5E4C`, karanlıkta `#A6B0C9`) indi, karanlıktaki soluk
@@ -243,7 +275,8 @@ yerleşimi üç yolla: yol kenarına otomatik, tek tek elle, mahalle şablonu.
 sokağı, toprak yol, patika. Kurucu bugünkü haritayla açılır; çalışma
 taslakta kalır, "Haritaya işle" düğmesiyle haritaya geçer, eski hâl arşive
 kalkar. Geri al / yinele var. Zaman kaydırıcı (1954, 1980…) ve nüfus
-göstergesi ileride. Kems Company dükkânının yerini Kemal kurucuda seçecek.
+göstergesi ileride. Kems Company dükkânının yeri: Kemsköy Caddesi (Kemal, 29
+Eylül; caddede tek bina seçmek gerekmiyor).
 
 **Yapısal kararlar (28 Eylül gece, `docs/soru-cevap/yapisal-1.md`):**
 Sıra: **(1) K: arayüz renkleri markaya** (yazı tipi zaten Poppins; kalan
