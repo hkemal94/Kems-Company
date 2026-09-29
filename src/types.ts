@@ -28,7 +28,9 @@ export type ItemType =
   // Inspiration
   | 'ilham_gorsel'
   // Komuta types
-  | 'channel';
+  | 'channel'
+  // Onay bekleyen aday (Paket 4): günün sorusu cevabı, atölye taslağı
+  | 'aday';
 
 export interface WikiSection {
   id: string;

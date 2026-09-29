@@ -191,6 +191,24 @@ ${JSON.stringify(data.wikiContext || [])}
 Sonucu Türkçe olarak, yapıcı bir dille açıkla.`;
         break;
 
+      // Günün sorusu (Paket 4): kanondaki bir boşluk için tıklamalı seçenek.
+      // Seçenek yalnız aday; Kemal seçse bile önce Adaylar'a düşer.
+      case "kanon-sorusu-secenek":
+        prompt = `Kurgusal Düzada adasının vikisinde "${data.madde || ""}" maddesinin "${data.etiket || ""}" alanı boş.
+Soru: "${data.soru || ""}"
+Maddenin bilinen künyesi ve metni:
+${JSON.stringify(data.baglam || {})}
+Ada hakkında bilinenler:
+${JSON.stringify(data.ada || "")}
+Bu soruya kanonla çelişmeyen 3 kısa cevap seçeneği öner. Kurallar:
+- Her seçenek en fazla 12 kelime, sade Türkçe, süs yok.
+- Yeni özel ad (kişi, yer, kurum, ürün adı) uydurma; yalnız yukarıda geçen adları kullanabilirsin.
+- Sayı uydurma (fiyat, nüfus, takipçi). Tarih gerekiyorsa aralık yaz ("1950'ler").
+- "Hâlâ", "şu anda", "günümüzde" yazma.
+Yanıtı saf JSON dizisi olarak döndür: ["seçenek 1", "seçenek 2", "seçenek 3"]`;
+        systemInstruction = "Kurgusal bir evrenin vikisi için kısa, sade, kanona bağlı seçenekler öneriyorsun. Sadece saf bir JSON dizisi döndür.";
+        break;
+
       case "fikir-uret":
         const count = data.mode === "hızlı" ? "6 adet kısa ve çarpıcı" : "3 adet detaylı, derinlikli";
         prompt = `Bağlam: "${data.context || "Genel Düzada Fikirleri"}" üzerinde ${data.mode === "hızlı" ? "Hızlı" : "Derin"} modda fikirler üret.

@@ -45,6 +45,8 @@ interface DuzadaProps {
   onUpdateItem: (item: Item) => Promise<void>;
   onDeleteItem: (itemId: string) => Promise<void>;
   onAddItem: (itemData: Omit<Item, 'id' | 'createdAt' | 'updatedAt' | 'userId'> & { id?: string }) => Promise<void>;
+  /** Menüden doğrudan bir sekmeye gelmek için (telefonda "Harita", "Kurucu") */
+  istek?: { sekme: 'wiki' | 'harita' | 'kurucu'; n: number } | null;
 }
 
 export function getCharacterKunye(activeEntity: any) {
@@ -339,7 +341,8 @@ export default function Duzada({
   onSelectItem,
   onUpdateItem,
   onDeleteItem,
-  onAddItem
+  onAddItem,
+  istek = null
 }: DuzadaProps) {
   // Harita düzeni (H1): elle yapılan harita düzenlemeleri — duzada/haritaDuzeni
   const haritaDuzeni = useHaritaDuzeni();
@@ -347,7 +350,8 @@ export default function Duzada({
   const [haritaDuzenleniyor, setHaritaDuzenleniyor] = useState(false);
 
   // Navigation / Tabs inside Düzada
-  const [activeTab, setActiveTab] = useState<'wiki' | 'harita' | 'kurucu'>('wiki');
+  const [activeTab, setActiveTab] = useState<'wiki' | 'harita' | 'kurucu'>(istek?.sekme ?? 'wiki');
+  useEffect(() => { if (istek) setActiveTab(istek.sekme); }, [istek?.n]);
   
   const regionsCreatedRef = useRef(false);
   const worldDetailsSyncedRef = useRef(false);

@@ -58,7 +58,7 @@ function bosAlanlar(i: Item): string {
 }
 
 /** Haritada maddesi olması gereken yapılar */
-function haritaBeklentisi(): Array<{ wikiId: string; ad: string }> {
+export function haritaBeklentisi(): Array<{ wikiId: string; ad: string }> {
   const cikti: Array<{ wikiId: string; ad: string }> = [];
   for (const f of DUZADA_GEO.features) {
     const p = f.properties as Record<string, unknown> | null;
@@ -279,14 +279,17 @@ interface EksiklerProps {
   onUpdateItem?: (item: Item) => Promise<void>;
   /** W5: galeriye görsel eklemek için */
   onAddItem?: (item: Omit<Item, 'id' | 'createdAt' | 'updatedAt' | 'userId'>) => Promise<void>;
+  /** Ana sayfadan bir satıra basılınca o başlık açık gelir (Paket 4) */
+  baslangicAcik?: string | null;
 }
 
 export const Eksikler: React.FC<EksiklerProps> = ({
-  items, onSelectArea, onUpdateItem, onAddItem
+  items, onSelectArea, onUpdateItem, onAddItem, baslangicAcik = null
 }) => {
   const eksikler = useMemo(() => eksikleriCikar(items), [items]);
   /** Listesi açık olan eksik başlığı */
-  const [acikEksik, setAcikEksik] = useState<string | null>(null);
+  const [acikEksik, setAcikEksik] = useState<string | null>(baslangicAcik);
+  React.useEffect(() => { if (baslangicAcik) setAcikEksik(baslangicAcik); }, [baslangicAcik]);
 
   /**
    * Norveç ø'sü. Veriye bir kere girmiş ve her yere yayılmış; tek tek

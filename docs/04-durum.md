@@ -375,7 +375,22 @@ CLAUDE.md bunu söylüyor; Komuta Merkezi tarafına da aynı not düşülmeli.
 ## Paket 4 — ana sayfa taslağı ve kararlar (29 Eylül)
 
 Taslak onaylandı ("gerçekten güzel görünüyor"), telefon için ayrıca
-düzenlendi. Görseller: `docs/gorseller/p4-taslak-*.png`. Henüz kod yok.
+düzenlendi. Taslak: `docs/gorseller/p4-taslak-*.png`. **Kodlandı** (29 Eylül,
+tek PR): `docs/gorseller/p4-masaustu*.png`, `p4-telefon.png`, `p4-aday.png`.
+
+Nerede ne var:
+- Ana sayfa: `src/components/anasayfa/` (Anasayfa, YuzdeSeridi, SoruKarti,
+  AdaylarKutusu, EksikOzeti, NotDefteri, DuzadaKarti).
+- Menü, alt menü, "Diğer": `src/App.tsx`; zil `src/components/kabuk/Zil.tsx`.
+- Eski Komuta Merkezi → **Durum** sayfası (yüzdeler üstte, ayrıntılı).
+  Neyin Eksik kendi sayfası oldu. Günlük not bölümü deftere geçti.
+- Hesaplar: `src/lib/durumOranlari.ts`, `adaylar.ts`, `bekleyenIsler.ts`,
+  `bildirimler.ts`. Aday yeni bir kayıt türü: `type: 'aday'`.
+- Yapay zekâ görevi: `server.ts` → `kanon-sorusu-secenek`.
+- Atölye şimdilik yalnız kanon sorusu; sosyal medya ve merch taslağı
+  Paket 6'ya (stüdyo) kaldı.
+- Ad ya da sayı soran sorularda seçenek getirilmez, yalnız kutu açılır.
+- Bildirimler yalnız uygulama içinde; telefon bildirimi / e-posta ayrı iş.
 
 **Masaüstü:** tek ekran. İnce simge menüsü (solda); selamlama; yüzde
 şeridi (Künye, Merch hattı, Kitap, Harita, Boşluklar — Durum sekmesinin

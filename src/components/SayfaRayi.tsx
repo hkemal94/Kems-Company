@@ -113,11 +113,15 @@ export const SayfaRayi: React.FC<SayfaRayiProps> = ({
   };
 
   return createPortal(
-    <div className="mt-3 pt-3 border-t border-[#CFC5B4]/50 dark:border-[#2C3C72]/60">
-      <span className="text-[10px] font-mono uppercase tracking-wider text-[#6A5E4C] dark:text-[#95A1C2] font-bold px-1 block mb-1.5">
+    /*
+     * Paket 4: yuva artık menünün yanında dar bir sütun (masaüstü) ya da
+     * sayfanın üstünde yana kayan bir şerit (telefon).
+     */
+    <div className="-mx-4 px-4 lg:mx-0 lg:px-0">
+      <span className="hidden lg:block text-[10px] font-mono uppercase tracking-wider text-[#6A5E4C] dark:text-[#95A1C2] font-bold px-1 mb-1.5">
         {baslik ?? 'Bu sayfada'}
       </span>
-      <nav className="space-y-0.5 font-mono text-[11px]">
+      <nav className="flex lg:flex-col gap-1 lg:gap-0.5 overflow-x-auto lg:overflow-visible font-mono text-[11px] pb-1 lg:pb-0">
         {bolumler.map(b => {
           const bu = secili === b.id;
           return (
@@ -125,18 +129,18 @@ export const SayfaRayi: React.FC<SayfaRayiProps> = ({
               key={b.id}
               type="button"
               onClick={() => git(b.id)}
-              className={`w-full text-left px-3 py-1.5 rounded-lg flex items-center gap-2 cursor-pointer transition-colors ${
+              className={`shrink-0 lg:w-full text-left px-3 py-2 lg:py-1.5 rounded-full lg:rounded-lg flex items-center gap-2 cursor-pointer transition-colors whitespace-nowrap border lg:border-0 ${
                 bu
-                  ? 'text-[#0E1C4F] dark:text-[#F3EFE8] font-bold bg-[#F3EFE8] dark:bg-[#17345A]'
-                  : 'text-[#6A5E4C] dark:text-[#A6B0C9] hover:bg-[#F6F1E7] dark:hover:bg-[#202E5C]'
+                  ? 'text-[#0E1C4F] dark:text-[#F3EFE8] font-bold bg-[#FAF8F5] lg:bg-[#F3EFE8] dark:bg-[#17345A] border-[#CFC5B4] dark:border-[#2C3C72]'
+                  : 'text-[#6A5E4C] dark:text-[#A6B0C9] hover:bg-[#F6F1E7] dark:hover:bg-[#202E5C] border-[#CFC5B4]/70 dark:border-[#2C3C72]'
               }`}
             >
               <span
-                className={`w-1 h-3.5 rounded-full shrink-0 ${
+                className={`hidden lg:block w-1 h-3.5 rounded-full shrink-0 ${
                   bu ? 'bg-[#F26B6F]' : 'bg-[#CFC5B4]/60 dark:bg-[#2C3C72]'
                 }`}
               />
-              <span className="truncate">{b.label}</span>
+              <span className="lg:truncate">{b.label}</span>
             </button>
           );
         })}
