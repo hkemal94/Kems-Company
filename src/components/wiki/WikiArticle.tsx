@@ -237,7 +237,7 @@ export const WikiArticle: React.FC<WikiArticleProps> = ({
           )}
         </div>
 
-        <h1 className="font-serif text-3xl sm:text-4xl text-lacivert dark:text-krem leading-tight">
+        <h1 className="font-sans text-3xl sm:text-4xl text-lacivert dark:text-krem leading-tight tracking-tight">
           {item.title}
         </h1>
 
@@ -295,7 +295,7 @@ export const WikiArticle: React.FC<WikiArticleProps> = ({
         <div className="min-w-0 order-1">
           {ekBilgiler.length > 0 && (
             <section className="mb-7">
-              <h2 className="font-serif text-xl text-lacivert dark:text-krem mb-3">Bilgiler</h2>
+              <h2 className="font-sans text-xl text-lacivert dark:text-krem mb-3 tracking-tight">Bilgiler</h2>
               <dl className="grid sm:grid-cols-2 gap-x-6 gap-y-3">
                 {ekBilgiler.map(f => (
                   <div key={f.id} className="min-w-0">
@@ -322,7 +322,7 @@ export const WikiArticle: React.FC<WikiArticleProps> = ({
             body.map((block, i) => (
               <section key={i} className="mb-7">
                 {block.heading && (
-                  <h2 className="font-serif text-xl text-lacivert dark:text-krem mb-2 flex items-center gap-2">
+                  <h2 className="font-sans text-xl text-lacivert dark:text-krem mb-2 flex items-center gap-2 tracking-tight">
                     {block.heading}
                     {admin && block.status === 'öneri' && (
                       <span className="text-[9px] font-mono px-1.5 py-0.5 rounded border border-dashed border-kiremit/50 text-kiremit">

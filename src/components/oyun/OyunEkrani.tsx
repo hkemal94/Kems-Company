@@ -28,6 +28,7 @@ export const OyunEkrani: React.FC<OyunEkraniProps> = (p) => (
     onAddItem={p.onAddItem}
     onUpdateItem={p.onUpdateItem}
     onSelectArea={p.onSelectArea}
+    onDeleteItem={p.onDeleteItem}
   />
 );
 

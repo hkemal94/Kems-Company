@@ -1507,7 +1507,7 @@ export default function Duzada({
           <span className="text-xs font-mono uppercase text-[#6A5E4C] dark:text-[#A6B0C9]">
             Düzada · Ada & Lore
           </span>
-          <h1 className="font-serif font-bold text-2xl text-[#0E1C4F] dark:text-[#F3EFE8] mt-1">
+          <h1 className="font-sans font-bold text-2xl text-[#0E1C4F] dark:text-[#F3EFE8] mt-1 tracking-tight">
             Ada Evreni & Karakterler
           </h1>
         </div>
@@ -1550,7 +1550,7 @@ export default function Duzada({
 
       {/* KURUCU — şehir kurucu, 1. adım: yol aracı */}
       {activeTab === 'kurucu' && (
-        <div className="bg-[#E7EBE6] dark:bg-[#13204A] border border-[#B9C7BD] dark:border-[#2C3C72] rounded-xl p-4 archive-shadow relative">
+        <div className="bg-[#E7EBE6] dark:bg-[#13204A] border border-[#CFC5B4] dark:border-[#2C3C72] rounded-xl p-4 archive-shadow relative">
           <div className="flex items-center justify-between mb-2">
             <span className="text-[10px] font-mono uppercase text-[#4A5E68] dark:text-[#A6B0C9] font-bold">
               KURUCU · YOLLAR (TASLAK — HARİTA DEĞİŞMEZ)
@@ -1559,7 +1559,7 @@ export default function Duzada({
           {haritaDuzeni.ilkYukleme ? (
             <Suspense
               fallback={
-                <div className="h-[78vh] flex items-center justify-center rounded-lg border border-[#B9C7BD] bg-[#F3EFE8] font-mono text-xs text-[#6A5E4C]">
+                <div className="h-[78vh] flex items-center justify-center rounded-lg border border-[#CFC5B4] bg-[#F3EFE8] font-mono text-xs text-[#6A5E4C]">
                   Kurucu yükleniyor…
                 </div>
               }
@@ -1583,7 +1583,7 @@ export default function Duzada({
               />
             </Suspense>
           ) : (
-            <div className="h-[78vh] flex items-center justify-center rounded-lg border border-[#B9C7BD] bg-[#F3EFE8] font-mono text-xs text-[#6A5E4C]">
+            <div className="h-[78vh] flex items-center justify-center rounded-lg border border-[#CFC5B4] bg-[#F3EFE8] font-mono text-xs text-[#6A5E4C]">
               Kayıtlı düzen okunuyor…
             </div>
           )}
@@ -1592,7 +1592,7 @@ export default function Duzada({
 
       {/* HARİTA — DÜZENLEME (H2) */}
       {activeTab === 'harita' && haritaDuzenleniyor && (
-        <div className="bg-[#E7EBE6] border border-[#B9C7BD] rounded-xl p-4 archive-shadow relative paper-grain">
+        <div className="bg-[#E7EBE6] border border-[#CFC5B4] rounded-xl p-4 archive-shadow relative paper-grain">
           <div className="flex items-center justify-between mb-2">
             <span className="text-[10px] font-mono uppercase text-[#4A5E68] dark:text-[#A6B0C9] font-bold">
               DÜZADA HARİTASI · DÜZENLEME
@@ -1601,13 +1601,13 @@ export default function Duzada({
           {haritaDuzeni.ilkYukleme ? (
             <Suspense
               fallback={
-                <div className="h-[78vh] flex items-center justify-center rounded-lg border border-[#B9C7BD] bg-[#F3EFE8] font-mono text-xs text-[#6A5E4C]">
+                <div className="h-[78vh] flex items-center justify-center rounded-lg border border-[#CFC5B4] bg-[#F3EFE8] font-mono text-xs text-[#6A5E4C]">
                   Düzenleyici yükleniyor…
                 </div>
               }
             >
               <HaritaDuzenleyici
-                className="w-full h-[78vh] rounded-lg overflow-hidden border border-[#B9C7BD]"
+                className="w-full h-[78vh] rounded-lg overflow-hidden border border-[#CFC5B4]"
                 duzen={haritaDuzeni.duzen}
                 kaydet={haritaDuzeni.kaydet}
                 durum={haritaDuzeni.durum}
@@ -1616,7 +1616,7 @@ export default function Duzada({
               />
             </Suspense>
           ) : (
-            <div className="h-[78vh] flex items-center justify-center rounded-lg border border-[#B9C7BD] bg-[#F3EFE8] font-mono text-xs text-[#6A5E4C]">
+            <div className="h-[78vh] flex items-center justify-center rounded-lg border border-[#CFC5B4] bg-[#F3EFE8] font-mono text-xs text-[#6A5E4C]">
               Kayıtlı düzen okunuyor…
             </div>
           )}
@@ -1628,7 +1628,7 @@ export default function Duzada({
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           
           {/* 3B arazi haritası — gen/duzada.py + gen/dem.py üretimi */}
-          <div className="lg:col-span-2 bg-[#E7EBE6] border border-[#B9C7BD] rounded-xl p-4 archive-shadow relative paper-grain">
+          <div className="lg:col-span-2 bg-[#E7EBE6] border border-[#CFC5B4] rounded-xl p-4 archive-shadow relative paper-grain">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-[10px] font-mono uppercase text-[#4A5E68] dark:text-[#A6B0C9] font-bold">
                   DÜZADA ARAZİ HARİTASI
@@ -1643,13 +1643,13 @@ export default function Duzada({
               </div>
               <Suspense
                 fallback={
-                  <div className="h-[70vh] flex items-center justify-center rounded-lg border border-[#B9C7BD] bg-[#F3EFE8] font-mono text-xs text-[#6A5E4C]">
+                  <div className="h-[70vh] flex items-center justify-center rounded-lg border border-[#CFC5B4] bg-[#F3EFE8] font-mono text-xs text-[#6A5E4C]">
                     Harita yükleniyor…
                   </div>
                 }
               >
                 <DuzadaHarita
-                  className="h-[70vh] rounded-lg overflow-hidden border border-[#B9C7BD]"
+                  className="h-[70vh] rounded-lg overflow-hidden border border-[#CFC5B4]"
                   onSelect={haritaMaddesiniAc}
                   duzen={haritaDuzeni.duzen}
                 />
@@ -1671,7 +1671,7 @@ export default function Duzada({
                   <span className="text-[9px] font-mono uppercase bg-[#0E1C4F]/10 dark:bg-[#2C3C72] px-1.5 py-0.5 rounded-sm font-bold tracking-wider text-stone-600 dark:text-stone-300">
                     COĞRAFYA SİSTEMİ
                   </span>
-                  <h3 className="font-serif font-bold text-base text-[#0E1C4F] dark:text-[#F3EFE8] mt-0.5">
+                  <h3 className="font-sans font-bold text-base text-[#0E1C4F] dark:text-[#F3EFE8] mt-0.5 tracking-tight">
                     Düzada Yerleşim Ağacı
                   </h3>
                 </div>
@@ -1699,7 +1699,7 @@ export default function Duzada({
                 {/* Add Mahalle Form */}
                 {showAddMahalleForm && (
                   <div className="p-3 bg-white dark:bg-[#12224A]/40 border border-stone-200 dark:border-[#2C3C72] rounded-lg space-y-2 text-xs">
-                    <h4 className="font-bold font-serif text-[#0E1C4F] dark:text-[#F3EFE8]">Yeni Mahalle / Köy Ekle</h4>
+                    <h4 className="font-bold font-sans text-[#0E1C4F] dark:text-[#F3EFE8] tracking-tight">Yeni Mahalle / Köy Ekle</h4>
                     <input
                       type="text"
                       placeholder="Mahalle Adı (örn: Kuzey Yamacı)"
@@ -1725,7 +1725,7 @@ export default function Duzada({
                 {/* Edit Mahalle Form */}
                 {editingMahalleId && (
                   <div className="p-3 bg-white dark:bg-[#12224A]/40 border border-stone-200 dark:border-[#2C3C72]/50 rounded-lg space-y-2 text-xs">
-                    <h4 className="font-bold font-serif text-[#0E1C4F] dark:text-[#F3EFE8]">Mahalleyi Düzenle</h4>
+                    <h4 className="font-bold font-sans text-[#0E1C4F] dark:text-[#F3EFE8] tracking-tight">Mahalleyi Düzenle</h4>
                     <input
                       type="text"
                       value={editingMahalleName}
@@ -1834,7 +1834,7 @@ export default function Duzada({
                 {/* Add Sokak Form */}
                 {showAddSokakForm && (
                   <div className="p-3 bg-white dark:bg-[#12224A]/40 border border-stone-200 dark:border-[#2C3C72] rounded-lg space-y-2 text-xs">
-                    <h4 className="font-bold font-serif text-[#0E1C4F] dark:text-[#F3EFE8]">Yeni Cadde / Sokak Ekle</h4>
+                    <h4 className="font-bold font-sans text-[#0E1C4F] dark:text-[#F3EFE8] tracking-tight">Yeni Cadde / Sokak Ekle</h4>
                     <p className="text-[10px] text-[#6A5E4C] dark:text-stone-400">Bu sokak, seçili mahalle olan <b>{mahalleler.find(m => m.id === selectedRegion)?.name}</b> içinde oluşturulacaktır.</p>
                     <div className="flex gap-1.5">
                       <input
@@ -2139,7 +2139,7 @@ export default function Duzada({
           <div className="bg-white dark:bg-[#12224A] border-2 border-[#CFC5B4] dark:border-[#2C3C72] max-w-md w-full rounded-2xl p-6 space-y-4 shadow-xl animate-in zoom-in-95 duration-200">
             <div className="flex items-center gap-3 text-red-500">
               <AlertTriangle className="w-8 h-8 shrink-0" />
-              <h3 className="font-serif font-bold text-lg text-stone-800 dark:text-[#F3EFE8]">{confirmModal.title}</h3>
+              <h3 className="font-sans font-bold text-lg text-stone-800 dark:text-[#F3EFE8] tracking-tight">{confirmModal.title}</h3>
             </div>
             
             <p className="text-sm text-stone-600 dark:text-stone-300 leading-relaxed">
@@ -2179,7 +2179,7 @@ export default function Duzada({
             onClick={e => e.stopPropagation()}
           >
             <div>
-              <h3 className="font-serif font-bold text-lg text-stone-800 dark:text-[#F3EFE8]">
+              <h3 className="font-sans font-bold text-lg text-stone-800 dark:text-[#F3EFE8] tracking-tight">
                 {eksikMadde.ad}
               </h3>
               <p className="mt-1 font-mono text-[11px] text-stone-500 dark:text-[#95A1C2]">

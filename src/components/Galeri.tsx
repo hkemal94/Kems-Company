@@ -5,6 +5,7 @@ import {
   compressImageBase64, compressPngKeepAlpha, dosyayiOku
 } from '../lib/imageCompressor';
 import { SayfaRayi, type RayBolumu } from './SayfaRayi';
+import { CanvaAynasi } from './galeri/CanvaAynasi';
 
 /**
  * Galeri.
@@ -30,7 +31,8 @@ import { SayfaRayi, type RayBolumu } from './SayfaRayi';
 
 const RAY_BOLUMLERI: RayBolumu[] = [
   { id: 'gal-yukle', label: 'Yükle' },
-  { id: 'gal-liste', label: 'Görseller' }
+  { id: 'gal-liste', label: 'Görseller' },
+  { id: 'gal-canva', label: 'Canva aynası' }
 ];
 
 /** Firestore'un 1 MB'lık belge sınırına yaklaşmayalım */
@@ -193,7 +195,7 @@ export const Galeri: React.FC<GaleriProps> = ({
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
       <div className="pb-4 border-b border-[#CFC5B4] dark:border-[#2C3C72]">
-        <h1 className="font-serif font-bold text-xl text-[#0E1C4F] dark:text-[#F3EFE8] italic">
+        <h1 className="font-sans font-bold text-xl text-[#0E1C4F] dark:text-[#F3EFE8] tracking-tight">
           Galeri
         </h1>
         <p className="mt-1 text-[12px] text-[#6A5E4C] dark:text-[#A6B0C9] max-w-2xl leading-relaxed">
@@ -372,6 +374,12 @@ export const Galeri: React.FC<GaleriProps> = ({
         )}
       </section>
 
+      {/* Canva aynası (Paket 5): Canva'daki Kems / Düzada tasarımları */}
+      <section id="gal-canva" className="scroll-mt-24">
+        <h2 className="mb-2 text-[11px] font-mono font-bold uppercase tracking-[0.18em] text-[#6A5E4C] dark:text-[#A6B0C9]">Canva aynası</h2>
+        <CanvaAynasi />
+      </section>
+
       {/* --- büyük görünüm --- */}
       {buyuk && (
         <div
@@ -426,10 +434,10 @@ export const Galeri: React.FC<GaleriProps> = ({
                 className="ml-auto flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-mono
                            rounded-lg border border-[#CFC5B4] dark:border-[#2C3C72]
                            text-[#6A5E4C] dark:text-[#A6B0C9] hover:text-[#F26B6F] cursor-pointer"
-                title="Silinmez, arşive kalkar"
+                title="Galeriden kaldır"
               >
                 <Trash2 className="w-3 h-3" />
-                Arşive kaldır
+                Galeriden kaldır
               </button>
             </div>
           </div>

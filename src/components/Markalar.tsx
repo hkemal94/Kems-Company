@@ -497,9 +497,9 @@ export default function Markalar({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#CFC5B4]">
         <div>
           <span className="text-xs font-mono uppercase text-[#6A5E4C] dark:text-[#A6B0C9]">
-            Markalar Şemsiyesi / Umbrella Brand Setup
+            Kems Company · markalar ve kurumlar
           </span>
-          <h1 className="font-serif font-bold text-2xl text-[#0E1C4F] dark:text-[#F3EFE8] mt-1">
+          <h1 className="font-sans font-bold text-2xl text-[#0E1C4F] dark:text-[#F3EFE8] mt-1 tracking-tight">
             Yaratıcı Markalar & Kimlikler
           </h1>
         </div>
@@ -642,10 +642,10 @@ export default function Markalar({
         {/* RIGHT WORKSPACE: DETAILED ACTIVE BRAND CONTAINER */}
         <div className="lg:col-span-3 space-y-6">
           {activeBrand ? (
-            <div className="bg-[#E7EBE6] dark:bg-[#13204A] border-2 border-[#B9C7BD] dark:border-[#2C3C72] rounded-xl p-6 archive-shadow paper-grain space-y-6">
+            <div className="bg-[#E7EBE6] dark:bg-[#13204A] border-2 border-[#CFC5B4] dark:border-[#2C3C72] rounded-xl p-6 archive-shadow paper-grain space-y-6">
               
               {/* Brand Header */}
-              <div className="flex flex-col sm:flex-row justify-between items-start gap-4 pb-4 border-b border-[#B9C7BD]">
+              <div className="flex flex-col sm:flex-row justify-between items-start gap-4 pb-4 border-b border-[#CFC5B4]">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] font-mono bg-[#0E1C4F] dark:bg-[#2C3C72] text-white px-2 py-0.5 rounded">
@@ -666,11 +666,11 @@ export default function Markalar({
                         type="text"
                         value={editBrandTitle}
                         onChange={(e) => setEditBrandTitle(e.target.value)}
-                        className="text-lg font-serif font-bold bg-white border border-[#B9C7BD] rounded px-2 py-1 focus:outline-hidden"
+                        className="text-lg font-serif font-bold bg-white border border-[#CFC5B4] rounded px-2 py-1 focus:outline-hidden"
                       />
                     </div>
                   ) : (
-                    <h2 className="font-serif font-bold text-2xl text-[#0E1C4F] dark:text-[#F3EFE8] tracking-tight">
+                    <h2 className="font-sans font-bold text-2xl text-[#0E1C4F] dark:text-[#F3EFE8] tracking-tight">
                       {activeBrand.title}
                     </h2>
                   )}
@@ -749,7 +749,7 @@ export default function Markalar({
                           setEditUsageRulesDo(bk.usageRulesDo || []);
                           setEditUsageRulesDont(bk.usageRulesDont || []);
                         }}
-                        className="p-2 bg-white dark:bg-[#17345A] border border-[#B9C7BD] rounded-lg hover:text-[#F26B6F] transition-all cursor-pointer"
+                        className="p-2 bg-white dark:bg-[#17345A] border border-[#CFC5B4] rounded-lg hover:text-[#F26B6F] transition-all cursor-pointer"
                         title="Tüm Marka Kılavuzunu Düzenle"
                       >
                         <Edit3 className="w-3.5 h-3.5" />
@@ -856,7 +856,7 @@ export default function Markalar({
                 const activeFont = fontMap[bk.selectedFont || 'Inter'] || '"Inter", sans-serif';
 
                 return (
-                  <div className="bg-white dark:bg-[#13204A]/60 border border-[#B9C7BD] dark:border-[#2C3C72] p-6 rounded-xl space-y-6">
+                  <div className="bg-white dark:bg-[#13204A]/60 border border-[#CFC5B4] dark:border-[#2C3C72] p-6 rounded-xl space-y-6">
                     
                     {/* Slogan Banner */}
                     {!isEditingBrand ? (
@@ -1586,7 +1586,7 @@ export default function Markalar({
               {!isEditingBrand && !isUnassignedSelected ? (
                 <KurumOzeti item={activeBrand} items={items} onVikideAc={id => onSelectArea('duzada', id)} />
               ) : (
-              <div className="bg-white/80 dark:bg-[#13204A]/60 border border-[#B9C7BD] dark:border-[#2C3C72] p-5 rounded-xl space-y-2">
+              <div className="bg-white/80 dark:bg-[#13204A]/60 border border-[#CFC5B4] dark:border-[#2C3C72] p-5 rounded-xl space-y-2">
                 <h4 className="text-[10px] font-mono uppercase text-[#6A5E4C] dark:text-[#A6B0C9] tracking-wider font-bold">
                   Marka Hikayesi & Kapsamı
                 </h4>
@@ -1609,11 +1609,11 @@ export default function Markalar({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
                 
                 {/* 1. KİŞİLER */}
-                <div className="bg-white dark:bg-[#13204A]/60 border border-[#B9C7BD] dark:border-[#2C3C72] p-4 rounded-xl space-y-3">
+                <div className="bg-white dark:bg-[#13204A]/60 border border-[#CFC5B4] dark:border-[#2C3C72] p-4 rounded-xl space-y-3">
                   <div className="flex items-center justify-between pb-1 border-b border-stone-100">
                     <div className="flex items-center gap-1.5">
                       <Users className="w-4 h-4 text-indigo-500" />
-                      <h4 className="font-serif font-bold text-sm text-[#0E1C4F] dark:text-[#F3EFE8]">Kişiler ({brandKisiler.length})</h4>
+                      <h4 className="font-sans font-bold text-sm text-[#0E1C4F] dark:text-[#F3EFE8] tracking-tight">Kişiler ({brandKisiler.length})</h4>
                     </div>
                     <button 
                       onClick={() => handleOpenAddEntity('kisi')}
@@ -1664,11 +1664,11 @@ export default function Markalar({
                 </div>
 
                 {/* 2. MEKANLAR */}
-                <div className="bg-white dark:bg-[#13204A]/60 border border-[#B9C7BD] dark:border-[#2C3C72] p-4 rounded-xl space-y-3">
+                <div className="bg-white dark:bg-[#13204A]/60 border border-[#CFC5B4] dark:border-[#2C3C72] p-4 rounded-xl space-y-3">
                   <div className="flex items-center justify-between pb-1 border-b border-stone-100">
                     <div className="flex items-center gap-1.5">
                       <MapPin className="w-4 h-4 text-red-500" />
-                      <h4 className="font-serif font-bold text-sm text-[#0E1C4F] dark:text-[#F3EFE8]">Mekanlar ({brandYerler.length})</h4>
+                      <h4 className="font-sans font-bold text-sm text-[#0E1C4F] dark:text-[#F3EFE8] tracking-tight">Mekanlar ({brandYerler.length})</h4>
                     </div>
                     <button 
                       onClick={() => handleOpenAddEntity('yer')}
@@ -1721,11 +1721,11 @@ export default function Markalar({
               </div>
 
               {/* MERCHANDISING SECTION */}
-              <div className="bg-stone-50 dark:bg-[#17345A]/50 border border-[#B9C7BD] dark:border-[#2C3C72]/50 p-5 rounded-xl space-y-4">
+              <div className="bg-stone-50 dark:bg-[#17345A]/50 border border-[#CFC5B4] dark:border-[#2C3C72]/50 p-5 rounded-xl space-y-4">
                 <div className="flex items-center justify-between pb-1 border-b border-stone-200">
                   <div className="flex items-center gap-2">
                     <ShoppingBag className="w-4.5 h-4.5 text-[#F26B6F]" />
-                    <h3 className="font-serif font-bold text-sm text-[#0E1C4F] dark:text-[#F3EFE8]">
+                    <h3 className="font-sans font-bold text-sm text-[#0E1C4F] dark:text-[#F3EFE8] tracking-tight">
                       Marka Merch & Tasarımları
                     </h3>
                   </div>
@@ -1786,7 +1786,7 @@ export default function Markalar({
 
             </div>
           ) : (
-            <div className="bg-[#E7EBE6] border-2 border-dashed border-[#B9C7BD] rounded-xl p-12 text-center text-[#6A5E4C]">
+            <div className="bg-[#E7EBE6] border-2 border-dashed border-[#CFC5B4] rounded-xl p-12 text-center text-[#6A5E4C]">
               Sol menüden bir marka seçin veya çatı markayı aktifleştirin.
             </div>
           )}
@@ -1801,7 +1801,7 @@ export default function Markalar({
         <div className="fixed inset-0 bg-[#0E1C4F] dark:bg-[#2C3C72]/60 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
           <div className="max-w-md w-full bg-[#F3EFE8] border-2 border-[#CFC5B4] rounded-2xl shadow-2xl p-6 space-y-4 paper-grain">
             <div className="flex items-center justify-between pb-2 border-b border-[#CFC5B4]">
-              <h3 className="font-serif font-bold text-lg text-[#0E1C4F]">Yeni Yaratıcı Marka</h3>
+              <h3 className="font-sans font-bold text-lg text-[#0E1C4F] tracking-tight">Yeni Yaratıcı Marka</h3>
               <button onClick={() => setShowCreateForm(false)} className="p-1 text-stone-500 dark:text-stone-400 hover:text-stone-700">
                 <X className="w-5 h-5" />
               </button>
@@ -1858,7 +1858,7 @@ export default function Markalar({
             <div className="flex items-center justify-between pb-2 border-b border-[#CFC5B4]">
               <div className="flex items-center gap-1.5">
                 <ShoppingBag className="w-5 h-5 text-[#F26B6F]" />
-                <h3 className="font-serif font-bold text-lg text-[#0E1C4F]">{activeBrand.title} Merch Yap</h3>
+                <h3 className="font-sans font-bold text-lg text-[#0E1C4F] tracking-tight">{activeBrand.title} Merch Yap</h3>
               </div>
               <button onClick={() => setShowMerchForm(false)} className="p-1 text-stone-500 dark:text-stone-400 hover:text-stone-700">
                 <X className="w-5 h-5" />
@@ -1930,7 +1930,7 @@ export default function Markalar({
             <div className="flex items-center justify-between pb-2 border-b border-[#CFC5B4]">
               <div className="flex items-center gap-1.5">
                 <PlusCircle className="w-5 h-5 text-indigo-500" />
-                <h3 className="font-serif font-bold text-lg text-[#0E1C4F]">
+                <h3 className="font-sans font-bold text-lg text-[#0E1C4F] tracking-tight">
                   {isCreatingNew 
                     ? `Yeni ${showAddEntityForm === 'kisi' ? 'Kişi' : showAddEntityForm === 'yer' ? 'Yer/Mekân' : 'Olay'} Oluştur`
                     : `${showAddEntityForm === 'kisi' ? 'Mevcut Kişi' : showAddEntityForm === 'yer' ? 'Mevcut Yer/Mekân' : 'Mevcut Olay'} İlişkilendir`

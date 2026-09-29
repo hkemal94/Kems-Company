@@ -1310,7 +1310,7 @@ export const HaritaDuzenleyici: React.FC<HaritaDuzenleyiciProps> = ({
                         overflow-y-auto text-[13px] text-[#3a2f22]">
         <div className="px-4 pt-4 flex items-start gap-2">
           <div className="flex-1">
-            <h1 className="font-serif text-lg text-lacivert">Harita düzenleyici</h1>
+            <h1 className="font-sans text-lg text-lacivert tracking-tight">Harita düzenleyici</h1>
             <p className={`mt-0.5 font-mono text-[11px] ${
               kayitDurumu === 'yerelde' || kaydedilmemis ? 'text-kiremit' : 'text-[#6f6047]'}`}
               title={hata ?? undefined}>

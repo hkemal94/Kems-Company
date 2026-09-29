@@ -443,6 +443,56 @@ depodan silindi.
 |---|---|
 | Mikro alan düzenleme | Oyun belgesi "oyunda yok" diyor, ama Kemal oyun tarafına tam anlatamadığını söylüyor — açık |
 
+## 29 Eylül akşam — yapılanlar (tek PR)
+
+**Veri ve temizlik**
+- Kayıp veri nedeni: uygulama 14 Eylül'den beri kimliği yalnız tarayıcı
+  hafızasından hatırlıyordu; hafıza yoksa boş "ortak alan" (kems_public)
+  açılıp ilk günün örnek verisiyle dolduruluyordu. Kayıtlar Google hesabının
+  alanında. "Google ile bağlan" şeridi ve rayda hesap simgesi eklendi.
+  Örnek veri tohumu (`seedUserData`) silindi. *Gerçek veritabanı buradan
+  okunamadı; Kemal'in bağlanınca kayıtlarını görmesi doğrulanmadı.*
+- Kendiliğinden kayıt yazan kodlar silindi: Düzada'da bölge ve ada maddesi
+  yaratma, App'te beş otomatik düzeltme, otel simülasyonu (Oyun.tsx,
+  OyunSimulasyon, OtelIsletimSistemi, kemskoyData, charactersImportData,
+  kemskoyVenues). ~11.000 satır.
+- Neyin Eksik: Temizlik kartı (yedek indir → sil; arşivdekiler, eski
+  öneriler, ilk günün örnek verisi, Sürek Şenliği Tertip Komitesi), Galeri
+  kartı (17 Canva görseli + küçük harita). İşi biten göç kartları silindi.
+- "Sil" düğmesi artık gerçekten siler. Uygulamanın başka yerlerinde hâlâ
+  "arşive kaldır" yazan düğmeler var; onlar kaydı arşivler, Temizlik kartı
+  siler. (Hepsini tek yerden silmeye çevirmek otomatik izin denetiminden
+  geçmedi; Kemal karar verecek.)
+
+**Küçük işler**
+- Yapay zekâ: Google 503 "yoğun" hatası Türkçe gösterilir; meşgulse yeniden
+  dener, sonra yedek modele geçer (GEMINI_MODEL → gemini-3.5-flash →
+  gemini-flash-latest → gemini-2.5-flash). `/api/ai-durum` sağlık kontrolü.
+- Adaylar: cevaplar ayrı (ilk 4), eski öneriler tek satır özet.
+- Hazır internet fotoğrafları (Unsplash) gösterilmez; drop/ürüne kurumun
+  arması ya da Kems Company logosu. Yeni kayda hazır fotoğraf konmaz.
+- Durum: yalnız yüzdeler + Boşluklar (Kemal: "birleştir"); Boşluklar ayrı
+  sayfa değil. Kanallar Markalar → Kems Company'de; uydurma örnek kanal
+  bağlantıları kaldırıldı.
+
+**Görünüm:** sayfa başlıklarındaki eğik yazı kalktı (72 başlık), kart
+gölgeleri yumuşadı, kenar rengi tekleşti, Merch başlığındaki tekrarlı
+sekmeler kalktı.
+
+**Paket 5**
+- Oyun: tanıtım kartı (durum süreçten, özet/açıklama/ekran görüntüleri
+  Kemal'in) + tıklamalı tasarım belgesi (22 seçim; seçim bölüm metnine
+  "* Etiket: değer" olarak yazılır).
+- Merch: Pano sekmesi (Konsept → Tasarım → Üretim → Satışta, okla taşı,
+  kanon kökü, Canva bağlantısı).
+- Kitap: "Nereden başlasam" kartı (kitap aç / ilk bölüm / kaldığın yer).
+- Galeri: Canva aynası (20 Kems/Düzada tasarımı, `src/data/canvaAynasi.ts`).
+  Küçük resimler önizlemede açılmadı (Canva adresine erişim yok); Kemal'in
+  tarayıcısında açılması bekleniyor, doğrulanmadı.
+
+**Kalan:** H (Harita + Kurucu tek ekran, city builder), Paket 6 (site,
+sosyal medya stüdyosu), ad soruları.
+
 ## İş listesi ve karar verilen sıra (29 Eylül akşam)
 
 Kemal gün boyu ekran görüntüleriyle gönderdi, "başla" diyene kadar yalnız

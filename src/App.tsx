@@ -19,7 +19,6 @@ import {
   Search,
   Compass,
   PenTool,
-  PenLine,
   Image as ImageIcon,
   Shield,
   Menu,
@@ -58,7 +57,7 @@ import { Zil } from './components/kabuk/Zil';
 import { useBildirimler, type Bildirim } from './lib/bildirimler';
 
 /** Uygulamanın sayfaları. 'komuta' ana sayfa; eski Komuta Merkezi 'durum'. */
-type Sayfa = 'komuta' | 'durum' | 'eksikler' | 'markalar' | 'duzada' | 'merch' | 'yazi' | 'oyun' | 'galeri' | 'bosluklar';
+type Sayfa = 'komuta' | 'durum' | 'eksikler' | 'markalar' | 'duzada' | 'merch' | 'yazi' | 'oyun' | 'galeri';
 
 export interface WorkspaceUser {
   uid: string;
@@ -470,7 +469,10 @@ export default function App() {
       case 'viki': case 'kunye': case 'duzada': setDuzadaIstek({ sekme: 'wiki', n }); setActiveTab('duzada'); break;
       case 'kitap': setYaziIstek({ sekme: 'kitap', n }); setActiveTab('yazi'); break;
       case 'blog': setYaziIstek({ sekme: 'blog', n }); setActiveTab('yazi'); break;
-      case 'bosluk': setActiveTab('bosluklar'); break;
+      case 'bosluk': case 'bosluklar':
+        setActiveTab('durum');
+        window.setTimeout(() => document.getElementById('bos-ozet')?.scrollIntoView({ behavior: 'smooth' }), 150);
+        return;
       case 'eksikler': setEksikAcik(ayrinti ?? null); setActiveTab('eksikler'); break;
       default: setActiveTab(hedef as Sayfa);
     }
@@ -488,6 +490,8 @@ export default function App() {
 
   const handleSelectArea = (area: AreaType, itemId?: string) => {
     // 'blog' ve 'kitap' artık tek sekme: Yazı İşleri
+    // Boşluklar artık Durum sayfasının içinde (29 Eylül)
+    if (area === 'bosluklar') { git('bosluklar'); return; }
     const sekme = area === 'blog' || area === 'kitap' ? 'yazi' : area;
     setActiveTab(sekme as any);
     if (itemId) {
@@ -582,9 +586,8 @@ export default function App() {
     { id: 'yazi', ad: 'Yazı · kitap ve blog', simge: PenTool },
     { id: 'oyun', ad: 'Oyun', simge: Gamepad2 },
     { id: 'galeri', ad: 'Galeri', simge: ImageIcon },
-    { id: 'bosluklar', ad: 'Boşluklar', simge: PenLine },
     { id: 'eksikler', ad: 'Neyin Eksik', simge: ListChecks, nokta: bildirimVar('dugme') },
-    { id: 'durum', ad: 'Durum · yüzdeler', simge: Percent }
+    { id: 'durum', ad: 'Durum · yüzdeler ve boşluklar', simge: Percent }
   ];
 
   const DIGER: Array<{ grup: string; satirlar: Array<{ hedef: string; ad: string; simge: React.ElementType; nokta?: boolean }> }> = [
@@ -600,8 +603,7 @@ export default function App() {
     { grup: 'Araçlar', satirlar: [
       { hedef: 'kurucu', ad: 'Kurucu', simge: Hammer },
       { hedef: 'eksikler', ad: 'Neyin Eksik', simge: ListChecks, nokta: bildirimVar('dugme') },
-      { hedef: 'durum', ad: 'Durum', simge: Percent },
-      { hedef: 'bosluklar', ad: 'Boşluklar', simge: PenLine }
+      { hedef: 'durum', ad: 'Durum ve boşluklar', simge: Percent }
     ] }
   ];
 
@@ -616,7 +618,7 @@ export default function App() {
 
   const SAYFA_ADI: Record<Sayfa, string> = {
     komuta: 'Ana sayfa', duzada: 'Düzada', markalar: 'Markalar', merch: 'Merch', yazi: 'Yazı',
-    oyun: 'Oyun', galeri: 'Galeri', bosluklar: 'Boşluklar', eksikler: 'Neyin Eksik', durum: 'Durum'
+    oyun: 'Oyun', galeri: 'Galeri', eksikler: 'Neyin Eksik', durum: 'Durum'
   };
 
   const logo = hasKemsLogo ? (
@@ -755,7 +757,7 @@ export default function App() {
             )}
 
             {activeTab === 'durum' && (
-              <Durum items={items} onSec={h => git(h)} />
+              <Durum items={items} onSec={h => git(h)} onUpdateItem={handleUpdateItem} />
             )}
 
             {activeTab === 'eksikler' && (
@@ -847,9 +849,6 @@ export default function App() {
               />
             )}
 
-            {activeTab === 'bosluklar' && (
-              <Bosluklar items={items} onUpdateItem={handleUpdateItem} />
-            )}
           </main>
         </div>
       </div>

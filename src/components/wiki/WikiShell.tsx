@@ -220,7 +220,7 @@ export const WikiShell: React.FC<WikiShellProps> = ({
           <>
             {!listeGorunumu && (
               <header className="mb-7">
-                <h1 className="font-serif text-4xl mb-1.5">Düzada</h1>
+                <h1 className="font-sans text-4xl mb-1.5 tracking-tight">Düzada</h1>
                 <p className="text-[15px] text-gri dark:text-bej/85 max-w-xl leading-relaxed">
                   Ege Denizi'nde, zeytin ağaçlarıyla çevrili bir ada. {health.total} madde.
                 </p>

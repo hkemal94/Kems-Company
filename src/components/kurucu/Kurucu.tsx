@@ -486,7 +486,7 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className }: KurucuProps
       {/* Harita alanı */}
       <div
         ref={kutu}
-        className={`relative flex-1 min-h-[60vh] lg:min-h-0 rounded-lg overflow-hidden border border-[#B9C7BD] bg-[#C9DCE0] touch-none select-none ${
+        className={`relative flex-1 min-h-[60vh] lg:min-h-0 rounded-lg overflow-hidden border border-[#CFC5B4] bg-[#C9DCE0] touch-none select-none ${
           arac === 'ciz' || arac === 'bina' || arac === 'sablon' || arac === 'sil' ? 'cursor-crosshair' : arac === 'gez' ? 'cursor-grab' : 'cursor-pointer'}`}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
