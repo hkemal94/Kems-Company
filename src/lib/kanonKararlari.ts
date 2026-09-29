@@ -44,11 +44,20 @@ const KUNYE: Record<string, Alanlar> = {
   viki_yer_ciftlik: [
     ['Küçükçetmi Çiftliği', "Eskibey Ailesi; Küçükkuyu'dan gelmiş (20. yy başı); çiftlik evi kulüp evi; mahallenin iç tarafında, tepeye yakın"],
     ['Kooperatif', 'Kemsköy Ziraat İşletmeleri Kurumu; Yağ Fabrikası'],
-    ['Yağ Fabrikası', 'Kooperatifin zeytinyağı fabrikası; kuruluş 1950–1970 arası']
+    ['Yağ Fabrikası', 'Kooperatifin modern, küçük zeytinyağı fabrikası; kuruluş 1950–1970 arası']
   ],
   viki_mekan_liman_kafe: [
     ['Sahibi', "Eylül Hanım (Sade Meze'nin de sahibi)"]
   ]
+};
+
+/**
+ * Başka bir satıra katılan eski künye satırları (Kemal, 29 Eylül gece):
+ * Çiftlik'te fabrika iki kez anılıyordu — eski "Zeytinyağı" satırı
+ * ("modern, küçük" bilgisiyle) "Yağ Fabrikası" satırında birleşir.
+ */
+const KATILAN: Record<string, Array<[string, string]>> = {
+  viki_yer_ciftlik: [['Zeytinyağı', 'Yağ Fabrikası']]
 };
 
 /** Kurumlar adla bulunur */
@@ -169,6 +178,13 @@ export function kanonKararlari(items: Item[]): KanonDegisikligi[] {
     const alanlar: Alanlar = [...(KUNYE[item.id] || [])];
     if ((item.type === 'kulüp' || item.type === 'marka') && kurumMu(item)) {
       for (const [ad, a] of KURUM_KUNYE) if (ad.test(item.title)) alanlar.push(...a);
+    }
+    for (const [eski, hedef] of KATILAN[item.id] || []) {
+      const satirlar = notes.split('\n');
+      const i = satirlar.findIndex(x => x.trim().startsWith(satirAnahtari(eski)));
+      if (i < 0) continue;
+      neler.push(`künye · "${eski}" satırı "${hedef}" satırına katılır (silinen: "${satirlar[i].trim()}")`);
+      notes = satirlar.filter((_, n) => n !== i).join('\n');
     }
     if (alanlar.length) {
       const yazildi = kunyeYaz(notes, alanlar);

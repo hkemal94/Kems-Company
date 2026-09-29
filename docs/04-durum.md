@@ -669,6 +669,14 @@ panosu). Kod: `src/lib/sosyal.ts`, `src/components/sosyal/`,
 `src/components/galeri/PinterestPanolari.tsx`. Görseller:
 `docs/gorseller/s-*.png` (önizleme, **örnek veri**).
 
+## 29 Eylül gece — K: Çiftlik künyesinde fabrika tek satır
+
+Çiftlik künyesinde fabrika iki satırda anılıyordu (eski "Zeytinyağı" +
+kanon kartının eklediği "Yağ Fabrikası"). Kanon kartı bir kez daha
+görünür; "Vikiye işle" deyince "Zeytinyağı" satırı silinir, "Yağ
+Fabrikası" satırı "Kooperatifin modern, küçük zeytinyağı fabrikası;
+kuruluş 1950–1970 arası" olur. Önce yedek iner; ikinci basışta iş kalmaz.
+
 ## Sıradaki
 
 - Oyunun tasarım belgesinin doldurulması (13 başlık)
