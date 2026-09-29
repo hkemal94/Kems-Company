@@ -252,6 +252,17 @@ kuralı değişmedi); harita düzenleyicisi kaydederken taslağı korur.
 işle". Gerçek veride ve AI Studio önizlemesinde denenmedi; yalnız yerel
 önizlemede (sahte veri) denendi.
 
+**Kurucu 2. adım (29 Eylül):** Kemal "Haritaya işle"yi bulamadı (henüz
+yoktu) ve "mahalle çizimleri"ni istedi → hazır mahalle şablonları. Sıra
+kararı: önce şablonlar, sonra Haritaya işle. Eklenenler: **Bina** aracı
+(müstakil ev, dükkânlı ev, yazlık, taş çiftlik evi, kamu, depo, meydan,
+çeşme, büyük ağaç; yola yakınsa yola dönük oturur), **Şablon** aracı (Ege
+liman kasabası, köy meydanı, dağınık çiftlik, stat çevresi, tepe köyü,
+sahil yazlıkları; yön ve boyut ayarlı, tek adımda geri alınır), Seç → yol →
+**Kenarını doldur**. Denize, mevcut binaya ve yolun üstüne yapı konmaz.
+Binalar taslakta (`kurucu.yeniBinalar`); harita yine değişmez. Sıradaki:
+**Kurucu 3 — Haritaya işle**.
+
 **Kanon KKM'nin başka alanlarında:** Merch'te drop açılınca bağlı kurumun
 kanon bilgisi; Kitap'ta geçen yer/kişi adlarının vikiye bağlanması ve
 tarihle çelişki uyarısı (ör. 1970'lerde feribot Liman'da olamaz); Blog'da

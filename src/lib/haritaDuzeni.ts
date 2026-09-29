@@ -133,7 +133,15 @@ const kurucuyuTemizle = (k: KurucuBelge): KurucuBelge => ({
   turDegisikligi: Object.fromEntries(
     Object.entries(k.turDegisikligi ?? {}).filter(([, t]) => typeof t === 'string')
   ),
-  gizlenen: (k.gizlenen ?? []).filter(x => typeof x === 'string')
+  gizlenen: (k.gizlenen ?? []).filter(x => typeof x === 'string'),
+  yeniBinalar: Object.fromEntries(
+    Object.entries(k.yeniBinalar ?? {})
+      .filter(([, b]) => b && typeof b.tur === 'string'
+        && [b.x, b.y, b.en, b.boy, b.aci].every(v => Number.isFinite(Number(v))))
+      .map(([id, b]) => [id, {
+        tur: b.tur, x: Number(b.x), y: Number(b.y), en: Number(b.en), boy: Number(b.boy), aci: Number(b.aci)
+      }])
+  )
 });
 
 const belgeden = (b: unknown): HaritaDuzeni | null => {
