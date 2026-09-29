@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { ShoppingBag, Sparkles, FolderDot, Bookmark, ChevronRight, ChevronLeft, ChevronDown, ChevronUp, RotateCcw, Palette, Image, Plus, Layers, Check, Trash2, Archive, Edit3 } from 'lucide-react';
 import { Item, ItemType, AreaType } from '../types';
+import { hazirFotosuz, merchYedekGorseli } from '../lib/gorselSecimi';
 import { compressImageBase64 } from '../lib/imageCompressor';
 import ConsistencyChecker from './ConsistencyChecker';
 import { DropKunyesi } from './DropKunyesi';
@@ -28,7 +29,7 @@ interface MerchProps {
 }
 
 export default function Merch({
-  items,
+  items: hamItems,
   activeItemId,
   onSelectItem,
   onUpdateItem,
@@ -36,6 +37,10 @@ export default function Merch({
   onAddItem,
   onSelectArea
 }: MerchProps) {
+  // Hazır internet fotoğrafları gösterilmez (29 Eylül); görseli olmayan
+  // drop/ürüne kurumun arması konur (merchYedekGorseli).
+  const items = useMemo(() => hamItems.map(hazirFotosuz), [hamItems]);
+  const kapak = (i: Item) => (i.images && i.images[0]) || merchYedekGorseli(i, items);
   const [activeTab, setActiveTab] = useState<'home' | 'droplar' | 'urunler' | 'arsiv'>('home');
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [archiveConfirmId, setArchiveConfirmId] = useState<string | null>(null);
@@ -423,10 +428,10 @@ export default function Merch({
       tags: ['merch', showCreateForm],
       links: selectedParentId ? [selectedParentId] : [],
       notes: newNotes,
-      images: showCreateForm === 'drop' 
-        ? ["https://images.unsplash.com/photo-1521572267360-ee0c2909d518?q=80&w=512&auto=format&fit=crop"] 
+      images: showCreateForm === 'drop'
+        ? [] 
         : showCreateForm === 'merch_urun'
-        ? ["https://images.unsplash.com/photo-1521572267360-ee0c2909d518?q=80&w=256&auto=format&fit=crop"]
+        ? []
         : [],
       isProposal: false,
       archived: false,
@@ -543,7 +548,7 @@ export default function Merch({
       tags: ['merch', 'merch_urun', 'ai-öneri'],
       links: [targetDropId],
       notes: `${rec.description}\n\nSlogan: ${rec.slogan}\nÖnerilen Fiyat: ${rec.price}`,
-      images: ["https://images.unsplash.com/photo-1521572267360-ee0c2909d518?q=80&w=256&auto=format&fit=crop"],
+      images: [],
       isProposal: true, // Mark as an AI proposal so it gets approval controls
       archived: false,
       metadata: {
@@ -732,9 +737,9 @@ export default function Merch({
                     className="group bg-[#F6F1E7] dark:bg-[#13204A] border border-[#CFC5B4] rounded-xl overflow-hidden cursor-pointer hover:scale-[1.01] transition-all archive-shadow"
                   >
                     <div className="h-40 bg-gradient-to-r from-[#F26B6F] to-[#B23A40] relative flex items-end p-4">
-                      {drop.images && drop.images[0] && (
+                      {kapak(drop) && (
                         <img 
-                          src={drop.images[0]} 
+                          src={kapak(drop)} 
                           alt={drop.title} 
                           className="absolute inset-0 w-full h-full object-cover mix-blend-multiply opacity-55"
                         />
@@ -1080,8 +1085,8 @@ export default function Merch({
                           className="group bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] rounded-xl overflow-hidden cursor-pointer hover:border-[#F26B6F] transition-all archive-shadow p-3.5 space-y-3"
                         >
                           <div className="h-32 bg-stone-100 rounded-lg overflow-hidden relative">
-                            {p.images && p.images[0] ? (
-                              <img src={p.images[0]} alt={p.title} className="w-full h-full object-cover" />
+                            {kapak(p) ? (
+                              <img src={kapak(p)} alt={p.title} className="w-full h-full object-contain p-2" />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center bg-stone-200">
                                 <ShoppingBag className="w-8 h-8 text-stone-500 dark:text-stone-400" />
@@ -1166,8 +1171,8 @@ export default function Merch({
                         className="group bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] rounded-xl overflow-hidden cursor-pointer hover:border-[#F26B6F] transition-all archive-shadow p-3.5 space-y-3"
                       >
                         <div className="h-32 bg-stone-100 rounded-lg overflow-hidden relative">
-                          {p.images && p.images[0] ? (
-                            <img src={p.images[0]} alt={p.title} className="w-full h-full object-cover" />
+                          {kapak(p) ? (
+                            <img src={kapak(p)} alt={p.title} className="w-full h-full object-contain p-2" />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center bg-stone-200">
                               <ShoppingBag className="w-8 h-8 text-stone-500 dark:text-stone-400" />
@@ -1314,10 +1319,18 @@ export default function Merch({
                         )}
                       </>
                     ) : (
+                      kapak(activeItem) ? (
+                        // Görsel yok: kurumun arması (Canva) — hazır fotoğraf değil
+                        <div className="w-full h-full flex flex-col items-center justify-center gap-3 p-10 bg-[#F3EFE8]">
+                          <img src={kapak(activeItem)} alt="" className="max-h-[70%] object-contain" />
+                          <p className="text-[11px] text-stone-500 font-mono">Bu drop'un kendi görseli yok · kurum arması gösteriliyor</p>
+                        </div>
+                      ) : (
                       <div className="text-center p-8 space-y-3">
                         <Image className="w-16 h-16 mx-auto text-stone-300" />
                         <p className="text-sm text-stone-500 dark:text-stone-400 font-mono">Bu koleksiyon için henüz görsel bulunmuyor.</p>
                       </div>
+                      )
                     )}
                   </div>
 
@@ -1517,9 +1530,9 @@ export default function Merch({
           
           {/* Cover style panel */}
           <div className="h-44 bg-gradient-to-r from-[#F26B6F] to-[#B23A40] relative flex items-end p-6">
-            {activeItem.images && activeItem.images[0] && (
+            {kapak(activeItem) && (
               <img 
-                src={activeItem.images[0]} 
+                src={kapak(activeItem)} 
                 alt={activeItem.title} 
                 className="absolute inset-0 w-full h-full object-cover mix-blend-multiply opacity-50"
               />

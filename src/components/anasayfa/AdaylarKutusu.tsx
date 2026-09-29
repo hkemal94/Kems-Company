@@ -14,8 +14,8 @@ import { DUGME_BOS, DUGME_LAC, ETIKET, IKINCIL, KART, YAZI, neZaman } from './st
  *   - Eski öneriler: eski yapay zekâ ve otel simülasyonundan kalan, "öneri"
  *     işaretli kayıtlar. Kemal (29 Eylül): "Adayların listesi berbat
  *     derece uzun ve kullanışsız" — 76 kişilik liste. Artık tek satırlık
- *     bir özet; istenirse açılır ya da hepsi birden arşive kalkar.
- * "Vazgeç" ve "arşive kaldır" hiçbir şeyi silmez; arşivden geri gelir.
+ *     bir özet; istenirse açılır. Hepsi Neyin Eksik'teki Temizlik kartıyla
+ *     silinir (29 Eylül, kural değişti: arşiv yok, silme var).
  */
 
 const ILK_GORUNEN = 4;
@@ -25,17 +25,18 @@ interface Props {
   onUpdateItem: (item: Item) => Promise<void>;
   onAcceptProposal: (id: string) => Promise<void>;
   onMaddeyiAc: (item: Item) => void;
+  /** Neyin Eksik'teki Temizlik kartına götürür (eski öneriler orada silinir) */
+  onTemizlik?: () => void;
 }
 
 const tarih = (ms: number) => new Date(ms).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' });
 
-export const AdaylarKutusu: React.FC<Props> = ({ items, onUpdateItem, onAcceptProposal, onMaddeyiAc }) => {
+export const AdaylarKutusu: React.FC<Props> = ({ items, onUpdateItem, onAcceptProposal, onMaddeyiAc, onTemizlik }) => {
   const adaylar = useMemo(() => bekleyenAdaylar(items), [items]);
   const oneriler = useMemo(() => eskiOneriler(items), [items]);
   const [acik, setAcik] = useState<string | null>(null);
   const [hepsi, setHepsi] = useState(false);
   const [eskiAcik, setEskiAcik] = useState(false);
-  const [toplu, setToplu] = useState<'yok' | 'onay' | 'calisiyor'>('yok');
   const [duzenleme, setDuzenleme] = useState<Record<string, string>>({});
   const [calisan, setCalisan] = useState<string | null>(null);
   const [rapor, setRapor] = useState<string | null>(null);
@@ -82,23 +83,6 @@ export const AdaylarKutusu: React.FC<Props> = ({ items, onUpdateItem, onAcceptPr
         : { ...a, archived: true, updatedAt: Date.now() });
       setAcik(null);
     } finally { setCalisan(null); }
-  };
-
-  const eskileriArsivle = async () => {
-    setToplu('calisiyor');
-    let n = 0;
-    try {
-      for (const o of oneriler) {
-        await onUpdateItem({ ...o, archived: true, updatedAt: Date.now() });
-        n++;
-      }
-      setRapor(`${n} eski öneri arşive kalktı. Silinmedi — arşivden geri gelir.`);
-    } catch (e) {
-      setRapor(`${n} kayıt arşive kalktı, sonra hata: ${e instanceof Error ? e.message : 'bilinmeyen'}. Kalanlar için tekrar bas.`);
-    } finally {
-      setToplu('yok');
-      setEskiAcik(false);
-    }
   };
 
   const satir = (a: Item, tur: string, altYazi: React.ReactNode, eylemler: React.ReactNode) => {
@@ -179,20 +163,12 @@ export const AdaylarKutusu: React.FC<Props> = ({ items, onUpdateItem, onAcceptPr
               </span>
             </span>
           </div>
-          {toplu === 'onay' ? (
-            <div className="mt-2 flex flex-wrap items-center gap-2">
-              <span className="text-[11px] font-semibold text-[#D6484C] dark:text-[#F26B6F]">{oneriler.length} kayıt arşive kalksın mı? Silinmez.</span>
-              <button type="button" onClick={() => setToplu('yok')} className={DUGME_BOS}>Vazgeç</button>
-              <button type="button" onClick={eskileriArsivle} className="px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-[#F26B6F] text-white hover:opacity-90 cursor-pointer">Evet, arşive kaldır</button>
-            </div>
-          ) : (
-            <div className="mt-2 flex flex-wrap gap-2">
-              <button type="button" onClick={() => setEskiAcik(a => !a)} className={DUGME_BOS}>{eskiAcik ? 'Listeyi kapat' : 'Listeyi aç'}</button>
-              <button type="button" disabled={toplu === 'calisiyor'} onClick={() => setToplu('onay')} className={DUGME_BOS}>
-                {toplu === 'calisiyor' ? 'Arşive kalkıyor…' : 'Hepsini arşive kaldır'}
-              </button>
-            </div>
-          )}
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <button type="button" onClick={() => setEskiAcik(a => !a)} className={DUGME_BOS}>{eskiAcik ? 'Listeyi kapat' : 'Listeyi aç'}</button>
+            {onTemizlik && (
+              <button type="button" onClick={onTemizlik} className={DUGME_BOS}>Hepsini sil · Temizlik kartı</button>
+            )}
+          </div>
           {eskiAcik && (
             <ul className="mt-2 max-h-72 overflow-y-auto pr-1">
               {oneriler.map(o => satir(o, (TYPE_LABELS[o.type] || o.type).toLocaleUpperCase('tr'),
@@ -200,7 +176,7 @@ export const AdaylarKutusu: React.FC<Props> = ({ items, onUpdateItem, onAcceptPr
                 <>
                   <button type="button" disabled={calisan === o.id} onClick={() => onAcceptProposal(o.id)} className={DUGME_LAC}>Kabul et</button>
                   <button type="button" onClick={() => onMaddeyiAc(o)} className={DUGME_BOS}>Aç</button>
-                  <button type="button" disabled={calisan === o.id} onClick={() => vazgec(o)} className={DUGME_BOS}>Arşive kaldır</button>
+                  <button type="button" disabled={calisan === o.id} onClick={() => vazgec(o)} className={DUGME_BOS}>Vazgeç</button>
                 </>
               ))}
             </ul>

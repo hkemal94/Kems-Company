@@ -74,8 +74,7 @@ export const Anasayfa: React.FC<Props> = ({
     const bas = kaydirma % kalan.length;
     return [...kalan.slice(bas), ...kalan.slice(0, bas)].slice(0, 3);
   }, [sorular, kaydirma]);
-  const adaySayisi = items.filter(i => i.type === 'aday' && !i.archived).length
-    + items.filter(i => i.isProposal && !i.archived && i.type !== 'aday').length;
+  const adaySayisi = items.filter(i => i.type === 'aday' && !i.archived).length;
 
   const cevapla = (gunun: boolean) => async (b: NonNullable<typeof gununSorusu>, cevap: string, secenektenMi: boolean) => {
     await onAddItem(adayKaydi(b, cevap, secenektenMi));
@@ -203,7 +202,7 @@ export const Anasayfa: React.FC<Props> = ({
           </section>
 
           <div className={gorunur('bugun')}>
-            <AdaylarKutusu items={items} onUpdateItem={onUpdateItem} onAcceptProposal={onAcceptProposal} onMaddeyiAc={onMaddeyiAc} />
+            <AdaylarKutusu items={items} onUpdateItem={onUpdateItem} onAcceptProposal={onAcceptProposal} onMaddeyiAc={onMaddeyiAc} onTemizlik={() => onGit('eksikler')} />
           </div>
         </div>
       </div>

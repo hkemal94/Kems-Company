@@ -5,17 +5,15 @@ import { DUZADA_GEO } from '../data/duzadaGeo';
 import { isStub, getKunyeFields, getArticleBody } from './wiki/wikiSchema';
 import { getRol } from './wiki/kunyeParser';
 import { isEntityUnlinked } from '../utils/relations';
-import { oTemizligi } from '../lib/yaziTemizligi';
-import { temaDurumu, temaKaldirmaYazilari } from '../lib/temaKaldirma';
-import { markaYapisi, markaGocu, markaGocuYazilari } from '../lib/markaYapisi';
-import { otelTemizligi } from '../lib/otelTemizligi';
-import { vikiSifirlama, vikiSifirlamaYazilari } from '../lib/vikiSifirlama';
 import { soruCevapAktarimi } from '../lib/soruCevapAktarimi';
 import { w3Aktarimi } from '../lib/w3Aktarimi';
 import { w4Aktarimi } from '../lib/w4Aktarimi';
 import { w5Aktarimi, w5GorselAdresi, W5_ETIKETI } from '../lib/w5Aktarimi';
 import { eskiYaziTemizligi } from '../lib/eskiYaziTemizligi';
 import { useHaritaDuzeni } from '../lib/haritaDuzeni';
+import { markaYapisi } from '../lib/markaYapisi';
+import { TemizlikKarti } from './TemizlikKarti';
+import { GaleriYedegiKarti } from './GaleriYedegiKarti';
 
 /**
  * "Neyin eksik" paneli (A1).
@@ -281,145 +279,17 @@ interface EksiklerProps {
   onAddItem?: (item: Omit<Item, 'id' | 'createdAt' | 'updatedAt' | 'userId'>) => Promise<void>;
   /** Ana sayfadan bir satıra basılınca o başlık açık gelir (Paket 4) */
   baslangicAcik?: string | null;
+  /** Temizlik kartı: kaydı gerçekten siler (29 Eylül) */
+  onDeleteItem?: (id: string) => Promise<void>;
 }
 
 export const Eksikler: React.FC<EksiklerProps> = ({
-  items, onSelectArea, onUpdateItem, onAddItem, baslangicAcik = null
+  items, onSelectArea, onUpdateItem, onAddItem, baslangicAcik = null, onDeleteItem
 }) => {
   const eksikler = useMemo(() => eksikleriCikar(items), [items]);
   /** Listesi açık olan eksik başlığı */
   const [acikEksik, setAcikEksik] = useState<string | null>(baslangicAcik);
   React.useEffect(() => { if (baslangicAcik) setAcikEksik(baslangicAcik); }, [baslangicAcik]);
-
-  /**
-   * Norveç ø'sü. Veriye bir kere girmiş ve her yere yayılmış; tek tek
-   * düzeltmek mümkün değil. Burası onu sayıyor ve tek düğmeye bağlıyor.
-   */
-  const temizlik = useMemo(() => oTemizligi(items), [items]);
-  const [temizleniyor, setTemizleniyor] = useState(false);
-  const [temizlikRaporu, setTemizlikRaporu] = useState<string | null>(null);
-
-  /**
-   * Tema katmanının kaldırılması — tek seferlik göç. Eski tema kayıtları
-   * arşive kalkar, markaları altlarındaki droplara geçer. Silme yok.
-   */
-  const tema = useMemo(() => temaDurumu(items), [items]);
-  const [temaGocu, setTemaGocu] = useState(false);
-  const [temaRaporu, setTemaRaporu] = useState<string | null>(null);
-
-  const temayiKaldir = async () => {
-    if (!onUpdateItem || temaGocu) return;
-    setTemaGocu(true);
-    try {
-      const yazilacak = temaKaldirmaYazilari(items);
-      let n = 0;
-      for (const kayit of yazilacak) { await onUpdateItem(kayit); n++; }
-      setTemaRaporu(
-        `${tema.temalar.length} tema arşivlendi, ${tema.droplar.length} drop `
-        + `doğrudan markaya bağlandı (${n} kayıt yazıldı).`
-      );
-    } catch (e) {
-      setTemaRaporu(`Hata: ${e instanceof Error ? e.message : 'bilinmeyen'}`);
-    } finally {
-      setTemaGocu(false);
-    }
-  };
-
-  /**
-   * Marka yapısı · Adım 2 — kulüpler kurum olur, dropları kurumuna bağlanır.
-   * Tek seferlik. Kimlik, künye, arma, palet değişmez; hiçbir şey silinmez.
-   */
-  const marka = useMemo(() => markaGocu(items), [items]);
-  const [markaIsi, setMarkaIsi] = useState(false);
-  const [markaRaporu, setMarkaRaporu] = useState<string | null>(null);
-
-  const markayiGocur = async () => {
-    if (!onUpdateItem || markaIsi) return;
-    setMarkaIsi(true);
-    try {
-      const yazilacak = markaGocuYazilari(items);
-      let n = 0;
-      for (const kayit of yazilacak) { await onUpdateItem(kayit); n++; }
-      setMarkaRaporu(
-        `${marka.tipiDegisecek.length} kulüp kurum oldu, `
-        + `${marka.baglanacakDrop.length} drop kurumuna bağlandı (${n} kayıt yazıldı). `
-        + `Satan hepsinde Kems Company.`
-      );
-    } catch (e) {
-      setMarkaRaporu(`Hata: ${e instanceof Error ? e.message : 'bilinmeyen'}`);
-    } finally {
-      setMarkaIsi(false);
-    }
-  };
-
-  /**
-   * Otel maddesi temizliği — "Ekim 2008'e taşı" düğmesine basıldıysa veride
-   * kalan izi geri alır. Basılmadıysa kart hiç görünmez.
-   */
-  const otel = useMemo(() => otelTemizligi(items), [items]);
-  const [otelIsi, setOtelIsi] = useState(false);
-  const [otelRaporu, setOtelRaporu] = useState<string | null>(null);
-
-  const oteliTemizle = async () => {
-    if (!onUpdateItem || otelIsi) return;
-    setOtelIsi(true);
-    try {
-      let n = 0;
-      for (const kayit of otel.degisenler) { await onUpdateItem(kayit); n++; }
-      setOtelRaporu(
-        `${otel.bolumSayisi} oyun bölümü vikiden arşive taşındı, `
-        + `${otel.tarihSayisi} kayıtta "Ekim 2008" geri alındı (${n} kayıt yazıldı).`
-      );
-    } catch (e) {
-      setOtelRaporu(`Hata: ${e instanceof Error ? e.message : 'bilinmeyen'}`);
-    } finally {
-      setOtelIsi(false);
-    }
-  };
-
-  const temizle = async () => {
-    if (!onUpdateItem || temizleniyor) return;
-    setTemizleniyor(true);
-    try {
-      let n = 0;
-      for (const kayit of temizlik.degisenler) { await onUpdateItem(kayit); n++; }
-      setTemizlikRaporu(`${n} kayıt düzeltildi.`);
-    } catch (e) {
-      setTemizlikRaporu(`Hata: ${e instanceof Error ? e.message : 'bilinmeyen'}`);
-    } finally {
-      setTemizleniyor(false);
-    }
-  };
-
-  /**
-   * Vikinin baştan kurulması (W1) — kişiler, odalar, mekânlar arşive kalkar.
-   * Ada kaydı, marka/kurumlar ve harita verisi yerinde kalır. Silme yok.
-   */
-  const viki = useMemo(() => vikiSifirlama(items), [items]);
-  const [vikiIsi, setVikiIsi] = useState(false);
-  const [vikiRaporu, setVikiRaporu] = useState<string | null>(null);
-  // Onay kartın içinde sorulur. window.confirm AI Studio önizlemesinde
-  // (çerçeve içinde) engelleniyor, sessizce "hayır" dönüyordu.
-  const [vikiOnay, setVikiOnay] = useState(false);
-
-  const vikiyiArsivle = async () => {
-    if (!onUpdateItem || vikiIsi) return;
-    setVikiOnay(false);
-    setVikiIsi(true);
-    let n = 0;
-    try {
-      for (const kayit of vikiSifirlamaYazilari(items)) { await onUpdateItem(kayit); n++; }
-      setVikiRaporu(`${n} kayıt arşive kalktı. Viki soru-cevaba hazır.`);
-    } catch (e) {
-      // Yarıda kaldıysa kart kalan kayıtlarla yeniden görünür; tekrar basılabilir
-      setVikiRaporu(
-        `${n} kayıt arşive kalktı, sonra hata: `
-        + `${e instanceof Error ? e.message : 'bilinmeyen'}. Kalanlar için tekrar bas.`
-      );
-    } finally {
-      setVikiIsi(false);
-    }
-  };
 
   /**
    * Soru-cevapların vikiye aktarılması (W2) — mahalleler, mekânlar, otel,
@@ -656,28 +526,6 @@ export const Eksikler: React.FC<EksiklerProps> = ({
     }
   };
 
-  /** İçi boş proje kayıtları — tek düğmeyle arşive */
-  const bosProje = useMemo(() => bosProjeler(items), [items]);
-  const [projeIsi, setProjeIsi] = useState(false);
-  const [projeRaporu, setProjeRaporu] = useState<string | null>(null);
-
-  const bosProjeleriArsivle = async () => {
-    if (!onUpdateItem || projeIsi) return;
-    setProjeIsi(true);
-    try {
-      let n = 0;
-      for (const p of bosProje) {
-        await onUpdateItem({ ...p, archived: true, updatedAt: Date.now() });
-        n++;
-      }
-      setProjeRaporu(`${n} boş proje arşivlendi. Silinmedi — arşivden geri gelir.`);
-    } catch (e) {
-      setProjeRaporu(`Hata: ${e instanceof Error ? e.message : 'bilinmeyen'}`);
-    } finally {
-      setProjeIsi(false);
-    }
-  };
-
   // Veri henüz yüklenmediyse panel açılmasın: boş listeyi "her şey tamam"
   // diye göstermek yanlış olur.
   // Bu satır bütün useMemo/useState'lerin ALTINDA olmalı: üstte dururken veri
@@ -691,61 +539,11 @@ export const Eksikler: React.FC<EksiklerProps> = ({
         Neyin Eksik
       </h2>
 
-      {/* Vikinin baştan kurulması (W1) — tek seferlik */}
-      {onUpdateItem && viki.arsivlenecek.length > 0 && (
-        <div className="mb-2.5 flex items-start gap-3 px-4 py-3 rounded-xl border border-[#F26B6F]/40 bg-[#FAF8F5] dark:bg-[#13204A]">
-          <span className="font-mono text-lg font-bold text-[#F26B6F] leading-none mt-0.5 shrink-0 tabular-nums">
-            {viki.arsivlenecek.length}
-          </span>
-          <span className="min-w-0 flex-1">
-            <span className="block text-[13px] font-semibold text-[#0E1C4F] dark:text-[#F3EFE8]">
-              viki baştan kuruluyor: kayıtlar arşive kalkacak
-            </span>
-            <span className="block mt-0.5 text-[11px] text-[#6A5E4C] dark:text-[#95A1C2] leading-snug">
-              {viki.dagilim.map(d => `${d.sayi} ${d.tur}`).join(' · ')}.
-              Ada kaydı, Kems Company, kurumlar ve harita yerinde kalır.
-              Hiçbir şey silinmez; arşivden geri gelir.
-            </span>
-          </span>
-          {vikiOnay ? (
-            <span className="shrink-0 flex flex-col items-end gap-1.5">
-              <span className="text-[11px] font-semibold text-[#F26B6F]">
-                {viki.arsivlenecek.length} kayıt arşive kalksın mı?
-              </span>
-              <span className="flex gap-1.5">
-                <button
-                  type="button"
-                  onClick={() => setVikiOnay(false)}
-                  className="px-3 py-1.5 text-[11px] font-mono rounded-lg border border-[#CFC5B4] dark:border-[#2C3C72] text-[#6A5E4C] dark:text-[#A6B0C9] hover:border-[#0E1C4F] cursor-pointer"
-                >
-                  Vazgeç
-                </button>
-                <button
-                  type="button"
-                  onClick={vikiyiArsivle}
-                  className="px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#F26B6F] text-[#F3EFE8] hover:opacity-90 cursor-pointer"
-                >
-                  Evet, kaldır
-                </button>
-              </span>
-            </span>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setVikiOnay(true)}
-              disabled={vikiIsi}
-              className="shrink-0 px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#0E1C4F] dark:bg-[#2C3C72] text-[#F3EFE8] hover:opacity-90 disabled:opacity-40 cursor-pointer"
-            >
-              {vikiIsi ? 'Arşivleniyor…' : 'Arşive kaldır'}
-            </button>
-          )}
-        </div>
-      )}
-      {vikiRaporu && (
-        <p className="mb-2.5 px-4 py-2 rounded-lg bg-[#F3EFE8] dark:bg-[#17345A] text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9]">
-          {vikiRaporu}
-        </p>
-      )}
+      {/* Temizlik (29 Eylül): kullanılmayan kayıtlar silinir, önce yedek */}
+      {onDeleteItem && <TemizlikKarti items={items} onDeleteItem={onDeleteItem} />}
+
+      {/* Galeri (29 Eylül): kullanılan görseller galeriye */}
+      {onAddItem && <GaleriYedegiKarti items={items} onAddItem={onAddItem} />}
 
       {/* W3 soru-cevapları vikiye — tek seferlik */}
       {onUpdateItem && w3.guncellenenler.length > 0 && (
@@ -1050,167 +848,6 @@ export const Eksikler: React.FC<EksiklerProps> = ({
       {aktarimRaporu && (
         <p className="mb-2.5 px-4 py-2 rounded-lg bg-[#F3EFE8] dark:bg-[#17345A] text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9]">
           {aktarimRaporu}
-        </p>
-      )}
-
-      {/* ø temizliği — normal bir "eksik" değil, tek seferlik bir düzeltme */}
-      {onUpdateItem && temizlik.degisenler.length > 0 && (
-        <div className="mb-2.5 flex items-start gap-3 px-4 py-3 rounded-xl border border-[#F26B6F]/40 bg-[#FAF8F5] dark:bg-[#13204A]">
-          <span className="font-mono text-lg font-bold text-[#F26B6F] leading-none mt-0.5 shrink-0 tabular-nums">
-            {temizlik.harf}
-          </span>
-          <span className="min-w-0 flex-1">
-            <span className="block text-[13px] font-semibold text-[#0E1C4F] dark:text-[#F3EFE8]">
-              yerde Norveç ø'sü var
-            </span>
-            <span className="block mt-0.5 text-[11px] text-[#6A5E4C] dark:text-[#95A1C2] leading-snug">
-              {temizlik.degisenler.length} kayıtta geçiyor — "Kemskøy" gibi.
-              Kimliklere ve görsellere dokunulmaz, yalnız ø → ö.
-            </span>
-          </span>
-          <button
-            type="button"
-            onClick={temizle}
-            disabled={temizleniyor}
-            className="shrink-0 px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#0E1C4F] dark:bg-[#2C3C72] text-[#F3EFE8] hover:opacity-90 disabled:opacity-40 cursor-pointer"
-          >
-            {temizleniyor ? 'Düzeltiliyor…' : 'Düzelt'}
-          </button>
-        </div>
-      )}
-      {/* Marka yapısı · Adım 2 — tek seferlik göç */}
-      {onUpdateItem && (marka.tipiDegisecek.length > 0 || marka.baglanacakDrop.length > 0) && (
-        <div className="mb-2.5 flex items-start gap-3 px-4 py-3 rounded-xl border border-[#F26B6F]/40 bg-[#FAF8F5] dark:bg-[#13204A]">
-          <span className="font-mono text-lg font-bold text-[#F26B6F] leading-none mt-0.5 shrink-0 tabular-nums">
-            {marka.tipiDegisecek.length + marka.baglanacakDrop.length}
-          </span>
-          <span className="min-w-0 flex-1">
-            <span className="block text-[13px] font-semibold text-[#0E1C4F] dark:text-[#F3EFE8]">
-              kulüp hâlâ marka olarak kayıtlı
-            </span>
-            <span className="block mt-0.5 text-[11px] text-[#6A5E4C] dark:text-[#95A1C2] leading-snug">
-              {marka.tipiDegisecek.map(k => k.title).join(', ') || 'Kurumlar'} kurum olur
-              {marka.baglanacakDrop.length > 0
-                ? `; ${marka.baglanacakDrop.length} drop kendi kurumuna bağlanır, satan Kems Company kalır.`
-                : '.'} Arma, palet ve künye olduğu gibi kalır. Hiçbir şey silinmez.
-            </span>
-          </span>
-          <button
-            type="button"
-            onClick={markayiGocur}
-            disabled={markaIsi}
-            className="shrink-0 px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#0E1C4F] dark:bg-[#2C3C72] text-[#F3EFE8] hover:opacity-90 disabled:opacity-40 cursor-pointer"
-          >
-            {markaIsi ? 'Taşınıyor…' : 'Kuruma çevir'}
-          </button>
-        </div>
-      )}
-      {markaRaporu && (
-        <p className="mb-2.5 px-4 py-2 rounded-lg bg-[#F3EFE8] dark:bg-[#17345A] text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9]">
-          {markaRaporu}
-        </p>
-      )}
-
-      {/* Otel maddesi temizliği — 2008 düğmesinin izi */}
-      {onUpdateItem && otel.degisenler.length > 0 && (
-        <div className="mb-2.5 flex items-start gap-3 px-4 py-3 rounded-xl border border-[#F26B6F]/40 bg-[#FAF8F5] dark:bg-[#13204A]">
-          <span className="font-mono text-lg font-bold text-[#F26B6F] leading-none mt-0.5 shrink-0 tabular-nums">
-            {otel.degisenler.length}
-          </span>
-          <span className="min-w-0 flex-1">
-            <span className="block text-[13px] font-semibold text-[#0E1C4F] dark:text-[#F3EFE8]">
-              kayıtta oyun verisi vikiye karışmış
-            </span>
-            <span className="block mt-0.5 text-[11px] text-[#6A5E4C] dark:text-[#95A1C2] leading-snug">
-              "Ekim 2008'e taşı" düğmesinden kalan iz.
-              {otel.bolumSayisi > 0 ? ` Otel maddesindeki ${otel.bolumSayisi} "Oyun:" bölümü vikiden çıkıp kaydın arşivine taşınır.` : ''}
-              {otel.tarihSayisi > 0 ? ` ${otel.tarihSayisi} kayıtta "Ekim 2008" eski hâline döner.` : ''}
-              {' '}Silme yok.
-            </span>
-          </span>
-          <button
-            type="button"
-            onClick={oteliTemizle}
-            disabled={otelIsi}
-            className="shrink-0 px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#0E1C4F] dark:bg-[#2C3C72] text-[#F3EFE8] hover:opacity-90 disabled:opacity-40 cursor-pointer"
-          >
-            {otelIsi ? 'Temizleniyor…' : 'Temizle'}
-          </button>
-        </div>
-      )}
-      {otelRaporu && (
-        <p className="mb-2.5 px-4 py-2 rounded-lg bg-[#F3EFE8] dark:bg-[#17345A] text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9]">
-          {otelRaporu}
-        </p>
-      )}
-
-      {/* Tema katmanının kaldırılması — tek seferlik göç */}
-      {onUpdateItem && tema.temalar.length > 0 && (
-        <div className="mb-2.5 flex items-start gap-3 px-4 py-3 rounded-xl border border-[#F26B6F]/40 bg-[#FAF8F5] dark:bg-[#13204A]">
-          <span className="font-mono text-lg font-bold text-[#F26B6F] leading-none mt-0.5 shrink-0 tabular-nums">
-            {tema.temalar.length}
-          </span>
-          <span className="min-w-0 flex-1">
-            <span className="block text-[13px] font-semibold text-[#0E1C4F] dark:text-[#F3EFE8]">
-              tema kaydı hâlâ duruyor
-            </span>
-            <span className="block mt-0.5 text-[11px] text-[#6A5E4C] dark:text-[#95A1C2] leading-snug">
-              Zincir artık marka → drop → ürün. Temalar arşive kalkar,
-              {tema.markaDevri > 0
-                ? ` ${tema.markaDevri} dropun markası temadan devralınır.`
-                : ' dropların marka bağı korunur.'} Hiçbir şey silinmez.
-            </span>
-          </span>
-          <button
-            type="button"
-            onClick={temayiKaldir}
-            disabled={temaGocu}
-            className="shrink-0 px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#0E1C4F] dark:bg-[#2C3C72] text-[#F3EFE8] hover:opacity-90 disabled:opacity-40 cursor-pointer"
-          >
-            {temaGocu ? 'Taşınıyor…' : 'Katmanı kaldır'}
-          </button>
-        </div>
-      )}
-      {temaRaporu && (
-        <p className="mb-2.5 px-4 py-2 rounded-lg bg-[#F3EFE8] dark:bg-[#17345A] text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9]">
-          {temaRaporu}
-        </p>
-      )}
-
-      {/* İçi boş proje kayıtları */}
-      {onUpdateItem && bosProje.length > 0 && (
-        <div className="mb-2.5 flex items-start gap-3 px-4 py-3 rounded-xl border border-[#F26B6F]/40 bg-[#FAF8F5] dark:bg-[#13204A]">
-          <span className="font-mono text-lg font-bold text-[#F26B6F] leading-none mt-0.5 shrink-0 tabular-nums">
-            {bosProje.length}
-          </span>
-          <span className="min-w-0 flex-1">
-            <span className="block text-[13px] font-semibold text-[#0E1C4F] dark:text-[#F3EFE8]">
-              proje kaydı boş duruyor
-            </span>
-            <span className="block mt-0.5 text-[11px] text-[#6A5E4C] dark:text-[#95A1C2] leading-snug">
-              {bosProje.map(p => p.title).join(', ')} · bölümü yok, gövdesi yok.
-              Arşive kalkar, silinmez.
-            </span>
-          </span>
-          <button
-            type="button"
-            onClick={bosProjeleriArsivle}
-            disabled={projeIsi}
-            className="shrink-0 px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#0E1C4F] dark:bg-[#2C3C72] text-[#F3EFE8] hover:opacity-90 disabled:opacity-40 cursor-pointer"
-          >
-            {projeIsi ? 'Arşivleniyor…' : 'Arşivle'}
-          </button>
-        </div>
-      )}
-      {projeRaporu && (
-        <p className="mb-2.5 px-4 py-2 rounded-lg bg-[#F3EFE8] dark:bg-[#17345A] text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9]">
-          {projeRaporu}
-        </p>
-      )}
-
-      {temizlikRaporu && (
-        <p className="mb-2.5 px-4 py-2 rounded-lg bg-[#F3EFE8] dark:bg-[#17345A] text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9]">
-          {temizlikRaporu}
         </p>
       )}
 

@@ -30,6 +30,8 @@ import {
 import { SayfaRayi } from './SayfaRayi';
 import { markaYapisi, kurumMu, dropBaglari } from '../lib/markaYapisi';
 import { KurumOzeti } from './marka/KurumOzeti';
+import { Kanallar } from './marka/Kanallar';
+import { ANA_MARKA_KIMLIKLERI } from '../lib/markaYapisi';
 import { maddeGorseli } from '../lib/maddeGorseli';
 
 interface MarkalarProps {
@@ -1574,6 +1576,11 @@ export default function Markalar({
                   </div>
                 );
               })()}
+
+              {/* Kanallar (29 Eylül): Durum sayfasından buraya taşındı; yalnız Kems Company */}
+              {!isUnassignedSelected && activeBrand && ANA_MARKA_KIMLIKLERI.includes(activeBrand.id) && (
+                <Kanallar items={items} onAddItem={onAddItem} onUpdateItem={onUpdateItem} onDeleteItem={onDeleteItem} />
+              )}
 
               {/* Viki özeti: künye, bilgiler, sayfa metni (29 Eylül) */}
               {!isEditingBrand && !isUnassignedSelected ? (

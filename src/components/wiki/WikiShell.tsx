@@ -6,7 +6,7 @@ import { buildLinkIndex } from './autoLink';
 import { WikiArticle } from './WikiArticle';
 import { WikiGiris } from './WikiGiris';
 import { WIKI_TYPES, TYPE_LABELS, isStub, bolgeAdi } from './wikiSchema';
-import { OYUN_VAKA_IDLERI } from '../../data/kemskoyVenues';
+import { OYUN_VAKA_IDLERI } from '../../lib/temizlik';
 
 interface WikiShellProps {
   items: Item[];

@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import type { Item, WikiSection } from '../types';
-import { bekleyenAdaylar, eskiOneriler, sorulacaklar } from './adaylar';
+import { bekleyenAdaylar, sorulacaklar } from './adaylar';
 import { bekleyenDugmeler } from './bekleyenIsler';
 import { tarihUyarilari } from './kanonTarihleri';
 import { useHaritaDuzeni } from './haritaDuzeni';
@@ -52,7 +52,7 @@ export function useBildirimler(items: Item[], yenile = 0): Bildirim[] {
   return useMemo(() => {
     if (!items.length) return [];
     const liste: Bildirim[] = [];
-    const aday = bekleyenAdaylar(items).length + eskiOneriler(items).length;
+    const aday = bekleyenAdaylar(items).length;  // eski öneriler bildirim değil; Temizlik kartında
     if (aday) liste.push({ tur: 'aday', sayi: aday, baslik: 'Onay bekleyen aday', ayrinti: 'Ana sayfada, Adaylar kutusunda' });
     if (!gununSorusuBittiMi() && sorulacaklar(items, 1).length) {
       liste.push({ tur: 'soru', sayi: 1, baslik: 'Günün sorusu', ayrinti: 'Henüz cevaplanmadı' });

@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { 
   auth, 
-  seedUserData, 
+  signInWithGoogle,
   fetchAllItemsDirect,
   subscribeToAllItemsWithArchived, 
   subscribeToSettings, 
   saveSettings, 
   saveItem, 
+  deleteItemDoc,
 } from './lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { Item, UserSettings, AreaType, ItemType } from './types';
@@ -29,9 +30,10 @@ import {
   Hammer,
   Map as MapIcon,
   Sun,
-  Moon
+  Moon,
+  UserRound
 } from 'lucide-react';
-import KomutaMerkezi from './components/KomutaMerkezi';
+import Durum from './components/Durum';
 import Duzada from './components/Duzada';
 import Merch from './components/Merch';
 import YaziAtolyesi from './components/YaziAtolyesi';
@@ -50,12 +52,9 @@ import DuzadaDirectory from './components/DuzadaDirectory';
 import { Yedekleme } from './components/Yedekleme';
 import HizliNotModal from './components/HizliNotModal';
 import AramaModal from './components/AramaModal';
-import { isEntityUnlinked, generateAiProposalsForUnlinked } from './utils/relations';
 import { Eksikler } from './components/Eksikler';
 import { Anasayfa, type TelSekmesi } from './components/anasayfa/Anasayfa';
-import { YuzdeSeridi } from './components/anasayfa/YuzdeSeridi';
 import { Zil } from './components/kabuk/Zil';
-import { durumOranlari } from './lib/durumOranlari';
 import { useBildirimler, type Bildirim } from './lib/bildirimler';
 
 /** Uygulamanın sayfaları. 'komuta' ana sayfa; eski Komuta Merkezi 'durum'. */
@@ -92,6 +91,24 @@ export default function App() {
   /** "+" ile gelen yeni not sayfası isteği */
   const [yeniNotBekliyor, setYeniNotBekliyor] = useState(false);
   const [bildirimNabzi, setBildirimNabzi] = useState(0);
+  /**
+   * Google ile girilmiş mi (29 Eylül). Veriler 14 Eylül'e kadar Google
+   * hesabının alanına yazıldı; girişsiz açılınca uygulama o kimliği yalnız
+   * tarayıcının hafızasından hatırlıyor. Hafıza yoksa ortak alana
+   * (kems_public) düşülüyor — veriler orada değil.
+   */
+  const [girisli, setGirisli] = useState(false);
+  const [baglanmaHatasi, setBaglanmaHatasi] = useState<string | null>(null);
+  const googleIleBaglan = async () => {
+    setBaglanmaHatasi(null);
+    try { await signInWithGoogle(); } catch (e: any) {
+      setBaglanmaHatasi(e?.code === 'auth/popup-blocked'
+        ? 'Tarayıcı açılan pencereyi engelledi; izin verip yeniden dene.'
+        : e?.code === 'auth/unauthorized-domain'
+          ? 'Bu adres Firebase girişinde izinli değil (yetkili alan adları listesine eklenmeli).'
+          : `Bağlanılamadı: ${e?.code || e?.message || 'bilinmeyen'}`);
+    }
+  };
   const [activeItemId, setActiveItemId] = useState<string | null>(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isHizliNotOpen, setIsHizliNotOpen] = useState(false);
@@ -121,12 +138,12 @@ export default function App() {
         unsubSettings = null;
       }
 
-      try {
-        // Seed default items first if they don't exist
-        await seedUserData(activeUid);
-      } catch (error) {
-        console.error("Default veri tohumlama sirasinda hata olustu, devam ediliyor:", error);
-      }
+      /*
+       * Örnek veri tohumlama KALDIRILDI (29 Eylül). Boş bir alan açılınca
+       * ilk günün örnek kayıtlarıyla (Kamil Efendi, Küçükçetmi Köy Meydanı…)
+       * dolduruluyordu; Kemal ortak alana düşünce verileri "kaybolmuş" ve
+       * yerine yabancı kayıtlar gelmiş gibi göründü. Boş alan boş kalır.
+       */
 
       try {
         // Doğrudan ilk çekim (snapshot ilk tetiklenene kadar beklemeden anında yükler)
@@ -158,6 +175,7 @@ export default function App() {
     };
 
     const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser) => {
+      setGirisli(!!currentUser);
       if (currentUser) {
         try {
           localStorage.setItem('kems_last_uid', currentUser.uid);
@@ -319,190 +337,30 @@ export default function App() {
   };
 
   /**
-   * K (28 Eylül 2026): otomatik temizlikler kayıt silmez, arşive kaldırır.
-   * Etiket, neyin kendiliğinden kalktığını arşivde bulmayı sağlar.
-   */
-  const otomatikArsivle = (item: Item) =>
-    handleUpdateItem({
-      ...item,
-      archived: true,
-      tags: (item.tags || []).includes('otomatik-arsiv')
-        ? item.tags
-        : [...(item.tags || []), 'otomatik-arsiv']
-    });
-
-  /**
-   * "Sil" düğmelerinin hepsi buraya gelir. K (28 Eylül 2026, Kemal'in
-   * kararı): bu projede hiçbir kayıt silinmez — kayıt arşive kalkar, arşivden
-   * geri gelir. Diğer kayıtlardaki bağlar da korunur; geri gelince yerinde.
+   * "Sil" düğmelerinin hepsi buraya gelir. 29 Eylül, kural değişti (Kemal:
+   * "arka tarafta kullanmadığımız ne varsa sil, arşiv işi beni
+   * sinirlendirdi"): kayıt gerçekten silinir, arşive kalkmaz. Diğer
+   * kayıtlardaki bağlar da temizlenir.
    */
   const handleDeleteItem = async (itemId: string) => {
     if (!user) return;
-
-    const hedefler = new Set<string>([itemId]);
-    const targetItem = items.find(i => i.id === itemId);
-
-    if (targetItem && targetItem.area === 'merch' && targetItem.type === 'drop') {
-      // Drop arşive kalkınca altındaki ürünler de kalkar
-      items
-        .filter(p => p.area === 'merch' && p.type === 'merch_urun' && p.metadata?.dropId === itemId)
-        .forEach(p => hedefler.add(p.id));
-    }
-
-    for (const id of hedefler) {
-      const kayit = items.find(i => i.id === id);
-      if (kayit && !kayit.archived) {
-        await handleUpdateItem({ ...kayit, archived: true, updatedAt: Date.now() });
+    setItems(prev => prev.filter(i => i.id !== itemId));
+    await deleteItemDoc(user.uid, itemId);
+    for (const k of items) {
+      if (k.id !== itemId && (k.links || []).includes(itemId)) {
+        await handleUpdateItem({ ...k, links: k.links.filter(l => l !== itemId) });
       }
     }
   };
 
-  // Auto-delete any "yeni varlık" (case-insensitive) items as requested by user
-  useEffect(() => {
-    if (!user || items.length === 0) return;
-    // K: silmek yerine arşive kaldırır — bu projede hiçbir kayıt silinmez
-    const targets = items.filter(item => !item.archived && item.title.trim().toLowerCase() === 'yeni varlık');
-    if (targets.length > 0) {
-      targets.forEach(item => {
-        otomatikArsivle(item).catch(err => console.error("'yeni varlık' arşivlenemedi:", err));
-      });
-    }
-  }, [items, user]);
-
-  // Retype existing rooms to 'oda' and nest under 'kemskoy_hotel'
-  useEffect(() => {
-    if (!user || items.length === 0) return;
-    const roomsToRetype = items.filter(item => 
-      item.area === 'duzada' && 
-      item.type === 'yer' && 
-      (item.tags?.includes('oda') || item.id.startsWith('kemskoy_room_') || item.title.startsWith('Oda '))
-    );
-    if (roomsToRetype.length > 0) {
-      console.log(`Retyping ${roomsToRetype.length} room items from 'yer' to 'oda'...`);
-      roomsToRetype.forEach(room => {
-        const updatedMetadata = { 
-          ...room.metadata, 
-          placeId: 'kemskoy_hotel',
-          region: room.metadata?.region || 'eski liman / kemskoy'
-        };
-        const updatedLinks = room.links?.includes('kemskoy_hotel') ? room.links : [...(room.links || []), 'kemskoy_hotel'];
-        handleUpdateItem({
-          ...room,
-          type: 'oda',
-          links: updatedLinks,
-          metadata: updatedMetadata
-        }).catch(err => console.error("Error migrating room item type:", err));
-      });
-    }
-  }, [items, user]);
-
-  // Merge and clean up duplicate "The Imperial" hotel items
-  useEffect(() => {
-    if (!user || items.length === 0) return;
-    const duplicates = items.filter(item => 
-      item.area === 'duzada' && 
-      !item.archived &&
-      item.id !== 'kemskoy_hotel' && 
-      (
-        item.title.toLowerCase() === 'the imperial' || 
-        item.title.toLowerCase() === 'imperial' || 
-        item.title.toLowerCase() === 'imperial otel' || 
-        item.title.toLowerCase() === 'the imperial hotel' ||
-        item.title.toLowerCase() === 'the imperial kemskoy' ||
-        item.title.toLowerCase() === 'the imperial kemsköy'
-      )
-    );
-
-    if (duplicates.length > 0) {
-      console.log(`Auto-merging ${duplicates.length} duplicate 'The Imperial' items into canonical 'kemskoy_hotel'...`);
-      const canonicalHotel = items.find(i => i.id === 'kemskoy_hotel');
-      if (canonicalHotel) {
-        let mergedLinks = new Set<string>(canonicalHotel.links || []);
-        let mergedTags = new Set<string>(canonicalHotel.tags || []);
-        let mergedNotes = canonicalHotel.notes || '';
-
-        duplicates.forEach(dup => {
-          if (dup.links) dup.links.forEach(l => mergedLinks.add(l));
-          if (dup.tags) dup.tags.forEach(t => mergedTags.add(t));
-          if (dup.notes && !mergedNotes.includes(dup.notes)) {
-            mergedNotes += ` | ${dup.notes}`;
-          }
-        });
-
-        const updatedHotel = {
-          ...canonicalHotel,
-          links: Array.from(mergedLinks),
-          tags: Array.from(mergedTags),
-          notes: mergedNotes
-        };
-
-        // K: kopyalar silinmez, arşive kalkar
-        handleUpdateItem(updatedHotel).then(() => {
-          duplicates.forEach(dup => {
-            otomatikArsivle(dup).catch(err => console.error("Otel kopyası arşivlenemedi:", err));
-          });
-        }).catch(err => console.error("Error updating canonical hotel:", err));
-      }
-    }
-  }, [items, user]);
-
-  // K (28 Eylül 2026, Kemal'in kararı): 76 karakteri öneri olarak içe
-  // aktaran eski kod kapatıldı. Yalnızca tarayıcı hafızasıyla korunuyordu;
-  // yeni bir tarayıcıda yeniden çalışıp W1'de arşive kalkan kişileri öneri
-  // olarak geri açabilirdi. Veri dosyası (charactersImportData.ts) duruyor.
-
-  // Clean up current events from Düzada directory (Sürek Şenliği and imported game actions/mechanics)
-  useEffect(() => {
-    if (!user || items.length === 0) return;
-    const currentOlaylar = items.filter(item => 
-      item.area === 'duzada' && 
-      !item.archived &&
-      item.type === 'olay' && 
-      (item.id.includes('surek_senligi') || item.id.startsWith('kemskoy_mech') || item.tags.includes('mekanik') || item.tags.includes('kemskoy-oyun-mekanigi'))
-    );
-    if (currentOlaylar.length > 0) {
-      // K: silmek yerine arşive kaldırır
-      currentOlaylar.forEach(item => {
-        otomatikArsivle(item).catch(err => console.error("Olay kaydı arşivlenemedi:", err));
-      });
-    }
-  }, [items, user]);
-
-  // Auto-generate AI relation proposals for unlinked entities
-  useEffect(() => {
-    if (!user || items.length === 0) return;
-    
-    // Check if we have unlinked items to process
-    const unlinkedItems = items.filter(item => isEntityUnlinked(item, items));
-    if (unlinkedItems.length === 0) return;
-
-    // Generate proposals for unlinked items
-    const proposalsGrouped = generateAiProposalsForUnlinked(items);
-    
-    proposalsGrouped.forEach(async ({ itemId, proposals }) => {
-      const item = items.find(i => i.id === itemId);
-      if (!item) return;
-
-      // Only seed proposals if they haven't been seeded yet and don't already have any relations
-      const currentRelations = item.metadata?.relations || [];
-      const hasAnyProposed = currentRelations.some((r: any) => r.isProposal);
-      const hasAnyReal = currentRelations.some((r: any) => !r.isProposal);
-      const proposalsSeeded = item.metadata?.proposalsSeeded;
-      
-      if (!proposalsSeeded && !hasAnyProposed && !hasAnyReal) {
-        const updatedItem = {
-          ...item,
-          metadata: {
-            ...item.metadata,
-            relations: proposals,
-            proposalsSeeded: true
-          }
-        };
-        console.log(`Seeding AI relation proposals for ${item.title}...`, proposals);
-        await handleUpdateItem(updatedItem);
-      }
-    });
-  }, [user, items]);
+  /*
+   * Sayfa her açıldığında kayıtlara kendiliğinden yazan eski kodlar SİLİNDİ
+   * (29 Eylül): "yeni varlık" arşivleme, odaları otele bağlama, otel
+   * kopyalarını birleştirme, olay temizliği, bağsız maddelere otomatik
+   * ilişki önerisi. Kemal: "Google yapay zekâsı onları bulup bulup geri
+   * getiriyor, bunu sevmiyorum." Artık kayıtlar yalnız Kemal bir düğmeye
+   * bastığında değişir.
+   */
 
   /**
    * Kems Company kaydı yoksa kurulur (boş notla, uydurma metin yok).
@@ -815,6 +673,16 @@ export default function App() {
               tetikSinifi="relative w-11 h-11 rounded-xl flex items-center justify-center text-[#A6B0C9] hover:text-white hover:bg-white/10 cursor-pointer"
             />
           )}
+          <button
+            type="button"
+            onClick={girisli ? undefined : googleIleBaglan}
+            title={girisli ? `Google hesabı: ${user?.email || ''}` : 'Ortak alandasın — Google ile bağlan'}
+            className={`relative w-11 h-11 rounded-xl flex items-center justify-center ${girisli ? 'text-[#A6B0C9]' : 'text-[#F26B6F] hover:bg-white/10 cursor-pointer'}`}
+          >
+            {girisli && user?.photoURL
+              ? <img src={user.photoURL} alt="" referrerPolicy="no-referrer" className="w-7 h-7 rounded-full" />
+              : <UserRound className="w-[18px] h-[18px]" />}
+          </button>
           <button type="button" onClick={handleToggleTheme} title="Aydınlık / karanlık" className="w-11 h-11 rounded-xl flex items-center justify-center text-[#A6B0C9] hover:text-white hover:bg-white/10 cursor-pointer">
             <TemaSimgesi className="w-[18px] h-[18px]" />
           </button>
@@ -843,6 +711,20 @@ export default function App() {
           <div id={SAYFA_RAYI_YUVASI} className="lg:w-48 lg:shrink-0 lg:sticky lg:top-6 lg:self-start empty:hidden min-w-0" />
 
           <main className="flex-1 min-w-0">
+            {/* Ortak alandaysa: veriler Google hesabının alanında (29 Eylül) */}
+            {!girisli && (
+              <div className="mb-4 flex flex-wrap items-center gap-3 px-4 py-3 rounded-xl border border-[#0E1C4F]/25 dark:border-[#2C3C72] bg-[#FAF8F5] dark:bg-[#13204A]">
+                <UserRound className="w-4 h-4 shrink-0 text-[#D6484C] dark:text-[#F26B6F]" />
+                <p className="flex-1 min-w-[220px] text-[12px] leading-snug text-[#0E1C4F] dark:text-[#F3EFE8]">
+                  <b>Ortak alandasın.</b> Bu tarayıcı seni tanımıyor; kayıtların Google hesabının alanında duruyor. Bağlanınca hepsi geri gelir.
+                  {baglanmaHatasi && <span className="block mt-1 text-[#B23A40] dark:text-[#F26B6F]">{baglanmaHatasi}</span>}
+                </p>
+                <button type="button" onClick={googleIleBaglan} className="shrink-0 px-3.5 py-2 rounded-lg bg-[#0E1C4F] dark:bg-[#2C3C72] text-[#F3EFE8] text-[12px] font-semibold hover:opacity-90 cursor-pointer">
+                  Google ile bağlan
+                </button>
+              </div>
+            )}
+
             {/* AI ucu ulaşılamıyorsa tek yerden söyle — düğmeler sessiz kalmasın */}
             {(aiHal.hal === 'sunucu-yok' || aiHal.hal === 'hata') && (
               <div className="mb-4 flex items-start gap-3 px-4 py-3 rounded-xl border border-[#F26B6F]/45 bg-[#F26B6F]/8">
@@ -873,19 +755,7 @@ export default function App() {
             )}
 
             {activeTab === 'durum' && (
-              <KomutaMerkezi
-                items={items}
-                onSelectArea={handleSelectArea}
-                onAcceptProposal={handleAcceptProposal}
-                onRejectProposal={handleRejectProposal}
-                onUpdateItem={handleUpdateItem}
-                onAddItem={handleAddItem}
-                onDeleteItem={handleDeleteItem}
-                onRefreshLive={handleRefreshLive}
-                lastSyncTime={lastSyncTime}
-                isSyncing={isSyncing}
-                ustKisim={<YuzdeSeridi oranlar={durumOranlari(items)} onSec={h => git(h)} ayrintili />}
-              />
+              <Durum items={items} onSec={h => git(h)} />
             )}
 
             {activeTab === 'eksikler' && (
@@ -895,6 +765,7 @@ export default function App() {
                 onUpdateItem={handleUpdateItem}
                 onAddItem={handleAddItem}
                 baslangicAcik={eksikAcik}
+                onDeleteItem={handleDeleteItem}
               />
             )}
 
@@ -1045,7 +916,9 @@ export default function App() {
                 />
               )}
             </div>
-            <p className="text-center text-[10px] font-mono text-[#6A5E4C] dark:text-[#A6B0C9]">{varlikSayisi} kayıtlı varlık</p>
+            <p className="text-center text-[10px] font-mono text-[#6A5E4C] dark:text-[#A6B0C9]">
+              {varlikSayisi} kayıtlı varlık · {girisli ? `Google: ${user?.email || ''}` : 'ortak alan'}
+            </p>
           </div>
         </div>
       )}
