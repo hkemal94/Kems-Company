@@ -10,6 +10,7 @@ import {
 } from './lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { Item, UserSettings, AreaType, ItemType } from './types';
+import { maddeGorseli } from './lib/maddeGorseli';
 import {
   AlertTriangle,
   ChevronLeft,
@@ -499,12 +500,18 @@ export default function App() {
     });
   }, [user, items]);
 
-  // Auto-verify Kems Company brand details and logo
+  /**
+   * Kems Company kaydı yoksa kurulur (boş notla, uydurma metin yok).
+   *
+   * 29 Eylül: Bu etki eskiden her açılışta marka kitine yapay zekânın
+   * ürettiği bir SVG logo yazıyordu; logo tarayıcıda açılmıyordu ve üst
+   * köşede, vikide kırık görünüyordu (Kemal: "wikide hâlâ kulüp ve marka
+   * logoları görünmüyor"). Logo artık yazılmıyor; görsel `maddeGorseli`
+   * sırasıyla bulunuyor (yüklenen → galeri → Canva yedeği).
+   */
   useEffect(() => {
     if (!user || items.length === 0) return;
-    
     const kemsCompanyItem = items.find(b => b.type === 'marka' && (b.id === 'kems_company' || b.title.toLowerCase() === 'kems company'));
-    const targetLogo = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCA1MTIgNTEyJyB3aWR0aD0nNTEyJyBoZWlnaHQ9JzUxMic+CiAgPGRlZnM+CiAgICA8ZmlsdGVyIGlkPSdwYXBlci10ZXh0dXJlJyB4PScwJyB5PScwJyB3aWR0aD0nMTAwJScgaGVpZ2h0PScxMDAlJz4KICAgICAgPGZlVHVyYnVsZW5jZSB0eXBlPSdmcmFjdGFsTm9pc2UnIGJhc2VGcmVxdWVuY3k9JzAuMDUnIG51bU9jdGF2ZXM9JzQnIHJlc3VsdD0nbm9pc2UnIC8+CiAgICAgIDxmZUNvbG9yTWF0cml4IHR5cGU9J21hdHJpeCcgdmFsdWVzPScwIDAgMCAwIDAgICAwIDAgMCAwIDAgICAwIDAgMCAwIDAgIDAgMCAwIDAuMDcgMCcgLz4KICAgICAgPGZlQ29tcG9zaXRlIG9wZXJhdG9yPSdpbicgaW4yPSdTb3VyY2VHcmFwaGljJyByZXN1bHQ9J21vbm9Ob2lzZScvPgogICAgICA8ZmVCbGVuZCBtb2RlPSdtdWx0aXBseScgaW49J1NvdXJjZUdyYXBoaWMnIGluMj0nbW9ub05vaXNlJy8+CiAgICA8L2ZpbHRlcj4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9JzUxMicgaGVpZ2h0PSc1MTInIHJ4PScyNCcgZmlsbD0nI0Y0RjFFQScgLz4KICA8ZyBmaWx0ZXI9J3VybCgjcGFwZXItdGV4dHVyZSknPgogICAgPHJlY3QgeD0nMTYnIHk9JzE2JyB3aWR0aD0nNDgwJyBoZWlnaHQ9JzQ4MCcgcng9JzE2JyBmaWxsPSdub25lJyBzdHJva2U9JyMwRDFGM0MnIHN0cm9rZS13aWR0aD0nMTYnIC8+CiAgICA8cmVjdCB4PScyNCcgeT0nMjQnIHdpZHRoPSc0NjQnIGhlaWdodD0nNDY0JyByeD0nMTAnIGZpbGw9JyNGNEYxRUEnIC8+CiAgICA8cGF0aCBkPSdNIDI0LDI4OCBMIDQ4OCwyODggTCA0ODgsNDcyIEMgNDg4LDQ3NiA0ODQsNDgwIDQ4MCw0ODAgTCAzMiw0ODAgQyAyOCw0ODAgMjQsNDc2IDI0LDQ3MiBaJyBmaWxsPScjQzUzQTMxJyBzdHJva2U9JyMwRDFGM0MnIHN0cm9rZS13aWR0aD0nOCcgLz4KICAgIDxsaW5lIHgxPScyNCcgeTE9JzI4OCcgeDI9JzQ4OCcgeTI9JzI4OCcgc3Ryb2tlPScjMEQxRjNDJyBzdHJva2Utd2lkdGg9JzE0JyAvPgogICAgPHRleHQgeD0nMjU2JyB5PScyMzQnIGZvbnQtZmFtaWx5PSInU3BhY2UgR3JvdGVzaycsICdJbXBhY3QnLCAnQXJpYWwgQmxhY2snLCBzYW5zLXNlcmlmIiBmb250LXdlaWdodD0nOTAwJyBmb250LXNpemU9JzE0MicgZmlsbD0nIzBEMUYzQycgdGV4dC1hbmNob3I9J21pZGRsZScgbGV0dGVyLXNwYWNpbmc9Jy01Jz5LRU1TPC90ZXh0PgogICAgPGNpcmNsZSBjeD0nNDQ2JyBjeT0nMTEyJyByPScxNScgZmlsbD0nbm9uZScgc3Ryb2tlPScjMEQxRjNDJyBzdHJva2Utd2lkdGg9JzQnIC8+CiAgICA8dGV4dCB4PSc0NDYnIHk9JzExNycgZm9udC1mYW1pbHk9JyJTcGFjZSBHcm90ZXNrIiwgIkFyaWFsIiwgc2Fucy1zZXJpZicgZm9udC13ZWlnaHQ9J2JvbGQnIGZvbnQtc2l6ZT0nMTUnIGZpbGw9JyMwRDFGM0MnIHRleHQtYW5jaG9yPSdtaWRkbGUnPlI8/dGV4dD4KICAgIDx0ZXh0IHg9JzI1NicgeT0sNDA4JyBmb250LWZhbWlseT0iJ1NwYWNlIEdyb3Rlc2snLCAnSW1wYWN0JywgJ0FyaWFsIEJsYWNrJywgc2Fucy1zZXJpZiIgZm9udC13ZWlnaHQ9JzgwMCcgZm9udC1zaXplPSc3NCcgZmlsbD0nI0Y0RjFFQScgdGV4dC1hbmNob3I9J21pZGRsZScgbGV0dGVyLXNwYWNpbmc9JzQnPkNPTVBBTlk8/dGV4dD4KICA8L2I+Cjwvc3ZnPg==';
     if (!kemsCompanyItem) {
       handleAddItem({
         id: 'kems_company',
@@ -515,40 +522,20 @@ export default function App() {
         priority: 'yüksek',
         tags: ['marka'],
         links: [],
-        notes: 'Kems Company, Isola ve çevresinde faaliyet gösteren saygın bir ticari holding ve bağımsız markadır.',
+        notes: '',
         images: [],
         isProposal: false,
         archived: false,
         metadata: {
           brandKit: {
-            logoBase64: targetLogo,
-            selectedLogo: 'Kems Company Classic Logo',
-            ideaLogos: ['KEMS Modern Minimalist'],
-            colorPalette: ['#0E1C4F', '#F26B6F', '#FAF8F5'],
-            exemplaryWorks: ['Master Şablon Kitap Kapağı'],
-            selectedFont: 'Space Grotesk'
+            selectedLogo: '',
+            ideaLogos: [],
+            colorPalette: ['#0E1C4F', '#F26B6F', '#F3EFE8'],
+            exemplaryWorks: [],
+            selectedFont: 'Poppins'
           }
         }
       });
-    } else {
-      const currentLogo = kemsCompanyItem.metadata?.brandKit?.logoBase64;
-      const oldLogoBase64Prefix = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiI+PHJlY3Qgd2lkdGg9IjUxMiIgaGVpZ2h0PSI1MTIiIHJ4PSI2NCIgZmlsbD0iI2ZmZmZmZiIvPg==';
-      const isOldLogo = !currentLogo || currentLogo.startsWith(oldLogoBase64Prefix) || currentLogo === 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiI+PHJlY3Qgd2lkdGg9IjUxMiIgaGVpZ2h0PSI1MTIiIHJ4PSI2NCIgZmlsbD0iI2ZmZmZmZiIvPjxyZWN0IHg9IjI0IiB5PSIyNCIgd2lkdGg9IjQ2NCIgaGVpZ2h0PSI0NjQiIHJ4PSI0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMEYxRTM2IiBzdHJva2Utd2lkdGg9IjIwIi8+PHJlY3QgeD0iNDQiIHk9IjQ0IiB3aWR0aD0iNDI0IiBoZWlnaHQ9IjQyNCIgcng9IjIwIiBmaWxsPSIjRkJGOUY2IiBzdHJva2U9IiMwRjFFMzYiIHN0cm9rZS13aWR0aD0iOCIvPjxwYXRoIGQ9Ik0gNDQsMjgwIEwgNDY4LDI4MCBMIDQ2OCw0NjAgQyA0NjgsNDY0IDQ2NCw0NjggNDYwLDQ2OCBMIDUzLDQ2OCBDIDQ4LDQ2MCA0NCw0NjQgNDQsNDYwIFoiIGZpbGw9IiNEMzUwNTciIHN0cm9rZT0iIzBGMUUzNiIgc3Ryb2tlLXdpZHRoPSI4Ii8+PHRleHQgeD0iMDU2IiB5PSIyMjAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iOTAwIiBmb250LXNpemU9IjE0MCIgZmlsbD0iIzBGMUUzNiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgbGV0dGVyLXNwYWNpbmc9Ii00Ij5LRU1TPC90ZXh0PjxjaXJjbGUgY3g9IjQzMCIgY3k9IjEwMCIgcj0iMTYiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzBGMUUzNiIgc3Ryb2tlLXdpZHRoPSI4Ii8+PHRleHQgeD0iNDMwIiB5PSIxMDUiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iYm9sZCIgZm9udC1zaXplPSIxNiIgZmlsbD0iIzBGMUUzNiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+UjwvdGV4dD48dGV4dCB4PSIyNTYiIHk9IjM5MCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtd2VpZ2h0PSI4MDAiIGZvbnQtc2l6ZT0iNzIiIGZpbGw9IiNmZmZmZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGxldHRlci1zcGFjaW5nPSIyIj5DT01QQU5ZPC90ZXh0Pjwvc3ZnPg==';
-
-      // Upgrade to the new beautiful textured SVG logo if using the old flat one, but preserve custom JPEGs
-      if ((isOldLogo || currentLogo !== targetLogo) && isOldLogo) {
-        handleUpdateItem({
-          ...kemsCompanyItem,
-          metadata: {
-            ...kemsCompanyItem.metadata,
-            brandKit: {
-              ...(kemsCompanyItem.metadata?.brandKit || { ideaLogos: [], colorPalette: [], exemplaryWorks: [], selectedFont: '' }),
-              logoBase64: targetLogo,
-              selectedLogo: 'Kems Company Classic Logo'
-            }
-          }
-        });
-      }
     }
   }, [user, items]);
 
@@ -681,9 +668,9 @@ export default function App() {
 
   // 2. MAIN LOGGED-IN VIEW
   const kemsCompanyItem = items.find(b => b.type === 'marka' && (b.id === 'kems_company' || b.title.toLowerCase() === 'kems company'));
-  const kemsLogo = kemsCompanyItem?.metadata?.brandKit?.logoBase64 || kemsCompanyItem?.metadata?.brandKit?.selectedLogo;
+  const kemsLogo = kemsCompanyItem ? maddeGorseli(kemsCompanyItem, items) : undefined;
   // Logo adresi yüklenemezse kırık resim yerine yazı logosu görünsün
-  const hasKemsLogo = !!(kemsLogo && (kemsLogo.startsWith('http') || kemsLogo.startsWith('data:'))) && logoHatasi !== kemsLogo;
+  const hasKemsLogo = !!(kemsLogo && (kemsLogo.startsWith('http') || kemsLogo.startsWith('data:') || kemsLogo.startsWith('/'))) && logoHatasi !== kemsLogo;
 
   return (
     <div className="min-h-screen bg-[#E4DCCD] dark:bg-[#0B132B] text-[#0E1C4F] dark:text-[#F3EFE8] flex flex-col font-sans transition-colors duration-200 paper-grain selection:bg-[#F26B6F] selection:text-white">
@@ -701,7 +688,7 @@ export default function App() {
             <img 
               src={kemsLogo} 
               alt="Kems Company Logo" 
-              className="w-10 h-10 md:w-11 md:h-11 rounded-lg object-cover border-2 border-[#0F1E36] shrink-0 shadow-xs"
+              className="w-10 h-10 md:w-11 md:h-11 rounded-lg object-contain bg-[#F3EFE8] border-2 border-[#0F1E36] shrink-0 shadow-xs"
               referrerPolicy="no-referrer"
               onError={() => setLogoHatasi(kemsLogo || null)}
             />
