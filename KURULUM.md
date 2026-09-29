@@ -428,7 +428,3 @@ Bunları ben uydurdum, kanon değiller:
 | Ara sokaklar | "İskele 3. Sokak" gibi numaralı |
 
 Ayrıca altı otel birimi hâlâ jenerik adla duruyor (`adiGecici: true`).
-
-## Önizleme
-
-`npx vite` çalıştırıp `http://localhost:5173/wiki-demo.html` adresini aç. Gerçek veriyle çalışır, uygulamaya dokunmaz.

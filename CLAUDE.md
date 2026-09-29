@@ -72,8 +72,8 @@ terimsiz olur. Kodu değil, **ekranda ne değiştiğini** anlat.
   tarihler aralık olarak yazılır ("Faaliyette: 1954–").
 - **Oyun verisi vikiye girmez.** Oyun ayrı bir depoda:
   `hkemal94/TheImperialKemskoy`. **Bu depodan oraya, oradan buraya
-  yazılmaz.** Buradaki eski otel simülasyonu (`#simulasyon` ile açılan
-  gizli prototip, `kemskoyData.ts`) oyunun kaynağı değildir.
+  yazılmaz.** Buradaki eski otel simülasyonu 29 Eylül'de silindi; oyunun
+  kaynağı hiçbir zaman o değildi.
 - Otel departmanlarına (Resepsiyon, Kat Hizmetleri, Güvenlik) ad uydurulmaz.
 
 **Marka**

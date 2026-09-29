@@ -55,6 +55,15 @@ export interface KurucuBelge {
   gizlenen: string[];
   /** Kurucuda konan binalar (2. adım). Eski kayıtlarda yok. x/y: boylam/enlem */
   yeniBinalar?: Record<string, { tur: string; x: number; y: number; en: number; boy: number; aci: number }>;
+  /**
+   * Özel yapılar (H, 29 Eylül): köşe köşe çizilen ya da anıt kalıbından
+   * konan yapı. n: düz köşe dizisi [b0, e0, b1, e1…], kat, çatı, kalıp.
+   */
+  ozelYapilar?: Record<string, { n: number[]; kat: number; cati: string; kalip?: string }>;
+  /** Doğa alanları: zeytinlik, orman, kumsal. n: düz köşe dizisi */
+  doga?: Record<string, { tur: string; n: number[] }>;
+  /** Yapı → viki maddesi bağı (haritadan gelen ya da Kurucu'da konan yapı) */
+  baglar?: Record<string, string>;
 }
 
 export interface HaritaDuzeni {
