@@ -20,6 +20,8 @@ interface YaziAtolyesiProps {
   onUpdateItem: (item: Item) => Promise<void>;
   onDeleteItem: (itemId: string) => Promise<void>;
   onAddItem: (item: Omit<Item, 'id' | 'createdAt' | 'updatedAt' | 'userId'>) => Promise<void>;
+  /** Menüden doğrudan Kitap ya da Blog'a gelmek için */
+  istek?: { sekme: 'blog' | 'kitap'; n: number } | null;
 }
 
 export default function YaziAtolyesi({
@@ -28,9 +30,11 @@ export default function YaziAtolyesi({
   onSelectItem,
   onUpdateItem,
   onDeleteItem,
-  onAddItem
+  onAddItem,
+  istek = null
 }: YaziAtolyesiProps) {
-  const [subTab, setSubTab] = useState<'blog' | 'kitap'>('blog');
+  const [subTab, setSubTab] = useState<'blog' | 'kitap'>(istek?.sekme ?? 'blog');
+  React.useEffect(() => { if (istek) setSubTab(istek.sekme); }, [istek?.n]);
 
   /**
    * Açılış zinciri örneği (16 Eylül).

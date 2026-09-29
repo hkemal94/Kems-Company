@@ -37,7 +37,6 @@ import {
 } from 'lucide-react';
 import { Item, AreaType, ItemType } from '../types';
 import { isEntityUnlinked, resolveAllRelations } from '../utils/relations';
-import { Eksikler } from './Eksikler';
 import { SayfaRayi, type RayBolumu } from './SayfaRayi';
 
 /**
@@ -46,7 +45,7 @@ import { SayfaRayi, type RayBolumu } from './SayfaRayi';
  * gerekiyordu. Bu liste ana rayın altındaki sayfa rayını besliyor.
  */
 const RAY_BOLUMLERI: RayBolumu[] = [
-  { id: 'km-durum', label: 'Neyin eksik' },
+  { id: 'km-yuzdeler', label: 'Yüzdeler' },
   { id: 'km-projeler', label: 'Projeler' },
   { id: 'km-bu-hafta', label: 'Bu hafta' },
   { id: 'km-son', label: 'Son dokunulan' },
@@ -73,6 +72,9 @@ interface KomutaMerkeziProps {
   onRefreshLive?: () => Promise<void>;
   lastSyncTime?: Date;
   isSyncing?: boolean;
+
+  /** Sayfanın en üstü: ayrıntılı yüzdeler (Paket 4) */
+  ustKisim?: React.ReactNode;
 }
 
 export default function KomutaMerkezi({
@@ -89,7 +91,8 @@ export default function KomutaMerkezi({
   currentTheme = 'arşiv',
   onRefreshLive,
   lastSyncTime,
-  isSyncing = false
+  isSyncing = false,
+  ustKisim
 }: KomutaMerkeziProps) {
   // General priority state
   const [newPriorityText, setNewPriorityText] = useState('');
@@ -100,9 +103,6 @@ export default function KomutaMerkezi({
   const [selectedProposalIds, setSelectedProposalIds] = useState<string[]>([]);
   const [proposalCategoryTab, setProposalCategoryTab] = useState<'hepsi' | 'duzada' | 'merch' | 'kitap' | 'blog' | 'brainstorm' | 'ilham'>('hepsi');
 
-  // Daily thought states
-  const [isEditingDailyNote, setIsEditingDailyNote] = useState(false);
-  const [dailyNoteText, setDailyNoteText] = useState('');
 
   // Customizable Channels states
   const [isEditingChannels, setIsEditingChannels] = useState(false);
@@ -117,7 +117,6 @@ export default function KomutaMerkezi({
 
   // Safe confirmation states (avoiding native confirm blocked in iframes)
   const [deleteConfirmPriorityId, setDeleteConfirmPriorityId] = useState<string | null>(null);
-  const [deleteConfirmDailyNote, setDeleteConfirmDailyNote] = useState(false);
   const [confirmAcceptCategory, setConfirmAcceptCategory] = useState(false);
   const [confirmAcceptSelected, setConfirmAcceptSelected] = useState(false);
   const [confirmRejectSelected, setConfirmRejectSelected] = useState(false);
@@ -305,59 +304,6 @@ export default function KomutaMerkezi({
     ).length;
   }, [items]);
 
-  // 7. GÜNLÜK NOT / BUGÜNÜN DÜŞÜNCESİ
-  const dailyNoteItem = useMemo(() => {
-    return items.find(i => !i.archived && i.tags.includes('gunluk-not'));
-  }, [items]);
-
-  // Set initial text when dailyNoteItem loads or changes
-  React.useEffect(() => {
-    if (dailyNoteItem) {
-      setDailyNoteText(dailyNoteItem.notes);
-    } else {
-      setDailyNoteText('');
-    }
-  }, [dailyNoteItem]);
-
-  const handleSaveDailyNote = async () => {
-    if (!dailyNoteText.trim()) return;
-
-    if (dailyNoteItem) {
-      await onUpdateItem({
-        ...dailyNoteItem,
-        notes: dailyNoteText,
-        updatedAt: Date.now()
-      });
-    } else {
-      await onAddItem({
-        title: 'Bugünün Düşüncesi',
-        area: 'komuta',
-        type: 'fikir',
-        status: 'Bitti',
-        priority: 'orta',
-        tags: ['gunluk-not', 'bugunun-dusuncesi'],
-        notes: dailyNoteText,
-        links: [],
-        images: [],
-        isProposal: false,
-        archived: false,
-        metadata: {}
-      });
-    }
-    setIsEditingDailyNote(false);
-  };
-
-  const handleDeleteDailyNote = async () => {
-    if (dailyNoteItem) {
-      if (onDeleteItem) {
-        await onDeleteItem(dailyNoteItem.id);
-      } else {
-        await onUpdateItem({ ...dailyNoteItem, archived: true });
-      }
-      setDailyNoteText('');
-    }
-  };
-
   // --- PRIORITY HANDLERS ---
   const handleAddPriority = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -415,41 +361,17 @@ export default function KomutaMerkezi({
   return (
     <div className="space-y-10 animate-in fade-in duration-300">
       
-      {/* 1. HEADER SECTION (Calm Arşiv Layout, Wordmark, Date, Actions, Theme Toggle) */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between pb-6 border-b border-[#CFC5B4] dark:border-[#2C3C72] gap-4">
-        <div className="space-y-1">
-          <div className="flex items-baseline gap-2.5">
-            <span className="font-sans font-black text-2xl tracking-tighter text-[#0E1C4F] dark:text-[#F3EFE8] select-none">KEMS</span>
-            <div className="h-4 w-px bg-[#CFC5B4] dark:bg-[#2C3C72] self-center" />
-            <h1 className="font-serif font-bold text-xl text-[#0E1C4F] dark:text-[#F3EFE8] italic">Komuta Merkezi</h1>
-          </div>
-          <p className="text-[11px] font-mono text-[#6A5E4C] dark:text-[#A6B0C9] uppercase tracking-wider">
-            {currentDate}
-          </p>
-        </div>
-
-        <div className="flex items-center gap-3 flex-wrap">
-          {/* Theme toggle */}
-          {onToggleTheme && (
-            <button
-              onClick={onToggleTheme}
-              className="p-1.5 bg-white dark:bg-[#17345A] border border-[#CFC5B4] dark:border-[#2C3C72] text-[#6A5E4C] dark:text-[#A6B0C9] hover:text-[#F26B6F] rounded-lg transition-colors cursor-pointer shadow-2xs"
-              title="Temayı Değiştir"
-            >
-              {currentTheme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4" />}
-            </button>
-          )}
-        </div>
+      {/* Durum sayfası (Paket 4): eski Komuta Merkezi. Başlık ve yüzdeler
+          App'ten gelir; Neyin Eksik kendi sayfasına, günlük not deftere taşındı. */}
+      <div className="pb-4 border-b border-[#CFC5B4] dark:border-[#2C3C72]">
+        <h1 className="font-sans font-bold text-xl text-[#0E1C4F] dark:text-[#F3EFE8]">Durum</h1>
+        <p className="mt-1 text-[11px] font-mono text-[#6A5E4C] dark:text-[#A6B0C9] uppercase tracking-wider">{currentDate}</p>
       </div>
 
+      {ustKisim && <section id="km-yuzdeler" className="scroll-mt-24">{ustKisim}</section>}
 
       {/* Sayfanın kendi rayı — ana rayın altına basılır */}
-      <SayfaRayi baslik="Komuta Merkezi" bolumler={RAY_BOLUMLERI} />
-
-      {/* A1 · Neyin eksik — sayı değil, yapılacak iş */}
-      <section id="km-durum" className="scroll-mt-24">
-        <Eksikler items={items} onSelectArea={onSelectArea} onUpdateItem={onUpdateItem} onAddItem={onAddItem} />
-      </section>
+      <SayfaRayi baslik="Durum" bolumler={RAY_BOLUMLERI} />
 
       {/* 4. PROJELER (Folder Cards per area, click to go, auto progress %) */}
       <div id="km-projeler" className="mb-6 scroll-mt-24">
@@ -1277,94 +1199,6 @@ export default function KomutaMerkezi({
           </div>
 
         </div>
-      </div>
-
-
-      {/* 7. GÜNLÜK NOT / BUGÜNÜN DÜŞÜNCESİ (Persistent free-text, editable & deletable) */}
-      <div className="bg-[#FAF6EE] dark:bg-[#172554]/30 border-2 border-dashed border-[#CFC5B4] dark:border-[#2C3C72] rounded-xl p-6 paper-grain archive-shadow">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xs font-mono uppercase tracking-widest text-[#0E1C4F] dark:text-[#F3EFE8] font-bold flex items-center gap-1.5">
-            <Flame className="w-4 h-4 text-amber-500 animate-pulse" />
-            GÜNLÜK NOT / BUGÜNÜN DÜŞÜNCESİ
-          </h3>
-          
-          <div className="flex gap-2 text-xs font-mono">
-            {dailyNoteItem && !isEditingDailyNote && (
-              <>
-                <button 
-                  onClick={() => setIsEditingDailyNote(true)}
-                  className="px-2.5 py-1 text-[#6A5E4C] hover:text-[#F26B6F] transition-all flex items-center gap-1 cursor-pointer hover:bg-stone-100 rounded"
-                >
-                  <Edit3 className="w-3.5 h-3.5" />
-                  <span>Düzenle</span>
-                </button>
-                <button 
-                  onClick={async () => {
-                    if (deleteConfirmDailyNote) {
-                      await handleDeleteDailyNote();
-                      setDeleteConfirmDailyNote(false);
-                    } else {
-                      setDeleteConfirmDailyNote(true);
-                    }
-                  }}
-                  className={`px-2.5 py-1 transition-all flex items-center gap-1 cursor-pointer rounded ${
-                    deleteConfirmDailyNote 
-                      ? "bg-red-600 text-white font-bold animate-pulse" 
-                      : "text-red-500 hover:text-red-700 hover:bg-red-50"
-                  }`}
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                  <span>{deleteConfirmDailyNote ? "Emin misiniz?" : "Sil"}</span>
-                </button>
-              </>
-            )}
-          </div>
-        </div>
-
-        {isEditingDailyNote || !dailyNoteItem ? (
-          <div className="space-y-3">
-            <textarea
-              value={dailyNoteText}
-              onChange={(e) => setDailyNoteText(e.target.value)}
-              placeholder="Bugünün odağını, aklınızdaki bir fikri veya lore esintisini buraya serbest not alın. Bulut veritabanında saklanır."
-              className="w-full h-28 p-3.5 text-xs bg-white dark:bg-[#13204A] text-[#0E1C4F] dark:text-[#F3EFE8] border border-[#CFC5B4] dark:border-[#2C3C72] rounded-lg focus:outline-hidden focus:border-[#F26B6F] leading-relaxed font-sans"
-            />
-            <div className="flex justify-end gap-2 text-xs font-mono">
-              {dailyNoteItem && (
-                <button 
-                  onClick={() => {
-                    setIsEditingDailyNote(false);
-                    setDailyNoteText(dailyNoteItem.notes);
-                  }}
-                  className="px-3.5 py-1.5 bg-stone-200 hover:bg-stone-300 text-[#0E1C4F] rounded-md cursor-pointer"
-                >
-                  İptal
-                </button>
-              )}
-              <button 
-                onClick={handleSaveDailyNote}
-                className="px-4 py-1.5 bg-[#F26B6F] hover:bg-[#D6484C] text-white font-bold rounded-md shadow-2xs cursor-pointer"
-              >
-                Notu Kaydet
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div className="p-4 bg-white/70 dark:bg-black/15 border border-[#CFC5B4]/30 rounded-lg relative group">
-            <div className="text-xs leading-relaxed font-serif text-[#0E1C4F] dark:text-stone-200 italic whitespace-pre-wrap">
-              "{dailyNoteItem.notes}"
-            </div>
-            <div className="mt-3 text-[10px] font-mono text-stone-500 dark:text-stone-500 flex justify-between items-center">
-              <span>Güncelleme: {new Date(dailyNoteItem.updatedAt).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</span>
-              <button 
-                onClick={() => setIsEditingDailyNote(true)}
-                className="text-[10px] text-[#F26B6F] hover:underline cursor-pointer opacity-0 group-hover:opacity-100 transition-all"
-              >
-                Hızlı Düzenle
-              </button>
-            </div>
-          </div>
-        )}
       </div>
 
 

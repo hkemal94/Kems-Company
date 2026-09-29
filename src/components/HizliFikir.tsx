@@ -135,13 +135,14 @@ export const HizliFikir: React.FC<HizliFikirProps> = ({ items, onAddItem, onUpda
       <button
         onClick={() => { setAcik(true); setTimeout(() => girdi.current?.focus(), 60); }}
         title="Hızlı fikir (Ctrl/⌘ + I)"
-        className="fixed bottom-5 right-5 z-40 flex items-center gap-2 px-4 py-2.5
+        className="fixed bottom-20 right-4 lg:bottom-5 lg:right-5 z-40 flex items-center gap-2 p-3 lg:px-4 lg:py-2.5
                    rounded-full shadow-lg cursor-pointer transition-transform
                    hover:-translate-y-0.5"
         style={{ background: '#0E1C4F', color: '#F3EFE8' }}
       >
         <Lightbulb className="w-4 h-4" />
-        <span className="font-mono" style={{ fontSize: 11, letterSpacing: '0.08em' }}>
+        {/* Telefonda yalnız simge: alt menünün üstünde yazıyı örtmesin */}
+        <span className="font-mono hidden lg:inline" style={{ fontSize: 11, letterSpacing: '0.08em' }}>
           Fikir
         </span>
         {fikirler.length > 0 && (
@@ -162,7 +163,7 @@ export const HizliFikir: React.FC<HizliFikirProps> = ({ items, onAddItem, onUpda
   /* --- açık hâl: köşedeki pano --- */
   return (
     <div
-      className="fixed bottom-5 right-5 z-40 w-[min(92vw,380px)] rounded-xl overflow-hidden
+      className="fixed bottom-20 right-4 lg:bottom-5 lg:right-5 z-40 w-[min(92vw,380px)] rounded-xl overflow-hidden
                  border shadow-2xl flex flex-col"
       style={{
         background: '#FAF8F5', borderColor: '#CFC5B4', maxHeight: 'min(78vh, 560px)'

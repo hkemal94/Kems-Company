@@ -26,6 +26,10 @@ export interface YedeklemeProps {
   settings: UserSettings;
   /** Yedekten gelen bir kaydı yazar (var olanın üstüne) */
   onKayit: (item: Item) => Promise<void> | void;
+  /** Düğmenin görünüşü: raydaki simge ya da "Diğer" listesindeki satır */
+  tetikSinifi?: string;
+  /** Verilirse simgenin yanında yazı çıkar */
+  etiket?: string;
 }
 
 interface YedekDosyasi {
@@ -49,7 +53,7 @@ function gunFarki(ms: number): number {
   return Math.floor((Date.now() - ms) / 86_400_000);
 }
 
-export const Yedekleme: React.FC<YedeklemeProps> = ({ items, settings, onKayit }) => {
+export const Yedekleme: React.FC<YedeklemeProps> = ({ items, settings, onKayit, tetikSinifi, etiket }) => {
   const [acik, setAcik] = useState(false);
   const [durum, setDurum] = useState<string | null>(null);
   const [calisiyor, setCalisiyor] = useState(false);
@@ -134,11 +138,12 @@ export const Yedekleme: React.FC<YedeklemeProps> = ({ items, settings, onKayit }
             : gun === 0 ? 'Bugün yedek alındı'
               : `Son yedek ${gun} gün önce`
         }
-        className="relative p-2 bg-white dark:bg-[#17345A] border border-[#CFC5B4]
+        className={tetikSinifi ?? `relative p-2 bg-white dark:bg-[#17345A] border border-[#CFC5B4]
                    dark:border-[#2C3C72] text-[#6A5E4C] dark:text-[#A6B0C9]
-                   rounded-lg hover:text-[#F26B6F] transition-colors cursor-pointer"
+                   rounded-lg hover:text-[#F26B6F] transition-colors cursor-pointer`}
       >
-        <Archive className="w-4 h-4" />
+        <Archive className="w-4 h-4 shrink-0" />
+        {etiket && <span>{etiket}</span>}
         {eski && (
           <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full
                            bg-[#F26B6F]" />

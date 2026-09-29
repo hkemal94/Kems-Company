@@ -13,24 +13,23 @@ import { Item, UserSettings, AreaType, ItemType } from './types';
 import { maddeGorseli } from './lib/maddeGorseli';
 import {
   AlertTriangle,
-  ChevronLeft,
-  ChevronRight, 
-  ShoppingBag, 
-  BookOpen, 
-  Sparkles, 
-  Search, 
-  Lightbulb, 
-  Sunset, 
-  LayoutDashboard, 
-  Compass, 
-  PenTool, 
-  PenLine, 
-  Image as ImageIcon, 
-  BookMarked, 
-  Palette,
+  ShoppingBag,
+  BookOpen,
+  Search,
+  Compass,
+  PenTool,
+  PenLine,
+  Image as ImageIcon,
   Shield,
   Menu,
-  Gamepad2
+  Gamepad2,
+  Home,
+  ListChecks,
+  Percent,
+  Hammer,
+  Map as MapIcon,
+  Sun,
+  Moon
 } from 'lucide-react';
 import KomutaMerkezi from './components/KomutaMerkezi';
 import Duzada from './components/Duzada';
@@ -52,6 +51,15 @@ import { Yedekleme } from './components/Yedekleme';
 import HizliNotModal from './components/HizliNotModal';
 import AramaModal from './components/AramaModal';
 import { isEntityUnlinked, generateAiProposalsForUnlinked } from './utils/relations';
+import { Eksikler } from './components/Eksikler';
+import { Anasayfa, type TelSekmesi } from './components/anasayfa/Anasayfa';
+import { YuzdeSeridi } from './components/anasayfa/YuzdeSeridi';
+import { Zil } from './components/kabuk/Zil';
+import { durumOranlari } from './lib/durumOranlari';
+import { useBildirimler, type Bildirim } from './lib/bildirimler';
+
+/** Uygulamanın sayfaları. 'komuta' ana sayfa; eski Komuta Merkezi 'durum'. */
+type Sayfa = 'komuta' | 'durum' | 'eksikler' | 'markalar' | 'duzada' | 'merch' | 'yazi' | 'oyun' | 'galeri' | 'bosluklar';
 
 export interface WorkspaceUser {
   uid: string;
@@ -71,28 +79,24 @@ export default function App() {
   // A ref lock to prevent infinite loops of room de-duplication on items real-time updates
   
   // Navigation & interaction states
-  const [activeTab, setActiveTab] = useState<'komuta' | 'markalar' | 'duzada' | 'merch' | 'yazi' | 'oyun'>('komuta');
+  const [activeTab, setActiveTab] = useState<Sayfa>('komuta');
+  /** Paket 4: alt sekmeye doğrudan gitme istekleri (telefonda Harita, Kurucu, Kitap) */
+  const [duzadaIstek, setDuzadaIstek] = useState<{ sekme: 'wiki' | 'harita' | 'kurucu'; n: number } | null>(null);
+  const [yaziIstek, setYaziIstek] = useState<{ sekme: 'blog' | 'kitap'; n: number } | null>(null);
+  /** Neyin Eksik sayfası açılırken açık gelecek başlık */
+  const [eksikAcik, setEksikAcik] = useState<string | null>(null);
+  /** Telefonda ana sayfa sekmesi; açılışta Bugün */
+  const [telSekme, setTelSekme] = useState<TelSekmesi>('bugun');
+  /** Telefonda "Diğer" listesi */
+  const [digerAcik, setDigerAcik] = useState(false);
+  /** "+" ile gelen yeni not sayfası isteği */
+  const [yeniNotBekliyor, setYeniNotBekliyor] = useState(false);
+  const [bildirimNabzi, setBildirimNabzi] = useState(0);
   const [activeItemId, setActiveItemId] = useState<string | null>(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isHizliNotOpen, setIsHizliNotOpen] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  /**
-   * Ray daraltma (masaüstü). Kemal: "ray açılır kapanır olmalı, sayfanın
-   * rayı onun altında olmalı." Daraltılınca ray simge şeridine iner,
-   * ekranın kalanı çalışma alanına kalır. Tercih hatırlanır.
-   */
   /** Üst köşedeki logo yüklenemediyse o adres (tekrar denenmez) */
   const [logoHatasi, setLogoHatasi] = useState<string | null>(null);
-  const [rayDar, setRayDar] = useState<boolean>(() => {
-    try { return localStorage.getItem('kems_ray_dar') === '1'; } catch { return false; }
-  });
-  const rayiDegistir = () => {
-    setRayDar(d => {
-      const y = !d;
-      try { localStorage.setItem('kems_ray_dar', y ? '1' : '0'); } catch { /* yok */ }
-      return y;
-    });
-  };
 
   // Authentication & Settings observer (Açık erişim modu: Google girişi zorunlu değil)
   useEffect(() => {
@@ -547,7 +551,7 @@ export default function App() {
     } else if (item.type === 'marka') {
       setActiveTab('markalar');
     } else if (item.type === 'blog_post' || item.type === 'kitap_proje' || item.type === 'kitap_bolum') {
-      setActiveTab('yazi_atolyesi');
+      setActiveTab('yazi');
     } else if (item.type === 'fikir') {
       /*
        * Brainstorm sekmesi kalktı (28 Eylül kararı). Fikirler köşedeki
@@ -565,7 +569,7 @@ export default function App() {
    * "varlık" olanlar. Harita ayarı, kanal kaydı ve günlük not varlık değil —
    * bunlar uygulamanın kendi iç kayıtları.
    */
-  const SAYILMAZ_TIP = new Set(['map_settings', 'channel']);
+  const SAYILMAZ_TIP = new Set(['map_settings', 'channel', 'aday']);
   const varlikSayisi = useMemo(
     () => items.filter(
       i => !i.archived && !i.isProposal
@@ -588,6 +592,41 @@ export default function App() {
     aiGozcusunuKur();
     return aiDurumunuDinle(setAiHal);
   }, []);
+
+  /** Menüdeki kırmızı noktalar ve zil (Paket 4) */
+  const bildirimler = useBildirimler(items, bildirimNabzi);
+  const bildirimVar = (t: Bildirim['tur']) => bildirimler.some(b => b.tur === t);
+  const bekleyenDugmeListesi = bildirimler.find(b => b.tur === 'dugme')?.ayrinti.split(' · ') ?? [];
+
+  /**
+   * Tek gezinme kapısı (Paket 4): menü, "Diğer" listesi, yüzde şeridi,
+   * zil hepsi buradan geçer.
+   */
+  const git = (hedef: string, ayrinti?: string | null) => {
+    setDigerAcik(false);
+    setActiveItemId(null);
+    const n = Date.now();
+    switch (hedef) {
+      case 'harita': setDuzadaIstek({ sekme: 'harita', n }); setActiveTab('duzada'); break;
+      case 'kurucu': setDuzadaIstek({ sekme: 'kurucu', n }); setActiveTab('duzada'); break;
+      case 'viki': case 'kunye': case 'duzada': setDuzadaIstek({ sekme: 'wiki', n }); setActiveTab('duzada'); break;
+      case 'kitap': setYaziIstek({ sekme: 'kitap', n }); setActiveTab('yazi'); break;
+      case 'blog': setYaziIstek({ sekme: 'blog', n }); setActiveTab('yazi'); break;
+      case 'bosluk': setActiveTab('bosluklar'); break;
+      case 'eksikler': setEksikAcik(ayrinti ?? null); setActiveTab('eksikler'); break;
+      default: setActiveTab(hedef as Sayfa);
+    }
+    try { window.scrollTo({ top: 0 }); } catch { /* yok */ }
+  };
+
+  const maddeyiAc = (item: Item) => { handleSelectResult(item); };
+
+  const bildirimSec = (b: Bildirim, madde?: Item) => {
+    if (madde) { maddeyiAc(madde); return; }
+    if (b.tur === 'dugme') git('eksikler');
+    else if (b.tur === 'kanon') { if (b.maddeler?.[0]) maddeyiAc(b.maddeler[0]); }
+    else { setTelSekme('bugun'); git('komuta'); }
+  };
 
   const handleSelectArea = (area: AreaType, itemId?: string) => {
     // 'blog' ve 'kitap' artık tek sekme: Yazı İşleri
@@ -672,322 +711,344 @@ export default function App() {
   // Logo adresi yüklenemezse kırık resim yerine yazı logosu görünsün
   const hasKemsLogo = !!(kemsLogo && (kemsLogo.startsWith('http') || kemsLogo.startsWith('data:') || kemsLogo.startsWith('/'))) && logoHatasi !== kemsLogo;
 
+  /*
+   * Menü (Paket 4, Kemal 29 Eylül): masaüstünde solda ince simge çubuğu,
+   * telefonda altta beş düğme — Ana sayfa · Viki · Harita · Merch · Diğer.
+   * "Diğer" işe göre gruplu: Evren · Marka · Araçlar.
+   */
+  const RAY: Array<{ id: Sayfa; ad: string; simge: React.ElementType; nokta?: boolean }> = [
+    { id: 'komuta', ad: 'Ana sayfa', simge: Home, nokta: bildirimVar('aday') || bildirimVar('soru') },
+    { id: 'duzada', ad: 'Düzada · viki ve harita', simge: Compass, nokta: bildirimVar('kanon') },
+    { id: 'markalar', ad: 'Markalar', simge: Shield },
+    { id: 'merch', ad: 'Merch', simge: ShoppingBag },
+    { id: 'yazi', ad: 'Yazı · kitap ve blog', simge: PenTool },
+    { id: 'oyun', ad: 'Oyun', simge: Gamepad2 },
+    { id: 'galeri', ad: 'Galeri', simge: ImageIcon },
+    { id: 'bosluklar', ad: 'Boşluklar', simge: PenLine },
+    { id: 'eksikler', ad: 'Neyin Eksik', simge: ListChecks, nokta: bildirimVar('dugme') },
+    { id: 'durum', ad: 'Durum · yüzdeler', simge: Percent }
+  ];
+
+  const DIGER: Array<{ grup: string; satirlar: Array<{ hedef: string; ad: string; simge: React.ElementType; nokta?: boolean }> }> = [
+    { grup: 'Evren', satirlar: [
+      { hedef: 'kitap', ad: 'Kitap', simge: BookOpen },
+      { hedef: 'blog', ad: 'Blog', simge: PenTool },
+      { hedef: 'oyun', ad: 'Oyun', simge: Gamepad2 }
+    ] },
+    { grup: 'Marka', satirlar: [
+      { hedef: 'markalar', ad: 'Markalar', simge: Shield },
+      { hedef: 'galeri', ad: 'Galeri', simge: ImageIcon }
+    ] },
+    { grup: 'Araçlar', satirlar: [
+      { hedef: 'kurucu', ad: 'Kurucu', simge: Hammer },
+      { hedef: 'eksikler', ad: 'Neyin Eksik', simge: ListChecks, nokta: bildirimVar('dugme') },
+      { hedef: 'durum', ad: 'Durum', simge: Percent },
+      { hedef: 'bosluklar', ad: 'Boşluklar', simge: PenLine }
+    ] }
+  ];
+
+  const haritada = activeTab === 'duzada' && duzadaIstek?.sekme === 'harita';
+  const ALT: Array<{ id: string; ad: string; simge: React.ElementType; aktif: boolean; nokta?: boolean }> = [
+    { id: 'komuta', ad: 'Ana sayfa', simge: Home, aktif: activeTab === 'komuta', nokta: bildirimVar('aday') || bildirimVar('soru') },
+    { id: 'viki', ad: 'Viki', simge: Compass, aktif: activeTab === 'duzada' && !haritada, nokta: bildirimVar('kanon') },
+    { id: 'harita', ad: 'Harita', simge: MapIcon, aktif: haritada },
+    { id: 'merch', ad: 'Merch', simge: ShoppingBag, aktif: activeTab === 'merch' },
+    { id: 'diger', ad: 'Diğer', simge: Menu, aktif: digerAcik || !['komuta', 'duzada', 'merch'].includes(activeTab), nokta: bildirimVar('dugme') }
+  ];
+
+  const SAYFA_ADI: Record<Sayfa, string> = {
+    komuta: 'Ana sayfa', duzada: 'Düzada', markalar: 'Markalar', merch: 'Merch', yazi: 'Yazı',
+    oyun: 'Oyun', galeri: 'Galeri', bosluklar: 'Boşluklar', eksikler: 'Neyin Eksik', durum: 'Durum'
+  };
+
+  const logo = hasKemsLogo ? (
+    <img
+      src={kemsLogo}
+      alt="Kems Company"
+      className="w-10 h-10 rounded-lg object-contain bg-[#F3EFE8] shrink-0"
+      referrerPolicy="no-referrer"
+      onError={() => setLogoHatasi(kemsLogo || null)}
+    />
+  ) : (
+    <span className="w-10 h-10 rounded-lg bg-[#F3EFE8] flex flex-col items-center justify-center shrink-0 leading-none">
+      <span className="text-[#0E1C4F] font-extrabold text-[10px] tracking-tighter">KEMS</span>
+      <span className="mt-0.5 px-0.5 bg-[#F26B6F] text-white font-bold text-[4.5px] tracking-wider">COMPANY</span>
+    </span>
+  );
+
+  const temaSimgesi = settings.theme === 'dark' ? Sun : Moon;
+  const TemaSimgesi = temaSimgesi;
+
   return (
-    <div className="min-h-screen bg-[#E4DCCD] dark:bg-[#0B132B] text-[#0E1C4F] dark:text-[#F3EFE8] flex flex-col font-sans transition-colors duration-200 paper-grain selection:bg-[#F26B6F] selection:text-white">
-      
-      {/* Heritage Archive Top Header */}
-      <header className="border-b-2 border-[#CFC5B4] dark:border-[#2C3C72] bg-[#F3EFE8]/90 dark:bg-[#13204A]/90 sticky top-0 z-30 backdrop-blur-xs py-3.5 px-4 md:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-        
-        <button 
-          onClick={() => { setActiveTab('komuta'); setActiveItemId(null); }}
-          className="flex items-center gap-3 text-left hover:opacity-85 transition-opacity cursor-pointer focus:outline-hidden"
-          title="Komuta Merkezi'ne Dön"
-        >
-          {/* Kems Company Logo */}
-          {hasKemsLogo ? (
-            <img 
-              src={kemsLogo} 
-              alt="Kems Company Logo" 
-              className="w-10 h-10 md:w-11 md:h-11 rounded-lg object-contain bg-[#F3EFE8] border-2 border-[#0F1E36] shrink-0 shadow-xs"
-              referrerPolicy="no-referrer"
-              onError={() => setLogoHatasi(kemsLogo || null)}
-            />
-          ) : (
-            <div className="flex flex-col border-[2.5px] border-[#0F1E36] rounded-md font-sans overflow-hidden w-[96px] shrink-0 select-none text-center shadow-xs">
-              <div className="bg-[#FBF9F6] px-1 py-0.5 relative flex items-center justify-center h-6">
-                <span className="text-[#0F1E36] font-extrabold tracking-tighter text-xs uppercase leading-none font-sans">KEMS</span>
-                <span className="text-[#0F1E36] text-[5px] font-bold absolute top-0.5 right-0.5 leading-none">®</span>
-              </div>
-              <div className="bg-[#F26B6F] text-white px-0.5 py-[2px] flex items-center justify-center border-t-[2.5px] border-[#0F1E36] h-[14px]">
-                <span className="text-white font-extrabold tracking-[0.08em] text-[5.5px] uppercase leading-none font-sans">COMPANY</span>
-              </div>
-            </div>
-          )}
-          <div className="flex flex-col">
-            <h1 className="font-sans font-bold text-base text-[#0E1C4F] dark:text-[#F3EFE8] uppercase tracking-tight leading-none">
-              Komuta Merkezi
-            </h1>
-            <span className="text-[9px] font-mono font-semibold text-[#6A5E4C] dark:text-[#A6B0C9] uppercase tracking-widest block mt-0.5">
-              Creative Brand Desk
-            </span>
-          </div>
-        </button>
+    <div className="min-h-screen bg-[#E4DCCD] dark:bg-[#0B132B] text-[#0E1C4F] dark:text-[#F3EFE8] font-sans transition-colors duration-200 paper-grain selection:bg-[#F26B6F] selection:text-white">
 
-        {/* Global Toolbar and Toggles */}
-        <div className="flex items-center gap-3 flex-wrap">
-          
-          {/* Quick tools */}
-          <button
-            onClick={() => setIsSearchOpen(true)}
-            className="flex items-center justify-between w-48 sm:w-64 md:w-80 px-3.5 py-1.5 bg-white dark:bg-[#17345A] border border-[#CFC5B4] dark:border-[#2C3C72] text-[#6A5E4C] dark:text-[#A6B0C9] rounded-lg text-xs font-mono hover:border-[#F26B6F] transition-all cursor-pointer group text-left shadow-2xs"
-            title="Arama yap (Cmd+K)"
-          >
-            <div className="flex items-center gap-2">
-              <Search className="w-3.5 h-3.5 group-hover:text-[#F26B6F] transition-colors" />
-              <span>Arama yap...</span>
-            </div>
-            <kbd className="hidden sm:inline-block bg-[#F3EFE8] dark:bg-[#13204A] px-1.5 py-0.5 rounded text-[10px] text-[#6A5E4C] dark:text-[#95A1C2]">⌘K</kbd>
+      {/* MASAÜSTÜ: ince simge çubuğu */}
+      <nav className="hidden lg:flex fixed inset-y-0 left-0 z-40 w-16 flex-col items-center gap-1 py-3 bg-[#0E1C4F] dark:bg-[#081029]">
+        <button type="button" onClick={() => git('komuta')} title="Ana sayfa" className="mb-2 cursor-pointer">{logo}</button>
+        {RAY.map(r => {
+          const Simge = r.simge;
+          const aktif = activeTab === r.id;
+          return (
+            <button
+              key={r.id}
+              type="button"
+              onClick={() => git(r.id)}
+              title={r.ad}
+              aria-label={r.ad}
+              className={`relative w-11 h-11 rounded-xl flex items-center justify-center cursor-pointer transition-colors ${aktif ? 'bg-[#F26B6F] text-white' : 'text-[#A6B0C9] hover:text-white hover:bg-white/10'}`}
+            >
+              <Simge className="w-[18px] h-[18px]" />
+              {r.nokta && <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#F26B6F] ring-2 ring-[#0E1C4F] dark:ring-[#081029]" />}
+            </button>
+          );
+        })}
+        <div className="mt-auto flex flex-col items-center gap-1">
+          <button type="button" onClick={() => setIsSearchOpen(true)} title="Ara (⌘K)" className="w-11 h-11 rounded-xl flex items-center justify-center text-[#A6B0C9] hover:text-white hover:bg-white/10 cursor-pointer">
+            <Search className="w-[18px] h-[18px]" />
           </button>
-
-          <button
-            onClick={() => setIsHizliNotOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#F26B6F] text-white rounded-lg text-xs font-mono hover:bg-[#B23A40] transition-all shadow-xs cursor-pointer"
-            title="Hızlı Fikir / Not al (Alt+N)"
-          >
-            <Lightbulb className="w-3.5 h-3.5" />
-            <span>+ Hızlı Not</span>
-          </button>
-
-          {/* Theme Switcher */}
-          <button
-            onClick={handleToggleTheme}
-            className="p-2 bg-white dark:bg-[#17345A] border border-[#CFC5B4] dark:border-[#2C3C72] text-[#6A5E4C] dark:text-[#A6B0C9] rounded-lg hover:text-[#F26B6F] transition-colors cursor-pointer"
-            title="Temayı değiştir (Arşiv / Koyu)"
-          >
-            <Sunset className="w-4 h-4" />
-          </button>
-
-          {/* Yedekleme (K2) */}
+          <Zil bildirimler={bildirimler} onSec={bildirimSec} yon="sag" />
           {user && (
             <Yedekleme
               items={items}
               settings={settings}
               onKayit={async kayit => { await saveItem(user.uid, kayit); }}
+              tetikSinifi="relative w-11 h-11 rounded-xl flex items-center justify-center text-[#A6B0C9] hover:text-white hover:bg-white/10 cursor-pointer"
             />
           )}
-
-          {/* Açık Erişim / Mod Durumu */}
-          <div className="h-8 w-px bg-[#CFC5B4] dark:bg-[#2C3C72] mx-1 hidden sm:block" />
-
-          <div className="flex items-center gap-2 px-2.5 py-1 rounded-lg bg-[#6F6047]/10 dark:bg-[#2C3C72]/40 text-[#6F6047] dark:text-[#A6B0C9] text-xs font-mono select-none" title="Arşiv herkese açık modda">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span className="hidden sm:inline">Açık Erişim</span>
-          </div>
-
+          <button type="button" onClick={handleToggleTheme} title="Aydınlık / karanlık" className="w-11 h-11 rounded-xl flex items-center justify-center text-[#A6B0C9] hover:text-white hover:bg-white/10 cursor-pointer">
+            <TemaSimgesi className="w-[18px] h-[18px]" />
+          </button>
         </div>
-      </header>
+      </nav>
 
-      {/* AI ucu ulaşılamıyorsa tek yerden söyle — düğmeler sessiz kalmasın */}
-      {(aiHal.hal === 'sunucu-yok' || aiHal.hal === 'hata') && (
-        <div className="max-w-[1400px] w-full mx-auto px-4 md:px-8 pt-4">
-          <div className="flex items-start gap-3 px-4 py-3 rounded-xl border border-[#F26B6F]/45 bg-[#F26B6F]/8">
-            <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0 text-[#F26B6F]" />
-            <p className="flex-1 text-[12px] leading-snug text-[#B23A40]">
-              {aiHal.mesaj}
-            </p>
-            <button
-              onClick={aiUyarisiniKapat}
-              className="shrink-0 text-[#B23A40] hover:opacity-70 cursor-pointer text-xs font-mono"
-            >
-              kapat
+      <div className="lg:pl-16">
+        {/* TELEFON: ana sayfa dışında ince üst çubuk */}
+        {activeTab !== 'komuta' && (
+          <header className="lg:hidden sticky top-0 z-30 flex items-center gap-3 px-4 py-2.5 bg-[#F3EFE8]/95 dark:bg-[#13204A]/95 backdrop-blur-xs border-b border-[#CFC5B4] dark:border-[#2C3C72]">
+            <button type="button" onClick={() => git('komuta')} className="cursor-pointer">{logo}</button>
+            <span className="flex-1 min-w-0 truncate font-bold text-[15px]">{SAYFA_ADI[activeTab]}</span>
+            <button type="button" onClick={() => setIsSearchOpen(true)} title="Ara" className="w-11 h-11 rounded-full flex items-center justify-center text-[#6A5E4C] dark:text-[#A6B0C9] cursor-pointer">
+              <Search className="w-[18px] h-[18px]" />
             </button>
+            <Zil bildirimler={bildirimler} onSec={bildirimSec} />
+          </header>
+        )}
+
+        <div className="max-w-[1500px] mx-auto w-full px-4 lg:px-6 pt-4 lg:pt-6 pb-28 lg:pb-12 flex flex-col lg:flex-row gap-3 lg:gap-6">
+          {/*
+            Sayfanın kendi rayı (SayfaRayi portal ile buraya basar). Masaüstünde
+            menünün yanında dar bir sütun, telefonda sayfanın üstünde yana
+            kayan bir şerit. Sayfanın rayı yoksa yer kaplamaz.
+          */}
+          <div id={SAYFA_RAYI_YUVASI} className="lg:w-48 lg:shrink-0 lg:sticky lg:top-6 lg:self-start empty:hidden min-w-0" />
+
+          <main className="flex-1 min-w-0">
+            {/* AI ucu ulaşılamıyorsa tek yerden söyle — düğmeler sessiz kalmasın */}
+            {(aiHal.hal === 'sunucu-yok' || aiHal.hal === 'hata') && (
+              <div className="mb-4 flex items-start gap-3 px-4 py-3 rounded-xl border border-[#F26B6F]/45 bg-[#F26B6F]/8">
+                <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0 text-[#F26B6F]" />
+                <p className="flex-1 text-[12px] leading-snug text-[#B23A40] dark:text-[#F26B6F]">{aiHal.mesaj}</p>
+                <button onClick={aiUyarisiniKapat} className="shrink-0 text-[#B23A40] dark:text-[#F26B6F] hover:opacity-70 cursor-pointer text-xs font-mono">kapat</button>
+              </div>
+            )}
+
+            {activeTab === 'komuta' && (
+              <Anasayfa
+                items={items}
+                bugunDugmeler={bekleyenDugmeListesi}
+                onGit={git}
+                onMaddeyiAc={maddeyiAc}
+                onAddItem={handleAddItem}
+                onUpdateItem={handleUpdateItem}
+                onAcceptProposal={handleAcceptProposal}
+                onOpenSearch={() => setIsSearchOpen(true)}
+                onBildirimYenile={() => setBildirimNabzi(n => n + 1)}
+                zil={<Zil bildirimler={bildirimler} onSec={bildirimSec} />}
+                yeniNotBekliyor={yeniNotBekliyor}
+                onYeniNot={() => { setTelSekme('notlar'); setYeniNotBekliyor(true); }}
+                onYeniNotAcildi={() => setYeniNotBekliyor(false)}
+                sekme={telSekme}
+                onSekme={setTelSekme}
+              />
+            )}
+
+            {activeTab === 'durum' && (
+              <KomutaMerkezi
+                items={items}
+                onSelectArea={handleSelectArea}
+                onAcceptProposal={handleAcceptProposal}
+                onRejectProposal={handleRejectProposal}
+                onUpdateItem={handleUpdateItem}
+                onAddItem={handleAddItem}
+                onDeleteItem={handleDeleteItem}
+                onRefreshLive={handleRefreshLive}
+                lastSyncTime={lastSyncTime}
+                isSyncing={isSyncing}
+                ustKisim={<YuzdeSeridi oranlar={durumOranlari(items)} onSec={h => git(h)} ayrintili />}
+              />
+            )}
+
+            {activeTab === 'eksikler' && (
+              <Eksikler
+                items={items}
+                onSelectArea={handleSelectArea}
+                onUpdateItem={handleUpdateItem}
+                onAddItem={handleAddItem}
+                baslangicAcik={eksikAcik}
+              />
+            )}
+
+            {activeTab === 'markalar' && (
+              <Markalar
+                items={items}
+                onSelectItem={setActiveItemId}
+                onUpdateItem={handleUpdateItem}
+                onDeleteItem={handleDeleteItem}
+                onAddItem={handleAddItem}
+                onSelectArea={handleSelectArea}
+              />
+            )}
+
+            {activeTab === 'duzada' && (
+              <Duzada
+                items={items}
+                activeItemId={activeItemId}
+                onSelectItem={setActiveItemId}
+                onUpdateItem={handleUpdateItem}
+                onDeleteItem={handleDeleteItem}
+                onAddItem={handleAddItem}
+                istek={duzadaIstek}
+              />
+            )}
+
+            {activeTab === 'merch' && (
+              <Merch
+                items={items}
+                activeItemId={activeItemId}
+                onSelectItem={setActiveItemId}
+                onUpdateItem={handleUpdateItem}
+                onDeleteItem={handleDeleteItem}
+                onAddItem={handleAddItem}
+                onSelectArea={handleSelectArea}
+              />
+            )}
+
+            {activeTab === 'yazi' && (
+              <YaziAtolyesi
+                items={items}
+                activeItemId={activeItemId}
+                onSelectItem={setActiveItemId}
+                onUpdateItem={handleUpdateItem}
+                onDeleteItem={handleDeleteItem}
+                onAddItem={handleAddItem}
+                istek={yaziIstek}
+              />
+            )}
+
+            {activeTab === 'oyun' && (
+              <OyunEkrani
+                items={items}
+                activeItemId={activeItemId}
+                onSelectItem={setActiveItemId}
+                onUpdateItem={handleUpdateItem}
+                onDeleteItem={handleDeleteItem}
+                onAddItem={handleAddItem}
+                onNavigateToTab={(tab, itemId) => {
+                  setActiveTab(tab as Sayfa);
+                  setActiveItemId(itemId || null);
+                }}
+                onSelectArea={(area, itemId) => {
+                  setActiveTab(area as Sayfa);
+                  setActiveItemId(itemId || null);
+                }}
+              />
+            )}
+
+            {activeTab === 'galeri' && (
+              <Galeri
+                items={items}
+                onAddItem={handleAddItem}
+                onUpdateItem={handleUpdateItem}
+                onSelectItem={(id) => {
+                  const it = items.find(i => i.id === id);
+                  if (it) handleSelectResult(it);
+                }}
+              />
+            )}
+
+            {activeTab === 'bosluklar' && (
+              <Bosluklar items={items} onUpdateItem={handleUpdateItem} />
+            )}
+          </main>
+        </div>
+      </div>
+
+      {/* TELEFON: alt menü */}
+      <nav className="lg:hidden fixed inset-x-0 bottom-0 z-40 h-16 pb-[env(safe-area-inset-bottom)] flex items-stretch justify-around px-1 bg-[#0E1C4F] dark:bg-[#081029]">
+        {ALT.map(a => {
+          const Simge = a.simge;
+          return (
+            <button
+              key={a.id}
+              type="button"
+              onClick={() => (a.id === 'diger' ? setDigerAcik(d => !d) : git(a.id))}
+              className={`relative flex-1 my-1.5 mx-0.5 rounded-xl flex flex-col items-center justify-center gap-0.5 text-[10px] cursor-pointer ${a.aktif ? 'bg-[#F26B6F] text-white' : 'text-[#A6B0C9]'}`}
+            >
+              <Simge className="w-5 h-5" />
+              {a.ad}
+              {a.nokta && !a.aktif && <span className="absolute top-1.5 right-[calc(50%-16px)] w-2 h-2 rounded-full bg-[#F26B6F]" />}
+            </button>
+          );
+        })}
+      </nav>
+
+      {/* TELEFON: "Diğer" listesi — işe göre gruplu */}
+      {digerAcik && (
+        <div className="lg:hidden fixed inset-0 z-30 bg-black/40" onClick={() => setDigerAcik(false)}>
+          <div
+            className="absolute inset-x-0 bottom-16 max-h-[75vh] overflow-y-auto rounded-t-2xl bg-[#FAF8F5] dark:bg-[#13204A] p-4 pb-5 space-y-4"
+            onClick={e => e.stopPropagation()}
+          >
+            {DIGER.map(g => (
+              <div key={g.grup}>
+                <div className="text-[10px] font-mono font-bold uppercase tracking-[0.18em] text-[#6A5E4C] dark:text-[#A6B0C9] mb-2">{g.grup}</div>
+                <div className="grid grid-cols-3 gap-2">
+                  {g.satirlar.map(r => {
+                    const Simge = r.simge;
+                    return (
+                      <button
+                        key={r.hedef}
+                        type="button"
+                        onClick={() => git(r.hedef)}
+                        className="relative flex flex-col items-center gap-1.5 py-3 rounded-xl border border-[#CFC5B4] dark:border-[#2C3C72] text-[12px] text-[#0E1C4F] dark:text-[#F3EFE8] cursor-pointer active:bg-[#F3EFE8] dark:active:bg-[#17345A]"
+                      >
+                        <Simge className="w-5 h-5 text-[#D6484C] dark:text-[#F26B6F]" />
+                        {r.ad}
+                        {r.nokta && <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#F26B6F]" />}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+            <div className="flex gap-2 pt-1">
+              <button type="button" onClick={handleToggleTheme} className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border border-[#CFC5B4] dark:border-[#2C3C72] text-[12px] text-[#0E1C4F] dark:text-[#F3EFE8] cursor-pointer">
+                <TemaSimgesi className="w-4 h-4" /> {settings.theme === 'dark' ? 'Aydınlık' : 'Karanlık'}
+              </button>
+              {user && (
+                <Yedekleme
+                  items={items}
+                  settings={settings}
+                  onKayit={async kayit => { await saveItem(user.uid, kayit); }}
+                  etiket="Yedek"
+                  tetikSinifi="relative flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border border-[#CFC5B4] dark:border-[#2C3C72] text-[12px] text-[#0E1C4F] dark:text-[#F3EFE8] cursor-pointer"
+                />
+              )}
+            </div>
+            <p className="text-center text-[10px] font-mono text-[#6A5E4C] dark:text-[#A6B0C9]">{varlikSayisi} kayıtlı varlık</p>
           </div>
         </div>
       )}
-
-      {/* Primary Workspace Navigation Grid */}
-      <div className="flex-1 max-w-[1400px] w-full mx-auto px-4 md:px-8 py-6 flex flex-col lg:flex-row gap-6">
-        
-        {/* Mobile Sidebar Toggle Header */}
-        <div className="lg:hidden w-full flex items-center justify-between p-3.5 bg-white dark:bg-[#13204A] border border-[#CFC5B4] dark:border-[#2C3C72] rounded-xl mb-1 shadow-xs">
-          <span className="font-mono text-xs font-bold text-[#6A5E4C] dark:text-[#A6B0C9] flex items-center gap-2">
-            <Menu className="w-4 h-4 text-[#F26B6F]" /> Çalışma Masası Rayı
-          </span>
-          <button 
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="text-xs font-mono px-3 py-1.5 bg-[#F26B6F] text-white rounded-lg font-bold hover:bg-[#B23A40] transition-colors cursor-pointer"
-          >
-            {isMenuOpen ? 'Menüyü Kapat ✕' : 'Menüyü Aç ☰'}
-          </button>
-        </div>
-
-        {/* SIDEBAR NAVIGATION - LOOKS LIKE ARCHIVE RAIL */}
-        <aside className={`w-full shrink-0 flex flex-col gap-2.5 transition-all duration-200 ${rayDar ? 'lg:w-16' : 'lg:w-64'} ${isMenuOpen ? 'block' : 'hidden lg:flex'}`}>
-          <div className="flex items-center gap-1 px-1">
-            {!rayDar && (
-              <span className="text-[10px] font-mono uppercase tracking-wider text-[#6A5E4C] dark:text-[#A6B0C9] font-bold block">
-                Çalışma Masası Rayı
-              </span>
-            )}
-            <button
-              type="button"
-              onClick={rayiDegistir}
-              title={rayDar ? 'Rayı genişlet' : 'Rayı daralt'}
-              className="hidden lg:flex ml-auto items-center justify-center w-6 h-6 rounded-md text-[#6A5E4C] dark:text-[#A6B0C9] hover:text-[#F26B6F] hover:bg-[#F3EFE8] dark:hover:bg-[#17345A] transition-colors cursor-pointer"
-            >
-              {rayDar ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronLeft className="w-3.5 h-3.5" />}
-            </button>
-          </div>
-
-          <nav className="space-y-1 font-mono text-xs">
-            {[
-              { id: 'komuta', label: 'Komuta Merkezi', icon: LayoutDashboard },
-              { id: 'markalar', label: 'Markalar', icon: Shield },
-              { id: 'duzada', label: 'Düzada & Lore', icon: Compass },
-              { id: 'merch', label: 'Merch Atölyesi', icon: ShoppingBag },
-              // Blog ve Kitap tek çatı altında: YaziAtolyesi bunları
-              // birleştirmek için yazılmıştı ama raya hiç bağlanmamıştı.
-              { id: 'yazi', label: 'Yazı İşleri', icon: PenTool },
-              { id: 'oyun', label: 'Oyun Projeleri', icon: Gamepad2 },
-              // Boşluklar: metni Kemal yazacak, buraya hiçbir öneri basılmıyor
-              { id: 'bosluklar', label: 'Boşluklar', icon: PenLine },
-              // Galeri: Canva'dan indirilen logolar buraya yükleniyor
-              { id: 'galeri', label: 'Galeri', icon: ImageIcon }
-            ].map(item => {
-              const Icon = item.icon;
-              const isActive = activeTab === item.id;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => {
-                    setActiveTab(item.id as any);
-                    setActiveItemId(null); // Clear selected item to return to parent lists
-                    setIsMenuOpen(false); // Close mobile menu after select
-                  }}
-                  title={item.label}
-                  className={`w-full text-left rounded-xl flex items-center cursor-pointer transition-all ${rayDar ? 'lg:justify-center lg:px-0 px-4 py-3 gap-3 lg:gap-0' : 'px-4 py-3 gap-3'} ${isActive ? 'bg-[#0E1C4F] dark:bg-[#F26B6F] text-[#F3EFE8] font-bold shadow-md' : 'bg-white dark:bg-[#13204A]/55 hover:bg-[#F6F1E7] hover:text-[#0E1C4F] dark:hover:bg-[#202E5C] dark:hover:text-[#F3EFE8] border border-[#CFC5B4]/40 text-[#6A5E4C] dark:text-[#A6B0C9]'}`}
-                >
-                  <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-[#F26B6F] dark:text-amber-200' : 'text-[#6A5E4C]'}`} />
-                  <span className={rayDar ? 'lg:hidden' : ''}>{item.label}</span>
-                </button>
-              );
-            })}
-          </nav>
-          
-          {/*
-            Sayfanın kendi rayı buraya basılıyor (SayfaRayi, portal ile).
-            Ana rayın altında durur; ray daraltılınca gizlenir.
-          */}
-          {!rayDar && <div id={SAYFA_RAYI_YUVASI} />}
-
-          {/*
-            Varlık sayısı. Eskiden ham `items.length` yazılıyordu: arşivlenmişi,
-            öneriyi, harita ayarını, kanal kaydını, günlük notu — hepsini
-            sayıyordu. O yüzden raydaki 163 ile wiki'deki 88 ve markalardaki 3
-            birbirini tutmuyordu. Artık ölçü tek: arşivlenmemiş, öneri
-            olmayan, gerçek varlıklar.
-          */}
-          {!rayDar && (
-          <div className="mt-4 p-4 bg-white/40 dark:bg-[#13204A]/50 border border-[#CFC5B4] rounded-xl text-center space-y-1 font-mono text-[10px] text-[#6A5E4C] dark:text-[#A6B0C9]">
-            <p>KOMUTA MERKEZİ AKSI</p>
-            <p className="font-bold text-xs text-[#F26B6F]">
-              {varlikSayisi} Kayıtlı Varlık
-            </p>
-            {oneriSayisi > 0 && (
-              <p className="opacity-70">+{oneriSayisi} öneri bekliyor</p>
-            )}
-          </div>
-          )}
-        </aside>
-
-        {/* ACTIVE WORKSPACE AREA */}
-        <main className="flex-1 min-w-0 pb-20">
-          {activeTab === 'komuta' && (
-            <KomutaMerkezi 
-              items={items}
-              onSelectArea={handleSelectArea}
-              onAcceptProposal={handleAcceptProposal}
-              onRejectProposal={handleRejectProposal}
-              onUpdateItem={handleUpdateItem}
-              onAddItem={handleAddItem}
-              onDeleteItem={handleDeleteItem}
-              onOpenSearch={() => setIsSearchOpen(true)}
-              onOpenHizliNot={() => setIsHizliNotOpen(true)}
-              onToggleTheme={handleToggleTheme}
-              currentTheme={settings.theme}
-              onRefreshLive={handleRefreshLive}
-              lastSyncTime={lastSyncTime}
-              isSyncing={isSyncing}
-            />
-          )}
-
-          {activeTab === 'markalar' && (
-            <Markalar
-              items={items}
-              onSelectItem={setActiveItemId}
-              onUpdateItem={handleUpdateItem}
-              onDeleteItem={handleDeleteItem}
-              onAddItem={handleAddItem}
-              onSelectArea={handleSelectArea}
-            />
-          )}
-
-          {activeTab === 'duzada' && (
-            <Duzada
-              items={items}
-              activeItemId={activeItemId}
-              onSelectItem={setActiveItemId}
-              onUpdateItem={handleUpdateItem}
-              onDeleteItem={handleDeleteItem}
-              onAddItem={handleAddItem}
-            />
-          )}
-
-          {activeTab === 'merch' && (
-            <Merch
-              items={items}
-              activeItemId={activeItemId}
-              onSelectItem={setActiveItemId}
-              onUpdateItem={handleUpdateItem}
-              onDeleteItem={handleDeleteItem}
-              onAddItem={handleAddItem}
-              onSelectArea={handleSelectArea}
-            />
-          )}
-
-          {activeTab === 'yazi' && (
-            <YaziAtolyesi
-              items={items}
-              activeItemId={activeItemId}
-              onSelectItem={setActiveItemId}
-              onUpdateItem={handleUpdateItem}
-              onDeleteItem={handleDeleteItem}
-              onAddItem={handleAddItem}
-            />
-          )}
-
-          {activeTab === 'oyun' && (
-            <OyunEkrani
-              items={items}
-              activeItemId={activeItemId}
-              onSelectItem={setActiveItemId}
-              onUpdateItem={handleUpdateItem}
-              onDeleteItem={handleDeleteItem}
-              onAddItem={handleAddItem}
-              onNavigateToTab={(tab, itemId) => {
-                setActiveTab(tab as any);
-                if (itemId) {
-                  setActiveItemId(itemId);
-                } else {
-                  setActiveItemId(null);
-                }
-              }}
-              onSelectArea={(area, itemId) => {
-                setActiveTab(area as any);
-                setActiveItemId(itemId || null);
-              }}
-            />
-          )}
-
-          {activeTab === 'galeri' && (
-            <Galeri
-              items={items}
-              onAddItem={handleAddItem}
-              onUpdateItem={handleUpdateItem}
-              onSelectItem={(id) => {
-                const it = items.find(i => i.id === id);
-                if (it) handleSelectResult(it);
-              }}
-            />
-          )}
-
-          {activeTab === 'bosluklar' && (
-            <Bosluklar items={items} onUpdateItem={handleUpdateItem} />
-          )}
-
-        </main>
-
-      </div>
 
       {/* Her sayfanın köşesinde duran hızlı fikir kutusu */}
       <HizliFikir
@@ -996,7 +1057,6 @@ export default function App() {
         onUpdateItem={handleUpdateItem}
       />
 
-      {/* Floating Global Modal Overlays */}
       <AramaModal
         isOpen={isSearchOpen}
         onClose={() => setIsSearchOpen(false)}

@@ -45,7 +45,7 @@ function oku(item: Item, yol: string): string {
  * Firestore notu: `undefined` yazmak bütün kaydı reddettiriyor, o yüzden
  * boş değer yazılmıyor — boşsa hiç çağrılmıyor.
  */
-function yaz(item: Item, yol: string, deger: string): Item {
+export function alanaYaz(item: Item, yol: string, deger: string): Item {
   const parcalar = yol.split('.');
   const kok: any = { ...item };
   let dugum: any = kok;
@@ -105,6 +105,23 @@ export function bosluklariCikar(items: Item[]): Bosluk[] {
   return cikti;
 }
 
+/**
+ * Boşluklar yüzdesi (ana sayfa şeridi): takip edilen alanların kaçı dolu.
+ * Aynı kurallar — ada kaydı, başlık, arşiv ve öneriler sayılmaz.
+ */
+export function boslukOrani(items: Item[]): { toplam: number; bos: number } {
+  let toplam = 0;
+  for (const item of items) {
+    if (item.archived || item.isProposal) continue;
+    if (!WIKI_TYPES.includes(item.type as ItemType)) continue;
+    if (item.id === ADA_KIMLIGI) continue;
+    const anahtar = schemaKeyFor(item.type as ItemType);
+    if (!anahtar) continue;
+    toplam += (DEFAULT_QUESTIONS_BY_CAT[anahtar] || []).filter(s => !ATLANAN_ALAN.has(s.id)).length;
+  }
+  return { toplam, bos: bosluklariCikar(items).length };
+}
+
 /* --- bileşen -------------------------------------------------------- */
 
 interface BoslukSatiriProps {
@@ -122,7 +139,7 @@ const BoslukSatiri: React.FC<BoslukSatiriProps> = ({ bosluk, onKaydet }) => {
     if (!d || yaziliyor) return;
     setYaziliyor(true);
     try {
-      await onKaydet(yaz(bosluk.item, bosluk.yol, d));
+      await onKaydet(alanaYaz(bosluk.item, bosluk.yol, d));
       setBitti(true);
     } finally {
       setYaziliyor(false);
