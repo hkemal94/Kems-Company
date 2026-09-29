@@ -123,8 +123,10 @@ terimsiz olur. Kodu değil, **ekranda ne değiştiğini** anlat.
 sayfası (Araçlar, 29 Eylül gece; kararlar `docs/04-durum.md`'de) ve
 ileride **site / ön yüz**. Hepsi bu depoda, KKM'nin parçası.
 
-Site henüz tasarlanmadı. Kemal'in isteklerini duymadan başlama, kendi
-başına iskelet de kurma. Sosyal medyada paylaşımı Kemal yapar; Buffer
+Site başladı (29 Eylül gece): KKM içinde tam sayfa önizleme (`#site`,
+`src/components/site/`), şimdilik anasayfa + menü. Sitede yalnız Kemal'in
+"sitede göster" dediği maddeler görünür (`metadata.sitede`). Sonraki
+sayfalara Kemal'in isteklerini duymadan başlama. Sosyal medyada paylaşımı Kemal yapar; Buffer
 bağlantısı 2. adım.
 
 **Bu deponun işi DEĞİL:** oyun. Ayrı depo, ayrı oturum.
@@ -135,7 +137,7 @@ girişi vardı). Tarayıcı Kemal'i tanımazsa "ortak alan"a düşülür; sayfan
 
 ## Açık işler (29 Eylül itibarıyla)
 
-Eski otel yazıları ve ad / tarih soruları için Kemal karar verdi; Neyin
-Eksik'teki kanon kartı işler (`src/lib/kanonKararlari.ts`). Kalan açık
+Eski otel yazıları ve ad / tarih soruları vikiye işlendi (kanon kartı,
+29 Eylül gece Kemal bastı; `src/lib/kanonKararlari.ts`). Kalan açık
 sorular `docs/soru-cevap/acik-sorular.md`'de. "Eylül Hanım" yalnız bir
 ad; bu karakter hakkında hiçbir şey yazma ya da önerme.
