@@ -372,6 +372,34 @@ dokunmadığı yerler (Kemal bakacak):
 Kural: oyun kodu Komuta Merkezi deposuna yazmaz. Oyun deposundaki
 CLAUDE.md bunu söylüyor; Komuta Merkezi tarafına da aynı not düşülmeli.
 
+## Paket 4 — ana sayfa taslağı ve kararlar (29 Eylül)
+
+Taslak onaylandı ("gerçekten güzel görünüyor"), telefon için ayrıca
+düzenlendi. Görseller: `docs/gorseller/p4-taslak-*.png`. Henüz kod yok.
+
+**Masaüstü:** tek ekran. İnce simge menüsü (solda); selamlama; yüzde
+şeridi (Künye, Merch hattı, Kitap, Harita, Boşluklar — Durum sekmesinin
+yerini alır); Üretim atölyesi; Günün sorusu; Adaylar; Neyin eksik; Not
+defteri (Günlük Notlar'ın yerine, sayfalı); Düzada kartı.
+
+**Telefon (Kemal'in seçimleri):**
+- Sekmeli: Bugün · Atölye · Notlar · Durum. Açılışta **Bugün**: Günün
+  sorusu + Adaylar, altında Neyin eksik.
+- Alt menü 5 düğme: Ana sayfa · Viki · Harita · Merch · Diğer.
+- "Diğer" işe göre gruplu: Evren (Kitap, Blog, Oyun) · Marka (Markalar,
+  Galeri) · Araçlar (Kurucu, Neyin Eksik, Ayarlar).
+- Sağ üstte yuvarlak "+" → not defteri.
+
+**Atölye sınırı:** yapay zekâ taslak üretir (sosyal medya, merch fikri,
+kanon sorusu); hiçbiri Kemal onaylamadan vikiye, kanona, markaya girmez —
+önce **Adaylar**'a düşer. Ad koymaz; ad yeri boş kalır.
+
+**Günün sorusu:** cevap önce Adaylar'a ve soru-cevap kaydına; vikiye
+Kemal "işle" deyince girer.
+
+**Bildirimler (kırmızı nokta):** onay bekleyen aday, tek seferlik düğme,
+kanon uyarısı, cevaplanmamış günün sorusu — dördü de.
+
 ## Bekleyen kontrol
 
 Yok. 28 Eylül ekran görüntüsünde Neyin Eksik'te hiçbir tek seferlik kart
