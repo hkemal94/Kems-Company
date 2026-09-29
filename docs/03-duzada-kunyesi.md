@@ -13,6 +13,9 @@ yaklaşık 65 km doğuda (Kemal, 28 Eylül: W3 52. tur). Eski değer 39,005° K 
 25,805° D Midilli'nin batısına, Yunan sularına düşüyordu. **Harita henüz
 eski koordinatta** — taşınması ayrı iş (H).
 
+İdari olarak **Ayvacık'a bağlı bir belde** (Küçükkuyu da Ayvacık'a bağlı;
+W3 60. tur).
+
 | Ölçü | Değer |
 |---|---|
 | Yüzölçümü | 162,2 km² |
@@ -74,15 +77,17 @@ Aralıklar kanon; kesin yıl yoksa uydurulmaz. Ayrıntı `docs/soru-cevap/w3.md`
   dönemde Tariş benzeri bir kooperatif Çiftlik'e modern, küçük bir fabrika
   kurdu (adsız).
 - **Çiftlik Mahallesi** — hep dağınık küçük çiftliklerin bölgesi.
-- **Fener bekçiliği** — bekçi fenerin yanındaki evde yaşardı; 1980–1990'larda
-  fener otomatiğe geçti.
+- **Fener bekçiliği** — bekçi fenerin yanındaki evde yaşardı; 1970'lerde fener
+  otomatiğe geçti (W3 64. tur; eskiden "1980–1990'lar" yazıyordu).
 
 ## Ada hayatı (28 Eylül 2026, soru-cevap W3)
 
-- **Ulaşım** — her gün feribot, Küçükkuyu'ya; fırtınada iptal. Feribot yalnız
+- **Ulaşım** — her gün arabalı feribot ve yolcu motoru, Küçükkuyu'dan;
+  yazın ek seferler (W3 63–64. tur); fırtınada iptal. Feribot yalnız
   adalıların aracını alır (W3 36. tur). Sahil Yolu eski patikaların parça parça
   birleşmesiyle oluştu. Su anakaradan boru hattıyla gelir.
-- **Mevsim** — yazın kalabalıklaşır; kışın ada sessizleşir. Otel yıl boyu
+- **Mevsim** — yazın kalabalıklaşır; kışın yarı yarıya: çarşı açık, sahil
+  tarafı kapanır (W3 63. tur). Otel yıl boyu
   açık (kışın az misafir, az personel).
 - **Konaklama** — otel, her mahallede dağınık pansiyonlar, kiralık evler.
   Kamp yok.
@@ -103,19 +108,25 @@ Aralıklar kanon; kesin yıl yoksa uydurulmaz. Ayrıntı `docs/soru-cevap/w3.md`
   (irili ufaklı).
 - **Dirlik** — ~~profesyonel alt lige birkaç kez inip çıktı~~ (W3 52. turda kalktı: kulüp hep amatör).
 - **Mekânlar** — Sade Meze: fabrika kapandıktan sonra bir süre boş kaldı,
-  1980–1990'larda meyhane oldu. Dondurmacı Kızlar: 2000 sonrası.
-- **Kems Company** — Kemsköy Caddesi'nde bir dükkânı var (adı, yeri sonra);
+  1980–1990'larda meyhane oldu. Dondurmacı Kızlar: 2000 sonrası; Liman'da, iskelenin
+  yakınında; kışın tatlıcı / kafe olur. Liman'daki kafe ayrı bir yer: 2010
+  sonrası açılmış yeni bir kafe (adsız; W3 60–61. tur).
+- **Kems Company** — Kemsköy Caddesi'nde bir dükkânı var (adı, yeri sonra;
+  yıl boyu açık);
   Kems Company ürünleri ve kulüp serileri satılır.
 
 ## Ada hayatı · 2 (28 Eylül 2026, W3 20–27. turlar)
 
 - **Otelin kökeni** — bina devletin: İskele Mahallesi'ne Haydarpaşa'nın
   minyatürü gibi bir **devlet misafirhanesi** olarak yapıldı; çok sürmeden
-  özelleştirilip otel oldu (1960'lar, bir şirkete geçti). Parlak dönemi hep sürdü; her
+  özelleştirilip otel oldu (1960'lar, bir şirkete geçti: İstanbul merkezli,
+  Türkiye'nin en büyük şirketlerinden, bir devlet bankasının iştiraki; adı
+  yok — W3 63–64. tur). Parlak dönemi hep sürdü; her
   dönemde farklı yüksek profilli misafirler. Otelin sahili uçurumun dibinde
   ayrı küçük bir cep.
 - **Elektrik** — 1950–1960'lar: önce otelin jeneratörü, köy hemen ardından.
-- **Eski kilise** — 18. yüzyıl, İskele'de, boş.
+- **Eski kilise** — 18. yüzyıl, İskele'de, boş; belediye bakar ama kapalı.
+  Yanında eski bir Rum mezarlığı (W3 65. tur).
 - **Dirlik** — hep amatör (W3 52. tur: "profesyonel alt lig" geçmişi
   kalktı); yakın dönemde bölgesel amatör ligden profesyonel lige (3. Lig)
   çıkmak için iddialı. Stat iki
@@ -237,6 +248,20 @@ Aralıklar kanon; kesin yıl yoksa uydurulmaz. Ayrıntı `docs/soru-cevap/w3.md`
 - **Feribot** — hep kamu hattı (1950'lerden beri).
 - **Adanın hafızasında büyük bir felaket yok.**
 
+## Ada hayatı · 7 (29 Eylül 2026, W3 60–65. turlar)
+
+- **Antik yerleşim** — dönemi açık. Amfora alanında rehberli dalış yapılır.
+- **Küçükçetmi Çiftliği** (Sürek Kulübü'nün evi) — Çiftlik'in iç tarafında,
+  tepeye yakın, kıyıdan uzak.
+- **Dirlik'in rakibi** — Küçükkuyu tarafından bir kulüp (adı yok); rekabet
+  sevgi–nefret ilişkisi.
+- **Kooperatifin fabrikası** — zeytinyağı. Çalışma yılları açık.
+- **Fener** — eskiden bekçili, 1970'lerde otomatiğe geçti; bekçiye kişi
+  kaydı açılmaz.
+- **Yangın gözetleme kulesi** — belediyede çalışan orman memurları nöbet
+  tutar.
+- **Okul** — öğretmenler karışık: bir iki adalı, gerisi anakaradan atanan.
+
 ## The Imperial Kemsköy
 
 Bütün projenin başlangıç noktası. Haydarpaşa Gar binasının küçüğü gibi
@@ -256,7 +281,7 @@ Bunlar kanon, kullanılabilir:
 
 - **Ada Tepesi** — zirve
 - **Sade Meze** — meyhane, İskele Mahallesi
-- **Dondurmacı Kızlar** — liman kafesi, Liman Mahallesi
+- **Dondurmacı Kızlar** — dondurmacı, Liman Mahallesi (iskelenin yakını)
 - **Deniz Feneri** — Liman Mahallesi
 - **Dirlik Stadı**, **Dirlik Spor Kulübü** — Stadyum Mahallesi
 - **Küçükçetmi Sürek Kulübü** — Çiftlik Mahallesi
