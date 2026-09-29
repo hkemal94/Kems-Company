@@ -66,9 +66,35 @@ export interface KurucuTaslak {
   gizlenen: string[];
   /** Kurucuda konan yeni binalar — merkez [boylam, enlem], ölçüler metre, açı radyan */
   yeniBinalar: Record<string, { tur: BinaTuru; merkez: Nokta; en: number; boy: number; aci: number }>;
+  /** Özel yapılar — köşeler [boylam, enlem] */
+  ozelYapilar: Record<string, OzelYapi>;
+  /** Doğa alanları — köşeler [boylam, enlem] */
+  doga: Record<string, { tur: DogaTuru; koseler: Nokta[] }>;
+  /** Yapı kimliği → viki maddesi kimliği */
+  baglar: Record<string, string>;
 }
 
-export const bosTaslak = (): KurucuTaslak => ({ yeniYollar: {}, turDegisikligi: {}, gizlenen: [], yeniBinalar: {} });
+export type Cati = 'duz' | 'besik';
+export interface OzelYapi { koseler: Nokta[]; kat: number; cati: Cati; kalip?: string }
+export type DogaTuru = 'zeytinlik' | 'orman' | 'kumsal';
+export const DOGA_TURLERI: Array<{ id: DogaTuru; ad: string; renk: string; kenar: string; aciklama: string }> = [
+  { id: 'zeytinlik', ad: 'Zeytinlik', renk: '#8FA25E', kenar: '#5E7340', aciklama: 'Sıra sıra zeytin ağaçları' },
+  { id: 'orman', ad: 'Orman', renk: '#4F6F42', kenar: '#34502D', aciklama: 'Çam ve meşe' },
+  { id: 'kumsal', ad: 'Kumsal', renk: '#EBDDB0', kenar: '#C6B27E', aciklama: 'Kıyıda kum' }
+];
+
+export const bosTaslak = (): KurucuTaslak => ({ yeniYollar: {}, turDegisikligi: {}, gizlenen: [], yeniBinalar: {}, ozelYapilar: {}, doga: {}, baglar: {} });
+
+const duz = (k: Nokta[]) => k.flatMap(p => [Math.round(p[0] * 1e6) / 1e6, Math.round(p[1] * 1e6) / 1e6]);
+const coz = (n: unknown): Nokta[] => {
+  if (!Array.isArray(n)) return [];
+  const c: Nokta[] = [];
+  for (let i = 0; i + 1 < n.length; i += 2) {
+    const x = Number(n[i]), y = Number(n[i + 1]);
+    if (Number.isFinite(x) && Number.isFinite(y)) c.push([x, y]);
+  }
+  return c;
+};
 
 
 const TURLER = new Set<string>(YOL_TURLERI.map(t => t.id));
@@ -87,7 +113,14 @@ export function taslaktanBelge(t: KurucuTaslak): KurucuBelge {
         en: Math.round(b.en * 10) / 10, boy: Math.round(b.boy * 10) / 10,
         aci: Math.round(b.aci * 1000) / 1000
       }])
-    )
+    ),
+    ozelYapilar: Object.fromEntries(
+      Object.entries(t.ozelYapilar).map(([id, o]) => [id, {
+        n: duz(o.koseler), kat: o.kat, cati: o.cati, ...(o.kalip ? { kalip: o.kalip } : {})
+      }])
+    ),
+    doga: Object.fromEntries(Object.entries(t.doga).map(([id, d]) => [id, { tur: d.tur, n: duz(d.koseler) }])),
+    baglar: { ...t.baglar }
   };
 }
 
@@ -116,12 +149,25 @@ export function belgedenTaslak(ham: unknown): KurucuTaslak {
     if (!say.every(Number.isFinite)) continue;
     t.yeniBinalar[id] = { tur: bn.tur as BinaTuru, merkez: [say[0], say[1]], en: say[2], boy: say[3], aci: say[4] };
   }
+  for (const [id, o] of Object.entries(b.ozelYapilar ?? {})) {
+    const k = coz(o?.n);
+    if (k.length < 3) continue;
+    const kat = Math.min(Math.max(Math.round(Number(o.kat) || 1), 1), 30);
+    t.ozelYapilar[id] = { koseler: k, kat, cati: o.cati === 'besik' ? 'besik' : 'duz', ...(o.kalip ? { kalip: String(o.kalip) } : {}) };
+  }
+  const dogaTurleri = new Set<string>(DOGA_TURLERI.map(d => d.id));
+  for (const [id, d] of Object.entries(b.doga ?? {})) {
+    const k = coz(d?.n);
+    if (k.length >= 3 && dogaTurleri.has(String(d.tur))) t.doga[id] = { tur: d.tur as DogaTuru, koseler: k };
+  }
+  for (const [id, w] of Object.entries(b.baglar ?? {})) if (typeof w === 'string' && w) t.baglar[id] = w;
   return t;
 }
 
 export const taslakBosMu = (t: KurucuTaslak) =>
   !Object.keys(t.yeniYollar).length && !Object.keys(t.turDegisikligi).length && !t.gizlenen.length
-  && !Object.keys(t.yeniBinalar).length;
+  && !Object.keys(t.yeniBinalar).length && !Object.keys(t.ozelYapilar).length
+  && !Object.keys(t.doga).length && !Object.keys(t.baglar).length;
 
 // ---- izdüşüm: boylam/enlem ↔ metre (ada merkezinde düz) -------------------
 
@@ -161,7 +207,7 @@ export interface KurucuYol {
 export interface Zemin {
   ada: Nokta[][];
   mahalleler: Array<{ id: string; halka: Nokta[][] }>;
-  binalar: Array<{ id: string; ad: string; halka: Nokta[] }>;
+  binalar: Array<{ id: string; ad: string; halka: Nokta[]; wikiId?: string; kat?: number }>;
   etiketler: Array<{ ad: string; m: Nokta; tur: string }>;
   yollar: Array<{ id: string; ad: string; tur: string; noktalar: Nokta[] }>;
 }
@@ -180,7 +226,9 @@ export function zeminCikar(geo: FeatureCollection): Zemin {
     } else if (katman === 'bina' && g.type === 'Polygon') {
       z.binalar.push({
         id: String(p.id), ad: String(p.ad ?? ''),
-        halka: (g.coordinates as Nokta[][])[0].map(metreye)
+        halka: (g.coordinates as Nokta[][])[0].map(metreye),
+        ...(p.wikiId ? { wikiId: String(p.wikiId) } : {}),
+        ...(Number(p.kat) ? { kat: Number(p.kat) } : {})
       });
     } else if (katman === 'etiket' && g.type === 'Point' && (p.tur === 'mahalle' || p.tur === 'zirve')) {
       z.etiketler.push({ ad: String(p.ad ?? ''), m: metreye(g.coordinates as Nokta), tur: String(p.tur) });
@@ -302,6 +350,9 @@ export interface KurucuBina {
   en?: number;
   boy?: number;
   aci?: number;
+  /** Haritada bağlı olduğu viki maddesi */
+  wikiId?: string;
+  kat?: number;
 }
 
 const merkezi = (k: Nokta[]): Nokta => [
@@ -322,7 +373,7 @@ export function binalariKur(
     return {
       id: b.id, ad: b.ad || 'Yapı', tur: null, kose: k, m,
       r: Math.max(...k.map(p => Math.hypot(p[0] - m[0], p[1] - m[1]))),
-      yeni: false, gizli: gizli.has(b.id)
+      yeni: false, gizli: gizli.has(b.id), wikiId: b.wikiId, kat: b.kat
     };
   });
   for (const [id, b] of Object.entries(taslak.yeniBinalar)) {

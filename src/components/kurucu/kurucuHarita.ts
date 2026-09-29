@@ -37,6 +37,11 @@ export function kurucuKatmani(features: Feature[], belge: KurucuBelge): Feature[
     const katman = String(p.katman ?? '');
     if ((katman === 'yol' || katman === 'bina' || katman === 'zemin') && gizli.has(id)) continue;
     if (katman === 'etiket' && id.startsWith('etk_') && gizli.has(id.slice(4))) continue;
+    // Madde bağı (H, 29 Eylül): yapının viki maddesi Kurucu'da değiştirildiyse
+    if (katman === 'bina' && t.baglar[id]) {
+      cikti.push({ ...f, properties: { ...p, wikiId: t.baglar[id] } });
+      continue;
+    }
     if (katman === 'yol' && t.turDegisikligi[id]) {
       cikti.push({ ...f, properties: { ...p, tur: HARITA_YOL[t.turDegisikligi[id]] } });
       continue;
@@ -78,12 +83,35 @@ export function kurucuKatmani(features: Feature[], belge: KurucuBelge): Feature[
           type: 'Feature',
           properties: {
             // Haritanın künye kutusu türü olduğu gibi gösteriyor: okunur ad
-            katman: 'bina', id, ad: '', tur: bi.ad, kurucuTur: b.tur, mahalle: null, wikiId: null,
+            katman: 'bina', id, ad: '', tur: bi.ad, kurucuTur: b.tur, mahalle: null, wikiId: t.baglar[id] ?? null,
             yukseklik: b.tur === 'cesme' ? 1.2 : b.tur === 'tribun' ? 6 : Math.max(bi.kat, 1) * 3.2,
             taban: 0, kat: Math.max(bi.kat, 1), kurucu: true
           },
           geometry: { type: 'Polygon', coordinates: [kapali] }
         });
+  }
+  // Özel yapılar: kat sayısına göre yükselen prizma (kat başına 3,2 m)
+  for (const [id, o] of Object.entries(t.ozelYapilar)) {
+    if (gizli.has(id)) continue;
+    const halka = [...o.koseler, o.koseler[0]];
+    cikti.push({
+      type: 'Feature',
+      properties: {
+        katman: 'bina', id, ad: '', tur: 'Özel yapı', kurucuTur: o.kalip ?? 'ozel', mahalle: null,
+        wikiId: t.baglar[id] ?? null, yukseklik: o.kat * 3.2, taban: 0, kat: o.kat, kurucu: true, ozel: true
+      },
+      geometry: { type: 'Polygon', coordinates: [halka] }
+    });
+  }
+
+  // Doğa alanları: zemine giydirilen dolgu
+  for (const [id, d] of Object.entries(t.doga)) {
+    if (gizli.has(id)) continue;
+    cikti.push({
+      type: 'Feature',
+      properties: { katman: 'zemin', id, ad: '', tur: d.tur, kurucu: true },
+      geometry: { type: 'Polygon', coordinates: [[...d.koseler, d.koseler[0]]] }
+    });
   }
   return cikti;
 }
@@ -92,7 +120,8 @@ export function kurucuKatmani(features: Feature[], belge: KurucuBelge): Feature[
 export function belgelerAyniMi(a: KurucuBelge | undefined, b: KurucuBelge | undefined): boolean {
   const bos = (x?: KurucuBelge) => !x || (!Object.keys(x.yeniYollar ?? {}).length
     && !Object.keys(x.turDegisikligi ?? {}).length && !(x.gizlenen ?? []).length
-    && !Object.keys(x.yeniBinalar ?? {}).length);
+    && !Object.keys(x.yeniBinalar ?? {}).length && !Object.keys(x.ozelYapilar ?? {}).length
+    && !Object.keys(x.doga ?? {}).length && !Object.keys(x.baglar ?? {}).length);
   if (bos(a) && bos(b)) return true;
   const sirali = (x?: KurucuBelge) => JSON.stringify(x ?? {}, (_k, v) =>
     v && typeof v === 'object' && !Array.isArray(v)

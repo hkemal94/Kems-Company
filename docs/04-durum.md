@@ -33,8 +33,7 @@ Kararların koda dönmesi gereken kısmı. Yedi madde bitti, sekizincisi site ko
 Bitenler (28 Eylül):
 
 1. ~~**Simülasyon gizlendi**~~ — Oyun sekmesi doğrudan stüdyoyu açıyor.
-   Prototip silinmedi: sayfanın en altındaki soluk satırdan ya da adres
-   satırına `#simulasyon` yazarak açılıyor.
+   Prototip 29 Eylül'de tamamen silindi (arşiv yerine silme kuralı).
 2. ~~**Canva etiketi**~~ — üç sayfada menşe satırı "Düzada, TR". Kaydedildi.
    4. sayfadaki "Kemskøy" yazımı da böylece gitti.
 3. ~~**Küçükçetmi paleti**~~ — arma ölçüldü: krem `#F3EFE8` + mürekkep
@@ -546,6 +545,30 @@ CLAUDE.md iş başında güncellenecek.
 7. **Paket 6.** Site (Canva "Başlık" şablonu) ve sosyal medya stüdyosu;
    önce soru-cevap.
 8. Beklemede: ad soruları (23).
+
+## H — Harita ve Kurucu tek ekran (29 Eylül gece)
+
+Kemal'in seçimleri: Cities: Skylines + Anno havası; 2D ve 3D eşit, düğmeyle
+geçilir; araçlar altta çubukta; telefonda bakma + basit düzenleme; zaman
+kaydırıcı şimdilik yok; mahalle sınırları kalktı ("fiziki bir ada yarat,
+bu görsel içimi darlatıyor"); her yerde fiziki görünüm; Doğa aracı var,
+Arazi aracı sonra.
+
+- Düzada → "Harita ve Kurucu" tek sekme. 2D · kur: çalışma ekranı.
+  3D · bak: aynı ada eğik bakışla, yapılar kat sayısıyla yükselir. Geçişte
+  kamera aynı yere bakar.
+- Ada görüntüsü yükselti verisinden çizildi (`public/ada-fiziki.webp`);
+  eski kâğıt harita, eş yükselti çizgileri ve mahalle sınırları kalktı.
+- Yeni araçlar: **Özel yapı** (köşe köşe çiz ya da hazır kalıp: otel
+  avlulu, fener, stat, cami, iskele binası, okul, kule — kalıp ad koymaz),
+  **Doğa** (zeytinlik, orman, kumsal), **Madde bağla** (yapıyı viki
+  maddesine bağlar; 3D'de tıklayınca madde açılır).
+- Doğru yer denetimi: yapı denize taşarsa ya da bir yolun üstüne binerse
+  konmaz, nedeni yazılır; köşesi sonradan yola sürüklenirse seçim
+  kartında uyarı çıkar.
+- Silinenler: eski harita düzenleyicisi (`HaritaDuzenleyici`, `manyetik`,
+  `duzadaKot`), çalışmayan `wiki-demo` sayfası.
+- Ekran görüntüleri: `docs/gorseller/h1…h5`.
 
 ## Sıradaki
 

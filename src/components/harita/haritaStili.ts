@@ -39,9 +39,10 @@ export const YUKSELTI: Array<{ esik: number; renk: string }> = [
  * ufukta sıcak krem, yukarı çıkıldıkça soluk bir kül.
  */
 export const GOK = {
-  ust: '#cfc7b6',
-  ufuk: '#f2ece0',
-  pus: '#e6dcc8'
+  // Fiziki ada (29 Eylül): kâğıt tonları yerine açık Ege göğü
+  ust: '#9FC4E4',
+  ufuk: '#E6F0F4',
+  pus: '#D8E6EC'
 } as const;
 
 export const KARA = {

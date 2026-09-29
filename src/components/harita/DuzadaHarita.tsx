@@ -7,13 +7,14 @@ import {
   DENIZ, GOK, KARA, YOL, YAPI, YUKSELTI, ZEMIN,
   MAHALLE_TONU, MAHALLE_TON_GUCU
 } from './haritaStili';
-import { PusulaGulu, OlcekCubugu, KagitDoku } from './haritaSusleri';
+import { PusulaGulu, OlcekCubugu } from './haritaSusleri';
 import {
   araziProtokolunuKur, araziKaynagi, ARAZI_KAYNAK, ARAZI_ABARTI
 } from './duzadaArazi';
 import { duzeniUygula, type HaritaDuzeni } from './duzenKatmani';
 import type { FeatureCollection } from 'geojson';
 import { yolEtiketleri } from './yolEtiketleri';
+import { DEM_SINIR } from '../../data/duzadaDem';
 
 /**
  * Düzada haritası.
@@ -65,6 +66,15 @@ interface DuzadaHaritaProps {
   className?: string;
   /** Elle yapılmış düzenlemeler (H1) — üretilmiş verinin üstüne biner */
   duzen?: HaritaDuzeni | null;
+  /** 2D ↔ 3D geçişinde kamera aynı yere baksın diye (H, 29 Eylül) */
+  bakis?: HaritaBakisi | null;
+  onBakis?: (b: HaritaBakisi) => void;
+}
+
+/** Haritanın baktığı yer: merkez (boylam, enlem) ve MapLibre yakınlığı */
+export interface HaritaBakisi {
+  merkez: [number, number];
+  zoom: number;
 }
 
 interface SecimBilgisi {
@@ -110,7 +120,7 @@ function etiketElemani(p: Record<string, unknown>): {
   return { kok, ic };
 }
 
-export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className, duzen }) => {
+export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className, duzen, bakis, onBakis }) => {
   const kapsayici = useRef<HTMLDivElement | null>(null);
   const harita = useRef<MLMap | null>(null);
   /** Düzen değişince etiketleri yeniden kuran işlev — kurulum sırasında dolar */
@@ -121,6 +131,9 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
   const [zoom, setZoom] = useState(BASLANGIC.zoom);
   // Kurulumda da düzenli hâlle başlasın (harita bir kez kuruluyor)
   const ilkDuzen = useRef(duzen ?? null);
+  const ilkBakis = useRef(bakis ?? null);
+  const onBakisRef = useRef(onBakis);
+  useEffect(() => { onBakisRef.current = onBakis; }, [onBakis]);
 
   useEffect(() => {
     if (!kapsayici.current || harita.current) return;
@@ -142,10 +155,10 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
           },
           [ARAZI_KAYNAK]: araziKaynagi()
         },
-        layers: [{ id: 'deniz', type: 'background', paint: { 'background-color': DENIZ.orta } }]
+        layers: [{ id: 'deniz', type: 'background', paint: { 'background-color': '#1C4E8C' } }]
       },
-      center: DUZADA_MERKEZ,
-      zoom: BASLANGIC.zoom,
+      center: ilkBakis.current?.merkez ?? DUZADA_MERKEZ,
+      zoom: Math.max(9.5, ilkBakis.current?.zoom ?? BASLANGIC.zoom),
       pitch: BASLANGIC.pitch,
       bearing: BASLANGIC.bearing,
       minZoom: 9.5,
@@ -155,6 +168,10 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
     });
 
     harita.current = map;
+    map.on('moveend', () => {
+      const c = map.getCenter();
+      onBakisRef.current?.({ merkez: [c.lng, c.lat], zoom: map.getZoom() });
+    });
     (window as unknown as { __duzadaHarita?: MLMap }).__duzadaHarita = map;
     map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'top-right');
     map.on('error', e => console.error('[harita]', e && (e as { error?: unknown }).error));
@@ -266,59 +283,29 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
         ]
       });
 
-      // ---- deniz: kıyıya yaklaştıkça açılan dalga çizgileri ----
-      map.addLayer({
-        id: 'dalgalar',
-        type: 'line',
-        source: src,
-        filter: ['==', ['get', 'katman'], 'dalga'],
-        paint: {
-          'line-color': DENIZ.dalga,
-          // en içteki halka en belirgin, dışa doğru siliniyor
-          'line-width': ['interpolate', ['linear'], ['get', 'sira'], 0, 1.6, 4, 0.5],
-          'line-opacity': ['interpolate', ['linear'], ['get', 'sira'], 0, 0.9, 4, 0.25]
-        }
+      // ---- fiziki ada (29 Eylül) ----
+      // Kemal: "fiziki bir ada yaratabilirsin; bu görsel içimi darlatıyor."
+      // Kâğıt harita (yükselti bantları, eşyükselti çizgileri, dalga
+      // halkaları, kıyı çizgisi) kalktı. Yerine adanın yükselti verisinden
+      // üretilmiş fiziki doku: kumsal, kuru çayır, maki, çam, kaya, sığ su.
+      // Doku araziye giydirilir; yollar ve yapılar üstüne oturur.
+      map.addSource('ada-fiziki', {
+        type: 'image',
+        url: `${import.meta.env.BASE_URL || '/'}ada-fiziki.webp`,
+        coordinates: [
+          [DEM_SINIR[0], DEM_SINIR[3]], [DEM_SINIR[2], DEM_SINIR[3]],
+          [DEM_SINIR[2], DEM_SINIR[1]], [DEM_SINIR[0], DEM_SINIR[1]]
+        ]
       });
+      map.addLayer({ id: 'ada-fiziki', type: 'raster', source: 'ada-fiziki', paint: { 'raster-fade-duration': 0 } });
 
-      // ---- karanın kıyı halesi: adanın altında yumuşak bir taban ----
-      map.addLayer({
-        id: 'ada-hale',
-        type: 'line',
-        source: src,
-        filter: ['==', ['get', 'katman'], 'ada'],
-        paint: { 'line-color': KARA.kiyiHale, 'line-width': 14, 'line-blur': 10 }
-      });
-
-      // ---- kara ----
+      // Kara katmanı görünmez: tıklama ve katman sırası için duruyor
       map.addLayer({
         id: 'ada',
         type: 'fill',
         source: src,
         filter: ['==', ['get', 'katman'], 'ada'],
-        paint: { 'fill-color': KARA.taban }
-      });
-
-      // ---- hipsometrik yükselti bantları (alçaktan yükseğe) ----
-      YUKSELTI.slice(1).forEach(({ esik, renk }) => {
-        map.addLayer({
-          id: `rolyef-${esik}`,
-          type: 'fill',
-          source: src,
-          filter: ['all', ['==', ['get', 'katman'], 'rolyef'], ['==', ['get', 'esik'], esik]],
-          paint: { 'fill-color': renk }
-        });
-      });
-
-      // bantların kenarına ince eşyükselti çizgisi — kartografik doku
-      map.addLayer({
-        id: 'rolyef-cizgi',
-        type: 'line',
-        source: src,
-        filter: ['==', ['get', 'katman'], 'rolyef'],
-        paint: {
-          'line-color': 'rgba(111, 96, 71, 0.30)',
-          'line-width': 0.7
-        }
+        paint: { 'fill-color': KARA.taban, 'fill-opacity': 0 }
       });
 
       // ---- mahalle sınırları ----
@@ -334,23 +321,15 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
             '#8a7757'
           ] as unknown as maplibregl.ExpressionSpecification,
           // Üzerine gelince ton koyulaşıyor — tıklanabilir olduğu anlaşılsın
+          // Sınır çizilmez (fiziki ada); üzerine gelince hafifçe belirir
           'fill-opacity': [
             'case',
-            ['boolean', ['feature-state', 'uzerinde'], false], 0.3,
-            MAHALLE_TON_GUCU
+            ['boolean', ['feature-state', 'uzerinde'], false], 0.16,
+            0
           ]
         }
       });
 
-
-      // ---- kıyı çizgisi ----
-      map.addLayer({
-        id: 'kiyi',
-        type: 'line',
-        source: src,
-        filter: ['==', ['get', 'katman'], 'ada'],
-        paint: { 'line-color': KARA.kiyiCizgi, 'line-width': 1.6 }
-      });
 
       // ---- yollar ----
       // Dört kademe: ana yol (aynı zamanda mahalle sınırı), cadde, yol,
@@ -399,23 +378,6 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
             11, kademe(2.2, 1.3, 1.0, 0.6),
             16, kademe(10, 6.4, 5, 3)
           ]
-        }
-      });
-
-      // ---- mahalle sınırı ----
-      // Sınır, altındaki ana yolun üstünden geçen kesikli bir vurgu.
-      // Yoldan sonra çiziliyor ki "bu yol aynı zamanda sınır" okunsun.
-      map.addLayer({
-        id: 'mahalle-sinir',
-        type: 'line',
-        source: src,
-        filter: ['==', ['get', 'katman'], 'mahalle'],
-        layout: { 'line-join': 'round' },
-        paint: {
-          'line-color': KARA.mahalleSinir,
-          'line-width': ['interpolate', ['linear'], ['zoom'], 10, 1.1, 16, 2.4],
-          'line-dasharray': [1.4, 2.2, 5, 2.2],
-          'line-opacity': 0.9
         }
       });
 
@@ -477,6 +439,10 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
           'fill-color': [
             'case', ['==', ['get', 'tur'], 'bahçe'], ZEMIN.bahce,
             ['==', ['get', 'tur'], 'saha'], '#A9C08F',
+            // Doğa alanları (Kurucu, 29 Eylül)
+            ['==', ['get', 'tur'], 'zeytinlik'], '#8FA25E',
+            ['==', ['get', 'tur'], 'orman'], '#4F6F42',
+            ['==', ['get', 'tur'], 'kumsal'], '#EBDDB0',
             ZEMIN.teras
           ],
           'fill-opacity': 0.92
@@ -525,6 +491,7 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
             ['==', ['get', 'tur'], 'stadyum'], YAPI.stadyum,
             ['==', ['get', 'tur'], 'kulüp'], YAPI.kulup,
             ['==', ['get', 'tur'], 'iskele'], YAPI.iskele,
+            ['==', ['get', 'tur'], 'Özel yapı'], '#EDE3D1',
             YAPI.genel
           ],
           // Haritada gerçek 3B arazi yok: prizmalar kâğıdın üstünde durur.
@@ -651,10 +618,9 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
         className="w-full h-full rounded-lg overflow-hidden duzada-harita"
       />
 
-      <KagitDoku />
 
       {/* Başlık kartuşu */}
-      <div className="absolute top-4 left-4 px-4 py-3 rounded-sm bg-[#f4efe4]/94 backdrop-blur-[2px] border border-[#8a7757]/45 shadow-[2px_3px_0_0_rgba(90,76,56,0.14)] pointer-events-none">
+      <div className="hidden sm:block absolute top-4 left-4 px-4 py-3 rounded-sm bg-[#f4efe4]/94 backdrop-blur-[2px] border border-[#8a7757]/45 shadow-[2px_3px_0_0_rgba(90,76,56,0.14)] pointer-events-none">
         <p className="font-serif text-xl leading-none text-[#0e1c4f] tracking-wide">Düzada</p>
         <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-[#6f6047] mt-1.5">
           Ege Denizi

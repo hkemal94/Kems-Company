@@ -1,4 +1,5 @@
-import React, { useState, useMemo, useEffect, useRef, lazy, Suspense } from 'react';
+import React, { useState, useMemo, useEffect, useRef, useCallback, lazy, Suspense } from 'react';
+import type { HaritaBakisi } from './harita/DuzadaHarita';
 import { MapPin, Shield, Users, Compass, Store, ShoppingBag, Calendar, BookOpen, ChevronDown, ChevronUp, Sparkles, Plus, Check, Trash2, Edit3, Save, Eye, EyeOff, MoreVertical, Database, Trash, AlertTriangle, Link } from 'lucide-react';
 import { Item, ItemType, WikiSection, BrandKit, AreaType } from '../types';
 import { compressImageBase64 } from '../lib/imageCompressor';
@@ -15,18 +16,13 @@ import { SayfaRayi, type RayBolumu } from './SayfaRayi';
 /** Düzada'nın iki yüzü — sekme, kaydırma değil */
 const RAY_BOLUMLERI: RayBolumu[] = [
   { id: 'wiki', label: 'Düzada Wiki' },
-  { id: 'harita', label: 'Düzada Haritası' },
-  { id: 'kurucu', label: 'Kurucu' }
+  { id: 'harita', label: 'Harita ve Kurucu' }
 ];
 
 // MapLibre haritası ~1 MB'lık bir paket (motor + arazi verisi). Sekme
 // açılmadan indirilmesin diye tembel yükleniyor.
 const DuzadaHarita = lazy(() =>
   import('./harita/DuzadaHarita').then(m => ({ default: m.DuzadaHarita }))
-);
-// Düzenleyici de aynı motoru kullanıyor; "Düzenle"ye basılınca yüklenir (H2)
-const HaritaDuzenleyici = lazy(() =>
-  import('./harita/HaritaDuzenleyici').then(m => ({ default: m.HaritaDuzenleyici }))
 );
 // Kurucu (şehir kurucu): harita verisini kullanır, sekme açılınca yüklenir
 const Kurucu = lazy(() =>
@@ -343,10 +339,27 @@ export default function Duzada({
   const haritaDuzeni = useHaritaDuzeni();
   // H2: harita sekmesinde görüntüleme ↔ düzenleme
   const [haritaDuzenleniyor, setHaritaDuzenleniyor] = useState(false);
+  // Harita ve Kurucu tek ekran: 2D çalışma, 3D bakış (29 Eylül)
+  const [haritaUc, setHaritaUc] = useState(false);
+  // 2D ↔ 3D geçişinde kamera aynı yere baksın
+  const haritaBakisi = useRef<HaritaBakisi | null>(null);
+  const bakisiTut = useCallback((b: HaritaBakisi) => { haritaBakisi.current = b; }, []);
+  const gorunumDugmesi = (
+    <div className="flex items-center gap-1 p-1 rounded-xl bg-[#FAF8F5]/95 dark:bg-[#13204A]/95 border border-[#CFC5B4] dark:border-[#2C3C72] shadow-[0_8px_24px_-12px_rgba(14,28,79,0.5)]">
+      <span className="hidden sm:block px-2 text-[10px] font-mono font-bold uppercase tracking-[0.16em] text-[#6A5E4C] dark:text-[#A6B0C9]">Düzada</span>
+      {([['2d', '2D · kur'], ['3d', '3D · bak']] as const).map(([id, ad]) => (
+        <button key={id} type="button" onClick={() => setHaritaUc(id === '3d')}
+          className={`px-3 py-1.5 rounded-lg text-[12px] font-semibold cursor-pointer ${(id === '3d') === haritaUc ? 'bg-[#0E1C4F] dark:bg-[#2C3C72] text-white' : 'text-[#6A5E4C] dark:text-[#A6B0C9]'}`}>
+          {ad}
+        </button>
+      ))}
+    </div>
+  );
 
   // Navigation / Tabs inside Düzada
-  const [activeTab, setActiveTab] = useState<'wiki' | 'harita' | 'kurucu'>(istek?.sekme ?? 'wiki');
-  useEffect(() => { if (istek) setActiveTab(istek.sekme); }, [istek?.n]);
+  // Kurucu artık haritanın kendisi (29 Eylül): 'kurucu' isteği haritayı açar
+  const [activeTab, setActiveTab] = useState<'wiki' | 'harita'>(istek?.sekme === 'kurucu' ? 'harita' : istek?.sekme ?? 'wiki');
+  useEffect(() => { if (istek) setActiveTab(istek.sekme === 'kurucu' ? 'harita' : istek.sekme); }, [istek?.n]);
   
   const regionsCreatedRef = useRef(false);
   const worldDetailsSyncedRef = useRef(false);
@@ -1502,7 +1515,8 @@ export default function Duzada({
     <div className="space-y-6">
       
       {/* Header breadcrumb & view switch */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#CFC5B4]">
+      {/* Telefonda haritada başlık gizlenir: üstteki sekmeler yetiyor, harita ekrana sığsın */}
+      <div className={`${activeTab === 'harita' ? 'hidden sm:flex' : 'flex'} flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#CFC5B4]`}>
         <div>
           <span className="text-xs font-mono uppercase text-[#6A5E4C] dark:text-[#A6B0C9]">
             Düzada · Ada & Lore
@@ -1530,13 +1544,7 @@ export default function Duzada({
             onClick={() => setActiveTab('harita')}
             className={`px-4 py-2 rounded-lg cursor-pointer transition-all ${activeTab === 'harita' ? 'bg-[#0E1C4F] dark:bg-[#F26B6F] text-[#F3EFE8]' : 'bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] text-[#6A5E4C] dark:text-[#A6B0C9]'}`}
           >
-            Düzada Haritası
-          </button>
-          <button
-            onClick={() => setActiveTab('kurucu')}
-            className={`px-4 py-2 rounded-lg cursor-pointer transition-all ${activeTab === 'kurucu' ? 'bg-[#0E1C4F] dark:bg-[#F26B6F] text-[#F3EFE8]' : 'bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] text-[#6A5E4C] dark:text-[#A6B0C9]'}`}
-          >
-            Kurucu
+            Harita ve Kurucu
           </button>
         </div>
       </div>
@@ -1548,576 +1556,45 @@ export default function Duzada({
         onSec={id => setActiveTab(id as typeof activeTab)}
       />
 
-      {/* KURUCU — şehir kurucu, 1. adım: yol aracı */}
-      {activeTab === 'kurucu' && (
-        <div className="bg-[#E7EBE6] dark:bg-[#13204A] border border-[#CFC5B4] dark:border-[#2C3C72] rounded-xl p-4 archive-shadow relative">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] font-mono uppercase text-[#4A5E68] dark:text-[#A6B0C9] font-bold">
-              KURUCU · YOLLAR (TASLAK — HARİTA DEĞİŞMEZ)
-            </span>
-          </div>
-          {haritaDuzeni.ilkYukleme ? (
-            <Suspense
-              fallback={
-                <div className="h-[78vh] flex items-center justify-center rounded-lg border border-[#CFC5B4] bg-[#F3EFE8] font-mono text-xs text-[#6A5E4C]">
-                  Kurucu yükleniyor…
-                </div>
-              }
-            >
-              <Kurucu
-                className="w-full lg:h-[78vh]"
-                duzen={haritaDuzeni.duzen}
-                kaydet={haritaDuzeni.kaydet}
-                durum={haritaDuzeni.durum}
-                arsivle={async onceki => {
-                  // Haritanın önceki Kurucu hâli arşivli bir kayıt olarak kalır
-                  const tarih = new Date().toLocaleString('tr-TR');
-                  await onAddItem({
-                    title: `Harita arşivi — Kurucu, ${tarih}`,
-                    area: 'duzada', type: 'map_settings', status: 'Bitti', priority: 'düşük',
-                    tags: ['harita-arsivi', 'kurucu'], links: [], notes: '', images: [],
-                    archived: true, isProposal: false,
-                    metadata: { kurucuArsiv: onceki }
-                  });
-                }}
-              />
-            </Suspense>
-          ) : (
-            <div className="h-[78vh] flex items-center justify-center rounded-lg border border-[#CFC5B4] bg-[#F3EFE8] font-mono text-xs text-[#6A5E4C]">
-              Kayıtlı düzen okunuyor…
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* HARİTA — DÜZENLEME (H2) */}
-      {activeTab === 'harita' && haritaDuzenleniyor && (
-        <div className="bg-[#E7EBE6] border border-[#CFC5B4] rounded-xl p-4 archive-shadow relative paper-grain">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] font-mono uppercase text-[#4A5E68] dark:text-[#A6B0C9] font-bold">
-              DÜZADA HARİTASI · DÜZENLEME
-            </span>
-          </div>
-          {haritaDuzeni.ilkYukleme ? (
-            <Suspense
-              fallback={
-                <div className="h-[78vh] flex items-center justify-center rounded-lg border border-[#CFC5B4] bg-[#F3EFE8] font-mono text-xs text-[#6A5E4C]">
-                  Düzenleyici yükleniyor…
-                </div>
-              }
-            >
-              <HaritaDuzenleyici
-                className="w-full h-[78vh] rounded-lg overflow-hidden border border-[#CFC5B4]"
-                duzen={haritaDuzeni.duzen}
-                kaydet={haritaDuzeni.kaydet}
-                durum={haritaDuzeni.durum}
-                hata={haritaDuzeni.hata}
-                onKapat={() => setHaritaDuzenleniyor(false)}
-              />
-            </Suspense>
-          ) : (
-            <div className="h-[78vh] flex items-center justify-center rounded-lg border border-[#CFC5B4] bg-[#F3EFE8] font-mono text-xs text-[#6A5E4C]">
-              Kayıtlı düzen okunuyor…
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* VIEW 1: HARİTA MODU */}
-      {activeTab === 'harita' && !haritaDuzenleniyor && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          
-          {/* 3B arazi haritası — gen/duzada.py + gen/dem.py üretimi */}
-          <div className="lg:col-span-2 bg-[#E7EBE6] border border-[#CFC5B4] rounded-xl p-4 archive-shadow relative paper-grain">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] font-mono uppercase text-[#4A5E68] dark:text-[#A6B0C9] font-bold">
-                  DÜZADA ARAZİ HARİTASI
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setHaritaDuzenleniyor(true)}
-                  className="px-3 py-1.5 rounded-lg bg-[#0E1C4F] dark:bg-[#2C3C72] hover:bg-[#0E1C4F]/90 text-[#F3EFE8] text-[11px] font-mono cursor-pointer transition-colors"
-                >
-                  Haritayı düzenle
-                </button>
-              </div>
-              <Suspense
-                fallback={
-                  <div className="h-[70vh] flex items-center justify-center rounded-lg border border-[#CFC5B4] bg-[#F3EFE8] font-mono text-xs text-[#6A5E4C]">
-                    Harita yükleniyor…
-                  </div>
-                }
-              >
+      {/*
+        HARİTA VE KURUCU (H, 29 Eylül) — tek ekran. Kemal: "Düzada Haritası
+        ve Kurucu kısmını birbirine entegre et; city builder oyunlar gibi
+        kontrol edebileceğim bir şey." 2D: çalışma ekranı (araçlar altta).
+        3D: aynı ada eğik bakışla, yapılar kat sayısıyla yükselir.
+      */}
+      {activeTab === 'harita' && (
+        haritaDuzeni.ilkYukleme ? (
+          <Suspense fallback={<div className="h-[80vh] flex items-center justify-center rounded-2xl bg-[#1C4E8C] font-mono text-xs text-[#F3EFE8]">Harita yükleniyor…</div>}>
+            {haritaUc ? (
+              <div className="relative">
                 <DuzadaHarita
-                  className="h-[70vh] rounded-lg overflow-hidden border border-[#CFC5B4]"
+                  className="h-[calc(100dvh-14.5rem)] sm:h-[calc(100vh-11rem)] min-h-[460px] sm:min-h-[520px] rounded-2xl overflow-hidden border border-[#CFC5B4] dark:border-[#2C3C72]"
                   onSelect={haritaMaddesiniAc}
                   duzen={haritaDuzeni.duzen}
+                  bakis={haritaBakisi.current}
+                  onBakis={bakisiTut}
                 />
-              </Suspense>
-              <p className="mt-2 text-[10px] font-mono text-[#6A5E4C] dark:text-[#A6B0C9] leading-relaxed">
-                Sağ tuşla sürükleyerek eğ ve döndür · Bir yapıya ya da mahalleye
-                tıklayıp “Viki maddesini aç” ile arşive geç.
-              </p>
-          </div>
-
-          {/* Region side bar lore & selected pin card */}
-          <div className="space-y-4">
-            
-
-            {/* Düzada Coğrafi Yerleşim Ağacı (Hierarchy Tree) */}
-            <div className="bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] dark:border-[#2C3C72] p-5 rounded-xl archive-shadow paper-grain space-y-4">
-              <div className="flex items-center justify-between border-b border-[#CFC5B4]/50 pb-2">
-                <div>
-                  <span className="text-[9px] font-mono uppercase bg-[#0E1C4F]/10 dark:bg-[#2C3C72] px-1.5 py-0.5 rounded-sm font-bold tracking-wider text-stone-600 dark:text-stone-300">
-                    COĞRAFYA SİSTEMİ
-                  </span>
-                  <h3 className="font-sans font-bold text-base text-[#0E1C4F] dark:text-[#F3EFE8] mt-0.5 tracking-tight">
-                    Düzada Yerleşim Ağacı
-                  </h3>
-                </div>
-                <span className="text-xs font-mono text-stone-500 dark:text-stone-400 font-bold">🏝️ Düzada (Ada)</span>
+                <div className="absolute left-3 top-3 sm:top-auto sm:bottom-3 z-10">{gorunumDugmesi}</div>
               </div>
-
-              {/* MAHALLE SEÇİMİ VE YÖNETİMİ */}
-              <div className="space-y-2.5">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-mono text-[#6A5E4C] dark:text-[#A6B0C9] uppercase font-bold tracking-wider">
-                    🏡 1. Seviye: Mahalleler / Köyler ({mahalleler.length})
-                  </span>
-                  <button
-                    onClick={() => {
-                      setShowAddMahalleForm(!showAddMahalleForm);
-                      setEditingMahalleId(null);
-                    }}
-                    className="text-[10px] font-mono text-[#F26B6F] hover:underline cursor-pointer font-bold flex items-center gap-0.5"
-                  >
-                    <Plus className="w-3 h-3" />
-                    {showAddMahalleForm ? 'Kapat' : 'Mahalle Ekle'}
-                  </button>
-                </div>
-
-                {/* Add Mahalle Form */}
-                {showAddMahalleForm && (
-                  <div className="p-3 bg-white dark:bg-[#12224A]/40 border border-stone-200 dark:border-[#2C3C72] rounded-lg space-y-2 text-xs">
-                    <h4 className="font-bold font-sans text-[#0E1C4F] dark:text-[#F3EFE8] tracking-tight">Yeni Mahalle / Köy Ekle</h4>
-                    <input
-                      type="text"
-                      placeholder="Mahalle Adı (örn: Kuzey Yamacı)"
-                      value={newMahalleName}
-                      onChange={(e) => setNewMahalleName(e.target.value)}
-                      className="w-full p-1.5 border border-stone-300 dark:border-[#2C3C72] bg-transparent rounded text-xs text-stone-800 dark:text-stone-100 font-medium"
-                    />
-                    <textarea
-                      placeholder="Mahalle Açıklaması / Hikayesi..."
-                      value={newMahalleSummary}
-                      onChange={(e) => setNewMahalleSummary(e.target.value)}
-                      className="w-full p-1.5 border border-stone-300 dark:border-[#2C3C72] bg-transparent rounded text-xs h-16 text-stone-800 dark:text-stone-100"
-                    />
-                    <button
-                      onClick={handleAddMahalle}
-                      className="w-full py-1.5 bg-[#F26B6F] text-white rounded text-xs font-mono font-bold cursor-pointer"
-                    >
-                      Mahalleyi Kaydet
-                    </button>
-                  </div>
-                )}
-
-                {/* Edit Mahalle Form */}
-                {editingMahalleId && (
-                  <div className="p-3 bg-white dark:bg-[#12224A]/40 border border-stone-200 dark:border-[#2C3C72]/50 rounded-lg space-y-2 text-xs">
-                    <h4 className="font-bold font-sans text-[#0E1C4F] dark:text-[#F3EFE8] tracking-tight">Mahalleyi Düzenle</h4>
-                    <input
-                      type="text"
-                      value={editingMahalleName}
-                      onChange={(e) => setEditingMahalleName(e.target.value)}
-                      className="w-full p-1.5 border border-stone-300 dark:border-[#2C3C72] bg-transparent rounded text-xs text-stone-800 dark:text-stone-100 font-medium"
-                    />
-                    <textarea
-                      value={editingMahalleSummary}
-                      onChange={(e) => setEditingMahalleSummary(e.target.value)}
-                      className="w-full p-1.5 border border-stone-300 dark:border-[#2C3C72] bg-transparent rounded text-xs h-20 text-stone-800 dark:text-stone-100"
-                    />
-                    <div className="flex gap-1.5">
-                      <button
-                        onClick={() => setEditingMahalleId(null)}
-                        className="flex-1 py-1 bg-stone-200 dark:bg-stone-700 text-stone-800 dark:text-stone-100 rounded text-[11px] font-mono"
-                      >
-                        İptal
-                      </button>
-                      <button
-                        onClick={() => handleUpdateMahalle(editingMahalleId, editingMahalleName, editingMahalleSummary)}
-                        className="flex-1 py-1 bg-[#F26B6F] text-white rounded text-[11px] font-mono font-bold"
-                      >
-                        Kaydet
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                {/* Mahalle Grid */}
-                <div className="grid grid-cols-3 gap-1.5 text-xs font-mono">
-                  {mahalleler.map(mah => (
-                    <button
-                      key={mah.id}
-                      onClick={() => setSelectedRegion(mah.id)}
-                      className={`py-1.5 px-2 rounded-md transition-all border text-center truncate relative group ${selectedRegion === mah.id ? 'bg-[#0E1C4F] dark:bg-[#F26B6F] text-white border-transparent' : 'bg-[#F6F1E7] dark:bg-[#17345A] text-[#6A5E4C] dark:text-[#A6B0C9] border-[#CFC5B4] dark:border-[#2C3C72]'}`}
-                    >
-                      <span className="block truncate font-bold text-[11px]">{mah.name}</span>
-                    </button>
-                  ))}
-                </div>
-
-                {/* Active Mahalle Details & Action Bar */}
-                {(() => {
-                  const activeMah = mahalleler.find(m => m.id === selectedRegion);
-                  if (!activeMah) return null;
-                  return (
-                    <div className="p-3 bg-[#F6F1E7] dark:bg-[#17345A]/30 border border-[#CFC5B4]/50 dark:border-[#2C3C72]/30 rounded-lg space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-serif font-bold text-[#0E1C4F] dark:text-[#F3EFE8] uppercase">
-                          {activeMah.name} Açıklaması
-                        </span>
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => {
-                              setEditingMahalleId(activeMah.id);
-                              setEditingMahalleName(activeMah.name);
-                              setEditingMahalleSummary(activeMah.summary || '');
-                              setShowAddMahalleForm(false);
-                            }}
-                            className="text-[10px] font-mono text-[#F26B6F] hover:underline cursor-pointer"
-                          >
-                            Düzenle
-                          </button>
-                          {mahalleler.length > 1 && (
-                            <button
-                              onClick={() => {
-                                triggerConfirm(
-                                  "Mahalleyi Sil",
-                                  `"${activeMah.name}" mahallesini silmek istediğinize emin misiniz? Mahalledeki tüm sokaklar ve buradaki mekanların konum bağlantıları kaldırılacaktır.`,
-                                  () => handleDeleteMahalleInTree(activeMah.id)
-                                );
-                              }}
-                              className="text-[10px] font-mono text-red-500 hover:underline cursor-pointer"
-                            >
-                              Sil
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                      <p className="text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9] leading-relaxed italic">
-                        {activeMah.summary || "Bu mahalle hakkında henüz bir hikaye yazılmadı."}
-                      </p>
-                    </div>
-                  );
-                })()}
-              </div>
-
-              {/* CADDE VE SOKAKLAR (LEVEL 2) */}
-              <div className="border-t border-[#CFC5B4]/50 pt-3.5 space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-mono text-[#6A5E4C] dark:text-[#A6B0C9] uppercase font-bold tracking-wider">
-                    🛣️ 2. Seviye: Cadde & Sokaklar ({sokaklar.filter(s => s.mahalleId === selectedRegion).length})
-                  </span>
-                  <button
-                    onClick={() => {
-                      setShowAddSokakForm(!showAddSokakForm);
-                      setEditingSokakId(null);
-                    }}
-                    className="text-[10px] font-mono text-[#F26B6F] hover:underline cursor-pointer font-bold flex items-center gap-0.5"
-                  >
-                    <Plus className="w-3 h-3" />
-                    {showAddSokakForm ? 'Kapat' : 'Sokak Ekle'}
-                  </button>
-                </div>
-
-                {/* Add Sokak Form */}
-                {showAddSokakForm && (
-                  <div className="p-3 bg-white dark:bg-[#12224A]/40 border border-stone-200 dark:border-[#2C3C72] rounded-lg space-y-2 text-xs">
-                    <h4 className="font-bold font-sans text-[#0E1C4F] dark:text-[#F3EFE8] tracking-tight">Yeni Cadde / Sokak Ekle</h4>
-                    <p className="text-[10px] text-[#6A5E4C] dark:text-stone-400">Bu sokak, seçili mahalle olan <b>{mahalleler.find(m => m.id === selectedRegion)?.name}</b> içinde oluşturulacaktır.</p>
-                    <div className="flex gap-1.5">
-                      <input
-                        type="text"
-                        placeholder="Yol/Sokak Adı (örn: Liman Yolu)"
-                        value={newSokakName}
-                        onChange={(e) => setNewSokakName(e.target.value)}
-                        className="flex-1 p-1.5 border border-stone-300 dark:border-[#2C3C72] bg-transparent rounded text-xs text-stone-800 dark:text-stone-100 font-medium"
-                      />
-                      <button
-                        onClick={() => handleAddSokak(selectedRegion)}
-                        className="px-3 bg-[#F26B6F] text-white rounded text-xs font-mono font-bold cursor-pointer"
-                      >
-                        Ekle
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                {/* Sokaklar Accordion Tree */}
-                <div className="space-y-2.5 max-h-[400px] overflow-y-auto pr-1">
-                  {sokaklar.filter(s => s.mahalleId === selectedRegion).length === 0 && (
-                    <span className="text-xs text-stone-500 dark:text-stone-400 italic block text-center py-4 bg-[#F6F1E7]/40 rounded-lg">Bu mahallede henüz tanımlanmış bir cadde/sokak yok.</span>
-                  )}
-
-                  {sokaklar.filter(s => s.mahalleId === selectedRegion).map(sok => {
-                    const sokMekanlari = entities.filter(e => 
-                      e.metadata?.sokakId === sok.id && e.metadata?.mahalleId === selectedRegion
-                    );
-
-                    return (
-                      <div key={sok.id} className="bg-white/80 dark:bg-[#12224A]/20 border border-[#CFC5B4]/50 dark:border-[#2C3C72]/40 rounded-lg p-2.5 space-y-2">
-                        {/* Sokak Row */}
-                        <div className="flex items-center justify-between border-b border-stone-100 dark:border-[#2C3C72]/30 pb-1.5">
-                          {editingSokakId === sok.id ? (
-                            <div className="flex items-center gap-1 flex-1">
-                              <input
-                                type="text"
-                                value={editingSokakName}
-                                onChange={(e) => setEditingSokakName(e.target.value)}
-                                className="p-1 border border-[#F26B6F] rounded text-xs bg-transparent flex-1 text-stone-800 dark:text-stone-100"
-                              />
-                              <button
-                                onClick={() => handleUpdateSokak(sok.id, editingSokakName)}
-                                className="p-1 bg-[#F26B6F] text-white rounded cursor-pointer"
-                              >
-                                <Check className="w-3.5 h-3.5" />
-                              </button>
-                            </div>
-                          ) : (
-                            <div className="flex items-center gap-1.5">
-                              <span className="font-serif font-bold text-xs text-[#0E1C4F] dark:text-[#F3EFE8]">{sok.name}</span>
-                              <span className="text-[9px] font-mono text-stone-500 dark:text-stone-400 bg-stone-100 dark:bg-[#17345A] px-1 rounded-sm">
-                                {sokMekanlari.length} Mekan
-                              </span>
-                            </div>
-                          )}
-
-                          {editingSokakId !== sok.id && (
-                            <div className="flex items-center gap-1.5">
-                              <button
-                                onClick={() => {
-                                  setEditingSokakId(sok.id);
-                                  setEditingSokakName(sok.name);
-                                }}
-                                className="text-[10px] text-[#6A5E4C] dark:text-[#A6B0C9] hover:underline cursor-pointer"
-                              >
-                                Düzenle
-                              </button>
-                              <button
-                                onClick={() => {
-                                  triggerConfirm(
-                                    "Sokağı Sil",
-                                    `"${sok.name}" sokağını silmek istediğinize emin misiniz? Sokağa bağlı mekanların sokak bağlantısı kaldırılacaktır.`,
-                                    () => handleDeleteSokakInTree(sok.id)
-                                  );
-                                }}
-                                className="text-[10px] text-red-500 hover:underline cursor-pointer"
-                              >
-                                Sil
-                              </button>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* MEKANLAR (LEVEL 3) LIST ON THIS STREET */}
-                        <div className="pl-1.5 space-y-1">
-                          {sokMekanlari.length === 0 ? (
-                            <span className="text-[10px] text-stone-500 dark:text-stone-400 italic block py-1">Bu sokakta henüz mekan bulunmuyor.</span>
-                          ) : (
-                            sokMekanlari.map(mekan => {
-                              let typeIcon = <MapPin className="w-3 h-3 text-[#F26B6F]" />;
-                              if (mekan.type === 'dükkân') {
-                                typeIcon = <Store className="w-3 h-3 text-amber-500" />;
-                              } else if (mekan.type === 'yer') {
-                                typeIcon = <Compass className="w-3 h-3 text-indigo-500" />;
-                              }
-
-                              return (
-                                <div key={mekan.id} className="flex items-center justify-between group py-1 border-b border-dashed border-stone-100 dark:border-stone-800/40 last:border-0">
-                                  <div 
-                                    onClick={() => {
-                                      setActiveTab('wiki');
-                                      onSelectItem(mekan.id);
-                                    }}
-                                    className="flex items-center gap-1.5 cursor-pointer text-[11px] text-[#0E1C4F] dark:text-[#A6B0C9] hover:text-[#F26B6F] hover:underline truncate"
-                                  >
-                                    {typeIcon}
-                                    <span className="truncate font-medium">{mekan.title}</span>
-                                    <span className="text-[8px] font-mono opacity-50 uppercase scale-90 text-stone-500 dark:text-stone-400">({mekan.type})</span>
-                                  </div>
-
-                                  <div className="flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
-                                    <button
-                                      title="Sokaktan Kaldır"
-                                      onClick={() => handleUnplaceMekanFromSokak(mekan.id)}
-                                      className="text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-100 text-[9px] font-mono px-1 border border-stone-200 dark:border-stone-700 rounded bg-white/50 dark:bg-[#12224A]/40 cursor-pointer"
-                                    >
-                                      Bağlantıyı Kes
-                                    </button>
-                                    <button
-                                      title="Tamamen Sil"
-                                      onClick={() => {
-                                        triggerConfirm(
-                                          "Varlığı Sil",
-                                          `"${mekan.title}" varlığını ansiklopediden tamamen silmek istediğinize emin misiniz?`,
-                                          () => onDeleteItem(mekan.id)
-                                        );
-                                      }}
-                                      className="text-red-500 hover:text-red-700 hover:bg-red-50 p-0.5 rounded cursor-pointer"
-                                    >
-                                      <Trash2 className="w-3 h-3" />
-                                    </button>
-                                  </div>
-                                </div>
-                              );
-                            })
-                          )}
-                        </div>
-
-                        {/* ADD / LINK MEKAN ACTIONS ON SOKAK */}
-                        <div className="pt-2 flex items-center justify-between text-[10px] gap-2 border-t border-dotted border-stone-200 dark:border-stone-700/50">
-                          <button
-                            onClick={() => {
-                              setAddingMekanSokakId(addingMekanSokakId === sok.id ? null : sok.id);
-                              setLinkingMekanSokakId(null);
-                            }}
-                            className="text-[#F26B6F] hover:underline font-mono font-bold flex items-center gap-0.5 cursor-pointer"
-                          >
-                            <Plus className="w-2.5 h-2.5" />
-                            Yeni Mekan Ekle
-                          </button>
-                          <button
-                            onClick={() => {
-                              setLinkingMekanSokakId(linkingMekanSokakId === sok.id ? null : sok.id);
-                              setAddingMekanSokakId(null);
-                              const unplaced = entities.filter(e => 
-                                (e.type === 'yer' || e.type === 'mekân' || e.type === 'dükkân') && 
-                                e.metadata?.sokakId !== sok.id
-                              );
-                              if (unplaced.length > 0) {
-                                setSelectedMekanToLink(unplaced[0].id);
-                              }
-                            }}
-                            className="text-[#0E1C4F] dark:text-[#A6B0C9] hover:underline font-mono font-bold flex items-center gap-0.5 cursor-pointer"
-                          >
-                            <Link className="w-2.5 h-2.5" />
-                            Mevcut Mekan Yerleştir
-                          </button>
-                        </div>
-
-                        {/* Inline Form: Add Mekan */}
-                        {addingMekanSokakId === sok.id && (
-                          <div className="p-2 bg-[#F6F1E7]/40 dark:bg-stone-900/40 rounded-md border border-stone-200 dark:border-stone-700 space-y-1.5 text-[10px]">
-                            <div className="flex gap-1">
-                              <input
-                                type="text"
-                                placeholder="Mekan / Dükkan Adı"
-                                value={newMekanName}
-                                onChange={(e) => setNewMekanName(e.target.value)}
-                                className="flex-1 p-1 border border-stone-300 dark:border-stone-700 bg-transparent rounded text-[10px] text-stone-800 dark:text-stone-100 font-medium"
-                              />
-                              <select
-                                value={newMekanType}
-                                onChange={(e) => setNewMekanType(e.target.value as any)}
-                                className="p-1 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 rounded text-[10px]"
-                              >
-                                <option value="mekân">Mekân</option>
-                                <option value="dükkân">Dükkân</option>
-                                <option value="yer">Yer</option>
-                              </select>
-                            </div>
-                            <button
-                              onClick={() => handleAddMekanToSokak(sok.id, selectedRegion)}
-                              className="w-full py-1 bg-[#F26B6F] text-white rounded font-mono font-bold cursor-pointer"
-                            >
-                              Yeni Mekanı Kaydet ve Yerleştir
-                            </button>
-                          </div>
-                        )}
-
-                        {/* Inline Form: Link Existing Mekan */}
-                        {linkingMekanSokakId === sok.id && (() => {
-                          const unplacedMekanlar = entities.filter(e => 
-                            (e.type === 'yer' || e.type === 'mekân' || e.type === 'dükkân') && 
-                            e.metadata?.sokakId !== sok.id
-                          );
-
-                          return (
-                            <div className="p-2 bg-[#F6F1E7]/40 dark:bg-stone-900/40 rounded-md border border-stone-200 dark:border-stone-700 space-y-1.5 text-[10px]">
-                              {unplacedMekanlar.length === 0 ? (
-                                <span className="text-stone-500 dark:text-stone-400 italic block">Yerleştirilebilecek boşta mekan bulunamadı.</span>
-                              ) : (
-                                <>
-                                  <select
-                                    value={selectedMekanToLink}
-                                    onChange={(e) => setSelectedMekanToLink(e.target.value)}
-                                    className="w-full p-1 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 rounded text-[10px]"
-                                  >
-                                    {unplacedMekanlar.map(m => (
-                                      <option key={m.id} value={m.id}>
-                                        {m.title} ({m.type})
-                                      </option>
-                                    ))}
-                                  </select>
-                                  <button
-                                    onClick={() => handleLinkMekanToSokak(selectedMekanToLink, sok.id, selectedRegion)}
-                                    className="w-full py-1 bg-[#0E1C4F] dark:bg-stone-700 text-white rounded font-mono font-bold cursor-pointer"
-                                  >
-                                    Mevcut Mekanı Buraya Yerleştir
-                                  </button>
-                                </>
-                              )}
-                            </div>
-                          );
-                        })()}
-
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* SOKAK DIŞI MEKANLAR */}
-              {(() => {
-                const unassignedMekanlar = entities.filter(e => 
-                  e.metadata?.region === selectedRegion &&
-                  (e.type === 'yer' || e.type === 'mekân' || e.type === 'dükkân') &&
-                  !e.metadata?.sokakId &&
-                  !e.id.startsWith('region_')
-                );
-
-                if (unassignedMekanlar.length === 0) return null;
-
-                return (
-                  <div className="border-t border-[#CFC5B4]/50 pt-3 flex flex-col gap-2">
-                    <span className="text-[10px] font-mono text-[#6A5E4C] dark:text-[#A6B0C9] uppercase font-bold tracking-wider">
-                      🗺️ Sokak Belirtilmemiş Varlıklar ({unassignedMekanlar.length})
-                    </span>
-                    <div className="bg-amber-500/5 dark:bg-amber-400/5 border border-amber-500/20 rounded-lg p-2.5 space-y-1.5">
-                      {unassignedMekanlar.map(mekan => (
-                        <div key={mekan.id} className="flex items-center justify-between text-xs">
-                          <span 
-                            onClick={() => {
-                              setActiveTab('wiki');
-                              onSelectItem(mekan.id);
-                            }}
-                            className="font-medium text-[#0E1C4F] dark:text-[#A6B0C9] hover:text-[#F26B6F] hover:underline truncate cursor-pointer"
-                          >
-                            {mekan.title}
-                          </span>
-                          <span className="text-[9px] text-stone-500 dark:text-stone-400 font-mono italic">Sokaksız</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                );
-              })()}
-
-            </div>
-          </div>
-        </div>
+            ) : (
+              <Kurucu
+                className="h-[calc(100dvh-14.5rem)] sm:h-[calc(100vh-11rem)] min-h-[460px] sm:min-h-[520px]"
+                duzen={haritaDuzeni.duzen}
+                kaydet={haritaDuzeni.kaydet}
+                durum={haritaDuzeni.durum}
+                items={items}
+                onMaddeAc={id => { setActiveTab('wiki'); onSelectItem(id); }}
+                ustSol={gorunumDugmesi}
+                bakis={haritaBakisi.current}
+                onBakis={bakisiTut}
+              />
+            )}
+          </Suspense>
+        ) : (
+          <div className="h-[80vh] flex items-center justify-center rounded-2xl bg-[#1C4E8C] font-mono text-xs text-[#F3EFE8]">Kayıtlı düzen okunuyor…</div>
+        )
       )}
+
 
       {/* VIEW 1.5: WIKI MODU — yeni wiki katmanı (src/components/wiki) */}
       {activeTab === 'wiki' && (
