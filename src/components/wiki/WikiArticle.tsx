@@ -7,6 +7,7 @@ import { WikiRooms } from './WikiRooms';
 import { WikiPeople } from './WikiPeople';
 import { WikiHarita, haritaKarsiligiVar } from './WikiHarita';
 import { KunyeDegeri } from './KunyeDegeri';
+import { maddeGorseli } from '../../lib/maddeGorseli';
 import {
   getKunyeFields,
   getEkBilgiler,
@@ -105,10 +106,7 @@ export const WikiArticle: React.FC<WikiArticleProps> = ({
    * verisindeki görseller (galeriden bağlanan ya da yüklenen); eski
    * tohumlardaki hazır internet fotoğrafları gösterilmez.
    */
-  const gorsel = useMemo(
-    () => (item.images || []).find(s => typeof s === 'string' && s.startsWith('data:image/')),
-    [item]
-  );
+  const gorsel = useMemo(() => maddeGorseli(item, allItems), [item, allItems]);
 
   /** Bu mekâna bağlı odalar — ayrı ve katlanmış gösterilir */
   const rooms = useMemo(

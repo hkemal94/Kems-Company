@@ -30,6 +30,7 @@ import {
 import { SayfaRayi } from './SayfaRayi';
 import { markaYapisi, kurumMu, dropBaglari } from '../lib/markaYapisi';
 import { KurumOzeti } from './marka/KurumOzeti';
+import { maddeGorseli } from '../lib/maddeGorseli';
 
 interface MarkalarProps {
   items: Item[];
@@ -461,8 +462,8 @@ export default function Markalar({
    */
   const markaSatiri = (b: Item) => {
     const isActive = b.id === activeBrandId;
-    const logo = b.metadata?.brandKit?.logoBase64 || b.metadata?.brandKit?.selectedLogo;
-    const hasLogo = !!(logo && (logo.startsWith('http') || logo.startsWith('data:')));
+    const logo = maddeGorseli(b, items);
+    const hasLogo = !!logo;
     const kurum = kurumMu(b);
     return (
       <div
@@ -907,10 +908,10 @@ export default function Markalar({
                             <div className="space-y-4">
                               {/* Main Logo Card */}
                               <div className="p-4 bg-stone-50 dark:bg-[#112440]/30 border border-stone-200/60 dark:border-[#2C3C72]/40 rounded-xl flex flex-col items-center justify-center min-h-[160px] relative group overflow-hidden">
-                                {bk.logoBase64 || (bk.selectedLogo && (bk.selectedLogo.startsWith('http') || bk.selectedLogo.startsWith('data:'))) ? (
+                                {maddeGorseli(activeBrand, items) ? (
                                   <div className="max-w-[120px] max-h-[120px] flex items-center justify-center">
                                     <img
-                                      src={bk.logoBase64 || bk.selectedLogo}
+                                      src={maddeGorseli(activeBrand, items)}
                                       alt="Seçilen Logo"
                                       className="max-w-full max-h-full object-contain pointer-events-none select-none"
                                       referrerPolicy="no-referrer"
@@ -1576,7 +1577,7 @@ export default function Markalar({
 
               {/* Viki özeti: künye, bilgiler, sayfa metni (29 Eylül) */}
               {!isEditingBrand && !isUnassignedSelected ? (
-                <KurumOzeti item={activeBrand} onVikideAc={id => onSelectArea('duzada', id)} />
+                <KurumOzeti item={activeBrand} items={items} onVikideAc={id => onSelectArea('duzada', id)} />
               ) : (
               <div className="bg-white/80 dark:bg-[#13204A]/60 border border-[#B9C7BD] dark:border-[#2C3C72] p-5 rounded-xl space-y-2">
                 <h4 className="text-[10px] font-mono uppercase text-[#6A5E4C] dark:text-[#A6B0C9] tracking-wider font-bold">

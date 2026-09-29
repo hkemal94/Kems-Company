@@ -3,6 +3,7 @@ import { BookOpen } from 'lucide-react';
 import type { Item } from '../../types';
 import { getKunyeFields, getEkBilgiler, getArticleBody } from '../wiki/wikiSchema';
 import { KunyeDegeri } from '../wiki/KunyeDegeri';
+import { maddeGorseli } from '../../lib/maddeGorseli';
 
 /**
  * Markalar ekranında bir kurumun (ya da markanın) viki özeti.
@@ -16,14 +17,16 @@ import { KunyeDegeri } from '../wiki/KunyeDegeri';
 
 interface KurumOzetiProps {
   item: Item;
+  /** Galeride bu maddeye bağlı görseli bulmak için */
+  items?: Item[];
   onVikideAc: (id: string) => void;
 }
 
-export const KurumOzeti: React.FC<KurumOzetiProps> = ({ item, onVikideAc }) => {
+export const KurumOzeti: React.FC<KurumOzetiProps> = ({ item, items = [], onVikideAc }) => {
   const kunye = useMemo(() => getKunyeFields(item), [item]);
   const ekler = useMemo(() => getEkBilgiler(item), [item]);
   const govde = useMemo(() => getArticleBody(item), [item]);
-  const gorsel = (item.images || []).find(s => typeof s === 'string' && s.startsWith('data:image/'));
+  const gorsel = maddeGorseli(item, items);
   const bos = !kunye.length && !ekler.length && !govde.length;
 
   return (

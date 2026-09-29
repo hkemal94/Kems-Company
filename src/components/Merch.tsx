@@ -1566,7 +1566,7 @@ export default function Merch({
               const kurumId = kurumuNe(activeItem);
               const kurum = kurumId ? items.find(i => i.id === kurumId && !i.archived) : undefined;
               return kurum ? (
-                <KurumOzeti item={kurum} onVikideAc={id => onSelectArea?.('duzada', id)} />
+                <KurumOzeti item={kurum} items={items} onVikideAc={id => onSelectArea?.('duzada', id)} />
               ) : null;
             })()}
 
