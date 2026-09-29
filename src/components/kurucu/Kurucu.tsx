@@ -602,7 +602,7 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
       const d = sonDuzen.current ?? bosDuzen();
       await kaydet({ ...d, guncelleme: Date.now(), kurucu: taslakBelgesi, kurucuIslenen: taslakBelgesi });
       setYerelIslenen(taslakBelgesi);
-      setIsleRaporu('Haritaya işlendi. "Düzada Haritası" sekmesinde görünür.'
+      setIsleRaporu('Haritaya işlendi. "3D · bak" ile ve sitede görünür.'
         + (onceki && arsivle ? ' Önceki hâl arşive kalktı.' : ''));
     } catch (e) {
       setIsleRaporu(`İşlenemedi: ${e instanceof Error ? e.message : 'bilinmeyen hata'}. Taslak duruyor, tekrar dene.`);

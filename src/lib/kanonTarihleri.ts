@@ -3,9 +3,9 @@
  *
  * Kaynak: docs/03-duzada-kunyesi.md (soru-cevap W3). Her kural bir yerin ya
  * da olgunun hangi yıldan önce ya da sonra olamayacağını söyler. Kitap,
- * Blog ve tutarlılık denetçisi bir metinde aynı paragrafta hem bu adı hem
+ * Blog ve tutarlılık denetçisi bir metinde aynı cümlede hem bu adı hem
  * de kuralla çelişen bir yılı görürse uyarır — örneğin "1972" geçen bir
- * paragrafta Liman Mahallesi (1980–1990'larda kuruldu).
+ * cümlede Liman Mahallesi (1980–1990'larda kuruldu).
  *
  * Uyarı yalnız ipucudur: metni değiştirmez. Aralıklar kanondaki aralığın
  * en erken yılıyla yazıldı; "1980–1990'lar" → 1980.
@@ -46,18 +46,30 @@ export interface TarihUyarisi {
 
 const YIL = /\b(1[89]\d\d|20[0-3]\d)\b/g;
 
-/** Metindeki tarih çelişkileri — paragraf paragraf */
+/**
+ * Metindeki tarih çelişkileri — satır satır, satırda cümle cümle.
+ *
+ * Eskiden paragraf paragraf bakılıyordu; künye tek paragraf olduğu için
+ * "* Kuruluş: 1957" ile "* Stat: Dirlik Stadı" aynı yerde sayılıyor, yanlış
+ * uyarı çıkıyordu (Kemal, 29 Eylül gece: "çakışan bir şeyimiz yok").
+ * Artık ad ile yıl aynı cümlede geçmeli.
+ */
 export function tarihUyarilari(metin: string): TarihUyarisi[] {
   const cikti: TarihUyarisi[] = [];
   const gorulen = new Set<string>();
-  for (const paragraf of (metin || '').split(/\n\s*\n/)) {
+  const cumleler = (metin || '').split('\n').flatMap(satir => satir.split(/(?<=[.!?])\s+/));
+  for (const paragraf of cumleler) {
     const yillar = Array.from(paragraf.matchAll(YIL)).map(m => Number(m[1]));
     if (!yillar.length) continue;
     for (const kural of TARIH_KURALLARI) {
       if (!kural.desen.test(paragraf)) continue;
-      const celisen = yillar.find(y =>
-        (kural.baslangic !== undefined && y < kural.baslangic)
-        || (kural.bitis !== undefined && y > kural.bitis));
+      const uyan = (y: number) =>
+        (kural.baslangic === undefined || y >= kural.baslangic)
+        && (kural.bitis === undefined || y <= kural.bitis);
+      // Cümlede kurala uyan bir yıl da varsa ("1950'lerden beri… stat
+      // 1980'ler") o yıl yerin kendi tarihidir; öteki başka bir şeyin.
+      if (yillar.some(uyan)) continue;
+      const celisen = yillar.find(y => !uyan(y));
       if (celisen === undefined) continue;
       const anahtar = `${kural.ad}|${celisen}`;
       if (gorulen.has(anahtar)) continue;

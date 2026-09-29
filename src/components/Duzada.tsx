@@ -531,7 +531,8 @@ export default function Duzada({
   const [maddeKuruluyor, setMaddeKuruluyor] = useState(false);
 
   const haritaMaddesiniAc = (wikiId: string) => {
-    let hedef = items.find(it => it.id === wikiId);
+    // Sonradan bağlanan kayıt (Neyin Eksik → "Kayda bağla") da bulunur
+    let hedef = items.find(it => it.id === wikiId) || items.find(it => !it.archived && it.metadata?.haritaWikiId === wikiId);
     if (!hedef && wikiId.startsWith('yer_')) {
       const anahtar = wikiId.slice(4); // merkez, liman, iskele, ciftlik, stadyum
       // Arşivdekiler atlanır: W1'de kalkan eski mahalle kayıtları bulunmasın
@@ -1312,9 +1313,9 @@ export default function Duzada({
           }}
           onHaritayaGit={() => setActiveTab('harita')}
           onSitede={(it, acik) => {
-            // Yalnız Kemal basınca yazılır; kapatınca alan silinir (undefined yazılmaz)
-            const { sitede: _eski, ...meta } = (it.metadata || {}) as Record<string, unknown>;
-            void onUpdateItem({ ...it, metadata: (acik ? { ...meta, sitede: true } : meta) as Item['metadata'], updatedAt: Date.now() });
+            // Yalnız Kemal basınca yazılır. Kayıt eskisinin üstüne eklenerek
+            // yazıldığı için alanı silmek işe yaramıyor; kapatınca false yazılır.
+            void onUpdateItem({ ...it, metadata: { ...(it.metadata || {}), sitede: acik } as Item['metadata'], updatedAt: Date.now() });
           }}
         />
       )}
