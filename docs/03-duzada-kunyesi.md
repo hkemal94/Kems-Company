@@ -10,8 +10,8 @@ Ege Denizi'nde, zeytin ağaçlarıyla çevrili kurgusal bir ada. Kurgusal ama
 gerçek enlem-boylam kullanıyor: **39,60° K · 25,85° D** civarı —
 Bozcaada'nın güneybatısı, Babakale'nin batısı, Türk suları; Küçükkuyu
 yaklaşık 65 km doğuda (Kemal, 28 Eylül: W3 52. tur). Eski değer 39,005° K ·
-25,805° D Midilli'nin batısına, Yunan sularına düşüyordu. **Harita henüz
-eski koordinatta** — taşınması ayrı iş (H).
+25,805° D Midilli'nin batısına, Yunan sularına düşüyordu. Harita 29 Eylül
+2026'da yeni koordinata taşındı (H); şekil ve ölçüler aynı kaldı.
 
 İdari olarak **Ayvacık'a bağlı bir belde** (Küçükkuyu da Ayvacık'a bağlı;
 W3 60. tur).

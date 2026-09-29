@@ -232,6 +232,15 @@ ekleme, ikinci basış bir şey yapmaz. Kemal basacak.
 - Kararlar: 25 → Kems Company dükkânının yeri Kemsköy Caddesi. 26 → W5
   düğmesine basıldı, PR birleşti.
 
+**Harita yeni koordinatta (H, 29 Eylül):** Ada 39,005 K · 25,805 D'den
+39,60 K · 25,85 D'ye taşındı. `duzadaGeo.ts`, `duzadaDem.ts` sınırı,
+`gen/duzada.py` (LAT0/LNG0, elle etiketler) üreticinin metre–derece
+formülüyle çevrildi; yeniden üretilmedi. Alan 162,171 km² → 162,171 km².
+Kemal'in düzeni (`duzada/haritaDuzeni`) `surum: 1` ise okunurken
+çevrilir (`src/components/harita/koordinatGocu.ts`); Neyin Eksik'teki
+"harita düzenin eski koordinatta kayıtlı" kartı kalıcı yazar (`surum: 2`).
+Arşivdeki eski Kurucu kayıtları (`kurucuArsiv`) eski koordinatta kaldı.
+
 **Okunurluk denetimi ve kiremit kararı (K, 29 Eylül):** Bütün sekmeler
 aydınlık/karanlık, masaüstü/telefon genişliğinde tarandı. Soluk gri alt
 yazılar tek griye (`#6A5E4C`, karanlıkta `#A6B0C9`) indi, karanlıktaki soluk

@@ -16,7 +16,7 @@
 
 /** [batı, güney, doğu, kuzey] */
 export const DEM_SINIR: [number, number, number, number] = [
-  25.679044, 38.924583, 25.946360, 39.078221
+  25.722969, 39.519583, 25.992567, 39.673221
 ];
 
 export const DEM_EN = 1156;

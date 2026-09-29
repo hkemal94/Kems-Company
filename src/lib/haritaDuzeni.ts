@@ -5,6 +5,7 @@ import {
   DUZEN_SURUMU, type HaritaDuzeni, type KurucuBelge, type MekanDuzeni, type MekanKaydi
 } from '../components/harita/duzenTipi';
 import type { Nokta, SinirHatlari } from '../components/harita/sinirBolgeleri';
+import { duzeniTasi, YENI_KOORDINAT_SURUMU } from '../components/harita/koordinatGocu';
 
 /**
  * Harita düzeninin saklanması (H1).
@@ -150,6 +151,15 @@ const kurucuyuTemizle = (k: KurucuBelge): KurucuBelge => ({
 const belgeden = (b: unknown): HaritaDuzeni | null => {
   if (!b || typeof b !== 'object') return null;
   const v = b as Partial<Belge>;
+  const d = belgedenHam(v);
+  // Eski koordinattaki belge (surum 1): okunurken yeni yere çevrilir
+  if (Number(v.surum ?? 1) < YENI_KOORDINAT_SURUMU) {
+    return { ...duzeniTasi(d), eskiKoordinat: true };
+  }
+  return d;
+};
+
+const belgedenHam = (v: Partial<Belge>): HaritaDuzeni => {
   return {
     surum: Number(v.surum ?? DUZEN_SURUMU),
     guncelleme: Number(v.guncelleme ?? 0),
@@ -274,7 +284,9 @@ export function useHaritaDuzeni() {
   }, []);
 
   const kaydet = useCallback(async (yeni: HaritaDuzeni) => {
-    const d: HaritaDuzeni = { ...yeni, guncelleme: yeni.guncelleme || Date.now() };
+    // Kayıt her zaman yeni koordinatta yazılır; "eski" işareti kalkar
+    const { eskiKoordinat: _eski, ...temiz } = yeni;
+    const d: HaritaDuzeni = { ...temiz, guncelleme: yeni.guncelleme || Date.now() };
     if (!('kurucu' in yeni) && sonDuzen.current?.kurucu) d.kurucu = sonDuzen.current.kurucu;
     if (!('kurucuIslenen' in yeni) && sonDuzen.current?.kurucuIslenen) d.kurucuIslenen = sonDuzen.current.kurucuIslenen;
     sonYazilan.current = d.guncelleme;
