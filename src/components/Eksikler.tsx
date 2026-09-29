@@ -15,6 +15,7 @@ import { w3Aktarimi } from '../lib/w3Aktarimi';
 import { w4Aktarimi } from '../lib/w4Aktarimi';
 import { w5Aktarimi, w5GorselAdresi, W5_ETIKETI } from '../lib/w5Aktarimi';
 import { eskiYaziTemizligi } from '../lib/eskiYaziTemizligi';
+import { useHaritaDuzeni } from '../lib/haritaDuzeni';
 
 /**
  * "Neyin eksik" paneli (A1).
@@ -610,6 +611,27 @@ export const Eksikler: React.FC<EksiklerProps> = ({
     }
   };
 
+  /**
+   * Harita düzeni yeni koordinata (H, 29 Eylül). Düzen eski koordinatta
+   * kayıtlıysa harita onu okurken çevirir; bu kart çevrilmiş hâli kalıcı
+   * yazar. Yazıldıktan sonra kart görünmez.
+   */
+  const harita = useHaritaDuzeni();
+  const [koordinatIsi, setKoordinatIsi] = useState(false);
+  const [koordinatRaporu, setKoordinatRaporu] = useState<string | null>(null);
+  const koordinatiTasi = async () => {
+    if (!harita.duzen || koordinatIsi) return;
+    setKoordinatIsi(true);
+    try {
+      await harita.kaydet({ ...harita.duzen, guncelleme: Date.now() });
+      setKoordinatRaporu('Harita düzenin yeni koordinata (39,60 K · 25,85 D) taşındı. Sınırlar, yollar, mekânlar ve Kurucu taslağı aynı yerinde; ölçüler değişmedi.');
+    } catch (e) {
+      setKoordinatRaporu(`Hata: ${e instanceof Error ? e.message : 'bilinmeyen'}. Tekrar bas.`);
+    } finally {
+      setKoordinatIsi(false);
+    }
+  };
+
   /** Eski otel simülasyonundan kalan yazılar — tek düğmeyle "eski metin"e */
   const eskiYazi = useMemo(() => eskiYaziTemizligi(items), [items]);
   const [eskiIsi, setEskiIsi] = useState(false);
@@ -829,6 +851,36 @@ export const Eksikler: React.FC<EksiklerProps> = ({
       {w4Raporu && (
         <p className="mb-2.5 px-4 py-2 rounded-lg bg-[#F3EFE8] dark:bg-[#17345A] text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9]">
           {w4Raporu}
+        </p>
+      )}
+
+      {/* Harita düzeni yeni koordinata — tek seferlik */}
+      {harita.duzen?.eskiKoordinat && harita.ilkYukleme && (
+        <div className="mb-2.5 flex flex-wrap sm:flex-nowrap items-start gap-3 px-4 py-3 rounded-xl border border-[#F26B6F]/40 bg-[#FAF8F5] dark:bg-[#13204A]">
+          <span className="font-mono text-lg font-bold text-[#F26B6F] leading-none mt-0.5 shrink-0">H</span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-[13px] font-semibold text-[#0E1C4F] dark:text-[#F3EFE8]">
+              harita düzenin eski koordinatta kayıtlı
+            </span>
+            <span className="block mt-0.5 text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9] leading-snug">
+              Ada 39,60 K · 25,85 D'ye taşındı. Elle çizdiğin sınırlar, yollar, mekânlar ve Kurucu
+              taslağı da aynı şekilde taşınır; şekiller ve ölçüler değişmez. Harita şimdiden doğru
+              gösteriyor; bu düğme kalıcı yazar.
+            </span>
+          </span>
+          <button
+            type="button"
+            onClick={koordinatiTasi}
+            disabled={koordinatIsi}
+            className="shrink-0 px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#0E1C4F] dark:bg-[#2C3C72] text-[#F3EFE8] hover:opacity-90 disabled:opacity-40 cursor-pointer"
+          >
+            {koordinatIsi ? 'Taşınıyor…' : 'Yeni koordinata taşı'}
+          </button>
+        </div>
+      )}
+      {koordinatRaporu && (
+        <p className="mb-2.5 px-4 py-2 rounded-lg bg-[#F3EFE8] dark:bg-[#17345A] text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9]">
+          {koordinatRaporu}
         </p>
       )}
 

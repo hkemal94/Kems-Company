@@ -11,7 +11,7 @@ from shapely.geometry import Polygon, Point, LineString, MultiPolygon
 from shapely.ops import unary_union, polygonize
 from shapely.algorithms.polylabel import polylabel
 
-LAT0, LNG0 = 39.005, 25.805
+LAT0, LNG0 = 39.60, 25.85   # 29 Eylül 2026: 39.005, 25.805'ten taşındı (W3 52–53. tur)
 M_PER_LAT = 111_132.0
 M_PER_LNG = 111_320.0 * math.cos(math.radians(LAT0))
 R = 6                      # koordinat ondalık basamağı
@@ -2522,7 +2522,7 @@ geojson = {"type": "FeatureCollection", "features": features}
 
 # Elle ayarlanmış etiket konumları (uygulamadaki düzenleyiciden). Üretilen
 # konumun üstüne yazılır; yoksa her üretimde kaybolurlar.
-ETIKET_ELLE = {"etk_bina_belediye": [25.8132792, 39.0030812], "etk_bina_okul": [25.816968000000003, 39.0006532], "etk_bina_pazar": [25.811439999999997, 38.9998378], "etk_bina_meyhane": [25.746981600000005, 38.9753166]}
+ETIKET_ELLE = {"etk_bina_belediye": [25.85835, 39.598081], "etk_bina_okul": [25.86207, 39.595653], "etk_bina_pazar": [25.856495, 39.594838], "etk_bina_meyhane": [25.791486, 39.570317]}
 for _f in geojson["features"]:
     _eid = _f["properties"].get("id")
     if _eid in ETIKET_ELLE:

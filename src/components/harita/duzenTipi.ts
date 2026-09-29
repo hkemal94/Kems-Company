@@ -10,7 +10,7 @@ import type { SinirHatlari } from './sinirBolgeleri';
  * Sonraki paketler bu kayda alan ekleyecek (H3 mekânlar, H5 gizlenen
  * yapılar). `surum` bunun için var.
  */
-export const DUZEN_SURUMU = 1;
+export const DUZEN_SURUMU = 2; // 2: yeni koordinat (39,60 K · 25,85 D) — koordinatGocu.ts
 
 /**
  * Bir mekânın elle yapılmış düzeltmesi (H3).
@@ -79,4 +79,9 @@ export interface HaritaDuzeni {
    * kayıtlarına arşivli bir "Harita arşivi" maddesi olarak kalkar.
    */
   kurucuIslenen?: KurucuBelge;
+  /**
+   * Yalnız bellekte: belge eski koordinattan (surum 1) okunup çevrildi,
+   * kalıcı yazım bekliyor. Firestore'a yazılmaz.
+   */
+  eskiKoordinat?: boolean;
 }

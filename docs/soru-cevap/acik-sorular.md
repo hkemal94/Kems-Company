@@ -38,4 +38,4 @@ Ad sorularında Claude aday önerebilir; karar Kemal'in.
 ## Claude'a iş
 - ~~Dirlik ve kooperatif bilgilerini vikiye aktar~~ — W5 kartında.
 - ~~Vikide düzeltme (W5)~~ — W5 kartı hazır (29 Eylül); Kemal basınca biter.
-- **Haritayı yeni koordinata taşı (H):** 39,005 K · 25,805 D → 39,60 K · 25,85 D. Üretici (`gen/duzada.py` LAT0/LNG0), `duzadaKot.ts` ve Kemal'in kayıtlı harita düzeni birlikte kaydırılmalı; düzen boylam-enlemle saklanıyorsa tek seferlik düğme gerekir.
+- ~~Haritayı yeni koordinata taşı (H)~~ — yapıldı (29 Eylül); Kemal'in kayıtlı düzeni için Neyin Eksik'te tek seferlik kart. Eski not: 39,005 K · 25,805 D → 39,60 K · 25,85 D. Üretici (`gen/duzada.py` LAT0/LNG0), `duzadaKot.ts` ve Kemal'in kayıtlı harita düzeni birlikte kaydırılmalı; düzen boylam-enlemle saklanıyorsa tek seferlik düğme gerekir.

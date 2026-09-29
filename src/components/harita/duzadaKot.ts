@@ -1,5 +1,6 @@
 import { DEM_PNG, DEM_SINIR, DEM_EN, DEM_BOY } from '../../data/duzadaDem';
 import type { Nokta } from './sinirBolgeleri';
+import { DUZADA_MERKEZ } from '../../data/duzadaGeo';
 
 /**
  * Rakım okuyucu.
@@ -64,7 +65,7 @@ export function kotOku(lng: number, lat: number): number {
 }
 
 const M_PER_LAT = 111132;
-const M_PER_LNG = 111320 * Math.cos((39.005 * Math.PI) / 180);
+const M_PER_LNG = 111320 * Math.cos((DUZADA_MERKEZ[1] * Math.PI) / 180);
 
 /** İki nokta arası metre */
 export function metre(a: Nokta, b: Nokta): number {
