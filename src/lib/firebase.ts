@@ -144,7 +144,7 @@ export const seedUserData = async (userId: string) => {
       brandKit: {
         selectedLogo: "Kamil Efendi'nin Mührü - Çift Başlı Turna",
         ideaLogos: ["Turna Mührü", "Zeytin Dalı Amblemi"],
-        colorPalette: ["#1B2A4A", "#9DB0A4", "#BBA591"],
+        colorPalette: ["#0E1C4F", "#9DB0A4", "#BBA591"],
         exemplaryWorks: ["Antik Mühür Örneği"],
         selectedFont: "Garamond"
       }
@@ -208,7 +208,7 @@ export const seedUserData = async (userId: string) => {
       brandKit: {
         selectedLogo: "Geleneksel Başak ve Çınar Yaprağı Amblemi",
         ideaLogos: ["Çapraz Başaklar", "Modern Çınar Yaprağı"],
-        colorPalette: ["#D35057", "#7C8A5A", "#E4DCCD"],
+        colorPalette: ["#F26B6F", "#7C8A5A", "#E4DCCD"],
         exemplaryWorks: ["Geçen Yılın Afişi"],
         selectedFont: "Space Grotesk"
       }

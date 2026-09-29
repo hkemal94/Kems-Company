@@ -330,7 +330,7 @@ export default function DuzadaDirectory({
         onClick={() => onSelectItem(ent.id)}
         className={`flex items-center justify-between p-1.5 rounded-lg cursor-pointer transition-all group ${
           isActive 
-            ? 'bg-[#EAE4D7] dark:bg-[#1A2E65] border-l-2 border-[#D35057] shadow-3xs' 
+            ? 'bg-[#EAE4D7] dark:bg-[#1A2E65] border-l-2 border-[#F26B6F] shadow-3xs' 
             : 'hover:bg-[#FAF8F5] dark:hover:bg-[#13204A]/60'
         }`}
         style={{ paddingLeft: `${Math.max(6, depth * 12)}px` }}
@@ -347,11 +347,11 @@ export default function DuzadaDirectory({
                 setSelectedEntityIds(selectedEntityIds.filter(id => id !== ent.id));
               }
             }}
-            className="rounded text-[#D35057] focus:ring-[#D35057] cursor-pointer w-2.5 h-2.5 shrink-0"
+            className="rounded text-[#F26B6F] focus:ring-[#F26B6F] cursor-pointer w-2.5 h-2.5 shrink-0"
           />
           <div className="shrink-0">{getEntityIcon(ent.type)}</div>
           <div className="min-w-0">
-            <p className={`text-[11px] truncate font-serif font-bold leading-tight ${isActive ? 'text-[#1B2A4A] dark:text-[#F3EFE8]' : 'text-stone-800 dark:text-stone-200'}`}>
+            <p className={`text-[11px] truncate font-serif font-bold leading-tight ${isActive ? 'text-[#0E1C4F] dark:text-[#F3EFE8]' : 'text-stone-800 dark:text-stone-200'}`}>
               {ent.title}
             </p>
             <div className="flex items-center gap-1 text-[8px] font-mono text-stone-400">
@@ -389,14 +389,14 @@ export default function DuzadaDirectory({
                   await onUpdateItem(adaSakiniYap(ent, items));
                   setDeleteConfirmId(null);
                 }}
-                className="text-[8px] font-mono font-bold bg-[#1B2A4A] text-white px-1 py-0.2 rounded"
+                className="text-[8px] font-mono font-bold bg-[#0E1C4F] dark:bg-[#2C3C72] text-white px-1 py-0.2 rounded"
               >
                 Sakin yap
               </button>
             ) : (
               <button
                 onClick={() => setDeleteConfirmId(ent.id)}
-                className="opacity-0 group-hover:opacity-100 p-0.5 text-stone-400 hover:text-[#1B2A4A] rounded transition-all cursor-pointer"
+                className="opacity-0 group-hover:opacity-100 p-0.5 text-stone-400 hover:text-[#0E1C4F] rounded transition-all cursor-pointer"
                 title="Otelden çıkar, ada sakini yap (kayıt silinmez)"
               >
                 <Home className="w-3 h-3" />
@@ -436,7 +436,7 @@ export default function DuzadaDirectory({
         className="w-full flex items-center justify-between px-3.5 py-2.5 bg-[#F4EFE6] dark:bg-[#1C2C5E] border-b border-[#CFC5B4]/55 dark:border-[#2C3C72] text-left hover:bg-[#EAE4D7] dark:hover:bg-[#253975] transition-all cursor-pointer"
       >
         <span className="text-[11px] font-mono font-bold text-[#6A5E4C] dark:text-[#A6B0C9] uppercase tracking-wider flex items-center gap-1.5">
-          <Compass className="w-4 h-4 text-[#D35057]" /> Düzada Dizinleri
+          <Compass className="w-4 h-4 text-[#F26B6F]" /> Düzada Dizinleri
         </span>
         {isCollapsed ? <ChevronDown className="w-3.5 h-3.5 text-[#6A5E4C]" /> : <ChevronUp className="w-3.5 h-3.5 text-[#6A5E4C]" />}
       </button>
@@ -451,7 +451,7 @@ export default function DuzadaDirectory({
           </span>
           <button
             onClick={() => setShowCreateForm(!showCreateForm)}
-            className="flex items-center gap-0.5 text-[10px] font-mono px-2 py-1 bg-[#D35057] text-white rounded hover:bg-[#B23A40] transition-colors cursor-pointer"
+            className="flex items-center gap-0.5 text-[10px] font-mono px-2 py-1 bg-[#F26B6F] text-white rounded hover:bg-[#B23A40] transition-colors cursor-pointer"
           >
             <Plus className="w-3 h-3" />
             Yeni Madde
@@ -471,7 +471,7 @@ export default function DuzadaDirectory({
                 placeholder="Örn: Kamil Efendi, Han"
                 value={newTitle}
                 onChange={(e) => setNewTitle(e.target.value)}
-                className="w-full text-xs bg-white dark:bg-[#13204A] text-[#1B2A4A] dark:text-[#F3EFE8] border border-[#CFC5B4] dark:border-[#2C3C72] rounded p-1 focus:outline-hidden"
+                className="w-full text-xs bg-white dark:bg-[#13204A] text-[#0E1C4F] dark:text-[#F3EFE8] border border-[#CFC5B4] dark:border-[#2C3C72] rounded p-1 focus:outline-hidden"
               />
             </div>
 
@@ -482,7 +482,7 @@ export default function DuzadaDirectory({
               <select
                 value={newType}
                 onChange={(e) => setNewType(e.target.value as ItemType)}
-                className="w-full text-xs bg-white dark:bg-[#13204A] text-[#1B2A4A] dark:text-[#F3EFE8] border border-[#CFC5B4] dark:border-[#2C3C72] rounded p-1 focus:outline-hidden"
+                className="w-full text-xs bg-white dark:bg-[#13204A] text-[#0E1C4F] dark:text-[#F3EFE8] border border-[#CFC5B4] dark:border-[#2C3C72] rounded p-1 focus:outline-hidden"
               >
                 <option value="kisi">Kişi / Sakin</option>
                 <option value="marka">Marka / Kulüp</option>
@@ -503,7 +503,7 @@ export default function DuzadaDirectory({
               </button>
               <button
                 type="submit"
-                className="px-2.5 py-0.5 bg-[#D35057] text-white rounded hover:bg-[#B23A40]"
+                className="px-2.5 py-0.5 bg-[#F26B6F] text-white rounded hover:bg-[#B23A40]"
               >
                 Oluştur
               </button>
@@ -518,7 +518,7 @@ export default function DuzadaDirectory({
             placeholder="Maddelerde ara..."
             value={searchFilter}
             onChange={(e) => setSearchFilter(e.target.value)}
-            className="w-full text-xs bg-white dark:bg-[#13204A] text-[#1B2A4A] dark:text-[#F3EFE8] border border-[#CFC5B4] dark:border-[#2C3C72] rounded-lg pl-8 pr-2.5 py-1.5 focus:outline-hidden hover:border-[#D35057] focus:border-[#D35057] transition-all"
+            className="w-full text-xs bg-white dark:bg-[#13204A] text-[#0E1C4F] dark:text-[#F3EFE8] border border-[#CFC5B4] dark:border-[#2C3C72] rounded-lg pl-8 pr-2.5 py-1.5 focus:outline-hidden hover:border-[#F26B6F] focus:border-[#F26B6F] transition-all"
           />
           <Search className="w-3.5 h-3.5 text-stone-400 absolute left-2.5 top-2.5" />
         </div>
@@ -534,7 +534,7 @@ export default function DuzadaDirectory({
               }}
               className={`text-[9px] font-mono px-2 py-1 rounded transition-all cursor-pointer ${
                 selectedCategory === cat 
-                  ? 'bg-[#1B2A4A] dark:bg-[#D35057] text-white font-bold' 
+                  ? 'bg-[#0E1C4F] dark:bg-[#F26B6F] text-white font-bold' 
                   : 'bg-stone-100 hover:bg-stone-200 dark:bg-stone-800/40 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-300'
               }`}
             >
@@ -558,7 +558,7 @@ export default function DuzadaDirectory({
                 onClick={() => setSubClassFilter(sub.key)}
                 className={`text-[8px] font-mono px-1.5 py-0.5 rounded transition-all cursor-pointer ${
                   subClassFilter === sub.key
-                    ? 'bg-[#D35057] text-white font-bold'
+                    ? 'bg-[#F26B6F] text-white font-bold'
                     : 'bg-white hover:bg-stone-100 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-500 dark:text-stone-300 border border-[#CFC5B4]/20'
                 }`}
               >
@@ -576,7 +576,7 @@ export default function DuzadaDirectory({
               onClick={() => setSortBy('name')}
               className={`px-2 py-0.5 rounded text-[8px] font-mono border transition-colors cursor-pointer ${
                 sortBy === 'name' 
-                  ? 'bg-[#1B2A4A] dark:bg-[#D35057] text-white font-bold border-transparent' 
+                  ? 'bg-[#0E1C4F] dark:bg-[#F26B6F] text-white font-bold border-transparent' 
                   : 'bg-white dark:bg-stone-800 text-stone-600 dark:text-stone-300 border-stone-200 dark:border-stone-700'
               }`}
             >
@@ -586,7 +586,7 @@ export default function DuzadaDirectory({
               onClick={() => setSortBy('completeness')}
               className={`px-2 py-0.5 rounded text-[8px] font-mono border transition-colors cursor-pointer ${
                 sortBy === 'completeness' 
-                  ? 'bg-[#1B2A4A] dark:bg-[#D35057] text-white font-bold border-transparent' 
+                  ? 'bg-[#0E1C4F] dark:bg-[#F26B6F] text-white font-bold border-transparent' 
                   : 'bg-white dark:bg-stone-800 text-stone-600 dark:text-stone-300 border-stone-200 dark:border-stone-700'
               }`}
             >
@@ -610,14 +610,14 @@ export default function DuzadaDirectory({
                     setSelectedEntityIds([]);
                   }
                 }}
-                className="rounded text-[#D35057] focus:ring-[#D35057] cursor-pointer w-3 h-3"
+                className="rounded text-[#F26B6F] focus:ring-[#F26B6F] cursor-pointer w-3 h-3"
               />
-              <label htmlFor="select_all_dir" className="cursor-pointer select-none font-bold text-[#1B2A4A] dark:text-[#F3EFE8]">
+              <label htmlFor="select_all_dir" className="cursor-pointer select-none font-bold text-[#0E1C4F] dark:text-[#F3EFE8]">
                 Tümünü Seç ({filteredEntities.length})
               </label>
             </div>
             {selectedEntityIds.length > 0 && (
-              <span className="text-[#D35057] font-bold">
+              <span className="text-[#F26B6F] font-bold">
                 {selectedEntityIds.length} Seçili
               </span>
             )}
@@ -711,7 +711,7 @@ export default function DuzadaDirectory({
                 className="w-full flex items-center justify-between py-1 px-1.5 bg-[#F4EFE6] dark:bg-[#1A2E65]/50 hover:bg-[#EAE4D7] dark:hover:bg-[#1A2E65] rounded text-left text-[11px] font-mono font-bold text-[#6A5E4C] dark:text-[#A6B0C9] transition-all cursor-pointer border border-[#CFC5B4]/30"
               >
                 <span className="flex items-center gap-1.5 uppercase tracking-wider">
-                  <MapPin className="w-3.5 h-3.5 text-[#D35057]" />
+                  <MapPin className="w-3.5 h-3.5 text-[#F26B6F]" />
                   Mahalleler &amp; Sokaklar ({defaultMahalleler.length})
                 </span>
                 {expandedGroups.mahalleler ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
@@ -752,7 +752,7 @@ export default function DuzadaDirectory({
                               }
                             }}
                             className={`text-[11px] font-bold font-serif cursor-pointer hover:underline flex-1 truncate ${
-                              isMahActive ? 'text-[#D35057] underline' : 'text-[#1B2A4A] dark:text-[#F3EFE8]'
+                              isMahActive ? 'text-[#F26B6F] underline' : 'text-[#0E1C4F] dark:text-[#F3EFE8]'
                             }`}
                           >
                             📍 {mah.name} Bölgesi
@@ -805,7 +805,7 @@ export default function DuzadaDirectory({
                                               <div className="pl-3.5 space-y-0.5">
                                                 <button
                                                   onClick={() => setExpandedGroups(prev => ({ ...prev, hotelRooms: !prev.hotelRooms }))}
-                                                  className="text-[9px] font-mono text-[#D35057] hover:underline flex items-center gap-1 py-0.5"
+                                                  className="text-[9px] font-mono text-[#F26B6F] hover:underline flex items-center gap-1 py-0.5"
                                                 >
                                                   {expandedGroups.hotelRooms ? '▼ Odaları Gizle' : '▶ Otel Odalarını Göster'}
                                                 </button>
@@ -819,7 +819,7 @@ export default function DuzadaDirectory({
                                                               onClick={() => onSelectItem(room.id)}
                                                               className={`text-[9px] p-1 rounded border text-center transition-all truncate cursor-pointer ${
                                                                 activeItemId === room.id 
-                                                                  ? 'bg-[#EAE4D7] dark:bg-[#1A2E65] border-[#D35057] font-bold text-[#D35057]'
+                                                                  ? 'bg-[#EAE4D7] dark:bg-[#1A2E65] border-[#F26B6F] font-bold text-[#F26B6F]'
                                                                   : 'bg-white dark:bg-[#13204A]/30 border-stone-200 dark:border-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-50'
                                                               }`}
                                                             >
@@ -959,7 +959,7 @@ export default function DuzadaDirectory({
           {(selectedCategory === 'Odalar') && (
             <div className="space-y-1.5">
               <div className="bg-[#FAF8F5] dark:bg-[#12224A]/20 p-2 border border-[#CFC5B4]/30 rounded-lg text-xs">
-                <span className="font-serif font-bold text-[#1B2A4A] dark:text-white">🔑 Imperial Odaları</span>
+                <span className="font-serif font-bold text-[#0E1C4F] dark:text-white">🔑 Imperial Odaları</span>
                 <p className="text-[10px] text-stone-500 font-sans mt-0.5">The Imperial Kemsköy bünyesindeki tüm odalar.</p>
               </div>
               <div className="space-y-1 pl-1">
@@ -975,7 +975,7 @@ export default function DuzadaDirectory({
           {(selectedCategory === 'Harita') && (
             <div className="space-y-1.5">
               <div className="bg-[#FAF8F5] dark:bg-[#12224A]/20 p-2 border border-[#CFC5B4]/30 rounded-lg text-xs">
-                <span className="font-serif font-bold text-[#1B2A4A] dark:text-white">🗺️ Harita Etiketleri</span>
+                <span className="font-serif font-bold text-[#0E1C4F] dark:text-white">🗺️ Harita Etiketleri</span>
                 <p className="text-[10px] text-stone-500 font-sans mt-0.5">Harita üzerindeki görsel pinler ve işaretçiler.</p>
               </div>
               <div className="space-y-1 pl-1">

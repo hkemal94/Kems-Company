@@ -233,7 +233,7 @@
 
 /* Custom shadow */
 .archive-shadow {
-  box-shadow: 1px 2px 0px 0px rgba(27, 42, 74, 0.08);
+  box-shadow: 1px 2px 0px 0px rgba(14, 28, 79, 0.08);
 }
 .dark .archive-shadow {
   box-shadow: 1px 2px 0px 0px rgba(0, 0, 0, 0.3);

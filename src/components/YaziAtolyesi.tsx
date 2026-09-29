@@ -76,11 +76,11 @@ export default function YaziAtolyesi({
           onClick={() => { setSubTab('blog'); onSelectItem(null); }}
           className={`px-4 py-2.5 text-xs font-mono font-bold flex items-center gap-2 rounded-t-lg transition-all border-t border-x ${
             subTab === 'blog'
-              ? 'bg-[#F3EFE8] dark:bg-[#13204A] border-[#CFC5B4] text-[#1B2A4A] dark:text-[#F3EFE8] -mb-[5px] pb-3'
+              ? 'bg-[#F3EFE8] dark:bg-[#13204A] border-[#CFC5B4] text-[#0E1C4F] dark:text-[#F3EFE8] -mb-[5px] pb-3'
               : 'border-transparent text-[#6A5E4C] dark:text-[#A6B0C9] hover:bg-[#F3EFE8]/50'
           }`}
         >
-          <PenTool className="w-4 h-4 text-[#D35057]" />
+          <PenTool className="w-4 h-4 text-[#F26B6F]" />
           <span>Blog & İçerik Atölyesi</span>
         </button>
         <button
@@ -88,11 +88,11 @@ export default function YaziAtolyesi({
           onClick={() => { setSubTab('kitap'); onSelectItem(null); }}
           className={`px-4 py-2.5 text-xs font-mono font-bold flex items-center gap-2 rounded-t-lg transition-all border-t border-x ${
             subTab === 'kitap'
-              ? 'bg-[#F3EFE8] dark:bg-[#13204A] border-[#CFC5B4] text-[#1B2A4A] dark:text-[#F3EFE8] -mb-[5px] pb-3'
+              ? 'bg-[#F3EFE8] dark:bg-[#13204A] border-[#CFC5B4] text-[#0E1C4F] dark:text-[#F3EFE8] -mb-[5px] pb-3'
               : 'border-transparent text-[#6A5E4C] dark:text-[#A6B0C9] hover:bg-[#F3EFE8]/50'
           }`}
         >
-          <BookOpen className="w-4 h-4 text-[#D35057]" />
+          <BookOpen className="w-4 h-4 text-[#F26B6F]" />
           <span>Kitap & Roman Atölyesi</span>
         </button>
 

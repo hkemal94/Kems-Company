@@ -381,7 +381,7 @@ export default function Kitap({
           <span className="text-xs font-mono uppercase text-[#6A5E4C] dark:text-[#A6B0C9]">
             Kems Company • Hikaye & Söylenceler
           </span>
-          <h1 className="font-serif font-bold text-2xl text-[#1B2A4A] dark:text-[#F3EFE8] mt-1">
+          <h1 className="font-serif font-bold text-2xl text-[#0E1C4F] dark:text-[#F3EFE8] mt-1">
             Yazar Masası (Kitap Taslakları)
           </h1>
         </div>
@@ -397,14 +397,14 @@ export default function Kitap({
           />
           <button
             onClick={() => { setActiveTab('home'); onSelectItem(null); }}
-            className={`px-4 py-2 rounded-lg cursor-pointer transition-all ${activeTab === 'home' ? 'bg-[#1B2A4A] dark:bg-[#D35057] text-[#F3EFE8]' : 'bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] text-[#6A5E4C] dark:text-[#A6B0C9]'}`}
+            className={`px-4 py-2 rounded-lg cursor-pointer transition-all ${activeTab === 'home' ? 'bg-[#0E1C4F] dark:bg-[#F26B6F] text-[#F3EFE8]' : 'bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] text-[#6A5E4C] dark:text-[#A6B0C9]'}`}
           >
             Kitap Rafı
           </button>
           {activeChapter && (
             <button
               onClick={() => setActiveTab('bölüm_editör')}
-              className={`px-4 py-2 rounded-lg cursor-pointer transition-all ${activeTab === 'bölüm_editör' ? 'bg-[#1B2A4A] dark:bg-[#D35057] text-[#F3EFE8]' : 'bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] text-[#6A5E4C] dark:text-[#A6B0C9]'}`}
+              className={`px-4 py-2 rounded-lg cursor-pointer transition-all ${activeTab === 'bölüm_editör' ? 'bg-[#0E1C4F] dark:bg-[#F26B6F] text-[#F3EFE8]' : 'bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] text-[#6A5E4C] dark:text-[#A6B0C9]'}`}
             >
               Masaüstü Daktilo
             </button>
@@ -425,7 +425,7 @@ export default function Kitap({
               <select
                 value={selectedBookId}
                 onChange={(e) => setSelectedBookId(e.target.value)}
-                className="bg-[#F3EFE8] dark:bg-[#13204A] text-[#1B2A4A] dark:text-[#F3EFE8] text-sm border border-[#CFC5B4] dark:border-[#2C3C72] font-serif font-semibold rounded px-3 py-1.5 focus:outline-hidden"
+                className="bg-[#F3EFE8] dark:bg-[#13204A] text-[#0E1C4F] dark:text-[#F3EFE8] text-sm border border-[#CFC5B4] dark:border-[#2C3C72] font-serif font-semibold rounded px-3 py-1.5 focus:outline-hidden"
               >
                 {books.map(b => (
                   <option key={b.id} value={b.id}>{b.title}</option>
@@ -443,7 +443,7 @@ export default function Kitap({
               {activeBook && (
                 <button
                   onClick={() => setShowCreateChapter(true)}
-                  className="text-xs font-mono px-3 py-1.5 bg-[#D35057] text-white rounded-lg hover:bg-[#B23A40] cursor-pointer"
+                  className="text-xs font-mono px-3 py-1.5 bg-[#F26B6F] text-white rounded-lg hover:bg-[#B23A40] cursor-pointer"
                 >
                   + Yeni Bölüm Yaz
                 </button>
@@ -454,36 +454,36 @@ export default function Kitap({
           {/* Overlays for creations */}
           {showCreateBook && (
             <form onSubmit={handleCreateBook} className="bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] p-5 rounded-xl max-w-sm space-y-3 paper-grain">
-              <h4 className="font-serif font-bold text-[#1B2A4A] dark:text-[#F3EFE8]">Yeni Kitap Projesi</h4>
+              <h4 className="font-serif font-bold text-[#0E1C4F] dark:text-[#F3EFE8]">Yeni Kitap Projesi</h4>
               <input
                 type="text"
                 required
                 placeholder="Roman adı..."
                 value={newBookTitle}
                 onChange={(e) => setNewBookTitle(e.target.value)}
-                className="w-full text-xs bg-white dark:bg-[#17345A] text-[#1B2A4A] dark:text-[#F3EFE8] border border-[#CFC5B4] rounded p-2"
+                className="w-full text-xs bg-white dark:bg-[#17345A] text-[#0E1C4F] dark:text-[#F3EFE8] border border-[#CFC5B4] rounded p-2"
               />
               <div className="flex justify-end gap-2 text-xs font-mono">
                 <button type="button" onClick={() => setShowCreateBook(false)} className="px-2 py-1 border rounded">Vazgeç</button>
-                <button type="submit" className="px-3 py-1 bg-[#D35057] text-white rounded">Ekle</button>
+                <button type="submit" className="px-3 py-1 bg-[#F26B6F] text-white rounded">Ekle</button>
               </div>
             </form>
           )}
 
           {showCreateChapter && (
             <form onSubmit={handleCreateChapter} className="bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] p-5 rounded-xl max-w-sm space-y-3 paper-grain">
-              <h4 className="font-serif font-bold text-[#1B2A4A] dark:text-[#F3EFE8]">Yeni Bölüm Ekle</h4>
+              <h4 className="font-serif font-bold text-[#0E1C4F] dark:text-[#F3EFE8]">Yeni Bölüm Ekle</h4>
               <input
                 type="text"
                 required
                 placeholder="Bölüm Adı..."
                 value={newChapterTitle}
                 onChange={(e) => setNewChapterTitle(e.target.value)}
-                className="w-full text-xs bg-white dark:bg-[#17345A] text-[#1B2A4A] dark:text-[#F3EFE8] border border-[#CFC5B4] rounded p-2"
+                className="w-full text-xs bg-white dark:bg-[#17345A] text-[#0E1C4F] dark:text-[#F3EFE8] border border-[#CFC5B4] rounded p-2"
               />
               <div className="flex justify-end gap-2 text-xs font-mono">
                 <button type="button" onClick={() => setShowCreateChapter(false)} className="px-2 py-1 border rounded">Vazgeç</button>
-                <button type="submit" className="px-3 py-1 bg-[#D35057] text-white rounded">Ekle</button>
+                <button type="submit" className="px-3 py-1 bg-[#F26B6F] text-white rounded">Ekle</button>
               </div>
             </form>
           )}
@@ -497,7 +497,7 @@ export default function Kitap({
                 <div className="flex justify-between items-center">
                   <div>
                     <div className="flex items-center gap-2">
-                      <h3 className="font-serif font-bold text-lg text-[#1B2A4A] dark:text-[#F3EFE8]">
+                      <h3 className="font-serif font-bold text-lg text-[#0E1C4F] dark:text-[#F3EFE8]">
                         {activeBook.title}
                       </h3>
                       <button
@@ -529,11 +529,11 @@ export default function Kitap({
                     </div>
                     <p className="text-xs text-[#6A5E4C] dark:text-[#A6B0C9] mt-0.5">{activeBook.notes}</p>
                   </div>
-                  <span className="text-base font-bold font-mono text-[#D35057]">%{bookProgressPercent}</span>
+                  <span className="text-base font-bold font-mono text-[#F26B6F]">%{bookProgressPercent}</span>
                 </div>
                 
                 <div className="w-full bg-[#CFC5B4]/30 h-2 rounded-full overflow-hidden">
-                  <div className="bg-[#D35057] h-full" style={{ width: `${bookProgressPercent}%` }} />
+                  <div className="bg-[#F26B6F] h-full" style={{ width: `${bookProgressPercent}%` }} />
                 </div>
               </div>
 
@@ -550,10 +550,10 @@ export default function Kitap({
                       <div 
                         key={ch.id}
                         onClick={() => { onSelectItem(ch.id); setActiveTab('bölüm_editör'); }}
-                        className="p-4 bg-[#F6F1E7] dark:bg-[#13204A]/55 border border-[#CFC5B4] hover:border-[#D35057] rounded-xl cursor-pointer transition-all space-y-3 paper-grain archive-shadow group/chapter"
+                        className="p-4 bg-[#F6F1E7] dark:bg-[#13204A]/55 border border-[#CFC5B4] hover:border-[#F26B6F] rounded-xl cursor-pointer transition-all space-y-3 paper-grain archive-shadow group/chapter"
                       >
                         <div className="flex justify-between items-start">
-                          <h5 className="font-serif font-bold text-[#1B2A4A] dark:text-[#F3EFE8] text-sm hover:text-[#D35057] flex-1 min-w-0 pr-2">
+                          <h5 className="font-serif font-bold text-[#0E1C4F] dark:text-[#F3EFE8] text-sm hover:text-[#F26B6F] flex-1 min-w-0 pr-2">
                             {ch.title}
                           </h5>
                           <div className="flex items-center gap-1.5 shrink-0">
@@ -626,7 +626,7 @@ export default function Kitap({
             {/* Header edit info */}
             <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 pb-4 border-b border-[#CFC5B4]/50">
               <div className="space-y-1 flex-1 min-w-0">
-                <span className="text-xs font-mono uppercase text-[#D35057] font-bold">
+                <span className="text-xs font-mono uppercase text-[#F26B6F] font-bold">
                   BÖLÜM YAZIM MASASI
                 </span>
                 
@@ -634,7 +634,7 @@ export default function Kitap({
                   rows={2}
                   value={activeChapter.title}
                   onChange={async (e) => await onUpdateItem({ ...activeChapter, title: e.target.value })}
-                  className="font-serif font-bold text-xl md:text-2xl text-[#1B2A4A] dark:text-[#F3EFE8] italic bg-transparent focus:outline-hidden border-b border-transparent focus:border-[#CFC5B4] w-full resize-none leading-tight py-1 overflow-hidden"
+                  className="font-serif font-bold text-xl md:text-2xl text-[#0E1C4F] dark:text-[#F3EFE8] italic bg-transparent focus:outline-hidden border-b border-transparent focus:border-[#CFC5B4] w-full resize-none leading-tight py-1 overflow-hidden"
                   placeholder="Bölüm Başlığı"
                 />
               </div>
@@ -645,7 +645,7 @@ export default function Kitap({
                   type="button"
                   onClick={handleExportChapterToDoc}
                   disabled={isExportingDoc}
-                  className="px-3 py-1.5 bg-[#FAF7F2] hover:bg-[#FAF6EE] dark:bg-stone-900 border border-[#CFC5B4] dark:border-stone-850 text-stone-700 dark:text-[#A6B0C9] hover:text-[#D35057] text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer"
+                  className="px-3 py-1.5 bg-[#FAF7F2] hover:bg-[#FAF6EE] dark:bg-stone-900 border border-[#CFC5B4] dark:border-stone-850 text-stone-700 dark:text-[#A6B0C9] hover:text-[#F26B6F] text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer"
                   title="Google Dokümanı Olarak Dışa Aktar"
                 >
                   {isExportingDoc ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <FileText className="w-3.5 h-3.5" />}
@@ -661,7 +661,7 @@ export default function Kitap({
                   className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 cursor-pointer shadow-xs ${
                     activeChapter.status === 'Yayında'
                       ? 'bg-emerald-600 hover:bg-emerald-700 text-white border border-emerald-500'
-                      : 'bg-[#D35057] hover:bg-[#b04046] text-white border border-[#c43b42] animate-pulse'
+                      : 'bg-[#F26B6F] hover:bg-[#b04046] text-white border border-[#c43b42] animate-pulse'
                   }`}
                   title={activeChapter.status === 'Yayında' ? "Bölümü taslak durumuna geri çek" : "Bölümü evrene bağla ve Düzada'da yayınla!"}
                 >
@@ -671,7 +671,7 @@ export default function Kitap({
                 <select
                   value={activeChapter.status}
                   onChange={async (e) => await onUpdateItem({ ...activeChapter, status: e.target.value })}
-                  className="bg-white dark:bg-[#17345A] text-xs border border-[#CFC5B4] dark:border-[#2C3C72] rounded p-1.5 focus:outline-hidden text-[#1B2A4A] dark:text-[#F3EFE8] font-bold"
+                  className="bg-white dark:bg-[#17345A] text-xs border border-[#CFC5B4] dark:border-[#2C3C72] rounded p-1.5 focus:outline-hidden text-[#0E1C4F] dark:text-[#F3EFE8] font-bold"
                 >
                   <option value="taslak">Taslak</option>
                   <option value="yazıldı">Yazıldı</option>
@@ -775,12 +775,12 @@ export default function Kitap({
                       onClick={() => onSelectItem(e.id)}
                       className={`group flex items-center gap-1.5 text-xs px-3 py-1 rounded-full font-mono cursor-pointer transition-all duration-200 border ${
                         isExplicitlyLinked 
-                          ? 'bg-[#1B2A4A] text-white border-transparent hover:bg-[#D35057]' 
-                          : 'bg-white hover:bg-[#F3EFE8] dark:bg-stone-900 dark:hover:bg-[#1B2A4A] text-stone-700 dark:text-[#A6B0C9] border-[#CFC5B4] hover:border-[#D35057]'
+                          ? 'bg-[#0E1C4F] text-white border-transparent hover:bg-[#F26B6F]' 
+                          : 'bg-white hover:bg-[#F3EFE8] dark:bg-stone-900 dark:hover:bg-[#0E1C4F] text-stone-700 dark:text-[#A6B0C9] border-[#CFC5B4] hover:border-[#F26B6F]'
                       }`}
                       title={isExplicitlyLinked ? "Varlık sayfasına gitmek için tıklayın (Doğrudan kancalanmış)" : "Metinde tespit edildi. Kancalamak veya detayını görmek için tıklayın."}
                     >
-                      <Compass className="w-3 h-3 text-[#D35057] group-hover:animate-spin" />
+                      <Compass className="w-3 h-3 text-[#F26B6F] group-hover:animate-spin" />
                       <span>{e.title}</span>
                       <span className="text-[9px] opacity-75">
                         ({e.type === 'kisi' ? 'Kişi' : e.type === 'mekan' ? 'Mekan' : 'Marka'})
@@ -808,7 +808,7 @@ export default function Kitap({
                               });
                             }
                           }}
-                          className="hover:text-[#D35057] font-mono text-[9px] border border-[#CFC5B4] px-1 rounded hover:bg-[#1B2A4A] hover:text-white ml-1 transition-all font-bold"
+                          className="hover:text-[#F26B6F] font-mono text-[9px] border border-[#CFC5B4] px-1 rounded hover:bg-[#0E1C4F] dark:bg-[#2C3C72] hover:text-white ml-1 transition-all font-bold"
                           title="Resmi olarak bölüme kancala"
                         >
                           + Kancala
@@ -828,8 +828,8 @@ export default function Kitap({
             {/* MANUAL TODOS - Kalan işler */}
             <div className="bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] dark:border-[#2C3C72] p-5 rounded-xl paper-grain space-y-4">
               <div className="flex items-center gap-2 border-b border-[#CFC5B4]/50 pb-2">
-                <ListTodo className="w-5 h-5 text-[#D35057]" />
-                <h4 className="font-serif font-bold text-base text-[#1B2A4A] dark:text-[#F3EFE8]">
+                <ListTodo className="w-5 h-5 text-[#F26B6F]" />
+                <h4 className="font-serif font-bold text-base text-[#0E1C4F] dark:text-[#F3EFE8]">
                   Kalan İşler / Yapılacaklar
                 </h4>
               </div>
@@ -846,7 +846,7 @@ export default function Kitap({
                           type="checkbox"
                           checked={isChecked}
                           onChange={() => handleToggleTodo(idx)}
-                          className="rounded border-[#CFC5B4] text-[#D35057] focus:ring-[#D35057]"
+                          className="rounded border-[#CFC5B4] text-[#F26B6F] focus:ring-[#F26B6F]"
                         />
                         <span className={`text-stone-700 ${isChecked ? 'line-through opacity-55' : ''}`}>
                           {text}
@@ -871,7 +871,7 @@ export default function Kitap({
                 />
                 <button
                   onClick={handleAddTodo}
-                  className="px-3 bg-[#1B2A4A] text-white text-xs rounded hover:opacity-90"
+                  className="px-3 bg-[#0E1C4F] dark:bg-[#2C3C72] text-white text-xs rounded hover:opacity-90"
                 >
                   Ekle
                 </button>
@@ -885,10 +885,10 @@ export default function Kitap({
                 onClick={() => setIsAiBoxOpen(!isAiBoxOpen)}
               >
                 <div className="flex items-center gap-1.5">
-                  <Sparkles className="w-4 h-4 text-[#D35057]" />
-                  <span className="font-serif font-bold text-[#1B2A4A] dark:text-[#F3EFE8] group-hover:text-[#D35057] transition-colors">Yapay Zeka Editörü</span>
+                  <Sparkles className="w-4 h-4 text-[#F26B6F]" />
+                  <span className="font-serif font-bold text-[#0E1C4F] dark:text-[#F3EFE8] group-hover:text-[#F26B6F] transition-colors">Yapay Zeka Editörü</span>
                 </div>
-                <span className="text-[10px] font-mono text-[#D35057] hover:underline bg-[#D35057]/10 px-2 py-0.5 rounded">
+                <span className="text-[10px] font-mono text-[#F26B6F] hover:underline bg-[#F26B6F]/10 px-2 py-0.5 rounded">
                   {isAiBoxOpen ? 'Kapat [-]' : 'Aç [+]'}
                 </span>
               </div>
@@ -898,33 +898,33 @@ export default function Kitap({
                   <div className="flex flex-col gap-2 text-xs font-mono">
                     <button
                       onClick={handleAiChapterSummary}
-                      className="py-2 px-3 bg-white dark:bg-[#17345A] text-[#1B2A4A] dark:text-[#F3EFE8] border border-[#CFC5B4] dark:border-[#2C3C72] hover:border-[#D35057] rounded-lg text-left"
+                      className="py-2 px-3 bg-white dark:bg-[#17345A] text-[#0E1C4F] dark:text-[#F3EFE8] border border-[#CFC5B4] dark:border-[#2C3C72] hover:border-[#F26B6F] rounded-lg text-left"
                     >
                       Bölüm Özetini Hazırla
                     </button>
                     <button
                       onClick={handleAiContinuationIdeas}
-                      className="py-2 px-3 bg-white dark:bg-[#17345A] text-[#1B2A4A] dark:text-[#F3EFE8] border border-[#CFC5B4] dark:border-[#2C3C72] hover:border-[#D35057] rounded-lg text-left"
+                      className="py-2 px-3 bg-white dark:bg-[#17345A] text-[#0E1C4F] dark:text-[#F3EFE8] border border-[#CFC5B4] dark:border-[#2C3C72] hover:border-[#F26B6F] rounded-lg text-left"
                     >
                       Gelecek Bölüm Fikirleri Üret
                     </button>
                     <button
                       onClick={handleAiConsistencyCheck}
-                      className="py-2 px-3 bg-[#D35057]/10 text-[#D35057] border border-[#D35057]/30 hover:bg-[#D35057]/20 rounded-lg text-left font-bold"
+                      className="py-2 px-3 bg-[#F26B6F]/10 text-[#F26B6F] border border-[#F26B6F]/30 hover:bg-[#F26B6F]/20 rounded-lg text-left font-bold"
                     >
                       Tutarlılık Kontrolü Yap (Anti-Contradiction)
                     </button>
                   </div>
 
                   {loadingAi && (
-                    <div className="p-3 bg-white dark:bg-[#17345A] text-[#1B2A4A] dark:text-[#F3EFE8] rounded border border-[#CFC5B4] dark:border-[#2C3C72] text-center text-xs animate-pulse font-mono text-[#D35057]">
+                    <div className="p-3 bg-white dark:bg-[#17345A] text-[#0E1C4F] dark:text-[#F3EFE8] rounded border border-[#CFC5B4] dark:border-[#2C3C72] text-center text-xs animate-pulse font-mono text-[#F26B6F]">
                       AI kurgusal evreni tarıyor... ({loadingAi})
                     </div>
                   )}
 
                   {aiResponseText && !loadingAi && (
-                    <div className="p-3.5 bg-[#FBF3E4] dark:bg-amber-950/20 text-[#1B2A4A] dark:text-[#F3EFE8] border border-dashed border-[#D35057] rounded-lg text-xs leading-relaxed space-y-2">
-                      <span className="text-[10px] font-mono uppercase text-[#D35057] font-bold block">Editör Değerlendirmesi:</span>
+                    <div className="p-3.5 bg-[#FBF3E4] dark:bg-amber-950/20 text-[#0E1C4F] dark:text-[#F3EFE8] border border-dashed border-[#F26B6F] rounded-lg text-xs leading-relaxed space-y-2">
+                      <span className="text-[10px] font-mono uppercase text-[#F26B6F] font-bold block">Editör Değerlendirmesi:</span>
                       <p className="whitespace-pre-line font-serif">{aiResponseText}</p>
                     </div>
                   )}
@@ -934,14 +934,14 @@ export default function Kitap({
 
             {/* Link varlık kancası */}
             <div className="bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] dark:border-[#2C3C72] p-5 rounded-xl space-y-3 w-full overflow-hidden box-border">
-              <h4 className="font-serif font-bold text-sm text-[#1B2A4A] dark:text-[#F3EFE8] truncate">
+              <h4 className="font-serif font-bold text-sm text-[#0E1C4F] dark:text-[#F3EFE8] truncate">
                 Bölüme Karakter/Yer Kancala
               </h4>
               <div className="flex flex-col sm:flex-row gap-2 w-full">
                 <select
                   value={selectedEntityId}
                   onChange={(e) => setSelectedEntityId(e.target.value)}
-                  className="flex-1 text-xs bg-white dark:bg-[#17345A] text-[#1B2A4A] dark:text-[#F3EFE8] border border-[#CFC5B4] dark:border-[#2C3C72] rounded p-2 min-w-0 max-w-full truncate"
+                  className="flex-1 text-xs bg-white dark:bg-[#17345A] text-[#0E1C4F] dark:text-[#F3EFE8] border border-[#CFC5B4] dark:border-[#2C3C72] rounded p-2 min-w-0 max-w-full truncate"
                 >
                   <option value="">Varlık Seçin...</option>
                   {entities.filter(e => !(activeChapter.links || []).includes(e.id)).map(e => (
@@ -953,7 +953,7 @@ export default function Kitap({
                 <button
                   onClick={handleLinkEntity}
                   disabled={!selectedEntityId}
-                  className="px-3.5 py-2 bg-[#1B2A4A] hover:bg-slate-800 dark:bg-[#D35057] dark:hover:bg-[#b04046] text-white text-xs font-bold rounded-lg cursor-pointer transition-colors shrink-0"
+                  className="px-3.5 py-2 bg-[#0E1C4F] hover:bg-slate-800 dark:bg-[#F26B6F] dark:hover:bg-[#b04046] text-white text-xs font-bold rounded-lg cursor-pointer transition-colors shrink-0"
                 >
                   Kancala
                 </button>
@@ -962,12 +962,12 @@ export default function Kitap({
               {/* Dismissed list for un-dismissing */}
               {activeChapter.metadata?.dismissedSuggestions?.length > 0 && (
                 <div className="pt-2.5 border-t border-[#CFC5B4]/40 space-y-1">
-                  <span className="text-[10px] font-mono text-[#D35057] uppercase font-bold tracking-wider block">Yoksayılan Öneriler:</span>
+                  <span className="text-[10px] font-mono text-[#F26B6F] uppercase font-bold tracking-wider block">Yoksayılan Öneriler:</span>
                   <div className="flex flex-wrap gap-1.5">
                     {activeChapter.metadata.dismissedSuggestions.map((name: string) => (
                       <span 
                         key={name}
-                        className="inline-flex items-center gap-1.5 text-[10px] bg-white dark:bg-stone-900 text-[#1B2A4A] dark:text-[#A6B0C9] border border-[#CFC5B4]/50 dark:border-stone-800 px-2 py-0.5 rounded-md shadow-3xs"
+                        className="inline-flex items-center gap-1.5 text-[10px] bg-white dark:bg-stone-900 text-[#0E1C4F] dark:text-[#A6B0C9] border border-[#CFC5B4]/50 dark:border-stone-800 px-2 py-0.5 rounded-md shadow-3xs"
                       >
                         <span>{name}</span>
                         <button

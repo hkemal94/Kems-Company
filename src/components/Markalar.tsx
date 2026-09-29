@@ -115,7 +115,7 @@ export default function Markalar({
   const [copiedColor, setCopiedColor] = useState<string | null>(null);
 
   // Brand Kit input states
-  const [newColor, setNewColor] = useState('#1B2A4A');
+  const [newColor, setNewColor] = useState('#0E1C4F');
   const [newExemplar, setNewExemplar] = useState('');
   const [newLogoDescription, setNewLogoDescription] = useState('');
 
@@ -299,7 +299,7 @@ export default function Markalar({
         brandKit: {
           selectedLogo: '',
           ideaLogos: [],
-          colorPalette: ['#1B2A4A', '#D35057'],
+          colorPalette: ['#0E1C4F', '#F26B6F'],
           exemplaryWorks: [],
           selectedFont: 'Inter'
         }
@@ -461,9 +461,9 @@ export default function Markalar({
           ) : kurum ? (
             <Users className="w-3.5 h-3.5 text-[#6A5E4C] dark:text-[#A6B0C9] shrink-0" />
           ) : (
-            <Shield className="w-3.5 h-3.5 text-[#D35057] shrink-0" />
+            <Shield className="w-3.5 h-3.5 text-[#F26B6F] shrink-0" />
           )}
-          <span className="text-xs text-[#1B2A4A] dark:text-[#F3EFE8] truncate">{b.title}</span>
+          <span className="text-xs text-[#0E1C4F] dark:text-[#F3EFE8] truncate">{b.title}</span>
         </div>
         {b.isProposal && (
           <span className="text-[8px] bg-amber-100 text-amber-700 px-1 py-0.5 rounded font-mono shrink-0">Öneri</span>
@@ -481,7 +481,7 @@ export default function Markalar({
           <span className="text-xs font-mono uppercase text-[#6A5E4C] dark:text-[#A6B0C9]">
             Markalar Şemsiyesi / Umbrella Brand Setup
           </span>
-          <h1 className="font-serif font-bold text-2xl text-[#1B2A4A] dark:text-[#F3EFE8] mt-1">
+          <h1 className="font-serif font-bold text-2xl text-[#0E1C4F] dark:text-[#F3EFE8] mt-1">
             Yaratıcı Markalar & Kimlikler
           </h1>
         </div>
@@ -508,7 +508,7 @@ export default function Markalar({
           </button>
           <button
             onClick={() => setShowCreateForm(true)}
-            className="flex items-center gap-1.5 text-xs font-mono px-3.5 py-2 bg-[#D35057] text-white rounded-lg hover:bg-[#B23A40] transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 text-xs font-mono px-3.5 py-2 bg-[#F26B6F] text-white rounded-lg hover:bg-[#B23A40] transition-colors cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Yeni Marka Oluştur</span>
@@ -542,7 +542,7 @@ export default function Markalar({
           </div>
           <button
             onClick={() => { setKunyeDurumu('bos'); setKunyeRaporu([]); }}
-            className="ml-auto shrink-0 text-[#6A5E4C] dark:text-[#A6B0C9] hover:text-[#D35057] cursor-pointer"
+            className="ml-auto shrink-0 text-[#6A5E4C] dark:text-[#A6B0C9] hover:text-[#F26B6F] cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -612,7 +612,7 @@ export default function Markalar({
             >
               <div className="flex items-center gap-2">
                 <Layers className="w-4 h-4 text-stone-500" />
-                <span className="text-xs text-[#1B2A4A] dark:text-[#F3EFE8]">Bağımsız Varlıklar</span>
+                <span className="text-xs text-[#0E1C4F] dark:text-[#F3EFE8]">Bağımsız Varlıklar</span>
               </div>
               <span className="text-[9px] font-mono text-stone-400 bg-stone-100 dark:bg-[#13204A] px-1.5 py-0.5 rounded-full">
                 {items.filter(i => !i.archived && (i.type === 'kisi' || i.type === 'karakter' || i.type === 'yer' || i.type === 'mekân' || i.type === 'dükkân' || i.type === 'olay') && !i.metadata?.brandId).length}
@@ -630,7 +630,7 @@ export default function Markalar({
               <div className="flex flex-col sm:flex-row justify-between items-start gap-4 pb-4 border-b border-[#B9C7BD]">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-mono bg-[#1B2A4A] text-white px-2 py-0.5 rounded">
+                    <span className="text-[10px] font-mono bg-[#0E1C4F] dark:bg-[#2C3C72] text-white px-2 py-0.5 rounded">
                       {activeBrand.id === 'unassigned'
                         ? 'BAĞIMSIZ SÜREÇ'
                         : kurumMu(activeBrand) ? 'KURUM / KİMLİK' : 'MARKA / KİMLİK'}
@@ -652,7 +652,7 @@ export default function Markalar({
                       />
                     </div>
                   ) : (
-                    <h2 className="font-serif font-bold text-2xl text-[#1B2A4A] dark:text-[#F3EFE8] tracking-tight">
+                    <h2 className="font-serif font-bold text-2xl text-[#0E1C4F] dark:text-[#F3EFE8] tracking-tight">
                       {activeBrand.title}
                     </h2>
                   )}
@@ -731,7 +731,7 @@ export default function Markalar({
                           setEditUsageRulesDo(bk.usageRulesDo || []);
                           setEditUsageRulesDont(bk.usageRulesDont || []);
                         }}
-                        className="p-2 bg-white dark:bg-[#17345A] border border-[#B9C7BD] rounded-lg hover:text-[#D35057] transition-all cursor-pointer"
+                        className="p-2 bg-white dark:bg-[#17345A] border border-[#B9C7BD] rounded-lg hover:text-[#F26B6F] transition-all cursor-pointer"
                         title="Tüm Marka Kılavuzunu Düzenle"
                       >
                         <Edit3 className="w-3.5 h-3.5" />
@@ -852,11 +852,11 @@ export default function Markalar({
                         className={`text-center py-4 border-b border-stone-100 dark:border-stone-800 cursor-pointer group transition-all`}
                       >
                         {bk.slogan ? (
-                          <p className="font-serif italic text-lg text-[#D35057] transition-all group-hover:scale-[1.02]">
+                          <p className="font-serif italic text-lg text-[#F26B6F] transition-all group-hover:scale-[1.02]">
                             “{bk.slogan}”
                           </p>
                         ) : (
-                          <span className="text-[10px] font-mono text-stone-400 group-hover:text-[#D35057] transition-colors flex items-center justify-center gap-1">
+                          <span className="text-[10px] font-mono text-stone-400 group-hover:text-[#F26B6F] transition-colors flex items-center justify-center gap-1">
                             ✨ Slogan / Manifesto Ekle
                           </span>
                         )}
@@ -871,7 +871,7 @@ export default function Markalar({
                           value={editSlogan}
                           onChange={(e) => setEditSlogan(e.target.value)}
                           placeholder="Markanın felsefesini özetleyen çarpıcı bir slogan..."
-                          className="w-full text-xs bg-stone-50 dark:bg-[#112440] text-[#1B2A4A] dark:text-[#F3EFE8] border border-stone-300 rounded p-2 focus:outline-hidden focus:border-[#D35057]"
+                          className="w-full text-xs bg-stone-50 dark:bg-[#112440] text-[#0E1C4F] dark:text-[#F3EFE8] border border-stone-300 rounded p-2 focus:outline-hidden focus:border-[#F26B6F]"
                         />
                       </div>
                     )}
@@ -924,7 +924,7 @@ export default function Markalar({
                                     .map((idea, idx) => (
                                     <div 
                                       key={idx} 
-                                      className="w-14 h-14 bg-stone-50 border border-stone-200 rounded flex items-center justify-center shrink-0 relative group/idea cursor-pointer overflow-hidden hover:border-[#D35057]"
+                                      className="w-14 h-14 bg-stone-50 border border-stone-200 rounded flex items-center justify-center shrink-0 relative group/idea cursor-pointer overflow-hidden hover:border-[#F26B6F]"
                                       title="Ana logo olarak kullan"
                                       onClick={async () => {
                                         const proceed = window.confirm('Bu alternatif tasarımı resmi marka amblemi olarak atamak istiyor musunuz?');
@@ -1043,7 +1043,7 @@ export default function Markalar({
                                       </button>
                                     </div>
                                   ))}
-                                  <label className="w-12 h-12 border-2 border-dashed border-stone-300 hover:border-[#D35057] rounded flex flex-col items-center justify-center cursor-pointer text-stone-400 hover:text-[#D35057] transition-all">
+                                  <label className="w-12 h-12 border-2 border-dashed border-stone-300 hover:border-[#F26B6F] rounded flex flex-col items-center justify-center cursor-pointer text-stone-400 hover:text-[#F26B6F] transition-all">
                                     <Plus className="w-4 h-4" />
                                     <span className="text-[7px] font-mono uppercase font-bold">Yükle</span>
                                     <input
@@ -1080,7 +1080,7 @@ export default function Markalar({
                             <button
                               onClick={handleAiColorPalette}
                               disabled={aiGeneratingColors}
-                              className="text-[9px] font-mono text-[#D35057] hover:underline flex items-center gap-1 cursor-pointer font-bold"
+                              className="text-[9px] font-mono text-[#F26B6F] hover:underline flex items-center gap-1 cursor-pointer font-bold"
                             >
                               <Sparkles className="w-3 h-3" />
                               {aiGeneratingColors ? 'AI Öneriyor...' : 'AI ile Renk Öner'}
@@ -1129,7 +1129,7 @@ export default function Markalar({
                                 {editColorPalette.map((color, idx) => (
                                   <div key={idx} className="flex items-center gap-1.5 bg-white dark:bg-[#17345A] border border-stone-200 px-2 py-1 rounded shadow-xs text-[10px] font-mono">
                                     <span className="w-3.5 h-3.5 rounded-full border border-stone-300 inline-block shrink-0" style={{ backgroundColor: color }} />
-                                    <span className="text-[#1B2A4A] dark:text-[#F3EFE8] truncate">{color}</span>
+                                    <span className="text-[#0E1C4F] dark:text-[#F3EFE8] truncate">{color}</span>
                                     <button
                                       type="button"
                                       onClick={() => setEditColorPalette(prev => prev.filter((_, i) => i !== idx))}
@@ -1178,7 +1178,7 @@ export default function Markalar({
                             <div className="p-4 bg-stone-50 dark:bg-[#112440]/30 border border-stone-200 rounded-xl space-y-3">
                               <div className="flex items-center justify-between text-xs border-b border-stone-200/50 pb-1.5">
                                 <span className="font-mono text-stone-500">Tercih Edilen Yazı Tipi:</span>
-                                <span className="font-bold font-serif text-[#D35057]">{bk.selectedFont || 'Inter'}</span>
+                                <span className="font-bold font-serif text-[#F26B6F]">{bk.selectedFont || 'Inter'}</span>
                               </div>
                               <div className="py-4 text-center select-none overflow-hidden">
                                 <span 
@@ -1203,7 +1203,7 @@ export default function Markalar({
                               <select
                                 value={editSelectedFont}
                                 onChange={(e) => setEditSelectedFont(e.target.value)}
-                                className="w-full text-xs bg-stone-50 dark:bg-[#112440] text-[#1B2A4A] dark:text-[#F3EFE8] border border-stone-300 rounded p-2 focus:outline-hidden"
+                                className="w-full text-xs bg-stone-50 dark:bg-[#112440] text-[#0E1C4F] dark:text-[#F3EFE8] border border-stone-300 rounded p-2 focus:outline-hidden"
                               >
                                 <option value="Inter">Inter (Swiss/Modern Sans-serif)</option>
                                 <option value="Space Grotesk">Space Grotesk (Tech-forward Display)</option>
@@ -1230,7 +1230,7 @@ export default function Markalar({
                               ) : (
                                 <span 
                                   onClick={() => setIsEditingBrand(true)}
-                                  className="text-[10px] font-mono text-stone-400 hover:text-[#D35057] cursor-pointer block text-center py-2"
+                                  className="text-[10px] font-mono text-stone-400 hover:text-[#F26B6F] cursor-pointer block text-center py-2"
                                 >
                                   ✨ Ton ve Ses Kılavuzu Ekle...
                                 </span>
@@ -1246,7 +1246,7 @@ export default function Markalar({
                                 value={editVoiceTone}
                                 onChange={(e) => setEditVoiceTone(e.target.value)}
                                 placeholder="Örn: Resmi, soğuk ama entelektüel; gizemli ve kışkırtıcı; her zaman rasyonel..."
-                                className="w-full text-xs bg-stone-50 dark:bg-[#112440] text-[#1B2A4A] dark:text-[#F3EFE8] border border-stone-300 rounded p-2 focus:outline-hidden font-sans"
+                                className="w-full text-xs bg-stone-50 dark:bg-[#112440] text-[#0E1C4F] dark:text-[#F3EFE8] border border-stone-300 rounded p-2 focus:outline-hidden font-sans"
                               />
                             </div>
                           )}
@@ -1412,7 +1412,7 @@ export default function Markalar({
                             {(bk.exemplaryWorks || []).length === 0 && (
                               <span 
                                 onClick={() => setIsEditingBrand(true)}
-                                className="text-[10px] font-mono text-stone-400 hover:text-[#D35057] cursor-pointer block text-center py-4 col-span-full"
+                                className="text-[10px] font-mono text-stone-400 hover:text-[#F26B6F] cursor-pointer block text-center py-4 col-span-full"
                               >
                                 ➕ Tasarım Örnekleri Ekle...
                               </span>
@@ -1439,7 +1439,7 @@ export default function Markalar({
                                   </button>
                                 </div>
                               ))}
-                              <label className="aspect-square border-2 border-dashed border-stone-300 hover:border-[#D35057] rounded flex flex-col items-center justify-center cursor-pointer text-stone-400 hover:text-[#D35057] transition-all">
+                              <label className="aspect-square border-2 border-dashed border-stone-300 hover:border-[#F26B6F] rounded flex flex-col items-center justify-center cursor-pointer text-stone-400 hover:text-[#F26B6F] transition-all">
                                 <Plus className="w-4 h-4" />
                                 <span className="text-[8px] font-mono font-bold uppercase mt-1">Yükle</span>
                                 <input
@@ -1504,7 +1504,7 @@ export default function Markalar({
                             {(bk.atmosphereMoodboard || []).length === 0 && (
                               <span 
                                 onClick={() => setIsEditingBrand(true)}
-                                className="text-[10px] font-mono text-stone-400 hover:text-[#D35057] cursor-pointer block text-center py-4 col-span-full"
+                                className="text-[10px] font-mono text-stone-400 hover:text-[#F26B6F] cursor-pointer block text-center py-4 col-span-full"
                               >
                                 ➕ Moodboard Görseli Ekle...
                               </span>
@@ -1525,7 +1525,7 @@ export default function Markalar({
                                   </button>
                                 </div>
                               ))}
-                              <label className="aspect-square border-2 border-dashed border-stone-300 hover:border-[#D35057] rounded flex flex-col items-center justify-center cursor-pointer text-stone-400 hover:text-[#D35057] transition-all">
+                              <label className="aspect-square border-2 border-dashed border-stone-300 hover:border-[#F26B6F] rounded flex flex-col items-center justify-center cursor-pointer text-stone-400 hover:text-[#F26B6F] transition-all">
                                 <Plus className="w-4 h-4" />
                                 <span className="text-[8px] font-mono font-bold uppercase mt-1">Yükle</span>
                                 <input
@@ -1569,10 +1569,10 @@ export default function Markalar({
                     rows={3}
                     value={editBrandNotes}
                     onChange={(e) => setEditBrandNotes(e.target.value)}
-                    className="w-full text-xs bg-stone-50 dark:bg-[#112440] text-[#1B2A4A] dark:text-[#F3EFE8] border border-stone-300 rounded p-2 focus:outline-hidden focus:border-[#D35057]"
+                    className="w-full text-xs bg-stone-50 dark:bg-[#112440] text-[#0E1C4F] dark:text-[#F3EFE8] border border-stone-300 rounded p-2 focus:outline-hidden focus:border-[#F26B6F]"
                   />
                 ) : (
-                  <p className="text-xs text-[#1B2A4A] dark:text-[#F3EFE8] leading-relaxed">
+                  <p className="text-xs text-[#0E1C4F] dark:text-[#F3EFE8] leading-relaxed">
                     {activeBrand.notes || 'Bu marka için henüz bir tanıtım yazılmadı.'}
                   </p>
                 )}
@@ -1586,11 +1586,11 @@ export default function Markalar({
                   <div className="flex items-center justify-between pb-1 border-b border-stone-100">
                     <div className="flex items-center gap-1.5">
                       <Users className="w-4 h-4 text-indigo-500" />
-                      <h4 className="font-serif font-bold text-sm text-[#1B2A4A] dark:text-[#F3EFE8]">Kişiler ({brandKisiler.length})</h4>
+                      <h4 className="font-serif font-bold text-sm text-[#0E1C4F] dark:text-[#F3EFE8]">Kişiler ({brandKisiler.length})</h4>
                     </div>
                     <button 
                       onClick={() => handleOpenAddEntity('kisi')}
-                      className="p-1 hover:bg-stone-100 rounded text-[#D35057]"
+                      className="p-1 hover:bg-stone-100 rounded text-[#F26B6F]"
                       title="Yeni kişi ekle"
                     >
                       <PlusCircle className="w-4 h-4" />
@@ -1605,7 +1605,7 @@ export default function Markalar({
                       >
                         <span 
                           onClick={() => onSelectArea('duzada', k.id)}
-                          className="font-medium text-[#1B2A4A] dark:text-[#F3EFE8] truncate max-w-[120px] hover:underline cursor-pointer flex-1"
+                          className="font-medium text-[#0E1C4F] dark:text-[#F3EFE8] truncate max-w-[120px] hover:underline cursor-pointer flex-1"
                         >
                           {k.title}
                         </span>
@@ -1621,7 +1621,7 @@ export default function Markalar({
                               }
                             });
                           }}
-                          className="text-[9px] bg-white dark:bg-[#112440] text-[#1B2A4A] dark:text-[#F3EFE8] border border-stone-200 dark:border-[#2C3C72] rounded px-1 py-0.5 max-w-[90px] focus:outline-hidden shrink-0"
+                          className="text-[9px] bg-white dark:bg-[#112440] text-[#0E1C4F] dark:text-[#F3EFE8] border border-stone-200 dark:border-[#2C3C72] rounded px-1 py-0.5 max-w-[90px] focus:outline-hidden shrink-0"
                         >
                           <option value="">Bağımsız</option>
                           {brands.map(b => (
@@ -1641,11 +1641,11 @@ export default function Markalar({
                   <div className="flex items-center justify-between pb-1 border-b border-stone-100">
                     <div className="flex items-center gap-1.5">
                       <MapPin className="w-4 h-4 text-red-500" />
-                      <h4 className="font-serif font-bold text-sm text-[#1B2A4A] dark:text-[#F3EFE8]">Mekanlar ({brandYerler.length})</h4>
+                      <h4 className="font-serif font-bold text-sm text-[#0E1C4F] dark:text-[#F3EFE8]">Mekanlar ({brandYerler.length})</h4>
                     </div>
                     <button 
                       onClick={() => handleOpenAddEntity('yer')}
-                      className="p-1 hover:bg-stone-100 rounded text-[#D35057]"
+                      className="p-1 hover:bg-stone-100 rounded text-[#F26B6F]"
                       title="Yeni mekan ekle"
                     >
                       <PlusCircle className="w-4 h-4" />
@@ -1660,7 +1660,7 @@ export default function Markalar({
                       >
                         <span 
                           onClick={() => onSelectArea('duzada', y.id)}
-                          className="font-medium text-[#1B2A4A] dark:text-[#F3EFE8] truncate max-w-[120px] hover:underline cursor-pointer flex-1"
+                          className="font-medium text-[#0E1C4F] dark:text-[#F3EFE8] truncate max-w-[120px] hover:underline cursor-pointer flex-1"
                         >
                           {y.title}
                         </span>
@@ -1676,7 +1676,7 @@ export default function Markalar({
                               }
                             });
                           }}
-                          className="text-[9px] bg-white dark:bg-[#112440] text-[#1B2A4A] dark:text-[#F3EFE8] border border-stone-200 dark:border-[#2C3C72] rounded px-1 py-0.5 max-w-[90px] focus:outline-hidden shrink-0"
+                          className="text-[9px] bg-white dark:bg-[#112440] text-[#0E1C4F] dark:text-[#F3EFE8] border border-stone-200 dark:border-[#2C3C72] rounded px-1 py-0.5 max-w-[90px] focus:outline-hidden shrink-0"
                         >
                           <option value="">Bağımsız</option>
                           {brands.map(b => (
@@ -1697,8 +1697,8 @@ export default function Markalar({
               <div className="bg-stone-50 dark:bg-[#17345A]/50 border border-[#B9C7BD] dark:border-[#2C3C72]/50 p-5 rounded-xl space-y-4">
                 <div className="flex items-center justify-between pb-1 border-b border-stone-200">
                   <div className="flex items-center gap-2">
-                    <ShoppingBag className="w-4.5 h-4.5 text-[#D35057]" />
-                    <h3 className="font-serif font-bold text-sm text-[#1B2A4A] dark:text-[#F3EFE8]">
+                    <ShoppingBag className="w-4.5 h-4.5 text-[#F26B6F]" />
+                    <h3 className="font-serif font-bold text-sm text-[#0E1C4F] dark:text-[#F3EFE8]">
                       Marka Merch & Tasarımları
                     </h3>
                   </div>
@@ -1719,9 +1719,9 @@ export default function Markalar({
                         <div 
                           key={d.id} 
                           onClick={() => onSelectArea('merch', d.id)}
-                          className="p-2 bg-white dark:bg-[#112440] border border-stone-200 rounded-lg text-xs hover:border-[#D35057] transition-all flex justify-between items-center cursor-pointer"
+                          className="p-2 bg-white dark:bg-[#112440] border border-stone-200 rounded-lg text-xs hover:border-[#F26B6F] transition-all flex justify-between items-center cursor-pointer"
                         >
-                          <span className="font-bold text-[#1B2A4A] dark:text-[#F3EFE8] truncate max-w-[120px]">{d.title}</span>
+                          <span className="font-bold text-[#0E1C4F] dark:text-[#F3EFE8] truncate max-w-[120px]">{d.title}</span>
                           <span className="text-[9px] font-mono text-emerald-600 font-bold bg-emerald-50 dark:bg-emerald-950 px-1 py-0.5 rounded">{d.status}</span>
                         </div>
                       ))}
@@ -1741,10 +1741,10 @@ export default function Markalar({
                         <div 
                           key={u.id} 
                           onClick={() => onSelectArea('merch', u.id)}
-                          className="p-2 bg-white dark:bg-[#112440] border border-stone-200 rounded-lg text-xs hover:border-[#D35057] transition-all flex justify-between items-center cursor-pointer"
+                          className="p-2 bg-white dark:bg-[#112440] border border-stone-200 rounded-lg text-xs hover:border-[#F26B6F] transition-all flex justify-between items-center cursor-pointer"
                         >
-                          <span className="font-semibold text-[#1B2A4A] dark:text-[#F3EFE8] truncate max-w-[110px]">{u.title}</span>
-                          <span className="text-[9px] font-mono text-[#D35057] shrink-0">{u.metadata?.category || 'giyim'}</span>
+                          <span className="font-semibold text-[#0E1C4F] dark:text-[#F3EFE8] truncate max-w-[110px]">{u.title}</span>
+                          <span className="text-[9px] font-mono text-[#F26B6F] shrink-0">{u.metadata?.category || 'giyim'}</span>
                         </div>
                       ))}
                       {brandUrunler.length === 0 && (
@@ -1771,10 +1771,10 @@ export default function Markalar({
       
       {/* 1. BRAND CREATION MODAL */}
       {showCreateForm && (
-        <div className="fixed inset-0 bg-[#1B2A4A]/60 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
+        <div className="fixed inset-0 bg-[#0E1C4F] dark:bg-[#2C3C72]/60 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
           <div className="max-w-md w-full bg-[#F3EFE8] border-2 border-[#CFC5B4] rounded-2xl shadow-2xl p-6 space-y-4 paper-grain">
             <div className="flex items-center justify-between pb-2 border-b border-[#CFC5B4]">
-              <h3 className="font-serif font-bold text-lg text-[#1B2A4A]">Yeni Yaratıcı Marka</h3>
+              <h3 className="font-serif font-bold text-lg text-[#0E1C4F]">Yeni Yaratıcı Marka</h3>
               <button onClick={() => setShowCreateForm(false)} className="p-1 text-stone-400 hover:text-stone-700">
                 <X className="w-5 h-5" />
               </button>
@@ -1789,7 +1789,7 @@ export default function Markalar({
                   placeholder="Örn: Küçükçetmi Sürek Kulübü, Ada Dükkânı..."
                   value={newBrandTitle}
                   onChange={(e) => setNewBrandTitle(e.target.value)}
-                  className="w-full text-xs bg-white text-[#1B2A4A] border border-[#CFC5B4] rounded-lg p-2 focus:outline-hidden"
+                  className="w-full text-xs bg-white text-[#0E1C4F] border border-[#CFC5B4] rounded-lg p-2 focus:outline-hidden"
                 />
               </div>
 
@@ -1800,7 +1800,7 @@ export default function Markalar({
                   placeholder="Bu markanın evrendeki yeri, felsefesi ve faaliyetleri hakkında özet..."
                   value={newBrandNotes}
                   onChange={(e) => setNewBrandNotes(e.target.value)}
-                  className="w-full text-xs bg-white text-[#1B2A4A] border border-[#CFC5B4] rounded-lg p-2 focus:outline-hidden"
+                  className="w-full text-xs bg-white text-[#0E1C4F] border border-[#CFC5B4] rounded-lg p-2 focus:outline-hidden"
                 />
               </div>
 
@@ -1814,7 +1814,7 @@ export default function Markalar({
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-[#D35057] text-white rounded-lg hover:bg-[#B23A40]"
+                  className="px-4 py-2 bg-[#F26B6F] text-white rounded-lg hover:bg-[#B23A40]"
                 >
                   Markayı Ekle
                 </button>
@@ -1826,12 +1826,12 @@ export default function Markalar({
 
       {/* 2. MERCH YAP FORM MODAL */}
       {showMerchForm && activeBrand && (
-        <div className="fixed inset-0 bg-[#1B2A4A]/60 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
+        <div className="fixed inset-0 bg-[#0E1C4F] dark:bg-[#2C3C72]/60 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
           <div className="max-w-md w-full bg-[#F3EFE8] border-2 border-[#CFC5B4] rounded-2xl shadow-2xl p-6 space-y-4 paper-grain">
             <div className="flex items-center justify-between pb-2 border-b border-[#CFC5B4]">
               <div className="flex items-center gap-1.5">
-                <ShoppingBag className="w-5 h-5 text-[#D35057]" />
-                <h3 className="font-serif font-bold text-lg text-[#1B2A4A]">{activeBrand.title} Merch Yap</h3>
+                <ShoppingBag className="w-5 h-5 text-[#F26B6F]" />
+                <h3 className="font-serif font-bold text-lg text-[#0E1C4F]">{activeBrand.title} Merch Yap</h3>
               </div>
               <button onClick={() => setShowMerchForm(false)} className="p-1 text-stone-400 hover:text-stone-700">
                 <X className="w-5 h-5" />
@@ -1861,7 +1861,7 @@ export default function Markalar({
                   placeholder="Örn: Basics 2, Ekinoks Özel..."
                   value={newThemeTitle}
                   onChange={(e) => setNewThemeTitle(e.target.value)}
-                  className="w-full text-xs bg-white text-[#1B2A4A] border border-[#CFC5B4] rounded-lg p-2 focus:outline-hidden"
+                  className="w-full text-xs bg-white text-[#0E1C4F] border border-[#CFC5B4] rounded-lg p-2 focus:outline-hidden"
                 />
               </div>
 
@@ -1872,7 +1872,7 @@ export default function Markalar({
                   placeholder="Koleksiyonun esin kaynakları, stil rehberi ve hedefleri..."
                   value={newThemeNotes}
                   onChange={(e) => setNewThemeNotes(e.target.value)}
-                  className="w-full text-xs bg-white text-[#1B2A4A] border border-[#CFC5B4] rounded-lg p-2 focus:outline-hidden"
+                  className="w-full text-xs bg-white text-[#0E1C4F] border border-[#CFC5B4] rounded-lg p-2 focus:outline-hidden"
                 />
               </div>
 
@@ -1898,12 +1898,12 @@ export default function Markalar({
 
       {/* 3. CHILD ENTITY ADD MODAL (Search & Link Existing, with Create New option) */}
       {showAddEntityForm && activeBrand && (
-        <div className="fixed inset-0 bg-[#1B2A4A]/60 z-50 flex items-center justify-center p-4 backdrop-blur-xs animate-fadeIn">
+        <div className="fixed inset-0 bg-[#0E1C4F] dark:bg-[#2C3C72]/60 z-50 flex items-center justify-center p-4 backdrop-blur-xs animate-fadeIn">
           <div className="max-w-md w-full bg-[#F3EFE8] border-2 border-[#CFC5B4] rounded-2xl shadow-2xl p-6 space-y-4 paper-grain">
             <div className="flex items-center justify-between pb-2 border-b border-[#CFC5B4]">
               <div className="flex items-center gap-1.5">
                 <PlusCircle className="w-5 h-5 text-indigo-500" />
-                <h3 className="font-serif font-bold text-lg text-[#1B2A4A]">
+                <h3 className="font-serif font-bold text-lg text-[#0E1C4F]">
                   {isCreatingNew 
                     ? `Yeni ${showAddEntityForm === 'kisi' ? 'Kişi' : showAddEntityForm === 'yer' ? 'Yer/Mekân' : 'Olay'} Oluştur`
                     : `${showAddEntityForm === 'kisi' ? 'Mevcut Kişi' : showAddEntityForm === 'yer' ? 'Mevcut Yer/Mekân' : 'Mevcut Olay'} İlişkilendir`
@@ -1937,7 +1937,7 @@ export default function Markalar({
                       placeholder={`${showAddEntityForm === 'kisi' ? 'Kişi adı, ünvanı...' : 'Mekân adı, konumu...'} ara...`}
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full text-xs bg-white text-[#1B2A4A] border border-[#CFC5B4] rounded-lg p-2.5 pl-8 focus:outline-hidden"
+                      className="w-full text-xs bg-white text-[#0E1C4F] border border-[#CFC5B4] rounded-lg p-2.5 pl-8 focus:outline-hidden"
                     />
                     <Search className="w-4 h-4 text-stone-400 absolute left-2.5 top-3" />
                   </div>
@@ -1956,7 +1956,7 @@ export default function Markalar({
                         className="p-2.5 hover:bg-[#E7E0D2] dark:hover:bg-stone-100 rounded-lg cursor-pointer transition-colors flex items-center justify-between gap-2 text-left"
                       >
                         <div className="min-w-0 flex-1">
-                          <div className="font-serif font-bold text-xs text-[#1B2A4A] truncate">{ent.title}</div>
+                          <div className="font-serif font-bold text-xs text-[#0E1C4F] truncate">{ent.title}</div>
                           {ent.notes && (
                             <div className="text-[10px] text-stone-500 truncate font-mono mt-0.5">{ent.notes}</div>
                           )}
@@ -1982,9 +1982,9 @@ export default function Markalar({
                   <button
                     type="button"
                     onClick={() => setIsCreatingNew(true)}
-                    className="w-full py-2 bg-stone-100 hover:bg-stone-200 text-[#1B2A4A] border border-[#CFC5B4] rounded-lg text-xs font-mono font-bold flex items-center justify-center gap-1 transition-colors"
+                    className="w-full py-2 bg-stone-100 hover:bg-stone-200 text-[#0E1C4F] border border-[#CFC5B4] rounded-lg text-xs font-mono font-bold flex items-center justify-center gap-1 transition-colors"
                   >
-                    <Plus className="w-3.5 h-3.5 text-[#D35057]" />
+                    <Plus className="w-3.5 h-3.5 text-[#F26B6F]" />
                     Sıfırdan Yeni Varlık Oluştur &rarr;
                   </button>
                 </div>
@@ -2004,7 +2004,7 @@ export default function Markalar({
                     placeholder={showAddEntityForm === 'kisi' ? 'Örn: Kamil Efendi, Leyla Hanım...' : showAddEntityForm === 'yer' ? 'Örn: Taş Konak Atölye, Zeytinlik Limanı...' : 'Örn: Sürek Festivali 2026...'}
                     value={newEntityTitle}
                     onChange={(e) => setNewEntityTitle(e.target.value)}
-                    className="w-full text-xs bg-white text-[#1B2A4A] border border-[#CFC5B4] rounded-lg p-2 focus:outline-hidden"
+                    className="w-full text-xs bg-white text-[#0E1C4F] border border-[#CFC5B4] rounded-lg p-2 focus:outline-hidden"
                   />
                 </div>
 
@@ -2015,7 +2015,7 @@ export default function Markalar({
                     placeholder="Karakter özellikleri, mekân lore özetleri veya etkinlik takvimi..."
                     value={newEntityNotes}
                     onChange={(e) => setNewEntityNotes(e.target.value)}
-                    className="w-full text-xs bg-white text-[#1B2A4A] border border-[#CFC5B4] rounded-lg p-2 focus:outline-hidden"
+                    className="w-full text-xs bg-white text-[#0E1C4F] border border-[#CFC5B4] rounded-lg p-2 focus:outline-hidden"
                   />
                 </div>
 
@@ -2025,7 +2025,7 @@ export default function Markalar({
                     <select
                       value={newEntityPlaceId}
                       onChange={(e) => setNewEntityPlaceId(e.target.value)}
-                      className="w-full text-xs bg-white text-[#1B2A4A] border border-[#CFC5B4] rounded-lg p-2 focus:outline-hidden"
+                      className="w-full text-xs bg-white text-[#0E1C4F] border border-[#CFC5B4] rounded-lg p-2 focus:outline-hidden"
                     >
                       <option value="">-- Bir Yer Seçin --</option>
                       {items.filter(i => (i.type === 'yer' || i.type === 'mekân' || i.type === 'dükkân') && !i.archived).map(y => (

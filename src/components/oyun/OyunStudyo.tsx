@@ -122,7 +122,7 @@ export const OyunStudyo: React.FC<OyunStudyoProps> = ({
     <div className="space-y-7 animate-in fade-in duration-300">
       <div className="pb-4 border-b border-[#CFC5B4] dark:border-[#2C3C72] flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="font-serif font-bold text-xl text-[#1B2A4A] dark:text-[#F3EFE8] italic">
+          <h1 className="font-serif font-bold text-xl text-[#0E1C4F] dark:text-[#F3EFE8] italic">
             Oyun Stüdyosu
           </h1>
           <p className="mt-1 text-[12px] text-[#6A5E4C] dark:text-[#A6B0C9]">
@@ -169,7 +169,7 @@ export const OyunStudyo: React.FC<OyunStudyoProps> = ({
                     {sayilar[a.id]}
                   </span>
                 </div>
-                <p className="text-[13px] font-semibold text-[#1B2A4A] dark:text-[#F3EFE8] mt-0.5">
+                <p className="text-[13px] font-semibold text-[#0E1C4F] dark:text-[#F3EFE8] mt-0.5">
                   {a.ad}
                   <span className="ml-1.5 font-mono text-[9px] uppercase tracking-wider text-[#9A8C76]">
                     {a.terim}
@@ -207,7 +207,7 @@ export const OyunStudyo: React.FC<OyunStudyoProps> = ({
                     onClick={() => setAcikAsama(acikAsama === a.id ? null : a.id)}
                     className="flex-1 text-left cursor-pointer"
                   >
-                    <span className="text-[13px] font-semibold text-[#1B2A4A] dark:text-[#F3EFE8]">
+                    <span className="text-[13px] font-semibold text-[#0E1C4F] dark:text-[#F3EFE8]">
                       {a.ad}
                     </span>
                     <span className="ml-2 font-mono text-[11px] text-[#9A8C76]">
@@ -233,14 +233,14 @@ export const OyunStudyo: React.FC<OyunStudyoProps> = ({
                       value={yeniBaslik}
                       onChange={e => setYeniBaslik(e.target.value)}
                       placeholder="İşin adı"
-                      className="flex-1 text-[12px] bg-white dark:bg-[#17345A] text-[#1B2A4A]
+                      className="flex-1 text-[12px] bg-white dark:bg-[#17345A] text-[#0E1C4F]
                                  dark:text-[#F3EFE8] border border-[#CFC5B4] dark:border-[#2C3C72]
                                  rounded-lg p-2 focus:outline-hidden focus:border-[#F26B6F]"
                     />
                     <button
                       type="submit"
                       disabled={!yeniBaslik.trim()}
-                      className="px-3 py-2 text-[11px] font-mono rounded-lg bg-[#1B2A4A]
+                      className="px-3 py-2 text-[11px] font-mono rounded-lg bg-[#0E1C4F] dark:bg-[#2C3C72]
                                  text-[#F3EFE8] disabled:opacity-30 cursor-pointer"
                     >
                       Ekle
@@ -263,7 +263,7 @@ export const OyunStudyo: React.FC<OyunStudyoProps> = ({
                         className="flex items-center gap-2 px-4 py-2 border-b last:border-b-0
                                    border-[#CFC5B4]/30 dark:border-[#2C3C72]/50"
                       >
-                        <span className="flex-1 min-w-0 text-[12px] text-[#1B2A4A]
+                        <span className="flex-1 min-w-0 text-[12px] text-[#0E1C4F]
                                          dark:text-[#F3EFE8] truncate">
                           {is.title}
                         </span>
@@ -324,7 +324,7 @@ export const OyunStudyo: React.FC<OyunStudyoProps> = ({
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <p className="text-[13px] font-semibold text-[#1B2A4A] dark:text-[#F3EFE8]">
+                    <p className="text-[13px] font-semibold text-[#0E1C4F] dark:text-[#F3EFE8]">
                       {b.ad}
                     </p>
                     <p className="text-[11px] text-[#9A8C76] dark:text-[#6E7CA0]">{b.soru}</p>
@@ -353,7 +353,7 @@ export const OyunStudyo: React.FC<OyunStudyoProps> = ({
                       }
                     }}
                     placeholder="…"
-                    className="mt-2 w-full text-[12px] bg-white dark:bg-[#17345A] text-[#1B2A4A]
+                    className="mt-2 w-full text-[12px] bg-white dark:bg-[#17345A] text-[#0E1C4F]
                                dark:text-[#F3EFE8] border border-[#CFC5B4] dark:border-[#2C3C72]
                                rounded-lg p-2 focus:outline-hidden focus:border-[#F26B6F]"
                   />

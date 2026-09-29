@@ -67,7 +67,7 @@ export const YAPI = {
   kulup: '#75845f',
   iskele: '#9c8467',
   genel: '#c2b193',
-  vurgu: '#d35057'
+  vurgu: '#F26B6F'
 } as const;
 
 /**

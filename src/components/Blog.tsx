@@ -339,7 +339,7 @@ export default function Blog({
           <span className="text-xs font-mono uppercase text-[#6A5E4C] dark:text-[#A6B0C9]">
             Kems Company • Yazı Atölyesi
           </span>
-          <h1 className="font-serif font-bold text-2xl text-[#1B2A4A] dark:text-[#F3EFE8] mt-1">
+          <h1 className="font-serif font-bold text-2xl text-[#0E1C4F] dark:text-[#F3EFE8] mt-1">
             Blog & İçerik Yönetimi
           </h1>
         </div>
@@ -355,14 +355,14 @@ export default function Blog({
           />
           <button
             onClick={() => { setActiveTab('home'); onSelectItem(null); }}
-            className={`px-4 py-2 rounded-lg cursor-pointer transition-all ${activeTab === 'home' ? 'bg-[#1B2A4A] dark:bg-[#D35057] text-[#F3EFE8]' : 'bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] text-[#6A5E4C] dark:text-[#A6B0C9]'}`}
+            className={`px-4 py-2 rounded-lg cursor-pointer transition-all ${activeTab === 'home' ? 'bg-[#0E1C4F] dark:bg-[#F26B6F] text-[#F3EFE8]' : 'bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] text-[#6A5E4C] dark:text-[#A6B0C9]'}`}
           >
             Yazı Havuzu
           </button>
           {activePost && (
             <button
               onClick={() => setActiveTab('editor')}
-              className={`px-4 py-2 rounded-lg cursor-pointer transition-all ${activeTab === 'editor' ? 'bg-[#1B2A4A] dark:bg-[#D35057] text-[#F3EFE8]' : 'bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] text-[#6A5E4C] dark:text-[#A6B0C9]'}`}
+              className={`px-4 py-2 rounded-lg cursor-pointer transition-all ${activeTab === 'editor' ? 'bg-[#0E1C4F] dark:bg-[#F26B6F] text-[#F3EFE8]' : 'bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] text-[#6A5E4C] dark:text-[#A6B0C9]'}`}
             >
               Masaüstü Editör
             </button>
@@ -375,12 +375,12 @@ export default function Blog({
         <div className="space-y-8 animate-in fade-in duration-200">
           
           <div className="flex justify-between items-center pb-2 border-b border-[#CFC5B4]/40">
-            <h3 className="font-serif font-bold text-lg text-[#1B2A4A] dark:text-[#F3EFE8]">
+            <h3 className="font-serif font-bold text-lg text-[#0E1C4F] dark:text-[#F3EFE8]">
               Yazı Masası ve Taslaklar ({posts.length})
             </h3>
             <button
               onClick={() => setShowCreateForm(!showCreateForm)}
-              className="text-xs font-mono bg-[#D35057] text-white px-3 py-1.5 rounded-lg hover:bg-[#B23A40] transition-all cursor-pointer"
+              className="text-xs font-mono bg-[#F26B6F] text-white px-3 py-1.5 rounded-lg hover:bg-[#B23A40] transition-all cursor-pointer"
             >
               + Yeni Yazı Kaleme Al
             </button>
@@ -389,7 +389,7 @@ export default function Blog({
           {/* Create Post overlay/form */}
           {showCreateForm && (
             <form onSubmit={handleCreatePost} className="bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] dark:border-[#2C3C72] p-5 rounded-xl max-w-md space-y-4 shadow-md paper-grain">
-              <h4 className="font-serif font-bold text-[#1B2A4A] dark:text-[#F3EFE8] border-b border-[#CFC5B4]/50 pb-2">
+              <h4 className="font-serif font-bold text-[#0E1C4F] dark:text-[#F3EFE8] border-b border-[#CFC5B4]/50 pb-2">
                 Yeni Yazı Başlat
               </h4>
               <div>
@@ -402,7 +402,7 @@ export default function Blog({
                   placeholder="Başlığı giriniz..."
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
-                  className="w-full text-xs bg-white dark:bg-[#17345A] text-[#1B2A4A] dark:text-[#F3EFE8] border border-[#CFC5B4] rounded p-2 focus:outline-hidden"
+                  className="w-full text-xs bg-white dark:bg-[#17345A] text-[#0E1C4F] dark:text-[#F3EFE8] border border-[#CFC5B4] rounded p-2 focus:outline-hidden"
                 />
               </div>
 
@@ -413,7 +413,7 @@ export default function Blog({
                 <select
                   value={newCategory}
                   onChange={(e) => setNewCategory(e.target.value as any)}
-                  className="w-full text-xs bg-white dark:bg-[#17345A] text-[#1B2A4A] dark:text-[#F3EFE8] border border-[#CFC5B4] rounded p-2 focus:outline-hidden"
+                  className="w-full text-xs bg-white dark:bg-[#17345A] text-[#0E1C4F] dark:text-[#F3EFE8] border border-[#CFC5B4] rounded p-2 focus:outline-hidden"
                 >
                   <option value="lore yazısı">Lore Yazısı</option>
                   <option value="duyuru">Duyuru / Haber</option>
@@ -432,7 +432,7 @@ export default function Blog({
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 bg-[#D35057] text-white rounded"
+                  className="px-4 py-1.5 bg-[#F26B6F] text-white rounded"
                 >
                   Yazı Başlat
                 </button>
@@ -445,7 +445,7 @@ export default function Blog({
             
             {/* Taslaklar */}
             <div className="bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] rounded-xl p-5 paper-grain space-y-3 archive-shadow">
-              <span className="text-[10px] font-mono text-[#D35057] font-bold block uppercase">
+              <span className="text-[10px] font-mono text-[#F26B6F] font-bold block uppercase">
                 Devam Eden Taslaklar ({drafts.length})
               </span>
               <div className="space-y-2.5 max-h-[220px] overflow-y-auto pr-1">
@@ -453,10 +453,10 @@ export default function Blog({
                   <div 
                     key={p.id}
                     onClick={() => { onSelectItem(p.id); setActiveTab('editor'); }}
-                    className="p-2 bg-white/60 dark:bg-[#17345A]/40 border border-[#E3DCCF] dark:border-[#2C3C72] rounded hover:border-[#D35057] cursor-pointer transition-all flex items-center justify-between gap-2 group/item"
+                    className="p-2 bg-white/60 dark:bg-[#17345A]/40 border border-[#E3DCCF] dark:border-[#2C3C72] rounded hover:border-[#F26B6F] cursor-pointer transition-all flex items-center justify-between gap-2 group/item"
                   >
                     <div className="flex-1 min-w-0">
-                      <h5 className="font-serif font-bold text-xs text-[#1B2A4A] dark:text-[#F3EFE8] line-clamp-1">{p.title}</h5>
+                      <h5 className="font-serif font-bold text-xs text-[#0E1C4F] dark:text-[#F3EFE8] line-clamp-1">{p.title}</h5>
                       <span className="text-[9px] font-mono text-[#9A8C76] capitalize block mt-0.5">{p.metadata?.categoryType}</span>
                     </div>
                     <button
@@ -488,7 +488,7 @@ export default function Blog({
                     className="p-2 bg-white/60 dark:bg-[#17345A]/40 border border-[#E3DCCF] dark:border-[#2C3C72] rounded hover:border-emerald-600 cursor-pointer transition-all flex items-center justify-between gap-2 group/item"
                   >
                     <div className="flex-1 min-w-0">
-                      <h5 className="font-serif font-bold text-xs text-[#1B2A4A] dark:text-[#F3EFE8] line-clamp-1">{p.title}</h5>
+                      <h5 className="font-serif font-bold text-xs text-[#0E1C4F] dark:text-[#F3EFE8] line-clamp-1">{p.title}</h5>
                       <span className="text-[9px] font-mono text-emerald-600 block mt-0.5">Yayınlandı</span>
                     </div>
                     <button
@@ -522,7 +522,7 @@ export default function Blog({
                       className="p-2 bg-white/60 dark:bg-[#17345A]/40 border border-[#B9C7BD] rounded hover:border-[#4A5E68] cursor-pointer transition-all flex items-center justify-between gap-2 group/item"
                     >
                       <div className="flex-1 min-w-0">
-                        <h5 className="font-serif font-bold text-xs text-[#1B2A4A] dark:text-[#F3EFE8] line-clamp-1">{p.title}</h5>
+                        <h5 className="font-serif font-bold text-xs text-[#0E1C4F] dark:text-[#F3EFE8] line-clamp-1">{p.title}</h5>
                         <div className="flex gap-1 flex-wrap mt-1">
                           {connected.map(c => (
                             <span key={c.id} className="text-[8px] bg-stone-200 px-1 py-0.2 rounded text-stone-700 font-mono">
@@ -557,7 +557,7 @@ export default function Blog({
                 <p className="text-[#6A5E4C] dark:text-[#A6B0C9]">Kems Company kişisel blog istatistiğidir. Tüm yazılar wiki kancalıdır.</p>
                 <div className="p-3 bg-white/40 border border-[#CFC5B4] rounded-lg">
                   <span className="font-mono text-[10px] block text-[#9A8C76]">TOPLAM KELİME:</span>
-                  <span className="text-base font-serif font-bold text-[#1B2A4A] dark:text-[#F3EFE8]">
+                  <span className="text-base font-serif font-bold text-[#0E1C4F] dark:text-[#F3EFE8]">
                     {posts.reduce((sum, p) => sum + (p.notes?.split(/\s+/).length || 0), 0)} Kelime
                   </span>
                 </div>
@@ -580,10 +580,10 @@ export default function Blog({
             <div className="flex justify-between items-start pb-4 border-b border-[#CFC5B4]/50">
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-mono bg-[#1B2A4A]/10 text-[#1B2A4A] dark:text-[#F3EFE8] px-2 py-0.5 rounded capitalize">
+                  <span className="text-xs font-mono bg-[#0E1C4F] dark:bg-[#2C3C72]/10 text-[#0E1C4F] dark:text-[#F3EFE8] px-2 py-0.5 rounded capitalize">
                     {activePost.status}
                   </span>
-                  <span className="text-xs font-mono uppercase bg-[#D35057]/15 text-[#D35057] px-2.5 py-0.5 rounded">
+                  <span className="text-xs font-mono uppercase bg-[#F26B6F]/15 text-[#F26B6F] px-2.5 py-0.5 rounded">
                     {activePost.metadata?.categoryType}
                   </span>
                 </div>
@@ -593,7 +593,7 @@ export default function Blog({
                   type="text"
                   value={activePost.title}
                   onChange={async (e) => await onUpdateItem({ ...activePost, title: e.target.value })}
-                  className="font-serif font-bold text-2xl md:text-3xl text-[#1B2A4A] dark:text-[#F3EFE8] italic bg-transparent focus:outline-hidden border-b border-transparent focus:border-[#CFC5B4]"
+                  className="font-serif font-bold text-2xl md:text-3xl text-[#0E1C4F] dark:text-[#F3EFE8] italic bg-transparent focus:outline-hidden border-b border-transparent focus:border-[#CFC5B4]"
                 />
               </div>
 
@@ -616,7 +616,7 @@ export default function Blog({
                     }
                     setShowSendToBookModal(true);
                   }}
-                  className="px-3 py-1.5 bg-[#1B2A4A] text-[#F3EFE8] hover:bg-slate-800 text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer"
+                  className="px-3 py-1.5 bg-[#0E1C4F] dark:bg-[#2C3C72] text-[#F3EFE8] hover:bg-slate-800 text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer"
                   title="Yazıyı Kitap veya Kityap Bölümüne Gönder"
                 >
                   <BookOpen className="w-3.5 h-3.5" />
@@ -627,7 +627,7 @@ export default function Blog({
                   type="button"
                   onClick={handleExportPostToDoc}
                   disabled={isExportingDoc}
-                  className="px-3 py-1.5 bg-[#D35057] hover:bg-[#B23A40] text-white text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer"
+                  className="px-3 py-1.5 bg-[#F26B6F] hover:bg-[#B23A40] text-white text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer"
                   title="Google Dokümanı Olarak Dışa Aktar"
                 >
                   {isExportingDoc ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <FileText className="w-3.5 h-3.5" />}
@@ -637,7 +637,7 @@ export default function Blog({
                 <select
                   value={activePost.status}
                   onChange={async (e) => await onUpdateItem({ ...activePost, status: e.target.value })}
-                  className="bg-white text-xs border border-[#CFC5B4] rounded p-1.5 focus:outline-hidden text-[#1B2A4A]"
+                  className="bg-white text-xs border border-[#CFC5B4] rounded p-1.5 focus:outline-hidden text-[#0E1C4F]"
                 >
                   <option value="Taslak">Taslak</option>
                   <option value="Yayında">Yayında</option>
@@ -645,7 +645,7 @@ export default function Blog({
 
                 <button
                   onClick={handleCopyToBlog}
-                  className="px-3.5 py-2 bg-white dark:bg-[#1B2A4A] border border-[#CFC5B4] text-[#1B2A4A] dark:text-[#F3EFE8] hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
+                  className="px-3.5 py-2 bg-white dark:bg-[#0E1C4F] border border-[#CFC5B4] text-[#0E1C4F] dark:text-[#F3EFE8] hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
                 >
                   Bloguna Kopyala
                 </button>
@@ -744,7 +744,7 @@ export default function Blog({
                 {entities.filter(e => (activePost.links || []).includes(e.id)).map(e => (
                   <span 
                     key={e.id}
-                    className="flex items-center gap-1.5 text-xs bg-[#1B2A4A] text-[#F3EFE8] px-2.5 py-1 rounded-full font-mono"
+                    className="flex items-center gap-1.5 text-xs bg-[#0E1C4F] dark:bg-[#2C3C72] text-[#F3EFE8] px-2.5 py-1 rounded-full font-mono"
                   >
                     <Compass className="w-3 h-3" />
                     <span>{e.title}</span>
@@ -774,12 +774,12 @@ export default function Blog({
                 onClick={() => setIsAiBoxOpen(!isAiBoxOpen)}
               >
                 <div className="flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-[#D35057]" />
-                  <h4 className="font-serif font-bold text-base text-[#1B2A4A] dark:text-[#F3EFE8] group-hover:text-[#D35057] transition-colors">
+                  <Sparkles className="w-5 h-5 text-[#F26B6F]" />
+                  <h4 className="font-serif font-bold text-base text-[#0E1C4F] dark:text-[#F3EFE8] group-hover:text-[#F26B6F] transition-colors">
                     AI (istersen) Yazı Yardımı
                   </h4>
                 </div>
-                <span className="text-[10px] font-mono text-[#D35057] hover:underline bg-[#D35057]/10 px-2 py-0.5 rounded">
+                <span className="text-[10px] font-mono text-[#F26B6F] hover:underline bg-[#F26B6F]/10 px-2 py-0.5 rounded">
                   {isAiBoxOpen ? 'Kapat [-]' : 'Aç [+]'}
                 </span>
               </div>
@@ -794,55 +794,55 @@ export default function Blog({
                     <button
                       onClick={handleAiDevamEt}
                       disabled={!!loadingAi}
-                      className="py-2.5 px-2.5 bg-white dark:bg-[#17345A] text-[#1B2A4A] dark:text-[#F3EFE8] border border-[#CFC5B4] dark:border-[#2C3C72] hover:border-[#D35057] dark:hover:border-[#D35057] rounded-lg transition-colors flex flex-col items-center justify-center gap-1 text-center cursor-pointer"
+                      className="py-2.5 px-2.5 bg-white dark:bg-[#17345A] text-[#0E1C4F] dark:text-[#F3EFE8] border border-[#CFC5B4] dark:border-[#2C3C72] hover:border-[#F26B6F] dark:hover:border-[#F26B6F] rounded-lg transition-colors flex flex-col items-center justify-center gap-1 text-center cursor-pointer"
                     >
-                      <span className="font-bold text-[#D35057]">Devam Et</span>
+                      <span className="font-bold text-[#F26B6F]">Devam Et</span>
                       <span className="text-[8px] opacity-75">Yazıyı sürdür</span>
                     </button>
 
                     <button
                       onClick={handleAiBaslikOner}
                       disabled={!!loadingAi}
-                      className="py-2.5 px-2.5 bg-white dark:bg-[#17345A] text-[#1B2A4A] dark:text-[#F3EFE8] border border-[#CFC5B4] dark:border-[#2C3C72] hover:border-[#D35057] dark:hover:border-[#D35057] rounded-lg transition-colors flex flex-col items-center justify-center gap-1 text-center cursor-pointer"
+                      className="py-2.5 px-2.5 bg-white dark:bg-[#17345A] text-[#0E1C4F] dark:text-[#F3EFE8] border border-[#CFC5B4] dark:border-[#2C3C72] hover:border-[#F26B6F] dark:hover:border-[#F26B6F] rounded-lg transition-colors flex flex-col items-center justify-center gap-1 text-center cursor-pointer"
                     >
-                      <span className="font-bold text-[#D35057]">Başlık Öner</span>
+                      <span className="font-bold text-[#F26B6F]">Başlık Öner</span>
                       <span className="text-[8px] opacity-75">5 adet başlık</span>
                     </button>
 
                     <button
                       onClick={() => handleAiTonDuzelt('Nostaljik Arşivsel')}
                       disabled={!!loadingAi}
-                      className="py-2.5 px-2.5 bg-white dark:bg-[#17345A] text-[#1B2A4A] dark:text-[#F3EFE8] border border-[#CFC5B4] dark:border-[#2C3C72] hover:border-[#D35057] dark:hover:border-[#D35057] rounded-lg transition-colors flex flex-col items-center justify-center gap-1 text-center cursor-pointer"
+                      className="py-2.5 px-2.5 bg-white dark:bg-[#17345A] text-[#0E1C4F] dark:text-[#F3EFE8] border border-[#CFC5B4] dark:border-[#2C3C72] hover:border-[#F26B6F] dark:hover:border-[#F26B6F] rounded-lg transition-colors flex flex-col items-center justify-center gap-1 text-center cursor-pointer"
                     >
-                      <span className="font-bold text-[#D35057]">Ton Düzelt</span>
+                      <span className="font-bold text-[#F26B6F]">Ton Düzelt</span>
                       <span className="text-[8px] opacity-75">Nostaljik yap</span>
                     </button>
 
                     <button
                       onClick={handleAiLoreBagi}
                       disabled={!!loadingAi}
-                      className="py-2.5 px-2.5 bg-white dark:bg-[#17345A] text-[#1B2A4A] dark:text-[#F3EFE8] border border-[#CFC5B4] dark:border-[#2C3C72] hover:border-[#D35057] dark:hover:border-[#D35057] rounded-lg transition-colors flex flex-col items-center justify-center gap-1 text-center cursor-pointer"
+                      className="py-2.5 px-2.5 bg-white dark:bg-[#17345A] text-[#0E1C4F] dark:text-[#F3EFE8] border border-[#CFC5B4] dark:border-[#2C3C72] hover:border-[#F26B6F] dark:hover:border-[#F26B6F] rounded-lg transition-colors flex flex-col items-center justify-center gap-1 text-center cursor-pointer"
                     >
-                      <span className="font-bold text-[#D35057]">Lore Bağı</span>
+                      <span className="font-bold text-[#F26B6F]">Lore Bağı</span>
                       <span className="text-[8px] opacity-75">Varlık ilişkileri</span>
                     </button>
                   </div>
 
                   {/* Display AI outputs */}
                   {loadingAi && (
-                    <div className="p-3 bg-white dark:bg-[#17345A] text-[#1B2A4A] dark:text-[#F3EFE8] rounded-lg border border-[#CFC5B4] dark:border-[#2C3C72] text-center text-xs animate-pulse font-mono text-[#D35057]">
+                    <div className="p-3 bg-white dark:bg-[#17345A] text-[#0E1C4F] dark:text-[#F3EFE8] rounded-lg border border-[#CFC5B4] dark:border-[#2C3C72] text-center text-xs animate-pulse font-mono text-[#F26B6F]">
                       Yapay Zeka kurguyu inceliyor... ({loadingAi})
                     </div>
                   )}
 
                   {aiSuggestions.length > 0 && (
-                    <div className="p-3 bg-[#FBF3E4] dark:bg-amber-950/20 text-[#1B2A4A] dark:text-[#F3EFE8] border border-dashed border-[#D35057] rounded-lg space-y-2">
-                      <span className="text-[10px] font-mono uppercase text-[#D35057] font-bold">Önerilen Başlıklar:</span>
+                    <div className="p-3 bg-[#FBF3E4] dark:bg-amber-950/20 text-[#0E1C4F] dark:text-[#F3EFE8] border border-dashed border-[#F26B6F] rounded-lg space-y-2">
+                      <span className="text-[10px] font-mono uppercase text-[#F26B6F] font-bold">Önerilen Başlıklar:</span>
                       <ul className="text-xs list-disc pl-4 space-y-1 font-serif">
                         {aiSuggestions.map((title, idx) => (
                           <li 
                             key={idx} 
-                            className="cursor-pointer hover:text-[#D35057]"
+                            className="cursor-pointer hover:text-[#F26B6F]"
                             onClick={async () => {
                               await onUpdateItem({ ...activePost, title });
                               setAiSuggestions([]);
@@ -857,8 +857,8 @@ export default function Blog({
                   )}
 
                   {aiLoreBagiSuggestions && (
-                    <div className="p-3.5 bg-[#FBF3E4] dark:bg-amber-950/20 text-[#1B2A4A] dark:text-[#F3EFE8] border border-dashed border-[#D35057] rounded-lg space-y-2 text-xs leading-relaxed">
-                      <span className="text-[10px] font-mono uppercase text-[#D35057] font-bold block">Önerilen Lore Bağları:</span>
+                    <div className="p-3.5 bg-[#FBF3E4] dark:bg-amber-950/20 text-[#0E1C4F] dark:text-[#F3EFE8] border border-dashed border-[#F26B6F] rounded-lg space-y-2 text-xs leading-relaxed">
+                      <span className="text-[10px] font-mono uppercase text-[#F26B6F] font-bold block">Önerilen Lore Bağları:</span>
                       <p className="whitespace-pre-line font-serif">{aiLoreBagiSuggestions}</p>
                     </div>
                   )}
@@ -868,7 +868,7 @@ export default function Blog({
 
             {/* Hook an entity to this post manual selector */}
             <div className="bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] dark:border-[#2C3C72] p-5 rounded-xl space-y-3">
-              <h4 className="font-serif font-bold text-sm text-[#1B2A4A] dark:text-[#F3EFE8]">
+              <h4 className="font-serif font-bold text-sm text-[#0E1C4F] dark:text-[#F3EFE8]">
                 Varlık Kancası Ekle
               </h4>
               <p className="text-xs text-[#6A5E4C] dark:text-[#A6B0C9]">
@@ -879,7 +879,7 @@ export default function Blog({
                 <select
                   value={selectedEntityId}
                   onChange={(e) => setSelectedEntityId(e.target.value)}
-                  className="flex-1 text-xs bg-white dark:bg-[#17345A] text-[#1B2A4A] dark:text-[#F3EFE8] border border-[#CFC5B4] dark:border-[#2C3C72] rounded p-2"
+                  className="flex-1 text-xs bg-white dark:bg-[#17345A] text-[#0E1C4F] dark:text-[#F3EFE8] border border-[#CFC5B4] dark:border-[#2C3C72] rounded p-2"
                 >
                   <option value="">Varlık Seçin...</option>
                   {entities.filter(e => !(activePost.links || []).includes(e.id)).map(e => (
@@ -891,7 +891,7 @@ export default function Blog({
                 <button
                   onClick={handleLinkEntity}
                   disabled={!selectedEntityId}
-                  className="px-3.5 py-1.5 bg-[#1B2A4A] dark:bg-[#D35057] text-white text-xs rounded-lg hover:opacity-90 cursor-pointer"
+                  className="px-3.5 py-1.5 bg-[#0E1C4F] dark:bg-[#F26B6F] text-white text-xs rounded-lg hover:opacity-90 cursor-pointer"
                 >
                   Bağla
                 </button>
@@ -900,12 +900,12 @@ export default function Blog({
               {/* Dismissed list for un-dismissing in Blog */}
               {activePost.metadata?.dismissedSuggestions?.length > 0 && (
                 <div className="pt-2.5 border-t border-[#CFC5B4]/40 space-y-1">
-                  <span className="text-[10px] font-mono text-[#D35057] uppercase font-bold tracking-wider block">Yoksayılan Öneriler:</span>
+                  <span className="text-[10px] font-mono text-[#F26B6F] uppercase font-bold tracking-wider block">Yoksayılan Öneriler:</span>
                   <div className="flex flex-wrap gap-1.5">
                     {activePost.metadata.dismissedSuggestions.map((name: string) => (
                       <span 
                         key={name}
-                        className="inline-flex items-center gap-1.5 text-[10px] bg-white dark:bg-stone-900 text-[#1B2A4A] dark:text-[#A6B0C9] border border-[#CFC5B4]/50 dark:border-stone-800 px-2 py-0.5 rounded-md shadow-3xs"
+                        className="inline-flex items-center gap-1.5 text-[10px] bg-white dark:bg-stone-900 text-[#0E1C4F] dark:text-[#A6B0C9] border border-[#CFC5B4]/50 dark:border-stone-800 px-2 py-0.5 rounded-md shadow-3xs"
                       >
                         <span>{name}</span>
                         <button
@@ -955,9 +955,9 @@ export default function Blog({
       {/* SEND TO BOOK OVERLAY MODAL */}
       {showSendToBookModal && activePost && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-[#F6F1E7] dark:bg-[#13204A] border border-[#CFC5B4] dark:border-[#2C3C72] p-6 rounded-2xl w-full max-w-md archive-shadow space-y-4 text-[#1B2A4A] dark:text-[#F3EFE8] relative mx-4 paper-grain">
-            <h3 className="font-serif font-bold text-lg italic text-[#D35057] flex items-center gap-1.5 border-b border-[#CFC5B4]/50 pb-2.5">
-              <BookOpen className="w-5 h-5 text-[#D35057]" />
+          <div className="bg-[#F6F1E7] dark:bg-[#13204A] border border-[#CFC5B4] dark:border-[#2C3C72] p-6 rounded-2xl w-full max-w-md archive-shadow space-y-4 text-[#0E1C4F] dark:text-[#F3EFE8] relative mx-4 paper-grain">
+            <h3 className="font-serif font-bold text-lg italic text-[#F26B6F] flex items-center gap-1.5 border-b border-[#CFC5B4]/50 pb-2.5">
+              <BookOpen className="w-5 h-5 text-[#F26B6F]" />
               <span>Yazıyı Kitaba Gönder</span>
             </h3>
 
@@ -1022,7 +1022,7 @@ export default function Blog({
               <button
                 type="button"
                 onClick={() => setShowSendToBookModal(false)}
-                className="px-4 py-2 bg-stone-200 hover:bg-stone-300 text-[#1B2A4A] rounded-lg transition-colors cursor-pointer"
+                className="px-4 py-2 bg-stone-200 hover:bg-stone-300 text-[#0E1C4F] rounded-lg transition-colors cursor-pointer"
               >
                 İptal
               </button>
@@ -1030,7 +1030,7 @@ export default function Blog({
                 type="button"
                 onClick={handleSendPostToBook}
                 disabled={isSendingToBook}
-                className="px-4 py-2 bg-[#D35057] hover:bg-[#B23A40] text-white rounded-lg transition-colors font-bold cursor-pointer"
+                className="px-4 py-2 bg-[#F26B6F] hover:bg-[#B23A40] text-white rounded-lg transition-colors font-bold cursor-pointer"
               >
                 {isSendingToBook ? "Gönderiliyor..." : "Kitaba Aktar"}
               </button>

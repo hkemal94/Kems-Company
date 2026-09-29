@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { doc, onSnapshot, setDoc } from 'firebase/firestore';
 import { db } from './firebase';
 import {
-  DUZEN_SURUMU, type HaritaDuzeni, type MekanDuzeni, type MekanKaydi
+  DUZEN_SURUMU, type HaritaDuzeni, type KurucuBelge, type MekanDuzeni, type MekanKaydi
 } from '../components/harita/duzenTipi';
 import type { Nokta, SinirHatlari } from '../components/harita/sinirBolgeleri';
 
@@ -40,6 +40,8 @@ interface Belge {
   yollar: DuzHatlar;
   /** Mekânlar (H3). Eski kayıtlarda yok. */
   mekanlar: MekanDuzeni;
+  /** Kurucu taslağı. Eski kayıtlarda yok; yoksa hiç yazılmaz. */
+  kurucu?: KurucuBelge;
 }
 
 const duzle = (h: SinirHatlari): DuzHatlar =>
@@ -107,12 +109,31 @@ const mekanlariCoz = (m: unknown): MekanDuzeni => {
   return cikti;
 };
 
-const belgeye = (d: HaritaDuzeni): Belge => ({
-  surum: DUZEN_SURUMU,
-  guncelleme: d.guncelleme,
-  hatlar: duzle(d.hatlar),
-  yollar: duzle(d.yollar),
-  mekanlar: mekanlariTemizle(d.mekanlar)
+const belgeye = (d: HaritaDuzeni): Belge => {
+  const b: Belge = {
+    surum: DUZEN_SURUMU,
+    guncelleme: d.guncelleme,
+    hatlar: duzle(d.hatlar),
+    yollar: duzle(d.yollar),
+    mekanlar: mekanlariTemizle(d.mekanlar)
+  };
+  // Tanımsız alan yazılmaz: Firestore bütün kaydı reddeder
+  if (d.kurucu) b.kurucu = kurucuyuTemizle(d.kurucu);
+  return b;
+};
+
+/** Kurucu taslağını yazılabilir hâle getirir (tanımsız / bozuk alan atılır) */
+const kurucuyuTemizle = (k: KurucuBelge): KurucuBelge => ({
+  surum: Number(k.surum) || 1,
+  yeniYollar: Object.fromEntries(
+    Object.entries(k.yeniYollar ?? {})
+      .filter(([, y]) => y && Array.isArray(y.n) && typeof y.tur === 'string')
+      .map(([id, y]) => [id, { tur: y.tur, n: y.n.map(Number).filter(Number.isFinite) }])
+  ),
+  turDegisikligi: Object.fromEntries(
+    Object.entries(k.turDegisikligi ?? {}).filter(([, t]) => typeof t === 'string')
+  ),
+  gizlenen: (k.gizlenen ?? []).filter(x => typeof x === 'string')
 });
 
 const belgeden = (b: unknown): HaritaDuzeni | null => {
@@ -123,7 +144,10 @@ const belgeden = (b: unknown): HaritaDuzeni | null => {
     guncelleme: Number(v.guncelleme ?? 0),
     hatlar: coz(v.hatlar),
     yollar: coz(v.yollar),
-    mekanlar: mekanlariCoz(v.mekanlar)
+    mekanlar: mekanlariCoz(v.mekanlar),
+    ...(v.kurucu && typeof v.kurucu === 'object'
+      ? { kurucu: kurucuyuTemizle(v.kurucu as KurucuBelge) }
+      : {})
   };
 };
 
@@ -177,6 +201,10 @@ export function useHaritaDuzeni() {
   const [hata, setHata] = useState<string | null>(null);
   const [ilkYukleme, setIlkYukleme] = useState(false);
   const sonYazilan = useRef(0);
+  // Harita düzenleyicisi kaydederken Kurucu taslağını bilmiyor; son hâl
+  // burada tutulur ki taslak ezilmesin.
+  const sonDuzen = useRef<HaritaDuzeni | null>(duzen);
+  useEffect(() => { sonDuzen.current = duzen; }, [duzen]);
 
   useEffect(() => {
     setDuzen(yereldenOku());
@@ -232,7 +260,8 @@ export function useHaritaDuzeni() {
   }, []);
 
   const kaydet = useCallback(async (yeni: HaritaDuzeni) => {
-    const d = { ...yeni, guncelleme: yeni.guncelleme || Date.now() };
+    const d: HaritaDuzeni = { ...yeni, guncelleme: yeni.guncelleme || Date.now() };
+    if (!('kurucu' in yeni) && sonDuzen.current?.kurucu) d.kurucu = sonDuzen.current.kurucu;
     sonYazilan.current = d.guncelleme;
     yereleYaz(d);
     setDuzen(d);

@@ -188,7 +188,7 @@ export const HizliFikir: React.FC<HizliFikirProps> = ({ items, onAddItem, onUpda
           onChange={e => setMetin(e.target.value)}
           placeholder="Aklına geleni yaz, Enter'a bas…"
           className="flex-1 bg-white rounded-lg px-2.5 py-2 focus:outline-hidden"
-          style={{ fontSize: 13, border: '1px solid #CFC5B4', color: '#1B2A4A' }}
+          style={{ fontSize: 13, border: '1px solid #CFC5B4', color: '#0E1C4F' }}
         />
         <button type="submit" disabled={!metin.trim() || yaziliyor}
                 className="p-2 rounded-lg cursor-pointer disabled:opacity-30"
@@ -217,7 +217,7 @@ export const HizliFikir: React.FC<HizliFikirProps> = ({ items, onAddItem, onUpda
             <div key={f.id} className="px-4 py-2.5 border-b"
                  style={{ borderColor: 'rgba(207,197,180,0.4)' }}>
               <div className="flex items-start gap-2">
-                <span className="flex-1" style={{ fontSize: 12.5, color: '#1B2A4A' }}>
+                <span className="flex-1" style={{ fontSize: 12.5, color: '#0E1C4F' }}>
                   {f.title}
                 </span>
                 <span className="font-mono shrink-0 flex items-center gap-1"

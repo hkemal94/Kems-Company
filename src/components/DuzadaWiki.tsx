@@ -358,7 +358,7 @@ export default function DuzadaWiki({
                       onSelectItem(matched.id);
                       setActiveTab('liste');
                     }}
-                    className="text-[#D35057] dark:text-[#E76F51] hover:underline font-bold cursor-pointer inline bg-transparent p-0 border-none align-baseline text-left font-serif transition-colors"
+                    className="text-[#F26B6F] dark:text-[#E76F51] hover:underline font-bold cursor-pointer inline bg-transparent p-0 border-none align-baseline text-left font-serif transition-colors"
                     title={`${matched.title} detaylarını görüntülemek için tıkla`}
                   >
                     {part}
@@ -413,7 +413,7 @@ export default function DuzadaWiki({
       case 'oda':
         return <Building className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />;
       case 'marka':
-        return <ShoppingBag className="w-4 h-4 text-[#D35057]" />;
+        return <ShoppingBag className="w-4 h-4 text-[#F26B6F]" />;
       case 'olay':
         return <Calendar className="w-4 h-4 text-amber-600 dark:text-amber-400" />;
       default:
@@ -1097,16 +1097,16 @@ export default function DuzadaWiki({
       {/* Wiki Dashboard Header */}
       <div className="bg-[#FBF9F6] dark:bg-[#111A2E] border border-[#CFC5B4] dark:border-[#2C3C72] p-6 rounded-xl archive-shadow paper-grain relative overflow-hidden">
         <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
-          <Globe className="w-48 h-48 text-[#1B2A4A] dark:text-[#FAF8F5]" />
+          <Globe className="w-48 h-48 text-[#0E1C4F] dark:text-[#FAF8F5]" />
         </div>
         
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 text-xs font-mono uppercase text-[#6A5E4C] dark:text-[#A6B0C9] tracking-wider font-bold">
-              <Compass className="w-3.5 h-3.5 text-[#D35057]" />
+              <Compass className="w-3.5 h-3.5 text-[#F26B6F]" />
               <span>DÜZADA COĞRAFYA & EVREN ATLASI</span>
             </div>
-            <h2 className="font-serif font-bold text-3xl text-[#1B2A4A] dark:text-[#F3EFE8] mt-1.5 leading-tight">
+            <h2 className="font-serif font-bold text-3xl text-[#0E1C4F] dark:text-[#F3EFE8] mt-1.5 leading-tight">
               Düzada Dünyası Wiki
             </h2>
             <p className="text-xs text-[#9A8C76] dark:text-[#A6B0C9] mt-1 font-serif italic">
@@ -1151,11 +1151,11 @@ export default function DuzadaWiki({
           onClick={() => setActiveSubTab('atlas')}
           className={`flex items-center gap-2 text-xs font-mono uppercase tracking-wider py-3 px-6 font-bold border-b-2 cursor-pointer transition-all ${
             activeSubTab === 'atlas'
-              ? 'border-[#D35057] text-[#1B2A4A] dark:text-[#F3EFE8] bg-stone-100/50 dark:bg-[#17345A]/20'
+              ? 'border-[#F26B6F] text-[#0E1C4F] dark:text-[#F3EFE8] bg-stone-100/50 dark:bg-[#17345A]/20'
               : 'border-transparent text-stone-500 hover:text-stone-800 dark:hover:text-stone-200'
           }`}
         >
-          <BookOpen className="w-4 h-4 text-[#D35057]" />
+          <BookOpen className="w-4 h-4 text-[#F26B6F]" />
           <span>Düzada Ansiklopedisi</span>
         </button>
 
@@ -1163,13 +1163,13 @@ export default function DuzadaWiki({
           onClick={() => setActiveSubTab('doluluk')}
           className={`flex items-center gap-2 text-xs font-mono uppercase tracking-wider py-3 px-6 font-bold border-b-2 cursor-pointer transition-all relative ${
             activeSubTab === 'doluluk'
-              ? 'border-[#D35057] text-[#1B2A4A] dark:text-[#F3EFE8] bg-stone-100/50 dark:bg-[#17345A]/20'
+              ? 'border-[#F26B6F] text-[#0E1C4F] dark:text-[#F3EFE8] bg-stone-100/50 dark:bg-[#17345A]/20'
               : 'border-transparent text-stone-500 hover:text-stone-800 dark:hover:text-stone-200'
           }`}
         >
           <Sparkles className="w-4 h-4 text-amber-500" />
           <span>Evren Doluluk Portalı</span>
-          <span className="absolute -top-1 -right-1 text-[9px] bg-[#D35057] text-white px-1 py-0.5 rounded-full scale-90 font-bold">
+          <span className="absolute -top-1 -right-1 text-[9px] bg-[#F26B6F] text-white px-1 py-0.5 rounded-full scale-90 font-bold">
             %{overallCompleteness}
           </span>
         </button>
@@ -1186,12 +1186,12 @@ export default function DuzadaWiki({
             <div className="bg-[#FAF8F5] dark:bg-[#1E293B]/40 border border-[#CFC5B4] dark:border-[#2C3C72] p-6 rounded-xl archive-shadow paper-grain space-y-4">
               <div className="border-b border-[#CFC5B4]/40 pb-2 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <BookOpen className="w-5 h-5 text-[#D35057]" />
-                  <h3 className="font-serif font-bold text-xl text-[#1B2A4A] dark:text-[#F3EFE8]">
+                  <BookOpen className="w-5 h-5 text-[#F26B6F]" />
+                  <h3 className="font-serif font-bold text-xl text-[#0E1C4F] dark:text-[#F3EFE8]">
                     Genel Bakış ve Tanım
                   </h3>
                 </div>
-                <span className="text-[10px] font-mono uppercase bg-[#1B2A4A]/5 dark:bg-[#2C3C72]/40 text-[#6A5E4C] dark:text-[#A6B0C9] px-2 py-0.5 rounded font-bold">
+                <span className="text-[10px] font-mono uppercase bg-[#0E1C4F]/5 dark:bg-[#2C3C72]/40 text-[#6A5E4C] dark:text-[#A6B0C9] px-2 py-0.5 rounded font-bold">
                   Giriş Paragrafı
                 </span>
               </div>
@@ -1202,7 +1202,7 @@ export default function DuzadaWiki({
                   <textarea
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
-                    className="w-full h-48 p-3 text-sm rounded-lg bg-white dark:bg-[#12224A] border border-[#CFC5B4] dark:border-[#2C3C72] text-[#1B2A4A] dark:text-[#F3EFE8] font-serif focus:ring-1 focus:ring-[#D35057] focus:outline-none leading-relaxed"
+                    className="w-full h-48 p-3 text-sm rounded-lg bg-white dark:bg-[#12224A] border border-[#CFC5B4] dark:border-[#2C3C72] text-[#0E1C4F] dark:text-[#F3EFE8] font-serif focus:ring-1 focus:ring-[#F26B6F] focus:outline-none leading-relaxed"
                     placeholder="Düzada evrenine dair genel lore özeti..."
                   />
                 </div>
@@ -1217,8 +1217,8 @@ export default function DuzadaWiki({
             <div className="bg-[#FAF8F5] dark:bg-[#1E293B]/40 border border-[#CFC5B4] dark:border-[#2C3C72] p-6 rounded-xl archive-shadow paper-grain space-y-5">
               <div className="border-b border-[#CFC5B4]/40 pb-2 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-[#D35057]" />
-                  <h3 className="font-serif font-bold text-xl text-[#1B2A4A] dark:text-[#F3EFE8]">
+                  <Sparkles className="w-5 h-5 text-[#F26B6F]" />
+                  <h3 className="font-serif font-bold text-xl text-[#0E1C4F] dark:text-[#F3EFE8]">
                     Kanonik Lore & Atmosfer
                   </h3>
                 </div>
@@ -1244,11 +1244,11 @@ export default function DuzadaWiki({
                       type="text"
                       value={climate}
                       onChange={(e) => setClimate(e.target.value)}
-                      className="mt-1.5 w-full p-2 text-xs rounded border border-[#CFC5B4] bg-white dark:bg-[#12224A] text-[#1B2A4A] dark:text-[#F3EFE8] focus:outline-none"
+                      className="mt-1.5 w-full p-2 text-xs rounded border border-[#CFC5B4] bg-white dark:bg-[#12224A] text-[#0E1C4F] dark:text-[#F3EFE8] focus:outline-none"
                       placeholder="örn: Ege / Akdeniz Mikrokliması"
                     />
                   ) : climate ? (
-                    <span className="font-serif text-base font-bold text-[#1B2A4A] dark:text-[#F3EFE8] mt-1 block">{climate}</span>
+                    <span className="font-serif text-base font-bold text-[#0E1C4F] dark:text-[#F3EFE8] mt-1 block">{climate}</span>
                   ) : null}
                 </div>
 
@@ -1259,11 +1259,11 @@ export default function DuzadaWiki({
                       type="text"
                       value={atmosphere}
                       onChange={(e) => setAtmosphere(e.target.value)}
-                      className="mt-1.5 w-full p-2 text-xs rounded border border-[#CFC5B4] bg-white dark:bg-[#12224A] text-[#1B2A4A] dark:text-[#F3EFE8] focus:outline-none"
+                      className="mt-1.5 w-full p-2 text-xs rounded border border-[#CFC5B4] bg-white dark:bg-[#12224A] text-[#0E1C4F] dark:text-[#F3EFE8] focus:outline-none"
                       placeholder="örn: Melankolik, Sezon Sonu, Sisli ve Gizemli"
                     />
                   ) : atmosphere ? (
-                    <span className="font-serif text-base font-bold text-[#1B2A4A] dark:text-[#F3EFE8] mt-1 block">{atmosphere}</span>
+                    <span className="font-serif text-base font-bold text-[#0E1C4F] dark:text-[#F3EFE8] mt-1 block">{atmosphere}</span>
                   ) : null}
                 </div>
 
@@ -1276,7 +1276,7 @@ export default function DuzadaWiki({
                   {isEditing && (
                     <button
                       onClick={handleAddSection}
-                      className="text-[10px] font-mono font-bold bg-[#D35057] hover:bg-[#B23A40] text-white px-2.5 py-1 rounded cursor-pointer flex items-center gap-1 transition-colors"
+                      className="text-[10px] font-mono font-bold bg-[#F26B6F] hover:bg-[#B23A40] text-white px-2.5 py-1 rounded cursor-pointer flex items-center gap-1 transition-colors"
                     >
                       <Plus className="w-3 h-3" />
                       Bölüm Ekle
@@ -1286,7 +1286,7 @@ export default function DuzadaWiki({
 
                 <div className="space-y-4">
                   {sections.map((sec) => (
-                    <div key={sec.id} className="border-l-2 border-[#D35057] pl-4 py-1 space-y-1">
+                    <div key={sec.id} className="border-l-2 border-[#F26B6F] pl-4 py-1 space-y-1">
                       {isEditing ? (
                         <div className="space-y-2">
                           <div className="flex items-center gap-2">
@@ -1294,7 +1294,7 @@ export default function DuzadaWiki({
                               type="text"
                               value={sec.title}
                               onChange={(e) => handleUpdateSection(sec.id, 'title', e.target.value)}
-                              className="font-serif font-bold text-[#1B2A4A] dark:text-[#F3EFE8] bg-transparent border-b border-[#CFC5B4] focus:border-[#D35057] focus:outline-none py-0.5 text-sm flex-1"
+                              className="font-serif font-bold text-[#0E1C4F] dark:text-[#F3EFE8] bg-transparent border-b border-[#CFC5B4] focus:border-[#F26B6F] focus:outline-none py-0.5 text-sm flex-1"
                               placeholder="Bölüm Başlığı"
                             />
                             <button
@@ -1307,14 +1307,14 @@ export default function DuzadaWiki({
                           <textarea
                             value={sec.content}
                             onChange={(e) => handleUpdateSection(sec.id, 'content', e.target.value)}
-                            className="w-full text-xs p-2 rounded bg-white dark:bg-[#12224A] border border-[#CFC5B4] dark:border-[#2C3C72] text-[#1B2A4A] dark:text-[#F3EFE8] font-serif focus:outline-none"
+                            className="w-full text-xs p-2 rounded bg-white dark:bg-[#12224A] border border-[#CFC5B4] dark:border-[#2C3C72] text-[#0E1C4F] dark:text-[#F3EFE8] font-serif focus:outline-none"
                             rows={3}
                             placeholder="Bölüm içeriği..."
                           />
                         </div>
                       ) : (
                         <>
-                          <h4 className="font-serif font-bold text-sm text-[#1B2A4A] dark:text-[#F3EFE8]">
+                          <h4 className="font-serif font-bold text-sm text-[#0E1C4F] dark:text-[#F3EFE8]">
                             {sec.title}
                           </h4>
                           <div className="text-xs text-stone-600 dark:text-[#A6B0C9] leading-relaxed font-serif whitespace-pre-wrap">
@@ -1340,11 +1340,11 @@ export default function DuzadaWiki({
             
             {/* Section 3: Harita Girişi */}
             <div className="bg-[#FAF8F5] dark:bg-[#1E293B]/40 border border-[#CFC5B4] dark:border-[#2C3C72] p-5 rounded-xl archive-shadow paper-grain relative group overflow-hidden">
-              <div className="absolute top-0 right-0 -mr-6 -mt-6 w-24 h-24 bg-[#D35057]/10 dark:bg-[#D35057]/5 rounded-full blur-xl pointer-events-none transition-all group-hover:scale-125" />
+              <div className="absolute top-0 right-0 -mr-6 -mt-6 w-24 h-24 bg-[#F26B6F]/10 dark:bg-[#F26B6F]/5 rounded-full blur-xl pointer-events-none transition-all group-hover:scale-125" />
               
               <div className="flex items-center gap-2 mb-3">
-                <Map className="w-5 h-5 text-[#D35057]" />
-                <h4 className="font-serif font-bold text-lg text-[#1B2A4A] dark:text-[#F3EFE8]">
+                <Map className="w-5 h-5 text-[#F26B6F]" />
+                <h4 className="font-serif font-bold text-lg text-[#0E1C4F] dark:text-[#F3EFE8]">
                   Harita Arayüzü Portal
                 </h4>
               </div>
@@ -1363,7 +1363,7 @@ export default function DuzadaWiki({
 
                 <button
                   onClick={() => setActiveTab('harita')}
-                  className="relative z-10 px-3.5 py-1.5 bg-[#1B2A4A] hover:bg-[#111A2E] dark:bg-[#D35057] dark:hover:bg-[#B23A40] text-white text-[10px] font-mono rounded-md font-bold transition-all shadow-sm cursor-pointer flex items-center gap-1.5"
+                  className="relative z-10 px-3.5 py-1.5 bg-[#0E1C4F] hover:bg-[#111A2E] dark:bg-[#F26B6F] dark:hover:bg-[#B23A40] text-white text-[10px] font-mono rounded-md font-bold transition-all shadow-sm cursor-pointer flex items-center gap-1.5"
                 >
                   <span>Düzada Haritasını Aç</span>
                   <ArrowRight className="w-3 h-3" />
@@ -1375,12 +1375,12 @@ export default function DuzadaWiki({
             <div className="bg-[#FAF8F5] dark:bg-[#1E293B]/40 border border-[#CFC5B4] dark:border-[#2C3C72] p-5 rounded-xl archive-shadow paper-grain space-y-4">
               <div className="border-b border-[#CFC5B4]/40 pb-2 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Search className="w-4.5 h-4.5 text-[#D35057]" />
-                  <h4 className="font-serif font-bold text-lg text-[#1B2A4A] dark:text-[#F3EFE8]">
+                  <Search className="w-4.5 h-4.5 text-[#F26B6F]" />
+                  <h4 className="font-serif font-bold text-lg text-[#0E1C4F] dark:text-[#F3EFE8]">
                     Ansiklopedi &amp; Arama
                   </h4>
                 </div>
-                <span className="text-[10px] font-mono bg-[#D35057]/10 text-[#D35057] px-2 py-0.5 rounded font-bold uppercase tracking-wider">
+                <span className="text-[10px] font-mono bg-[#F26B6F]/10 text-[#F26B6F] px-2 py-0.5 rounded font-bold uppercase tracking-wider">
                   Dizin
                 </span>
               </div>
@@ -1392,7 +1392,7 @@ export default function DuzadaWiki({
                   value={wikiSearchQuery}
                   onChange={(e) => setWikiSearchQuery(e.target.value)}
                   placeholder="İsim, bilgi veya etiket ara..."
-                  className="w-full text-xs bg-white dark:bg-[#13204A] text-[#1B2A4A] dark:text-[#F3EFE8] border border-stone-300 dark:border-[#2C3C72] rounded-lg pl-8 pr-3 py-2 focus:ring-1 focus:ring-[#D35057] focus:outline-hidden font-sans"
+                  className="w-full text-xs bg-white dark:bg-[#13204A] text-[#0E1C4F] dark:text-[#F3EFE8] border border-stone-300 dark:border-[#2C3C72] rounded-lg pl-8 pr-3 py-2 focus:ring-1 focus:ring-[#F26B6F] focus:outline-hidden font-sans"
                 />
                 <Search className="absolute left-2.5 top-2.5 w-3.5 h-3.5 text-stone-400" />
               </div>
@@ -1406,7 +1406,7 @@ export default function DuzadaWiki({
                       onClick={() => setWikiSelectedFilter(filter)}
                       className={`px-1.5 py-0.5 text-[9px] font-mono rounded font-bold uppercase tracking-wider transition-all cursor-pointer ${
                         wikiSelectedFilter === filter
-                          ? 'bg-[#D35057] text-white'
+                          ? 'bg-[#F26B6F] text-white'
                           : 'bg-[#FAF8F5] hover:bg-[#F3EFE8] dark:bg-[#1E293B]/60 border border-[#CFC5B4]/40 dark:border-[#384260] text-stone-600 dark:text-stone-300'
                       }`}
                     >
@@ -1420,7 +1420,7 @@ export default function DuzadaWiki({
                   <select
                     value={wikiSortBy}
                     onChange={(e) => setWikiSortBy(e.target.value as 'name' | 'completeness')}
-                    className="text-[10px] font-mono bg-white dark:bg-[#13204A] text-[#1B2A4A] dark:text-[#F3EFE8] border border-stone-300 dark:border-[#2C3C72] rounded px-1.5 py-0.5 focus:outline-hidden cursor-pointer"
+                    className="text-[10px] font-mono bg-white dark:bg-[#13204A] text-[#0E1C4F] dark:text-[#F3EFE8] border border-stone-300 dark:border-[#2C3C72] rounded px-1.5 py-0.5 focus:outline-hidden cursor-pointer"
                   >
                     <option value="name">A-Z Alfabetik</option>
                     <option value="completeness">Doluluk Oranı</option>
@@ -1441,14 +1441,14 @@ export default function DuzadaWiki({
                       }}
                       className="w-full flex items-start gap-3 p-2.5 bg-white hover:bg-stone-50 dark:bg-[#111A2E]/50 dark:hover:bg-[#111A2E]/80 border border-stone-200 dark:border-[#2C3C72] rounded-lg transition-all text-left cursor-pointer group"
                     >
-                      <div className="p-1.5 bg-stone-100 dark:bg-[#1b2a4a]/40 rounded shrink-0 group-hover:bg-[#D35057]/10 transition-all">
+                      <div className="p-1.5 bg-stone-100 dark:bg-[#0E1C4F]/40 rounded shrink-0 group-hover:bg-[#F26B6F]/10 transition-all">
                         {getEntityIcon(item.type, isRoom)}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between gap-2">
-                          <span className="text-xs font-serif font-bold text-stone-800 dark:text-stone-200 block truncate group-hover:text-[#D35057] transition-colors">{item.title}</span>
+                          <span className="text-xs font-serif font-bold text-stone-800 dark:text-stone-200 block truncate group-hover:text-[#F26B6F] transition-colors">{item.title}</span>
                           {item.priority === 'yüksek' && (
-                            <span className="text-[9px] text-[#D35057] font-mono">★</span>
+                            <span className="text-[9px] text-[#F26B6F] font-mono">★</span>
                           )}
                         </div>
                         <p className="text-[10px] text-stone-400 font-serif line-clamp-1 mt-0.5">
@@ -1469,8 +1469,8 @@ export default function DuzadaWiki({
 
             {/* Section 5: Coğrafya Nested Tree */}
             <div className="bg-[#FAF8F5] dark:bg-[#1E293B]/40 border border-[#CFC5B4] dark:border-[#2C3C72] p-5 rounded-xl archive-shadow paper-grain space-y-4">
-              <h4 className="font-serif font-bold text-lg text-[#1B2A4A] dark:text-[#F3EFE8] border-b border-[#CFC5B4]/40 pb-2 flex items-center gap-2">
-                <Trees className="w-4 h-4 text-[#D35057]" />
+              <h4 className="font-serif font-bold text-lg text-[#0E1C4F] dark:text-[#F3EFE8] border-b border-[#CFC5B4]/40 pb-2 flex items-center gap-2">
+                <Trees className="w-4 h-4 text-[#F26B6F]" />
                 <span>Coğrafi Yerleşim Ağacı</span>
               </h4>
 
@@ -1482,7 +1482,7 @@ export default function DuzadaWiki({
                   return (
                     <div key={m.id} className="space-y-2 border-l-2 border-stone-200 dark:border-stone-800 pl-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-serif font-bold text-[#1B2A4A] dark:text-[#F3EFE8] tracking-tight">{m.name}</span>
+                        <span className="text-xs font-serif font-bold text-[#0E1C4F] dark:text-[#F3EFE8] tracking-tight">{m.name}</span>
                         <span className="text-[9px] font-mono text-stone-400 font-semibold uppercase">Mahalle</span>
                       </div>
 
@@ -1502,7 +1502,7 @@ export default function DuzadaWiki({
                                       onSelectItem(pl.id);
                                       setActiveTab('liste');
                                     }}
-                                    className="flex items-center gap-1.5 text-xs text-[#D35057] dark:text-[#E76F51] hover:underline cursor-pointer text-left font-serif"
+                                    className="flex items-center gap-1.5 text-xs text-[#F26B6F] dark:text-[#E76F51] hover:underline cursor-pointer text-left font-serif"
                                   >
                                     <MapPin className="w-3 h-3 shrink-0 text-stone-400" />
                                     <span>{pl.title}</span>
@@ -1528,7 +1528,7 @@ export default function DuzadaWiki({
                                     onSelectItem(pl.id);
                                     setActiveTab('liste');
                                   }}
-                                  className="flex items-center gap-1.5 text-xs text-[#D35057] dark:text-[#E76F51] hover:underline cursor-pointer text-left font-serif"
+                                  className="flex items-center gap-1.5 text-xs text-[#F26B6F] dark:text-[#E76F51] hover:underline cursor-pointer text-left font-serif"
                                 >
                                   <MapPin className="w-3 h-3 shrink-0 text-stone-400" />
                                   <span>{pl.title}</span>
@@ -1576,7 +1576,7 @@ export default function DuzadaWiki({
                   className="absolute inset-0 rounded-full border-4 border-emerald-500"
                   style={{ clipPath: `polygon(0 0, 100% 0, 100% ${overallCompleteness}%, 0 ${overallCompleteness}%)` }}
                 />
-                <span className="text-base font-bold font-mono text-[#1B2A4A] dark:text-[#F3EFE8]">
+                <span className="text-base font-bold font-mono text-[#0E1C4F] dark:text-[#F3EFE8]">
                   %{overallCompleteness}
                 </span>
               </div>
@@ -1591,7 +1591,7 @@ export default function DuzadaWiki({
                 <span className="text-[10px] font-mono text-stone-400 dark:text-stone-400 uppercase font-bold tracking-wider block">
                   Dolu Varlık Sayısı (%80+)
                 </span>
-                <span className="text-2xl font-bold font-mono text-[#1B2A4A] dark:text-[#F3EFE8] block mt-0.5">
+                <span className="text-2xl font-bold font-mono text-[#0E1C4F] dark:text-[#F3EFE8] block mt-0.5">
                   {stats.completed} <span className="text-xs font-normal text-stone-400">varlık</span>
                 </span>
               </div>
@@ -1606,7 +1606,7 @@ export default function DuzadaWiki({
                 <span className="text-[10px] font-mono text-stone-400 dark:text-stone-400 uppercase font-bold tracking-wider block">
                   Geliştirilecek Eksikler
                 </span>
-                <span className="text-2xl font-bold font-mono text-[#1B2A4A] dark:text-[#F3EFE8] block mt-0.5">
+                <span className="text-2xl font-bold font-mono text-[#0E1C4F] dark:text-[#F3EFE8] block mt-0.5">
                   {stats.developing} <span className="text-xs font-normal text-stone-400">varlık</span>
                 </span>
               </div>
@@ -1620,8 +1620,8 @@ export default function DuzadaWiki({
             {/* Left Panel: Entity Selection and Filters */}
             <div className="lg:col-span-1 bg-[#FAF8F5] dark:bg-[#1E293B]/40 border border-[#CFC5B4] dark:border-[#2C3C72] p-5 rounded-xl archive-shadow paper-grain space-y-4">
               <div className="border-b border-[#CFC5B4]/40 pb-2 flex items-center gap-2">
-                <Search className="w-4.5 h-4.5 text-[#D35057]" />
-                <h4 className="font-serif font-bold text-lg text-[#1B2A4A] dark:text-[#F3EFE8]">
+                <Search className="w-4.5 h-4.5 text-[#F26B6F]" />
+                <h4 className="font-serif font-bold text-lg text-[#0E1C4F] dark:text-[#F3EFE8]">
                   Varlık &amp; Detay Dizinleri
                 </h4>
               </div>
@@ -1633,7 +1633,7 @@ export default function DuzadaWiki({
                   value={compSearchQuery}
                   onChange={(e) => setCompSearchQuery(e.target.value)}
                   placeholder="Varlıklarda ara..."
-                  className="w-full text-xs bg-white dark:bg-[#13204A] text-[#1B2A4A] dark:text-[#F3EFE8] border border-stone-300 dark:border-[#2C3C72] rounded-lg pl-8 pr-3 py-2 focus:ring-1 focus:ring-[#D35057] focus:outline-hidden font-sans"
+                  className="w-full text-xs bg-white dark:bg-[#13204A] text-[#0E1C4F] dark:text-[#F3EFE8] border border-stone-300 dark:border-[#2C3C72] rounded-lg pl-8 pr-3 py-2 focus:ring-1 focus:ring-[#F26B6F] focus:outline-hidden font-sans"
                 />
                 <Search className="absolute left-2.5 top-2.5 w-3.5 h-3.5 text-stone-400" />
               </div>
@@ -1646,7 +1646,7 @@ export default function DuzadaWiki({
                     onClick={() => setCompFilterType(cat)}
                     className={`px-2 py-1 text-[10px] font-mono rounded-md font-bold uppercase tracking-wider transition-all cursor-pointer ${
                       compFilterType === cat
-                        ? 'bg-[#D35057] text-white'
+                        ? 'bg-[#F26B6F] text-white'
                         : 'bg-[#FAF8F5] hover:bg-[#F3EFE8] dark:bg-[#1E293B]/60 border border-[#CFC5B4]/40 dark:border-[#384260] text-stone-600 dark:text-stone-300'
                     }`}
                   >
@@ -1696,7 +1696,7 @@ export default function DuzadaWiki({
                       }}
                       className={`w-full flex flex-col p-3 border rounded-xl transition-all text-left cursor-pointer group ${
                         isSelected
-                          ? 'bg-stone-100 dark:bg-[#17345A] border-[#D35057] shadow-sm'
+                          ? 'bg-stone-100 dark:bg-[#17345A] border-[#F26B6F] shadow-sm'
                           : 'bg-white hover:bg-stone-50 dark:bg-[#111A2E]/50 dark:hover:bg-[#111A2E]/80 border-stone-200 dark:border-[#2C3C72]'
                       }`}
                     >
@@ -1705,7 +1705,7 @@ export default function DuzadaWiki({
                           <span className="p-1 bg-stone-100 dark:bg-stone-800 rounded shrink-0">
                             {isSokak ? <Trees className="w-3.5 h-3.5 text-emerald-600" /> : isMahalle ? <Building className="w-3.5 h-3.5 text-indigo-600" /> : getEntityIcon(item.originalItem.type)}
                           </span>
-                          <span className="text-xs font-serif font-bold text-stone-800 dark:text-stone-200 truncate group-hover:text-[#D35057] transition-colors">
+                          <span className="text-xs font-serif font-bold text-stone-800 dark:text-stone-200 truncate group-hover:text-[#F26B6F] transition-colors">
                             {item.title}
                           </span>
                         </div>
@@ -1752,7 +1752,7 @@ export default function DuzadaWiki({
                           <span className="text-[9px] font-mono uppercase bg-amber-500/10 text-amber-600 dark:text-amber-400 px-2 py-0.5 rounded font-bold">
                             Kategori Şablonu
                           </span>
-                          <h3 className="font-serif font-bold text-xl text-[#1B2A4A] dark:text-[#F3EFE8] mt-1">
+                          <h3 className="font-serif font-bold text-xl text-[#0E1C4F] dark:text-[#F3EFE8] mt-1">
                             "{compFilterType}" Sorularını Düzenle
                           </h3>
                         </div>
@@ -1760,7 +1760,7 @@ export default function DuzadaWiki({
                       
                       <button
                         onClick={() => setIsEditingQuestions(false)}
-                        className="text-xs text-stone-500 hover:text-[#D35057] transition-all cursor-pointer font-serif border border-stone-200 hover:border-stone-300 dark:border-stone-800 dark:hover:border-stone-700 px-2.5 py-1 rounded-lg"
+                        className="text-xs text-stone-500 hover:text-[#F26B6F] transition-all cursor-pointer font-serif border border-stone-200 hover:border-stone-300 dark:border-stone-800 dark:hover:border-stone-700 px-2.5 py-1 rounded-lg"
                       >
                         Kapat
                       </button>
@@ -1797,7 +1797,7 @@ export default function DuzadaWiki({
                                   const newVal = e.target.value;
                                   setEditingQuestionsList(prev => prev.map(item => item.id === q.id ? { ...item, label: newVal } : item));
                                 }}
-                                className="w-full text-xs bg-white dark:bg-[#13204A] border border-stone-300 dark:border-[#2C3C72] rounded px-2 py-1 focus:ring-1 focus:ring-[#D35057]"
+                                className="w-full text-xs bg-white dark:bg-[#13204A] border border-stone-300 dark:border-[#2C3C72] rounded px-2 py-1 focus:ring-1 focus:ring-[#F26B6F]"
                                 placeholder="Örn: Kişilik Özellikleri"
                               />
                             </div>
@@ -1826,7 +1826,7 @@ export default function DuzadaWiki({
                                 const newVal = e.target.value;
                                   setEditingQuestionsList(prev => prev.map(item => item.id === q.id ? { ...item, question: newVal } : item));
                                 }}
-                                className="w-full text-xs bg-white dark:bg-[#13204A] border border-stone-300 dark:border-[#2C3C72] rounded px-2 py-1 focus:ring-1 focus:ring-[#D35057]"
+                                className="w-full text-xs bg-white dark:bg-[#13204A] border border-stone-300 dark:border-[#2C3C72] rounded px-2 py-1 focus:ring-1 focus:ring-[#F26B6F]"
                                 placeholder="Karakter hakkında sorulacak detaylı açıklayıcı soru..."
                               />
                             </div>
@@ -1895,10 +1895,10 @@ export default function DuzadaWiki({
                 ) : !selectedCompletenessId ? (
                   // Onboarding / Empty State
                   <div className="flex flex-col items-center justify-center text-center space-y-4 py-16 px-4 my-auto">
-                    <div className="p-4 bg-[#FAF6EE] dark:bg-[#17345A]/30 rounded-full text-[#D35057]">
+                    <div className="p-4 bg-[#FAF6EE] dark:bg-[#17345A]/30 rounded-full text-[#F26B6F]">
                       <HelpCircle className="w-12 h-12" />
                     </div>
-                    <h3 className="font-serif font-bold text-xl text-[#1B2A4A] dark:text-[#F3EFE8]">
+                    <h3 className="font-serif font-bold text-xl text-[#0E1C4F] dark:text-[#F3EFE8]">
                       Düzada Evren Doluluk Portalı
                     </h3>
                     <p className="text-xs text-stone-500 dark:text-[#A6B0C9] max-w-sm leading-relaxed font-serif">
@@ -1937,10 +1937,10 @@ export default function DuzadaWiki({
                             {isSokak ? <Trees className="w-5 h-5 text-emerald-600" /> : isMahalle ? <Building className="w-5 h-5 text-indigo-600" /> : getEntityIcon(currentItem.originalItem.type)}
                           </span>
                           <div>
-                            <span className="text-[9px] font-mono uppercase bg-[#D35057]/10 text-[#D35057] px-2 py-0.5 rounded font-bold">
+                            <span className="text-[9px] font-mono uppercase bg-[#F26B6F]/10 text-[#F26B6F] px-2 py-0.5 rounded font-bold">
                               {currentItem.type}
                             </span>
-                            <h3 className="font-serif font-bold text-xl text-[#1B2A4A] dark:text-[#F3EFE8] mt-1">
+                            <h3 className="font-serif font-bold text-xl text-[#0E1C4F] dark:text-[#F3EFE8] mt-1">
                               {currentItem.title}
                             </h3>
                           </div>
@@ -1949,7 +1949,7 @@ export default function DuzadaWiki({
                         {/* Detail Completion percentage */}
                         <div className="flex items-center gap-2">
                           <span className="text-xs font-mono text-stone-500 dark:text-stone-400">Doluluk Oranı:</span>
-                          <span className="text-lg font-bold font-mono text-[#D35057]">
+                          <span className="text-lg font-bold font-mono text-[#F26B6F]">
                             %{currentItem.score}
                           </span>
                         </div>
@@ -1965,12 +1965,12 @@ export default function DuzadaWiki({
                               className={`p-4 rounded-xl border transition-all ${
                                 isFilled 
                                   ? 'bg-stone-50/50 dark:bg-[#1E293B]/20 border-stone-200 dark:border-[#2C3C72]/50'
-                                  : 'bg-[#FFFDF9] dark:bg-[#D35057]/5 border-amber-200/50 dark:border-[#D35057]/20 shadow-xs'
+                                  : 'bg-[#FFFDF9] dark:bg-[#F26B6F]/5 border-amber-200/50 dark:border-[#F26B6F]/20 shadow-xs'
                               }`}
                             >
                               <div className="flex items-start justify-between gap-3">
                                 <div className="space-y-1">
-                                  <span className="text-xs font-serif font-bold text-[#1B2A4A] dark:text-[#F3EFE8] block">
+                                  <span className="text-xs font-serif font-bold text-[#0E1C4F] dark:text-[#F3EFE8] block">
                                     {q.label}
                                   </span>
                                   <p className="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed font-sans">
@@ -1981,7 +1981,7 @@ export default function DuzadaWiki({
                                 <span className={`text-[9px] font-mono font-bold uppercase px-2 py-0.5 rounded ${
                                   isFilled 
                                     ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400' 
-                                    : 'bg-red-100 text-[#D35057] dark:bg-[#D35057]/20 dark:text-red-400'
+                                    : 'bg-red-100 text-[#F26B6F] dark:bg-[#F26B6F]/20 dark:text-red-400'
                                 }`}>
                                   {isFilled ? 'Dolu' : 'Eksik Bilgi'}
                                 </span>
@@ -1998,7 +1998,7 @@ export default function DuzadaWiki({
                                     value={answersState[q.id] || ''}
                                     onChange={(e) => setAnswersState(prev => ({ ...prev, [q.id]: e.target.value }))}
                                     placeholder="Detaylı cevabınızı yazın..."
-                                    className="w-full text-xs p-2.5 rounded-lg bg-white dark:bg-[#12224A] border border-[#CFC5B4] dark:border-[#2C3C72] text-[#1B2A4A] dark:text-[#F3EFE8] font-serif focus:ring-1 focus:ring-[#D35057] focus:outline-none leading-relaxed"
+                                    className="w-full text-xs p-2.5 rounded-lg bg-white dark:bg-[#12224A] border border-[#CFC5B4] dark:border-[#2C3C72] text-[#0E1C4F] dark:text-[#F3EFE8] font-serif focus:ring-1 focus:ring-[#F26B6F] focus:outline-none leading-relaxed"
                                     rows={4}
                                   />
                                 ) : (
@@ -2007,7 +2007,7 @@ export default function DuzadaWiki({
                                     value={answersState[q.id] || ''}
                                     onChange={(e) => setAnswersState(prev => ({ ...prev, [q.id]: e.target.value }))}
                                     placeholder="Kısa bir cevap girin..."
-                                    className="w-full text-xs p-2.5 rounded-lg bg-white dark:bg-[#12224A] border border-[#CFC5B4] dark:border-[#2C3C72] text-[#1B2A4A] dark:text-[#F3EFE8] font-serif focus:ring-1 focus:ring-[#D35057] focus:outline-none"
+                                    className="w-full text-xs p-2.5 rounded-lg bg-white dark:bg-[#12224A] border border-[#CFC5B4] dark:border-[#2C3C72] text-[#0E1C4F] dark:text-[#F3EFE8] font-serif focus:ring-1 focus:ring-[#F26B6F] focus:outline-none"
                                   />
                                 )}
                               </div>
@@ -2032,7 +2032,7 @@ export default function DuzadaWiki({
                               ? 'bg-emerald-600 text-white'
                               : saveStatus === 'error'
                               ? 'bg-red-600 text-white'
-                              : 'bg-[#D35057] hover:bg-[#B23A40] text-white'
+                              : 'bg-[#F26B6F] hover:bg-[#B23A40] text-white'
                           }`}
                         >
                           {saveStatus === 'saving' ? (

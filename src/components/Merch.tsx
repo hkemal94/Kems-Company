@@ -578,7 +578,7 @@ export default function Merch({
           <span className="text-xs font-mono uppercase text-[#6A5E4C] dark:text-[#A6B0C9]">
             Kems Company • Merch Atölyesi
           </span>
-          <h1 className="font-serif font-bold text-2xl text-[#1B2A4A] dark:text-[#F3EFE8] mt-1 italic">
+          <h1 className="font-serif font-bold text-2xl text-[#0E1C4F] dark:text-[#F3EFE8] mt-1 italic">
             Tema, Drop & Ürünler
           </h1>
         </div>
@@ -597,13 +597,13 @@ export default function Merch({
             <select
               value={seciliKurum}
               onChange={(e) => setSeciliKurum(e.target.value)}
-              className="bg-transparent text-xs font-serif font-bold py-0.5 outline-hidden border-none text-[#1B2A4A] dark:text-[#F3EFE8] cursor-pointer"
+              className="bg-transparent text-xs font-serif font-bold py-0.5 outline-hidden border-none text-[#0E1C4F] dark:text-[#F3EFE8] cursor-pointer"
               title="Satan her zaman Kems Company. Burada ürünün evrende hangi kurumdan geldiğine göre süzülür."
             >
-              <option value="all" className="bg-[#F3EFE8] dark:bg-[#13204A] text-[#1B2A4A] dark:text-white">Tümü</option>
-              <option value={KURUMSUZ} className="bg-[#F3EFE8] dark:bg-[#13204A] text-[#1B2A4A] dark:text-white">Kurumsuz ({brands[0]?.title || 'marka'})</option>
+              <option value="all" className="bg-[#F3EFE8] dark:bg-[#13204A] text-[#0E1C4F] dark:text-white">Tümü</option>
+              <option value={KURUMSUZ} className="bg-[#F3EFE8] dark:bg-[#13204A] text-[#0E1C4F] dark:text-white">Kurumsuz ({brands[0]?.title || 'marka'})</option>
               {kurumlar.map(k => (
-                <option key={k.id} value={k.id} className="bg-[#F3EFE8] dark:bg-[#13204A] text-[#1B2A4A] dark:text-white">{k.title}</option>
+                <option key={k.id} value={k.id} className="bg-[#F3EFE8] dark:bg-[#13204A] text-[#0E1C4F] dark:text-white">{k.title}</option>
               ))}
             </select>
           </div>
@@ -617,7 +617,7 @@ export default function Merch({
             <button
               key={tab.id}
               onClick={() => { setActiveTab(tab.id as any); onSelectItem(null); }}
-              className={`px-3 py-1.5 rounded-lg cursor-pointer transition-all ${activeTab === tab.id ? 'bg-[#D35057] text-white' : 'bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] text-[#6A5E4C] dark:text-[#A6B0C9]'}`}
+              className={`px-3 py-1.5 rounded-lg cursor-pointer transition-all ${activeTab === tab.id ? 'bg-[#F26B6F] text-white' : 'bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] text-[#6A5E4C] dark:text-[#A6B0C9]'}`}
             >
               {tab.label}
             </button>
@@ -634,7 +634,7 @@ export default function Merch({
             
             {/* Tasarım Bekleyen Ürünler */}
             <div className="bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] p-5 rounded-xl paper-grain space-y-3 archive-shadow">
-              <h3 className="text-xs font-mono uppercase tracking-wider text-[#D35057] font-bold">
+              <h3 className="text-xs font-mono uppercase tracking-wider text-[#F26B6F] font-bold">
                 Tasarım bekleyen ürünler
               </h3>
               <div className="space-y-2">
@@ -642,7 +642,7 @@ export default function Merch({
                   <div key={p.id} className="flex justify-between items-center text-xs">
                     <span 
                       onClick={() => { onSelectItem(p.id); setActiveTab('urunler'); }}
-                      className="text-[#1B2A4A] dark:text-[#F3EFE8] font-bold hover:underline cursor-pointer"
+                      className="text-[#0E1C4F] dark:text-[#F3EFE8] font-bold hover:underline cursor-pointer"
                     >
                       {p.title}
                     </span>
@@ -659,7 +659,7 @@ export default function Merch({
 
             {/* Drop İlerlemeleri bar box */}
             <div className="bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] p-5 rounded-xl paper-grain space-y-3 archive-shadow">
-              <h3 className="text-xs font-mono uppercase tracking-wider text-[#1B2A4A] dark:text-[#F3EFE8] font-bold">
+              <h3 className="text-xs font-mono uppercase tracking-wider text-[#0E1C4F] dark:text-[#F3EFE8] font-bold">
                 Aktif Drop İlerlemeleri
               </h3>
               <div className="space-y-3">
@@ -677,7 +677,7 @@ export default function Merch({
                         <span>%{progress}</span>
                       </div>
                       <div className="w-full bg-[#CFC5B4]/30 dark:bg-[#17345A] h-1.5 rounded-full overflow-hidden">
-                        <div className="bg-[#D35057] h-full" style={{ width: `${progress}%` }} />
+                        <div className="bg-[#F26B6F] h-full" style={{ width: `${progress}%` }} />
                       </div>
                     </div>
                   );
@@ -698,7 +698,7 @@ export default function Merch({
                   <div key={i.id} className="flex justify-between items-center text-xs">
                     <span 
                       onClick={() => { onSelectItem(i.id); setActiveTab(i.type === 'drop' ? 'droplar' : 'urunler'); }}
-                      className="text-[#1B2A4A] dark:text-[#F3EFE8] font-medium hover:underline cursor-pointer"
+                      className="text-[#0E1C4F] dark:text-[#F3EFE8] font-medium hover:underline cursor-pointer"
                     >
                       {i.title}
                     </span>
@@ -714,7 +714,7 @@ export default function Merch({
 
           {/* Active Merch Showcase */}
           <div className="space-y-4">
-            <h3 className="font-serif font-bold text-lg text-[#1B2A4A] dark:text-[#F3EFE8] italic">
+            <h3 className="font-serif font-bold text-lg text-[#0E1C4F] dark:text-[#F3EFE8] italic">
               Aktif Drops Lookbook
             </h3>
             
@@ -727,7 +727,7 @@ export default function Merch({
                     onClick={() => { onSelectItem(drop.id); setActiveTab('droplar'); }}
                     className="group bg-[#F6F1E7] dark:bg-[#13204A] border border-[#CFC5B4] rounded-xl overflow-hidden cursor-pointer hover:scale-[1.01] transition-all archive-shadow"
                   >
-                    <div className="h-40 bg-gradient-to-r from-[#D35057] to-[#B23A40] relative flex items-end p-4">
+                    <div className="h-40 bg-gradient-to-r from-[#F26B6F] to-[#B23A40] relative flex items-end p-4">
                       {drop.images && drop.images[0] && (
                         <img 
                           src={drop.images[0]} 
@@ -737,7 +737,7 @@ export default function Merch({
                       )}
                       <div className="relative space-y-1">
                         <div className="flex flex-wrap gap-1.5 items-center">
-                          <span className="text-[10px] font-mono bg-[#1B2A4A] text-[#F3EFE8] px-2 py-0.5 rounded uppercase tracking-wider font-bold">
+                          <span className="text-[10px] font-mono bg-[#0E1C4F] dark:bg-[#2C3C72] text-[#F3EFE8] px-2 py-0.5 rounded uppercase tracking-wider font-bold">
                             DROP
                           </span>
                           {drop.isProposal && (
@@ -762,7 +762,7 @@ export default function Merch({
                           <span>%{progress}</span>
                         </div>
                         <div className="w-full bg-[#CFC5B4]/30 h-1.5 rounded-full overflow-hidden">
-                          <div className="bg-[#D35057] h-full" style={{ width: `${progress}%` }} />
+                          <div className="bg-[#F26B6F] h-full" style={{ width: `${progress}%` }} />
                         </div>
                       </div>
                     </div>
@@ -779,9 +779,9 @@ export default function Merch({
               onClick={() => setIsAiMasaOpen(!isAiMasaOpen)}
             >
               <div className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-[#D35057]" />
+                <Sparkles className="w-5 h-5 text-[#F26B6F]" />
                 <div>
-                  <h3 className="font-serif font-bold text-lg text-[#1B2A4A] dark:text-[#F3EFE8] italic group-hover:text-[#D35057] transition-colors">
+                  <h3 className="font-serif font-bold text-lg text-[#0E1C4F] dark:text-[#F3EFE8] italic group-hover:text-[#F26B6F] transition-colors">
                     Yapay Zeka Merchandise Tasarım ve Öneri Masası
                   </h3>
                   <p className="text-xs text-[#6A5E4C] dark:text-[#A6B0C9]">
@@ -789,7 +789,7 @@ export default function Merch({
                   </p>
                 </div>
               </div>
-              <span className="text-[10px] font-mono text-[#D35057] hover:underline bg-[#D35057]/10 px-2.5 py-1 rounded font-bold">
+              <span className="text-[10px] font-mono text-[#F26B6F] hover:underline bg-[#F26B6F]/10 px-2.5 py-1 rounded font-bold">
                 {isAiMasaOpen ? 'Masayı Kapat [-]' : 'Masayı Aç [+]'}
               </span>
             </div>
@@ -806,7 +806,7 @@ export default function Merch({
                       value={aiRecommendationTopic}
                       onChange={(e) => setAiRecommendationTopic(e.target.value)}
                       placeholder="Örn: Ege Rüzgarları Koleksiyonu"
-                      className="w-full text-xs bg-white dark:bg-[#17345A] border border-[#CFC5B4] rounded p-2 focus:outline-hidden focus:border-[#D35057]"
+                      className="w-full text-xs bg-white dark:bg-[#17345A] border border-[#CFC5B4] rounded p-2 focus:outline-hidden focus:border-[#F26B6F]"
                     />
                   </div>
 
@@ -834,14 +834,14 @@ export default function Merch({
                       value={aiRecommendationNotes}
                       onChange={(e) => setAiRecommendationNotes(e.target.value)}
                       placeholder="Örn: Krem keten kumaşlar, lacivert el dikişi nakışlar, nostaljik ada siluetleri..."
-                      className="w-full text-xs bg-white dark:bg-[#17345A] border border-[#CFC5B4] rounded p-2 focus:outline-hidden focus:border-[#D35057] h-20"
+                      className="w-full text-xs bg-white dark:bg-[#17345A] border border-[#CFC5B4] rounded p-2 focus:outline-hidden focus:border-[#F26B6F] h-20"
                     />
                   </div>
 
                   <button
                     onClick={handleGenerateAiMerch}
                     disabled={aiGeneratingRecommendations}
-                    className="w-full py-2 bg-[#D35057] text-white hover:bg-[#B23A40] text-xs font-mono rounded-lg transition-colors cursor-pointer flex items-center justify-center gap-1.5 font-bold"
+                    className="w-full py-2 bg-[#F26B6F] text-white hover:bg-[#B23A40] text-xs font-mono rounded-lg transition-colors cursor-pointer flex items-center justify-center gap-1.5 font-bold"
                   >
                     {aiGeneratingRecommendations ? (
                       <>
@@ -866,7 +866,7 @@ export default function Merch({
                   ) : (
                     <div className="space-y-4">
                       <div className="flex justify-between items-center pb-2 border-b border-[#CFC5B4]/50">
-                        <span className="text-xs font-mono text-[#D35057] font-bold">
+                        <span className="text-xs font-mono text-[#F26B6F] font-bold">
                           Üretilen 3 Kreatif Ürün Önerisi:
                         </span>
                         {activeDrops.length > 0 && (
@@ -889,10 +889,10 @@ export default function Merch({
                         {aiRecommendationsResult.map((rec, idx) => (
                           <div key={idx} className="bg-white dark:bg-[#13204A] border border-[#CFC5B4] p-3 rounded-lg flex flex-col justify-between space-y-2.5 text-xs">
                             <div>
-                              <span className="text-[10px] bg-[#D35057]/10 text-[#D35057] font-mono px-1.5 py-0.5 rounded font-bold uppercase">
+                              <span className="text-[10px] bg-[#F26B6F]/10 text-[#F26B6F] font-mono px-1.5 py-0.5 rounded font-bold uppercase">
                                 {rec.price}
                               </span>
-                              <h4 className="font-serif font-bold text-sm text-[#1B2A4A] dark:text-[#F3EFE8] mt-1.5">
+                              <h4 className="font-serif font-bold text-sm text-[#0E1C4F] dark:text-[#F3EFE8] mt-1.5">
                                 {rec.title}
                               </h4>
                               <p className="text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9] leading-relaxed line-clamp-4 mt-1">
@@ -905,7 +905,7 @@ export default function Merch({
 
                             <button
                               onClick={() => handleSaveAiRecToDrop(rec, selectedDropForAiRec)}
-                              className="w-full py-1 text-[11px] font-mono bg-[#1B2A4A] text-[#F3EFE8] hover:bg-slate-800 rounded transition-colors flex items-center justify-center gap-1 cursor-pointer"
+                              className="w-full py-1 text-[11px] font-mono bg-[#0E1C4F] dark:bg-[#2C3C72] text-[#F3EFE8] hover:bg-slate-800 rounded transition-colors flex items-center justify-center gap-1 cursor-pointer"
                             >
                               <Plus className="w-3 h-3" />
                               <span>Sisteme Ekle</span>
@@ -927,12 +927,12 @@ export default function Merch({
       {activeTab === 'droplar' && !activeItem && (
         <div className="space-y-4 animate-in fade-in duration-200">
           <div className="flex justify-between items-center pb-2 border-b border-[#CFC5B4]/50">
-            <h3 className="font-serif font-bold text-lg text-[#1B2A4A] dark:text-[#F3EFE8]">
+            <h3 className="font-serif font-bold text-lg text-[#0E1C4F] dark:text-[#F3EFE8]">
               Drop Listesi ({activeDrops.length})
             </h3>
             <button
               onClick={() => setShowCreateForm('drop')}
-              className="text-xs font-mono bg-[#1B2A4A] text-[#F3EFE8] px-3 py-1.5 rounded-lg hover:opacity-90 transition-all cursor-pointer"
+              className="text-xs font-mono bg-[#0E1C4F] dark:bg-[#2C3C72] text-[#F3EFE8] px-3 py-1.5 rounded-lg hover:opacity-90 transition-all cursor-pointer"
             >
               + Drop Tasarla
             </button>
@@ -948,7 +948,7 @@ export default function Merch({
                 >
                   <div className="space-y-1.5 flex-1">
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-mono bg-[#D35057] text-white px-2 py-0.5 rounded uppercase font-bold">
+                      <span className="text-[10px] font-mono bg-[#F26B6F] text-white px-2 py-0.5 rounded uppercase font-bold">
                         {d.status}
                       </span>
                       {d.isProposal && (
@@ -963,13 +963,13 @@ export default function Merch({
                     <div className="flex items-center gap-2">
                       <h4 
                         onClick={() => onSelectItem(d.id)}
-                        className="font-serif font-bold text-base text-[#1B2A4A] dark:text-[#F3EFE8] hover:text-[#D35057] cursor-pointer"
+                        className="font-serif font-bold text-base text-[#0E1C4F] dark:text-[#F3EFE8] hover:text-[#F26B6F] cursor-pointer"
                       >
                         {d.title}
                       </h4>
                       <button 
                         onClick={() => { onSelectItem(d.id); setTimeout(() => startEditing(), 100); }}
-                        className="text-[#9A8C76] hover:text-[#D35057] p-1 rounded transition-colors cursor-pointer"
+                        className="text-[#9A8C76] hover:text-[#F26B6F] p-1 rounded transition-colors cursor-pointer"
                         title="Düzenle"
                       >
                         <Edit3 className="w-3.5 h-3.5" />
@@ -987,7 +987,7 @@ export default function Merch({
                         <span>%{progress}</span>
                       </div>
                       <div className="w-full bg-[#CFC5B4]/30 h-1.5 rounded-full overflow-hidden">
-                        <div className="bg-[#D35057] h-full" style={{ width: `${progress}%` }} />
+                        <div className="bg-[#F26B6F] h-full" style={{ width: `${progress}%` }} />
                       </div>
                     </div>
 
@@ -1000,7 +1000,7 @@ export default function Merch({
                       </button>
                       <button
                         onClick={() => onSelectItem(d.id)}
-                        className="px-2.5 py-1 bg-[#D35057] text-white hover:bg-[#B23A40] rounded cursor-pointer"
+                        className="px-2.5 py-1 bg-[#F26B6F] text-white hover:bg-[#B23A40] rounded cursor-pointer"
                       >
                         Yönet →
                       </button>
@@ -1017,12 +1017,12 @@ export default function Merch({
       {activeTab === 'urunler' && !activeItem && (
         <div className="space-y-6 animate-in fade-in duration-200">
           <div className="flex justify-between items-center pb-2 border-b border-[#CFC5B4]/50">
-            <h3 className="font-serif font-bold text-lg text-[#1B2A4A] dark:text-[#F3EFE8]">
+            <h3 className="font-serif font-bold text-lg text-[#0E1C4F] dark:text-[#F3EFE8]">
               Tüm Ürün Kataloğu ({products.length})
             </h3>
             <button
               onClick={() => setShowCreateForm('merch_urun')}
-              className="text-xs font-mono bg-[#1B2A4A] text-[#F3EFE8] px-3 py-1.5 rounded-lg hover:opacity-90 transition-all cursor-pointer"
+              className="text-xs font-mono bg-[#0E1C4F] dark:bg-[#2C3C72] text-[#F3EFE8] px-3 py-1.5 rounded-lg hover:opacity-90 transition-all cursor-pointer"
             >
               + Ürün Ekle
             </button>
@@ -1047,21 +1047,21 @@ export default function Merch({
                       }}
                     >
                       {isCollapsed ? (
-                        <ChevronRight className="w-4 h-4 text-[#D35057] transition-transform" />
+                        <ChevronRight className="w-4 h-4 text-[#F26B6F] transition-transform" />
                       ) : (
-                        <ChevronDown className="w-4 h-4 text-[#D35057] transition-transform" />
+                        <ChevronDown className="w-4 h-4 text-[#F26B6F] transition-transform" />
                       )}
-                      <FolderDot className="w-4 h-4 text-[#D35057]" />
-                      <h4 className="font-serif font-bold text-base text-[#1B2A4A] dark:text-[#F3EFE8] group-hover:text-[#D35057] transition-colors">
+                      <FolderDot className="w-4 h-4 text-[#F26B6F]" />
+                      <h4 className="font-serif font-bold text-base text-[#0E1C4F] dark:text-[#F3EFE8] group-hover:text-[#F26B6F] transition-colors">
                         {drop.title}
                       </h4>
-                      <span className="text-[10px] font-mono bg-[#D35057]/10 text-[#D35057] px-2 py-0.5 rounded-sm font-bold">
+                      <span className="text-[10px] font-mono bg-[#F26B6F]/10 text-[#F26B6F] px-2 py-0.5 rounded-sm font-bold">
                         {dropProducts.length} Ürün
                       </span>
                     </div>
                     <button
                       onClick={() => { setShowCreateForm('merch_urun'); setSelectedParentId(drop.id); }}
-                      className="text-xs font-mono text-[#D35057] hover:underline cursor-pointer"
+                      className="text-xs font-mono text-[#F26B6F] hover:underline cursor-pointer"
                     >
                       + Bu Droba Ürün Ekle
                     </button>
@@ -1073,7 +1073,7 @@ export default function Merch({
                         <div 
                           key={p.id}
                           onClick={() => onSelectItem(p.id)}
-                          className="group bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] rounded-xl overflow-hidden cursor-pointer hover:border-[#D35057] transition-all archive-shadow p-3.5 space-y-3"
+                          className="group bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] rounded-xl overflow-hidden cursor-pointer hover:border-[#F26B6F] transition-all archive-shadow p-3.5 space-y-3"
                         >
                           <div className="h-32 bg-stone-100 rounded-lg overflow-hidden relative">
                             {p.images && p.images[0] ? (
@@ -1083,14 +1083,14 @@ export default function Merch({
                                 <ShoppingBag className="w-8 h-8 text-stone-400" />
                               </div>
                             )}
-                            <span className="absolute top-2 right-2 text-[9px] font-mono bg-[#1B2A4A] text-white px-1.5 py-0.5 rounded capitalize">
+                            <span className="absolute top-2 right-2 text-[9px] font-mono bg-[#0E1C4F] dark:bg-[#2C3C72] text-white px-1.5 py-0.5 rounded capitalize">
                               {p.metadata?.category || 'Ürün'}
                             </span>
                           </div>
 
                           <div className="space-y-1">
                             <div className="flex justify-between items-center text-[10px] font-mono">
-                              <span className="uppercase text-[#D35057] font-bold">
+                              <span className="uppercase text-[#F26B6F] font-bold">
                                 {p.status}
                               </span>
                               {p.isProposal && (
@@ -1100,12 +1100,12 @@ export default function Merch({
                               )}
                             </div>
                             <div className="flex justify-between items-center gap-1.5">
-                              <h4 className="font-serif font-bold text-sm text-[#1B2A4A] dark:text-[#F3EFE8] line-clamp-1 group-hover:text-[#D35057] flex-1">
+                              <h4 className="font-serif font-bold text-sm text-[#0E1C4F] dark:text-[#F3EFE8] line-clamp-1 group-hover:text-[#F26B6F] flex-1">
                                 {p.title}
                               </h4>
                               <button 
                                 onClick={(e) => { e.stopPropagation(); onSelectItem(p.id); setTimeout(() => startEditing(), 100); }}
-                                className="text-[#9A8C76] hover:text-[#D35057] p-0.5 rounded transition-colors cursor-pointer shrink-0"
+                                className="text-[#9A8C76] hover:text-[#F26B6F] p-0.5 rounded transition-colors cursor-pointer shrink-0"
                                 title="Düzenle"
                               >
                                 <Edit3 className="w-3.5 h-3.5" />
@@ -1144,7 +1144,7 @@ export default function Merch({
                       <ChevronDown className="w-4 h-4 text-stone-500 transition-transform" />
                     )}
                     <FolderDot className="w-4 h-4 text-stone-500" />
-                    <h4 className="font-serif font-bold text-base text-[#1B2A4A] dark:text-[#F3EFE8] group-hover:text-[#D35057] transition-colors">
+                    <h4 className="font-serif font-bold text-base text-[#0E1C4F] dark:text-[#F3EFE8] group-hover:text-[#F26B6F] transition-colors">
                       Diğer / Bağımsız Ürünler
                     </h4>
                     <span className="text-[10px] font-mono bg-stone-200 text-stone-700 px-2 py-0.5 rounded-sm font-bold">
@@ -1159,7 +1159,7 @@ export default function Merch({
                       <div 
                         key={p.id}
                         onClick={() => onSelectItem(p.id)}
-                        className="group bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] rounded-xl overflow-hidden cursor-pointer hover:border-[#D35057] transition-all archive-shadow p-3.5 space-y-3"
+                        className="group bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] rounded-xl overflow-hidden cursor-pointer hover:border-[#F26B6F] transition-all archive-shadow p-3.5 space-y-3"
                       >
                         <div className="h-32 bg-stone-100 rounded-lg overflow-hidden relative">
                           {p.images && p.images[0] ? (
@@ -1169,24 +1169,24 @@ export default function Merch({
                               <ShoppingBag className="w-8 h-8 text-stone-400" />
                             </div>
                           )}
-                          <span className="absolute top-2 right-2 text-[9px] font-mono bg-[#1B2A4A] text-white px-1.5 py-0.5 rounded capitalize">
+                          <span className="absolute top-2 right-2 text-[9px] font-mono bg-[#0E1C4F] dark:bg-[#2C3C72] text-white px-1.5 py-0.5 rounded capitalize">
                             {p.metadata?.category || 'Ürün'}
                           </span>
                         </div>
 
                         <div className="space-y-1">
                           <div className="flex justify-between items-center text-[10px] font-mono">
-                            <span className="uppercase text-[#D35057] font-bold">
+                            <span className="uppercase text-[#F26B6F] font-bold">
                               {p.status}
                             </span>
                           </div>
                           <div className="flex justify-between items-center gap-1.5">
-                            <h4 className="font-serif font-bold text-sm text-[#1B2A4A] dark:text-[#F3EFE8] line-clamp-1 group-hover:text-[#D35057] flex-1">
+                            <h4 className="font-serif font-bold text-sm text-[#0E1C4F] dark:text-[#F3EFE8] line-clamp-1 group-hover:text-[#F26B6F] flex-1">
                               {p.title}
                             </h4>
                             <button 
                               onClick={(e) => { e.stopPropagation(); onSelectItem(p.id); setTimeout(() => startEditing(), 100); }}
-                              className="text-[#9A8C76] hover:text-[#D35057] p-0.5 rounded transition-colors cursor-pointer shrink-0"
+                              className="text-[#9A8C76] hover:text-[#F26B6F] p-0.5 rounded transition-colors cursor-pointer shrink-0"
                               title="Düzenle"
                             >
                               <Edit3 className="w-3.5 h-3.5" />
@@ -1216,8 +1216,8 @@ export default function Merch({
       {activeTab === 'arsiv' && (
         <div className="space-y-6 animate-in fade-in duration-200">
           <div className="border-b border-[#CFC5B4] pb-2">
-            <h3 className="font-serif font-bold text-lg text-[#1B2A4A] dark:text-[#F3EFE8] flex items-center gap-2">
-              <Archive className="w-5 h-5 text-[#D35057]" />
+            <h3 className="font-serif font-bold text-lg text-[#0E1C4F] dark:text-[#F3EFE8] flex items-center gap-2">
+              <Archive className="w-5 h-5 text-[#F26B6F]" />
               Geçmiş / Arşivlenmiş Drops ({archivedDrops.length})
             </h3>
           </div>
@@ -1226,7 +1226,7 @@ export default function Merch({
             {archivedDrops.map(d => (
               <div key={d.id} className="bg-white/40 dark:bg-[#13204A]/40 border border-[#CFC5B4] rounded-xl p-5 opacity-75 hover:opacity-100 transition-opacity">
                 <div className="flex justify-between items-start">
-                  <h4 className="font-serif font-bold text-base text-[#1B2A4A] dark:text-[#F3EFE8]">
+                  <h4 className="font-serif font-bold text-base text-[#0E1C4F] dark:text-[#F3EFE8]">
                     {d.title}
                   </h4>
                   <span className="text-[10px] font-mono bg-[#3E8E5E]/10 text-[#3E8E5E] px-2 py-0.5 rounded uppercase">
@@ -1239,7 +1239,7 @@ export default function Merch({
                 <div className="pt-3 border-t border-[#CFC5B4]/30 flex justify-end gap-2 text-[10px] font-mono">
                   <button
                     onClick={() => onUpdateItem({ ...d, archived: false })}
-                    className="text-[#D35057] hover:underline"
+                    className="text-[#F26B6F] hover:underline"
                   >
                     Arşivden Çıkar
                   </button>
@@ -1285,7 +1285,7 @@ export default function Merch({
                               onClick={() => {
                                 setActiveImageIdx(prev => (prev - 1 + activeItem.images.length) % activeItem.images.length);
                               }}
-                              className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/95 dark:bg-[#13204A]/95 border border-[#CFC5B4] text-[#1B2A4A] dark:text-[#F3EFE8] flex items-center justify-center hover:bg-[#D35057] hover:text-white transition-all cursor-pointer opacity-100 lg:opacity-0 lg:group-hover/showcase:opacity-100 shadow-md z-10"
+                              className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/95 dark:bg-[#13204A]/95 border border-[#CFC5B4] text-[#0E1C4F] dark:text-[#F3EFE8] flex items-center justify-center hover:bg-[#F26B6F] hover:text-white transition-all cursor-pointer opacity-100 lg:opacity-0 lg:group-hover/showcase:opacity-100 shadow-md z-10"
                               title="Önceki Görsel"
                             >
                               <ChevronLeft className="w-5 h-5" />
@@ -1296,14 +1296,14 @@ export default function Merch({
                               onClick={() => {
                                 setActiveImageIdx(prev => (prev + 1) % activeItem.images.length);
                               }}
-                              className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/95 dark:bg-[#13204A]/95 border border-[#CFC5B4] text-[#1B2A4A] dark:text-[#F3EFE8] flex items-center justify-center hover:bg-[#D35057] hover:text-white transition-all cursor-pointer opacity-100 lg:opacity-0 lg:group-hover/showcase:opacity-100 shadow-md z-10"
+                              className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/95 dark:bg-[#13204A]/95 border border-[#CFC5B4] text-[#0E1C4F] dark:text-[#F3EFE8] flex items-center justify-center hover:bg-[#F26B6F] hover:text-white transition-all cursor-pointer opacity-100 lg:opacity-0 lg:group-hover/showcase:opacity-100 shadow-md z-10"
                               title="Sonraki Görsel"
                             >
                               <ChevronRight className="w-5 h-5" />
                             </button>
                             
                             {/* Bottom pill indicator */}
-                            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-[#1B2A4A]/80 dark:bg-stone-900/80 backdrop-blur-xs text-white font-mono text-[10px] px-3 py-1 rounded-full border border-white/10 shadow-sm">
+                            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-[#0E1C4F]/80 dark:bg-stone-900/80 backdrop-blur-xs text-white font-mono text-[10px] px-3 py-1 rounded-full border border-white/10 shadow-sm">
                               {Math.min(activeImageIdx, activeItem.images.length - 1) + 1} / {activeItem.images.length}
                             </div>
                           </>
@@ -1329,8 +1329,8 @@ export default function Merch({
                             onClick={() => setActiveImageIdx(idx)}
                             className={`relative w-20 h-20 border rounded-xl overflow-hidden shrink-0 cursor-pointer transition-all ${
                               isSelected 
-                                ? 'border-[#D35057] ring-4 ring-[#D35057]/20 shadow-xs' 
-                                : 'border-[#CFC5B4] hover:border-[#D35057]'
+                                ? 'border-[#F26B6F] ring-4 ring-[#F26B6F]/20 shadow-xs' 
+                                : 'border-[#CFC5B4] hover:border-[#F26B6F]'
                             }`}
                           >
                             <img src={img} alt="thumbnail" className="w-full h-full object-cover" />
@@ -1346,26 +1346,26 @@ export default function Merch({
                   {/* Brand & Theme Header */}
                   <div className="border-b border-[#CFC5B4]/50 pb-4 space-y-1.5">
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-mono bg-[#D35057] text-white px-2.5 py-0.5 rounded font-bold uppercase tracking-wider">
+                      <span className="text-[10px] font-mono bg-[#F26B6F] text-white px-2.5 py-0.5 rounded font-bold uppercase tracking-wider">
                         {isDrop ? 'Koleksiyon Drop' : 'Ürün Tasarımı'}
                       </span>
-                      <span className="text-xs font-mono font-bold uppercase text-[#1B2A4A] dark:text-[#A6B0C9] bg-[#CFC5B4]/30 px-2.5 py-0.5 rounded">
+                      <span className="text-xs font-mono font-bold uppercase text-[#0E1C4F] dark:text-[#A6B0C9] bg-[#CFC5B4]/30 px-2.5 py-0.5 rounded">
                         {activeItem.status}
                       </span>
                     </div>
-                    <h1 className="font-serif font-bold text-3xl text-[#1B2A4A] dark:text-[#F3EFE8] italic leading-tight">
+                    <h1 className="font-serif font-bold text-3xl text-[#0E1C4F] dark:text-[#F3EFE8] italic leading-tight">
                       {activeItem.title}
                     </h1>
                     <p className="text-xs font-mono text-[#6A5E4C] dark:text-[#A6B0C9]">
-                      Marka Serisi: <span className="font-bold text-[#D35057]">{brandName}</span>
+                      Marka Serisi: <span className="font-bold text-[#F26B6F]">{brandName}</span>
                     </p>
                   </div>
 
                   {/* Editorial Story Blockquote */}
-                  <div className="bg-[#FAF8F5]/80 dark:bg-[#172554]/10 border-l-4 border-[#D35057] p-5 rounded-r-xl relative shadow-xs overflow-hidden">
+                  <div className="bg-[#FAF8F5]/80 dark:bg-[#172554]/10 border-l-4 border-[#F26B6F] p-5 rounded-r-xl relative shadow-xs overflow-hidden">
                     <div className="absolute top-1 right-3 text-7xl font-serif text-[#CFC5B4]/15 pointer-events-none select-none">“</div>
-                    <h4 className="font-mono text-[10px] uppercase text-[#D35057] font-bold tracking-widest mb-2">KURGU VİZYON HİKAYESİ</h4>
-                    <p className="font-serif italic text-sm leading-relaxed text-[#1B2A4A] dark:text-[#F3EFE8] relative z-10">
+                    <h4 className="font-mono text-[10px] uppercase text-[#F26B6F] font-bold tracking-widest mb-2">KURGU VİZYON HİKAYESİ</h4>
+                    <p className="font-serif italic text-sm leading-relaxed text-[#0E1C4F] dark:text-[#F3EFE8] relative z-10">
                       {localNotes || "Bu kreasyonun ardında yatan vizyoner hikaye henüz detaylandırılmadı. Gelişmiş Editör sekmesinden dilediğiniz zaman açıklama ekleyebilirsiniz."}
                     </p>
                   </div>
@@ -1376,7 +1376,7 @@ export default function Merch({
                       <span className="block text-[10px] font-mono text-[#6A5E4C] dark:text-[#A6B0C9] uppercase font-bold tracking-wider">
                         📜 EDİSYON PLANLAMASI VE ÖZEL DEPARTMAN NOTLARI
                       </span>
-                      <p className="text-xs text-[#1B2A4A] dark:text-[#F3EFE8] leading-relaxed">
+                      <p className="text-xs text-[#0E1C4F] dark:text-[#F3EFE8] leading-relaxed">
                         {localEditionNotes}
                       </p>
                     </div>
@@ -1384,31 +1384,31 @@ export default function Merch({
 
                   {/* Specification Grid */}
                   <div className="bg-[#FAF8F5]/40 dark:bg-[#172554]/5 border border-[#CFC5B4] rounded-xl p-5 space-y-3">
-                    <h3 className="font-serif font-bold text-sm text-[#1B2A4A] dark:text-[#F3EFE8] border-b border-[#CFC5B4]/30 pb-2">
+                    <h3 className="font-serif font-bold text-sm text-[#0E1C4F] dark:text-[#F3EFE8] border-b border-[#CFC5B4]/30 pb-2">
                       Koleksiyon Öznitelikleri
                     </h3>
                     <div className="grid grid-cols-2 gap-4 text-xs">
                       <div className="space-y-0.5">
                         <span className="block text-[10px] font-mono uppercase text-[#6A5E4C] dark:text-[#A6B0C9]">Koleksiyon Adı</span>
-                        <span className="font-bold text-[#1B2A4A] dark:text-[#F3EFE8]">{activeItem.title}</span>
+                        <span className="font-bold text-[#0E1C4F] dark:text-[#F3EFE8]">{activeItem.title}</span>
                       </div>
                       <div className="space-y-0.5">
                         <span className="block text-[10px] font-mono uppercase text-[#6A5E4C] dark:text-[#A6B0C9]">Öncelik Seviyesi</span>
-                        <span className="font-bold text-[#D35057] uppercase">{activeItem.priority} Öncelikli</span>
+                        <span className="font-bold text-[#F26B6F] uppercase">{activeItem.priority} Öncelikli</span>
                       </div>
                       <div className="space-y-0.5">
                         <span className="block text-[10px] font-mono uppercase text-[#6A5E4C] dark:text-[#A6B0C9]">Süreç Takibi</span>
-                        <span className="font-bold text-[#1B2A4A] dark:text-[#F3EFE8]">{activeItem.status}</span>
+                        <span className="font-bold text-[#0E1C4F] dark:text-[#F3EFE8]">{activeItem.status}</span>
                       </div>
                       {!isDrop && (
                         <>
                           <div className="space-y-0.5">
                             <span className="block text-[10px] font-mono uppercase text-[#6A5E4C] dark:text-[#A6B0C9]">Varyant / Renk</span>
-                            <span className="font-bold text-[#1B2A4A] dark:text-[#F3EFE8]">{localVariantColor || 'Standart'}</span>
+                            <span className="font-bold text-[#0E1C4F] dark:text-[#F3EFE8]">{localVariantColor || 'Standart'}</span>
                           </div>
                           <div className="space-y-0.5">
                             <span className="block text-[10px] font-mono uppercase text-[#6A5E4C] dark:text-[#A6B0C9]">Ürün Kategorisi</span>
-                            <span className="font-bold text-[#1B2A4A] dark:text-[#F3EFE8] capitalize">{localCategory || 'Diğer'}</span>
+                            <span className="font-bold text-[#0E1C4F] dark:text-[#F3EFE8] capitalize">{localCategory || 'Diğer'}</span>
                           </div>
                         </>
                       )}
@@ -1422,7 +1422,7 @@ export default function Merch({
                 <div className="pt-6 border-t border-[#CFC5B4]/50 space-y-4 text-left">
                   <div className="flex justify-between items-center">
                     <div>
-                      <h2 className="font-serif font-bold text-xl text-[#1B2A4A] dark:text-[#F3EFE8] italic">
+                      <h2 className="font-serif font-bold text-xl text-[#0E1C4F] dark:text-[#F3EFE8] italic">
                         🛍️ Koleksiyon Parçaları & Modeller
                       </h2>
                       <p className="text-xs text-[#6A5E4C] dark:text-[#A6B0C9]">
@@ -1436,7 +1436,7 @@ export default function Merch({
                         setShowCreateForm('merch_urun');
                         setSelectedParentId(activeItem.id);
                       }}
-                      className="px-3.5 py-1.5 bg-[#D35057] text-white hover:bg-[#B23A40] text-xs font-mono font-bold rounded-lg transition-colors cursor-pointer shadow-xs flex items-center gap-1"
+                      className="px-3.5 py-1.5 bg-[#F26B6F] text-white hover:bg-[#B23A40] text-xs font-mono font-bold rounded-lg transition-colors cursor-pointer shadow-xs flex items-center gap-1"
                     >
                       <Plus className="w-4 h-4" />
                       <span>Yeni Ürün Ekle</span>
@@ -1448,7 +1448,7 @@ export default function Merch({
                       <div 
                         key={p.id}
                         onClick={() => onSelectItem(p.id)}
-                        className="group bg-[#FAF8F5] dark:bg-[#15234F] border border-[#CFC5B4] rounded-2xl overflow-hidden cursor-pointer hover:border-[#D35057] hover:shadow-lg transition-all duration-300 p-3 space-y-3 flex flex-col"
+                        className="group bg-[#FAF8F5] dark:bg-[#15234F] border border-[#CFC5B4] rounded-2xl overflow-hidden cursor-pointer hover:border-[#F26B6F] hover:shadow-lg transition-all duration-300 p-3 space-y-3 flex flex-col"
                       >
                         {/* Polaroid style image stage */}
                         <div className="aspect-square bg-stone-100 dark:bg-stone-950 rounded-xl overflow-hidden relative shadow-inner">
@@ -1463,17 +1463,17 @@ export default function Merch({
                               <ShoppingBag className="w-10 h-10 text-stone-300" />
                             </div>
                           )}
-                          <span className="absolute top-2 right-2 text-[9px] font-mono bg-[#1B2A4A]/90 backdrop-blur-xs text-white px-2 py-0.5 rounded capitalize">
+                          <span className="absolute top-2 right-2 text-[9px] font-mono bg-[#0E1C4F] dark:bg-[#2C3C72]/90 backdrop-blur-xs text-white px-2 py-0.5 rounded capitalize">
                             {p.metadata?.category || 'Ürün'}
                           </span>
                         </div>
 
                         <div className="space-y-1.5 flex-1 flex flex-col justify-between">
                           <div className="space-y-0.5">
-                            <span className="text-[9px] font-mono uppercase text-[#D35057] font-bold tracking-wider">
+                            <span className="text-[9px] font-mono uppercase text-[#F26B6F] font-bold tracking-wider">
                               {p.status}
                             </span>
-                            <h4 className="font-serif font-bold text-sm text-[#1B2A4A] dark:text-[#F3EFE8] group-hover:text-[#D35057] transition-colors line-clamp-1">
+                            <h4 className="font-serif font-bold text-sm text-[#0E1C4F] dark:text-[#F3EFE8] group-hover:text-[#F26B6F] transition-colors line-clamp-1">
                               {p.title}
                             </h4>
                           </div>
@@ -1482,7 +1482,7 @@ export default function Merch({
                             <span className="text-[10px] font-mono text-[#9A8C76]">
                               {p.metadata?.variantColor || 'Standart Varyant'}
                             </span>
-                            <span className="text-[10px] text-[#D35057] font-mono font-bold group-hover:underline flex items-center gap-0.5">
+                            <span className="text-[10px] text-[#F26B6F] font-mono font-bold group-hover:underline flex items-center gap-0.5">
                               Vitrine Git <ChevronRight className="w-3 h-3" />
                             </span>
                           </div>
@@ -1512,7 +1512,7 @@ export default function Merch({
         <div className="bg-[#F3EFE8] dark:bg-[#13204A] border-2 border-[#CFC5B4] dark:border-[#2C3C72] rounded-xl overflow-hidden shadow-xl paper-grain space-y-6 animate-in zoom-in-95 duration-200">
           
           {/* Cover style panel */}
-          <div className="h-44 bg-gradient-to-r from-[#D35057] to-[#B23A40] relative flex items-end p-6">
+          <div className="h-44 bg-gradient-to-r from-[#F26B6F] to-[#B23A40] relative flex items-end p-6">
             {activeItem.images && activeItem.images[0] && (
               <img 
                 src={activeItem.images[0]} 
@@ -1522,7 +1522,7 @@ export default function Merch({
             )}
             <div className="relative space-y-2">
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-mono bg-[#1B2A4A] text-white px-2 py-0.5 rounded-sm uppercase font-bold tracking-widest">
+                <span className="text-[10px] font-mono bg-[#0E1C4F] dark:bg-[#2C3C72] text-white px-2 py-0.5 rounded-sm uppercase font-bold tracking-widest">
                   {activeItem.type}
                 </span>
                 <span className="text-xs font-mono text-[#F3EFE8] opacity-80">
@@ -1565,8 +1565,8 @@ export default function Merch({
                   onClick={() => setActiveDetailTab('vitrin')}
                   className={`px-4 py-2.5 text-xs font-mono font-bold flex items-center gap-2 border-b-2 -mb-px transition-all cursor-pointer ${
                     activeDetailTab === 'vitrin'
-                      ? 'border-[#D35057] text-[#D35057]'
-                      : 'border-transparent text-[#6A5E4C] dark:text-[#A6B0C9] hover:text-[#D35057]'
+                      ? 'border-[#F26B6F] text-[#F26B6F]'
+                      : 'border-transparent text-[#6A5E4C] dark:text-[#A6B0C9] hover:text-[#F26B6F]'
                   }`}
                 >
                   <ShoppingBag className="w-4 h-4" />
@@ -1577,8 +1577,8 @@ export default function Merch({
                   onClick={() => setActiveDetailTab('editor')}
                   className={`px-4 py-2.5 text-xs font-mono font-bold flex items-center gap-2 border-b-2 -mb-px transition-all cursor-pointer ${
                     activeDetailTab === 'editor'
-                      ? 'border-[#D35057] text-[#D35057]'
-                      : 'border-transparent text-[#6A5E4C] dark:text-[#A6B0C9] hover:text-[#D35057]'
+                      ? 'border-[#F26B6F] text-[#F26B6F]'
+                      : 'border-transparent text-[#6A5E4C] dark:text-[#A6B0C9] hover:text-[#F26B6F]'
                   }`}
                 >
                   <Layers className="w-4 h-4" />
@@ -1591,9 +1591,9 @@ export default function Merch({
                 <button
                   type="button"
                   onClick={() => setIsFullScreenBrochure(true)}
-                  className="px-3 py-1.5 bg-[#1B2A4A]/10 hover:bg-[#D35057]/10 dark:bg-stone-800 text-[11px] font-mono text-[#1B2A4A] dark:text-[#F3EFE8] rounded-md border border-[#CFC5B4] hover:border-[#D35057] transition-all cursor-pointer flex items-center gap-1 shadow-2xs"
+                  className="px-3 py-1.5 bg-[#0E1C4F]/10 hover:bg-[#F26B6F]/10 dark:bg-stone-800 text-[11px] font-mono text-[#0E1C4F] dark:text-[#F3EFE8] rounded-md border border-[#CFC5B4] hover:border-[#F26B6F] transition-all cursor-pointer flex items-center gap-1 shadow-2xs"
                 >
-                  <Sparkles className="w-3.5 h-3.5 text-[#D35057]" />
+                  <Sparkles className="w-3.5 h-3.5 text-[#F26B6F]" />
                   <span>Tam Ekran Broşür Modu</span>
                 </button>
               )}
@@ -1606,20 +1606,20 @@ export default function Merch({
             
             {/* Yapay Zeka Önerisi Karar Paneli (G2 & Rule 2) */}
             {activeItem.isProposal && (
-              <div className="bg-red-50 dark:bg-red-950/20 border-2 border-dashed border-[#D35057] p-5 rounded-xl space-y-3.5">
+              <div className="bg-red-50 dark:bg-red-950/20 border-2 border-dashed border-[#F26B6F] p-5 rounded-xl space-y-3.5">
                 <div 
-                  className="flex items-center justify-between border-b border-[#D35057]/15 pb-2 cursor-pointer select-none group"
+                  className="flex items-center justify-between border-b border-[#F26B6F]/15 pb-2 cursor-pointer select-none group"
                   onClick={() => setIsAiOneriOpen(!isAiOneriOpen)}
                 >
                   <div className="flex items-center gap-2">
-                    <Sparkles className="w-5 h-5 text-[#D35057] shrink-0" />
+                    <Sparkles className="w-5 h-5 text-[#F26B6F] shrink-0" />
                     <div>
-                      <h4 className="font-serif font-bold text-sm text-[#D35057] uppercase">
+                      <h4 className="font-serif font-bold text-sm text-[#F26B6F] uppercase">
                         ✨ YAPAY ZEKA ÖNERİSİ DETAYI
                       </h4>
                     </div>
                   </div>
-                  <span className="text-[10px] font-mono text-[#D35057] hover:underline bg-[#D35057]/10 px-2 py-0.5 rounded font-bold">
+                  <span className="text-[10px] font-mono text-[#F26B6F] hover:underline bg-[#F26B6F]/10 px-2 py-0.5 rounded font-bold">
                     {isAiOneriOpen ? 'Detayı Gizle [-]' : 'Detayı Göster [+]'}
                   </span>
                 </div>
@@ -1639,7 +1639,7 @@ export default function Merch({
                             status: 'Konsept'
                           });
                         }}
-                        className="px-4 py-2 bg-[#D35057] text-white font-bold rounded-lg hover:bg-[#b04046] transition-colors cursor-pointer"
+                        className="px-4 py-2 bg-[#F26B6F] text-white font-bold rounded-lg hover:bg-[#b04046] transition-colors cursor-pointer"
                       >
                         Öneriyi Kabul Et (Resmileştir)
                       </button>
@@ -1648,7 +1648,7 @@ export default function Merch({
                           await onDeleteItem(activeItem.id);
                           onSelectItem(null);
                         }}
-                        className="px-4 py-2 bg-stone-200 text-[#1B2A4A] rounded-lg hover:bg-stone-300 transition-colors cursor-pointer font-semibold"
+                        className="px-4 py-2 bg-stone-200 text-[#0E1C4F] rounded-lg hover:bg-stone-300 transition-colors cursor-pointer font-semibold"
                       >
                         Vazgeç (Reddet & Sil)
                       </button>
@@ -1672,7 +1672,7 @@ export default function Merch({
                       <button
                         key={st}
                         onClick={async () => await onUpdateItem({ ...activeItem, status: st })}
-                        className={`py-2 rounded-lg border cursor-pointer transition-colors ${isActive ? 'bg-[#D35057] text-white border-transparent font-bold' : 'bg-white dark:bg-[#17345A] border-[#CFC5B4] text-[#6A5E4C] dark:text-[#A6B0C9]'}`}
+                        className={`py-2 rounded-lg border cursor-pointer transition-colors ${isActive ? 'bg-[#F26B6F] text-white border-transparent font-bold' : 'bg-white dark:bg-[#17345A] border-[#CFC5B4] text-[#6A5E4C] dark:text-[#A6B0C9]'}`}
                       >
                         {st}
                       </button>
@@ -1687,7 +1687,7 @@ export default function Merch({
                       <button
                         key={st}
                         onClick={() => handleUpdateProductStatus(activeItem, st)}
-                        className={`py-2 rounded-md border cursor-pointer transition-colors ${isActive ? 'bg-[#D35057] text-white border-transparent font-bold' : 'bg-white dark:bg-[#17345A] border-[#CFC5B4] text-[#6A5E4C] dark:text-[#A6B0C9]'}`}
+                        className={`py-2 rounded-md border cursor-pointer transition-colors ${isActive ? 'bg-[#F26B6F] text-white border-transparent font-bold' : 'bg-white dark:bg-[#17345A] border-[#CFC5B4] text-[#6A5E4C] dark:text-[#A6B0C9]'}`}
                       >
                         {st}
                       </button>
@@ -1700,9 +1700,9 @@ export default function Merch({
             {/* Düzenle (Edit) Button Bar */}
             <div className="flex justify-between items-center bg-white/50 dark:bg-[#1E294B]/20 p-3.5 rounded-xl border border-[#CFC5B4]/30">
               <div className="text-xs font-mono text-[#6A5E4C] dark:text-[#A6B0C9]">
-                Bağlı Olduğu Marka: <span className="font-bold text-[#1B2A4A] dark:text-[#F3EFE8]">{brands.find(b => b.id === activeItem.metadata?.brandId)?.title || "Marka Seçilmemiş"}</span>
+                Bağlı Olduğu Marka: <span className="font-bold text-[#0E1C4F] dark:text-[#F3EFE8]">{brands.find(b => b.id === activeItem.metadata?.brandId)?.title || "Marka Seçilmemiş"}</span>
                 {kurumuNe(activeItem) && (
-                  <> · Kurum: <span className="font-bold text-[#1B2A4A] dark:text-[#F3EFE8]">{kurumlar.find(k => k.id === kurumuNe(activeItem))?.title || '—'}</span></>
+                  <> · Kurum: <span className="font-bold text-[#0E1C4F] dark:text-[#F3EFE8]">{kurumlar.find(k => k.id === kurumuNe(activeItem))?.title || '—'}</span></>
                 )}
               </div>
               <button
@@ -1713,7 +1713,7 @@ export default function Merch({
                     startEditing();
                   }
                 }}
-                className="px-3.5 py-1.5 bg-[#1B2A4A] dark:bg-stone-200 text-white dark:text-[#1B2A4A] hover:opacity-90 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer shadow-xs"
+                className="px-3.5 py-1.5 bg-[#0E1C4F] dark:bg-stone-200 text-white dark:text-[#0E1C4F] hover:opacity-90 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer shadow-xs"
               >
                 {isEditing ? '❌ İptal Et' : '✍️ Düzenle (Edit)'}
               </button>
@@ -1721,7 +1721,7 @@ export default function Merch({
 
             {isEditing ? (
               <div className="bg-white/80 dark:bg-[#1E294B]/45 border border-[#CFC5B4]/50 p-5 rounded-xl space-y-4 animate-in fade-in duration-200 text-left">
-                <h3 className="font-serif font-bold text-sm text-[#1B2A4A] dark:text-[#F3EFE8] border-b border-[#CFC5B4]/30 pb-2">
+                <h3 className="font-serif font-bold text-sm text-[#0E1C4F] dark:text-[#F3EFE8] border-b border-[#CFC5B4]/30 pb-2">
                   Detayları Düzenle ({activeItem.type})
                 </h3>
                 
@@ -1733,7 +1733,7 @@ export default function Merch({
                       required
                       value={editTitle}
                       onChange={(e) => setEditTitle(e.target.value)}
-                      className="w-full text-xs bg-[#F6F1E7] dark:bg-[#17345A] text-[#1B2A4A] dark:text-[#F3EFE8] border border-[#CFC5B4] rounded p-2 focus:outline-hidden focus:border-[#D35057]"
+                      className="w-full text-xs bg-[#F6F1E7] dark:bg-[#17345A] text-[#0E1C4F] dark:text-[#F3EFE8] border border-[#CFC5B4] rounded p-2 focus:outline-hidden focus:border-[#F26B6F]"
                     />
                   </div>
 
@@ -1742,7 +1742,7 @@ export default function Merch({
                     <select
                       value={editBrandId}
                       onChange={(e) => setEditBrandId(e.target.value)}
-                      className="w-full text-xs bg-[#F6F1E7] dark:bg-[#17345A] text-[#1B2A4A] dark:text-[#F3EFE8] border border-[#CFC5B4] rounded p-2"
+                      className="w-full text-xs bg-[#F6F1E7] dark:bg-[#17345A] text-[#0E1C4F] dark:text-[#F3EFE8] border border-[#CFC5B4] rounded p-2"
                     >
                       <option value="">Seçiniz...</option>
                       {brands.map(b => (
@@ -1757,7 +1757,7 @@ export default function Merch({
                       <select
                         value={editKurumId}
                         onChange={(e) => setEditKurumId(e.target.value)}
-                        className="w-full text-xs bg-[#F6F1E7] dark:bg-[#17345A] text-[#1B2A4A] dark:text-[#F3EFE8] border border-[#CFC5B4] rounded p-2"
+                        className="w-full text-xs bg-[#F6F1E7] dark:bg-[#17345A] text-[#0E1C4F] dark:text-[#F3EFE8] border border-[#CFC5B4] rounded p-2"
                       >
                         <option value="">Kurumsuz — doğrudan marka</option>
                         {kurumlar.map(k => (
@@ -1772,7 +1772,7 @@ export default function Merch({
                     <select
                       value={editPriority}
                       onChange={(e) => setEditPriority(e.target.value)}
-                      className="w-full text-xs bg-[#F6F1E7] dark:bg-[#17345A] text-[#1B2A4A] dark:text-[#F3EFE8] border border-[#CFC5B4] rounded p-2"
+                      className="w-full text-xs bg-[#F6F1E7] dark:bg-[#17345A] text-[#0E1C4F] dark:text-[#F3EFE8] border border-[#CFC5B4] rounded p-2"
                     >
                       <option value="düşük">Düşük</option>
                       <option value="orta">Orta</option>
@@ -1786,7 +1786,7 @@ export default function Merch({
                       <select
                         value={editStatus}
                         onChange={(e) => setEditStatus(e.target.value)}
-                        className="w-full text-xs bg-[#F6F1E7] dark:bg-[#17345A] text-[#1B2A4A] dark:text-[#F3EFE8] border border-[#CFC5B4] rounded p-2"
+                        className="w-full text-xs bg-[#F6F1E7] dark:bg-[#17345A] text-[#0E1C4F] dark:text-[#F3EFE8] border border-[#CFC5B4] rounded p-2"
                       >
                         {['Konsept', 'Tasarım', 'Üretim', 'Satışta'].map(st => (
                           <option key={st} value={st}>{st}</option>
@@ -1796,7 +1796,7 @@ export default function Merch({
                       <select
                         value={editStatus}
                         onChange={(e) => setEditStatus(e.target.value)}
-                        className="w-full text-xs bg-[#F6F1E7] dark:bg-[#17345A] text-[#1B2A4A] dark:text-[#F3EFE8] border border-[#CFC5B4] rounded p-2"
+                        className="w-full text-xs bg-[#F6F1E7] dark:bg-[#17345A] text-[#0E1C4F] dark:text-[#F3EFE8] border border-[#CFC5B4] rounded p-2"
                       >
                         {['Konsept', 'Tasarım', 'Üretim', 'Satışta'].map(st => (
                           <option key={st} value={st}>{st}</option>
@@ -1807,7 +1807,7 @@ export default function Merch({
                         type="text"
                         value={editStatus}
                         onChange={(e) => setEditStatus(e.target.value)}
-                        className="w-full text-xs bg-[#F6F1E7] dark:bg-[#17345A] text-[#1B2A4A] dark:text-[#F3EFE8] border border-[#CFC5B4] rounded p-2 focus:outline-hidden"
+                        className="w-full text-xs bg-[#F6F1E7] dark:bg-[#17345A] text-[#0E1C4F] dark:text-[#F3EFE8] border border-[#CFC5B4] rounded p-2 focus:outline-hidden"
                       />
                     )}
                   </div>
@@ -1819,7 +1819,7 @@ export default function Merch({
                         <select
                           value={editParentId}
                           onChange={(e) => setEditParentId(e.target.value)}
-                          className="w-full text-xs bg-[#F6F1E7] dark:bg-[#17345A] text-[#1B2A4A] dark:text-[#F3EFE8] border border-[#CFC5B4] rounded p-2"
+                          className="w-full text-xs bg-[#F6F1E7] dark:bg-[#17345A] text-[#0E1C4F] dark:text-[#F3EFE8] border border-[#CFC5B4] rounded p-2"
                         >
                           <option value="">Seçiniz...</option>
                           {activeDrops.map(d => (
@@ -1834,7 +1834,7 @@ export default function Merch({
                           type="text"
                           value={editVariantColor}
                           onChange={(e) => setEditVariantColor(e.target.value)}
-                          className="w-full text-xs bg-[#F6F1E7] dark:bg-[#17345A] text-[#1B2A4A] dark:text-[#F3EFE8] border border-[#CFC5B4] rounded p-2"
+                          className="w-full text-xs bg-[#F6F1E7] dark:bg-[#17345A] text-[#0E1C4F] dark:text-[#F3EFE8] border border-[#CFC5B4] rounded p-2"
                         />
                       </div>
 
@@ -1843,7 +1843,7 @@ export default function Merch({
                         <select
                           value={editCategory}
                           onChange={(e) => setEditCategory(e.target.value)}
-                          className="w-full text-xs bg-[#F6F1E7] dark:bg-[#17345A] text-[#1B2A4A] dark:text-[#F3EFE8] border border-[#CFC5B4] rounded p-2"
+                          className="w-full text-xs bg-[#F6F1E7] dark:bg-[#17345A] text-[#0E1C4F] dark:text-[#F3EFE8] border border-[#CFC5B4] rounded p-2"
                         >
                           <option value="giyim">Giyim</option>
                           <option value="baskı">Baskı / Poster</option>
@@ -1861,7 +1861,7 @@ export default function Merch({
                     rows={4}
                     value={editNotes}
                     onChange={(e) => setEditNotes(e.target.value)}
-                    className="w-full text-xs bg-[#F6F1E7] dark:bg-[#17345A] text-[#1B2A4A] dark:text-[#F3EFE8] border border-[#CFC5B4] rounded p-2 focus:outline-hidden focus:border-[#D35057]"
+                    className="w-full text-xs bg-[#F6F1E7] dark:bg-[#17345A] text-[#0E1C4F] dark:text-[#F3EFE8] border border-[#CFC5B4] rounded p-2 focus:outline-hidden focus:border-[#F26B6F]"
                   />
                 </div>
 
@@ -1918,7 +1918,7 @@ export default function Merch({
                         />
                         <label
                           htmlFor="showcase-file-upload-input"
-                          className="text-[10px] font-mono bg-[#D35057] text-white px-2 py-1 rounded cursor-pointer hover:bg-[#b04046]"
+                          className="text-[10px] font-mono bg-[#F26B6F] text-white px-2 py-1 rounded cursor-pointer hover:bg-[#b04046]"
                         >
                           + Görsel Yükle
                         </label>
@@ -1943,7 +1943,7 @@ export default function Merch({
                                 onClick={() => {
                                   setActiveImageIdx(prev => (prev - 1 + activeItem.images.length) % activeItem.images.length);
                                 }}
-                                className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 dark:bg-[#13204A]/90 border border-[#CFC5B4] text-[#1B2A4A] dark:text-[#F3EFE8] flex items-center justify-center hover:bg-[#D35057] hover:text-white transition-all cursor-pointer opacity-0 group-hover/showcase:opacity-100 shadow-md z-10"
+                                className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 dark:bg-[#13204A]/90 border border-[#CFC5B4] text-[#0E1C4F] dark:text-[#F3EFE8] flex items-center justify-center hover:bg-[#F26B6F] hover:text-white transition-all cursor-pointer opacity-0 group-hover/showcase:opacity-100 shadow-md z-10"
                                 title="Önceki Görsel"
                               >
                                 <ChevronLeft className="w-5 h-5" />
@@ -1954,14 +1954,14 @@ export default function Merch({
                                 onClick={() => {
                                   setActiveImageIdx(prev => (prev + 1) % activeItem.images.length);
                                 }}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 dark:bg-[#13204A]/90 border border-[#CFC5B4] text-[#1B2A4A] dark:text-[#F3EFE8] flex items-center justify-center hover:bg-[#D35057] hover:text-white transition-all cursor-pointer opacity-0 group-hover/showcase:opacity-100 shadow-md z-10"
+                                className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 dark:bg-[#13204A]/90 border border-[#CFC5B4] text-[#0E1C4F] dark:text-[#F3EFE8] flex items-center justify-center hover:bg-[#F26B6F] hover:text-white transition-all cursor-pointer opacity-0 group-hover/showcase:opacity-100 shadow-md z-10"
                                 title="Sonraki Görsel"
                               >
                                 <ChevronRight className="w-5 h-5" />
                               </button>
                               
                               {/* Bottom pill indicator */}
-                              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-[#1B2A4A]/80 dark:bg-stone-900/80 backdrop-blur-xs text-white font-mono text-[10px] px-2.5 py-1 rounded-full border border-white/10 shadow-xs">
+                              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-[#0E1C4F]/80 dark:bg-stone-900/80 backdrop-blur-xs text-white font-mono text-[10px] px-2.5 py-1 rounded-full border border-white/10 shadow-xs">
                                 {Math.min(activeImageIdx, activeItem.images.length - 1) + 1} / {activeItem.images.length}
                               </div>
                             </>
@@ -1986,8 +1986,8 @@ export default function Merch({
                               onClick={() => setActiveImageIdx(idx)}
                               className={`relative w-16 h-16 border rounded-lg overflow-hidden shrink-0 cursor-pointer group transition-all ${
                                 isSelected 
-                                  ? 'border-[#D35057] ring-2 ring-[#D35057]/30' 
-                                  : 'border-[#CFC5B4] hover:border-[#D35057]'
+                                  ? 'border-[#F26B6F] ring-2 ring-[#F26B6F]/30' 
+                                  : 'border-[#CFC5B4] hover:border-[#F26B6F]'
                               }`}
                             >
                               <img src={img} alt="mockup thumbnail" className="w-full h-full object-cover" />
@@ -2041,7 +2041,7 @@ export default function Merch({
                         rows={5}
                         value={localNotes}
                         onChange={(e) => setLocalNotes(e.target.value)}
-                        className="w-full text-xs bg-transparent border-none focus:outline-hidden text-[#1B2A4A] dark:text-[#F3EFE8] leading-relaxed font-serif italic"
+                        className="w-full text-xs bg-transparent border-none focus:outline-hidden text-[#0E1C4F] dark:text-[#F3EFE8] leading-relaxed font-serif italic"
                         placeholder="Bu kreasyon veya tasarımın ardındaki vizyonu detaylandırın..."
                       />
                       <div className="absolute bottom-2 right-2 text-[10px] font-mono text-[#9A8C76]">
@@ -2078,7 +2078,7 @@ export default function Merch({
                           placeholder="Örn: Zeytin Yeşili, Ekru..."
                           value={localVariantColor}
                           onChange={(e) => setLocalVariantColor(e.target.value)}
-                          className="w-full text-xs bg-white dark:bg-[#17345A] text-[#1B2A4A] dark:text-[#F3EFE8] border border-[#CFC5B4] rounded p-2"
+                          className="w-full text-xs bg-white dark:bg-[#17345A] text-[#0E1C4F] dark:text-[#F3EFE8] border border-[#CFC5B4] rounded p-2"
                         />
                       </div>
                       <div className="space-y-1.5">
@@ -2088,7 +2088,7 @@ export default function Merch({
                         <select
                           value={localCategory}
                           onChange={(e) => setLocalCategory(e.target.value)}
-                          className="w-full text-xs bg-white dark:bg-[#17345A] text-[#1B2A4A] dark:text-[#F3EFE8] border border-[#CFC5B4] rounded p-2"
+                          className="w-full text-xs bg-white dark:bg-[#17345A] text-[#0E1C4F] dark:text-[#F3EFE8] border border-[#CFC5B4] rounded p-2"
                         >
                           <option value="giyim">Giyim</option>
                           <option value="baskı">Baskı / Poster</option>
@@ -2123,12 +2123,12 @@ export default function Merch({
             {activeItem.type === 'drop' && (
               <div className="pt-4 border-t border-[#CFC5B4]/40 space-y-3">
                 <div className="flex justify-between items-center">
-                  <h4 className="font-serif font-bold text-base text-[#1B2A4A] dark:text-[#F3EFE8]">
+                  <h4 className="font-serif font-bold text-base text-[#0E1C4F] dark:text-[#F3EFE8]">
                     Bu Droptaki Tüm Ürünler
                   </h4>
                   <button
                     onClick={() => { setShowCreateForm('merch_urun'); setSelectedParentId(activeItem.id); }}
-                    className="text-xs font-mono text-[#D35057] hover:underline"
+                    className="text-xs font-mono text-[#F26B6F] hover:underline"
                   >
                     + Ürün Ekle
                   </button>
@@ -2139,13 +2139,13 @@ export default function Merch({
                     <div 
                       key={p.id}
                       onClick={() => onSelectItem(p.id)}
-                      className="p-3 bg-white dark:bg-[#17345A] border border-[#CFC5B4] hover:border-[#D35057] rounded-lg cursor-pointer flex justify-between items-center text-xs"
+                      className="p-3 bg-white dark:bg-[#17345A] border border-[#CFC5B4] hover:border-[#F26B6F] rounded-lg cursor-pointer flex justify-between items-center text-xs"
                     >
                       <div>
-                        <h5 className="font-bold text-[#1B2A4A] dark:text-[#F3EFE8]">{p.title}</h5>
+                        <h5 className="font-bold text-[#0E1C4F] dark:text-[#F3EFE8]">{p.title}</h5>
                         <span className="text-[10px] text-[#9A8C76] font-mono capitalize">{p.metadata?.variantColor || 'Standart Varyant'}</span>
                       </div>
-                      <span className="text-[10px] font-mono font-bold uppercase text-[#D35057]">
+                      <span className="text-[10px] font-mono font-bold uppercase text-[#F26B6F]">
                         {p.status}
                       </span>
                     </div>
@@ -2209,13 +2209,13 @@ export default function Merch({
                 <button
                   type="button"
                   onClick={() => setIsFullScreenBrochure(false)}
-                  className="absolute top-6 right-6 text-white hover:text-[#D35057] font-mono flex items-center gap-1.5 bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full cursor-pointer transition-all z-50 shadow-md"
+                  className="absolute top-6 right-6 text-white hover:text-[#F26B6F] font-mono flex items-center gap-1.5 bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full cursor-pointer transition-all z-50 shadow-md"
                 >
                   <span>✕ Kapat</span>
                 </button>
 
                 {/* Book container */}
-                <div className="max-w-6xl w-full bg-[#FAF8F5] text-[#1B2A4A] rounded-3xl overflow-hidden shadow-2xl flex flex-col lg:flex-row border border-[#CFC5B4]/60 paper-grain max-h-[90vh]">
+                <div className="max-w-6xl w-full bg-[#FAF8F5] text-[#0E1C4F] rounded-3xl overflow-hidden shadow-2xl flex flex-col lg:flex-row border border-[#CFC5B4]/60 paper-grain max-h-[90vh]">
                   
                   {/* Left page: Visual showcase */}
                   <div className="lg:w-1/2 bg-stone-100 flex flex-col justify-between p-6 sm:p-8 border-b lg:border-b-0 lg:border-r border-[#CFC5B4]/40 overflow-y-auto">
@@ -2235,7 +2235,7 @@ export default function Merch({
                                 onClick={() => {
                                   setActiveImageIdx(prev => (prev - 1 + activeItem.images.length) % activeItem.images.length);
                                 }}
-                                className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/95 border border-[#CFC5B4] text-[#1B2A4A] flex items-center justify-center hover:bg-[#D35057] hover:text-white transition-all cursor-pointer shadow-md z-10"
+                                className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/95 border border-[#CFC5B4] text-[#0E1C4F] flex items-center justify-center hover:bg-[#F26B6F] hover:text-white transition-all cursor-pointer shadow-md z-10"
                               >
                                 <ChevronLeft className="w-6 h-6" />
                               </button>
@@ -2245,7 +2245,7 @@ export default function Merch({
                                 onClick={() => {
                                   setActiveImageIdx(prev => (prev + 1) % activeItem.images.length);
                                 }}
-                                className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/95 border border-[#CFC5B4] text-[#1B2A4A] flex items-center justify-center hover:bg-[#D35057] hover:text-white transition-all cursor-pointer shadow-md z-10"
+                                className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/95 border border-[#CFC5B4] text-[#0E1C4F] flex items-center justify-center hover:bg-[#F26B6F] hover:text-white transition-all cursor-pointer shadow-md z-10"
                               >
                                 <ChevronRight className="w-6 h-6" />
                               </button>
@@ -2270,8 +2270,8 @@ export default function Merch({
                             onClick={() => setActiveImageIdx(idx)}
                             className={`relative w-14 h-14 border rounded-lg overflow-hidden shrink-0 cursor-pointer transition-all ${
                               idx === Math.min(activeImageIdx, activeItem.images.length - 1)
-                                ? "border-[#D35057] ring-2 ring-[#D35057]/30"
-                                : "border-[#CFC5B4]/50 hover:border-[#D35057]"
+                                ? "border-[#F26B6F] ring-2 ring-[#F26B6F]/30"
+                                : "border-[#CFC5B4]/50 hover:border-[#F26B6F]"
                             }`}
                           >
                             <img src={img} alt="thumbnail" className="w-full h-full object-cover" />
@@ -2286,23 +2286,23 @@ export default function Merch({
                     <div className="space-y-6 text-left">
                       {/* Brand and Series */}
                       <div className="border-b border-[#CFC5B4]/40 pb-4 space-y-2">
-                        <div className="flex items-center gap-2 text-[10px] font-mono tracking-wider text-[#D35057] font-bold uppercase">
+                        <div className="flex items-center gap-2 text-[10px] font-mono tracking-wider text-[#F26B6F] font-bold uppercase">
                           <span>Kems Collection</span>
                           <span>•</span>
                           <span>{brands.find(b => b.id === activeItem.metadata?.brandId)?.title || "Genel Serisi"}</span>
                         </div>
-                        <h2 className="font-serif italic font-bold text-3xl text-[#1B2A4A] tracking-tight leading-tight">
+                        <h2 className="font-serif italic font-bold text-3xl text-[#0E1C4F] tracking-tight leading-tight">
                           {activeItem.title}
                         </h2>
-                        <div className="inline-flex items-center gap-2 font-mono text-[10px] bg-stone-100 px-2.5 py-1 rounded-sm text-[#1B2A4A] border border-[#CFC5B4]/40 font-semibold">
+                        <div className="inline-flex items-center gap-2 font-mono text-[10px] bg-stone-100 px-2.5 py-1 rounded-sm text-[#0E1C4F] border border-[#CFC5B4]/40 font-semibold">
                           DURUM: {activeItem.status}
                         </div>
                       </div>
 
                       {/* Editorial Vision Story */}
                       <div className="space-y-2">
-                        <h4 className="text-[10px] font-mono font-bold tracking-widest text-[#D35057] uppercase">VİZYON VE KURGU</h4>
-                        <p className="font-serif italic text-base leading-relaxed text-[#1B2A4A]/90 bg-[#FAF8F5]/80 p-5 border-l-2 border-[#D35057] rounded-r-lg relative">
+                        <h4 className="text-[10px] font-mono font-bold tracking-widest text-[#F26B6F] uppercase">VİZYON VE KURGU</h4>
+                        <p className="font-serif italic text-base leading-relaxed text-[#0E1C4F]/90 bg-[#FAF8F5]/80 p-5 border-l-2 border-[#F26B6F] rounded-r-lg relative">
                           {localNotes || "Kurgu detayları henüz işlenmedi."}
                         </p>
                       </div>
@@ -2311,19 +2311,19 @@ export default function Merch({
                       {localEditionNotes && (
                         <div className="p-4 bg-[#BBA591]/10 border border-[#BBA591]/30 rounded-xl space-y-1 text-xs">
                           <span className="block font-mono text-[10px] font-bold uppercase text-[#6A5E4C]">EDİSYON DEPARTMAN PLANLAMASI</span>
-                          <p className="leading-relaxed italic text-[#1B2A4A]/80">{localEditionNotes}</p>
+                          <p className="leading-relaxed italic text-[#0E1C4F]/80">{localEditionNotes}</p>
                         </div>
                       )}
 
                       {/* Catalog pieces list inside fullscreen modal */}
                       {activeItem.type === 'drop' && (
                         <div className="space-y-3 pt-4 border-t border-[#CFC5B4]/30">
-                          <h4 className="font-serif font-bold text-sm text-[#1B2A4A] italic">Koleksiyondaki Modeller ({products.filter(p => p.metadata?.dropId === activeItem.id).length})</h4>
+                          <h4 className="font-serif font-bold text-sm text-[#0E1C4F] italic">Koleksiyondaki Modeller ({products.filter(p => p.metadata?.dropId === activeItem.id).length})</h4>
                           <div className="grid grid-cols-2 gap-3 max-h-[220px] overflow-y-auto pr-1">
                             {products.filter(p => p.metadata?.dropId === activeItem.id).map(p => (
                               <div
                                 key={p.id}
-                                className="p-2.5 bg-white border border-[#CFC5B4] rounded-xl flex gap-2.5 items-center text-left cursor-pointer hover:border-[#D35057] transition-all"
+                                className="p-2.5 bg-white border border-[#CFC5B4] rounded-xl flex gap-2.5 items-center text-left cursor-pointer hover:border-[#F26B6F] transition-all"
                                 onClick={() => {
                                   setIsFullScreenBrochure(false);
                                   onSelectItem(p.id);
@@ -2337,7 +2337,7 @@ export default function Merch({
                                   )}
                                 </div>
                                 <div className="min-w-0 flex-1">
-                                  <h5 className="font-serif font-bold text-xs text-[#1B2A4A] truncate">{p.title}</h5>
+                                  <h5 className="font-serif font-bold text-xs text-[#0E1C4F] truncate">{p.title}</h5>
                                   <p className="text-[9px] font-mono text-[#9A8C76] capitalize truncate">{p.metadata?.category || 'Ürün'} • {p.metadata?.variantColor || 'Standart'}</p>
                                 </div>
                               </div>
@@ -2365,7 +2365,7 @@ export default function Merch({
       {showCreateForm && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
           <form onSubmit={handleCreateMerch} className="bg-[#F3EFE8] border-2 border-[#CFC5B4] rounded-xl max-w-md w-full p-6 space-y-4 paper-grain animate-in zoom-in-95 duration-200">
-            <h3 className="font-serif font-bold text-lg text-[#1B2A4A] border-b border-[#CFC5B4]/50 pb-2 capitalize">
+            <h3 className="font-serif font-bold text-lg text-[#0E1C4F] border-b border-[#CFC5B4]/50 pb-2 capitalize">
               Yeni {showCreateForm === 'drop' ? 'Drop' : 'Ürün'} Tasarla
             </h3>
 
@@ -2378,7 +2378,7 @@ export default function Merch({
                 required
                 value={newTitle}
                 onChange={(e) => setNewTitle(e.target.value)}
-                className="w-full text-xs bg-[#F6F1E7] text-[#1B2A4A] border border-[#CFC5B4] rounded p-2 focus:outline-hidden focus:border-[#D35057]"
+                className="w-full text-xs bg-[#F6F1E7] text-[#0E1C4F] border border-[#CFC5B4] rounded p-2 focus:outline-hidden focus:border-[#F26B6F]"
                 placeholder="Başlığı giriniz..."
               />
             </div>
@@ -2391,7 +2391,7 @@ export default function Merch({
                 required
                 value={createFormBrandId}
                 onChange={(e) => setCreateFormBrandId(e.target.value)}
-                className="w-full text-xs bg-[#F6F1E7] text-[#1B2A4A] border border-[#CFC5B4] rounded p-2"
+                className="w-full text-xs bg-[#F6F1E7] text-[#0E1C4F] border border-[#CFC5B4] rounded p-2"
               >
                 <option value="">Seçiniz...</option>
                 {brands.map(b => (
@@ -2408,7 +2408,7 @@ export default function Merch({
                 <select
                   value={createFormKurumId}
                   onChange={(e) => setCreateFormKurumId(e.target.value)}
-                  className="w-full text-xs bg-[#F6F1E7] text-[#1B2A4A] border border-[#CFC5B4] rounded p-2"
+                  className="w-full text-xs bg-[#F6F1E7] text-[#0E1C4F] border border-[#CFC5B4] rounded p-2"
                 >
                   <option value="">Kurumsuz — doğrudan marka</option>
                   {kurumlar.map(k => (
@@ -2431,7 +2431,7 @@ export default function Merch({
                     required
                     value={selectedParentId}
                     onChange={(e) => setSelectedParentId(e.target.value)}
-                    className="w-full text-xs bg-[#F6F1E7] text-[#1B2A4A] border border-[#CFC5B4] rounded p-2"
+                    className="w-full text-xs bg-[#F6F1E7] text-[#0E1C4F] border border-[#CFC5B4] rounded p-2"
                   >
                     <option value="">Drop Seçin...</option>
                     {activeDrops.map(d => (
@@ -2449,7 +2449,7 @@ export default function Merch({
                       type="text"
                       value={newVariantColor}
                       onChange={(e) => setNewVariantColor(e.target.value)}
-                      className="w-full text-xs bg-[#F6F1E7] text-[#1B2A4A] border border-[#CFC5B4] rounded p-2"
+                      className="w-full text-xs bg-[#F6F1E7] text-[#0E1C4F] border border-[#CFC5B4] rounded p-2"
                       placeholder="Ekru, Lacivert vb."
                     />
                   </div>
@@ -2460,7 +2460,7 @@ export default function Merch({
                     <select
                       value={newCategory}
                       onChange={(e) => setNewCategory(e.target.value)}
-                      className="w-full text-xs bg-[#F6F1E7] text-[#1B2A4A] border border-[#CFC5B4] rounded p-2"
+                      className="w-full text-xs bg-[#F6F1E7] text-[#0E1C4F] border border-[#CFC5B4] rounded p-2"
                     >
                       <option value="giyim">Giyim</option>
                       <option value="baskı">Baskı / Poster</option>
@@ -2480,7 +2480,7 @@ export default function Merch({
                 rows={3}
                 value={newNotes}
                 onChange={(e) => setNewNotes(e.target.value)}
-                className="w-full text-xs bg-[#F6F1E7] text-[#1B2A4A] border border-[#CFC5B4] rounded p-2"
+                className="w-full text-xs bg-[#F6F1E7] text-[#0E1C4F] border border-[#CFC5B4] rounded p-2"
                 placeholder="Marka vizyonu ve tasarımı hakkında notlar ekleyin..."
               />
             </div>
@@ -2495,7 +2495,7 @@ export default function Merch({
               </button>
               <button
                 type="submit"
-                className="px-4 py-1.5 bg-[#D35057] text-white rounded hover:bg-[#B23A40]"
+                className="px-4 py-1.5 bg-[#F26B6F] text-white rounded hover:bg-[#B23A40]"
               >
                 Oluştur
               </button>

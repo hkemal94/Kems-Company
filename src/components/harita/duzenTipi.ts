@@ -43,6 +43,18 @@ export interface MekanKaydi {
 
 export type MekanDuzeni = Record<string, MekanKaydi>;
 
+/**
+ * Kurucu taslağı (şehir kurucu, 1. adım). Haritayı değiştirmez; "Haritaya
+ * işle" gelene kadar yalnız saklanır. Ayrıntı: `kurucu/kurucuTipi.ts`.
+ * Noktalar düz dizi: [boylam0, enlem0, boylam1, enlem1, …].
+ */
+export interface KurucuBelge {
+  surum: number;
+  yeniYollar: Record<string, { tur: string; n: number[] }>;
+  turDegisikligi: Record<string, string>;
+  gizlenen: string[];
+}
+
 export interface HaritaDuzeni {
   surum: number;
   /** ms cinsinden son değişiklik zamanı */
@@ -57,4 +69,6 @@ export interface HaritaDuzeni {
    * bu alan kuralı bozmuyor.
    */
   mekanlar?: MekanDuzeni;
+  /** Kurucu taslağı. Eski kayıtlarda yok. */
+  kurucu?: KurucuBelge;
 }

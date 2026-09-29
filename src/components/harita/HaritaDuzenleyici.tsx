@@ -411,7 +411,7 @@ export const HaritaDuzenleyici: React.FC<HaritaDuzenleyiciProps> = ({
       map.addLayer({
         id: 'mekan-secili', type: 'line', source: KAYNAK,
         filter: ['==', ['get', 'id'], '__yok__'],
-        paint: { 'line-color': '#d35057', 'line-width': 2.5 }
+        paint: { 'line-color': '#F26B6F', 'line-width': 2.5 }
       });
 
       // Seçili yol — tıklayınca hangisini seçtiğin belli olsun
@@ -420,7 +420,7 @@ export const HaritaDuzenleyici: React.FC<HaritaDuzenleyiciProps> = ({
         filter: ['==', ['get', 'id'], '__yok__'],
         layout: { 'line-cap': 'round', 'line-join': 'round' },
         paint: {
-          'line-color': '#d35057', 'line-opacity': 0.55,
+          'line-color': '#F26B6F', 'line-opacity': 0.55,
           'line-width': ['interpolate', ['linear'], ['zoom'], 10, 7, 16, 20],
           'line-blur': 1.5
         }
@@ -431,7 +431,7 @@ export const HaritaDuzenleyici: React.FC<HaritaDuzenleyiciProps> = ({
         layout: { 'line-cap': 'round', 'line-join': 'round' },
         paint: {
           'line-color': [
-            'case', ['boolean', ['get', 'uyari'], false], '#d35057', '#3a2f22'
+            'case', ['boolean', ['get', 'uyari'], false], '#F26B6F', '#3a2f22'
           ],
           'line-width': 2.6,
           'line-dasharray': [2, 1.6]
@@ -447,7 +447,7 @@ export const HaritaDuzenleyici: React.FC<HaritaDuzenleyiciProps> = ({
           ],
           'circle-color': [
             'case',
-            ['boolean', ['get', 'secili'], false], '#d35057',
+            ['boolean', ['get', 'secili'], false], '#F26B6F',
             ['==', ['get', 'uc'], 'serbest'], '#f3efe8', '#bba591'
           ],
           'circle-stroke-color': '#3a2f22',

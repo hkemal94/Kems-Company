@@ -127,13 +127,13 @@ export const SayfaRayi: React.FC<SayfaRayiProps> = ({
               onClick={() => git(b.id)}
               className={`w-full text-left px-3 py-1.5 rounded-lg flex items-center gap-2 cursor-pointer transition-colors ${
                 bu
-                  ? 'text-[#1B2A4A] dark:text-[#F3EFE8] font-bold bg-[#F3EFE8] dark:bg-[#17345A]'
+                  ? 'text-[#0E1C4F] dark:text-[#F3EFE8] font-bold bg-[#F3EFE8] dark:bg-[#17345A]'
                   : 'text-[#6A5E4C] dark:text-[#A6B0C9] hover:bg-[#F6F1E7] dark:hover:bg-[#202E5C]'
               }`}
             >
               <span
                 className={`w-1 h-3.5 rounded-full shrink-0 ${
-                  bu ? 'bg-[#D35057]' : 'bg-[#CFC5B4]/60 dark:bg-[#2C3C72]'
+                  bu ? 'bg-[#F26B6F]' : 'bg-[#CFC5B4]/60 dark:bg-[#2C3C72]'
                 }`}
               />
               <span className="truncate">{b.label}</span>

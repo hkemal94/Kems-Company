@@ -168,7 +168,7 @@ export default function ConsistencyChecker({
         className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:scale-[1.02] active:scale-[0.98] ${
           isLoading 
             ? 'bg-stone-100 text-stone-400 dark:bg-stone-800 dark:text-stone-600 cursor-not-allowed'
-            : buttonClassName || 'bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/20 text-[#D35057] dark:text-[#EFA39F] border border-amber-200/50 dark:border-amber-900/40'
+            : buttonClassName || 'bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/20 text-[#F26B6F] dark:text-[#EFA39F] border border-amber-200/50 dark:border-amber-900/40'
         }`}
       >
         {isLoading ? (
@@ -191,9 +191,9 @@ export default function ConsistencyChecker({
             {/* Header */}
             <div className="p-5 border-b border-[#CFC5B4] dark:border-stone-800 flex items-center justify-between bg-[#F3EFE8] dark:bg-[#1a1816]">
               <div className="flex items-center gap-2">
-                <ShieldCheck className="w-5 h-5 text-[#D35057] dark:text-[#EFA39F]" />
+                <ShieldCheck className="w-5 h-5 text-[#F26B6F] dark:text-[#EFA39F]" />
                 <div>
-                  <h3 className="font-serif font-bold text-base text-[#1B2A4A] dark:text-[#F3EFE8]">
+                  <h3 className="font-serif font-bold text-base text-[#0E1C4F] dark:text-[#F3EFE8]">
                     {module.toUpperCase()} Tutarlılık Denetimi
                   </h3>
                   <p className="text-[10px] font-mono text-stone-500 uppercase">KEMS EVREN ENTEGRASYON PROTOKOLÜ</p>
@@ -224,14 +224,14 @@ export default function ConsistencyChecker({
               {/* LIST OF ISSUES */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between border-b border-stone-200 dark:border-stone-800 pb-2">
-                  <h4 className="text-xs font-bold text-[#1B2A4A] dark:text-[#F3EFE8] uppercase tracking-wider font-mono">
+                  <h4 className="text-xs font-bold text-[#0E1C4F] dark:text-[#F3EFE8] uppercase tracking-wider font-mono">
                     Tespit Edilen Çelişki ve Öneriler ({activeIssues.length})
                   </h4>
                 </div>
 
                 {isLoading ? (
                   <div className="py-12 flex flex-col items-center justify-center gap-3 text-stone-400">
-                    <RefreshCw className="w-8 h-8 animate-spin text-[#D35057]" />
+                    <RefreshCw className="w-8 h-8 animate-spin text-[#F26B6F]" />
                     <span className="text-xs font-mono">Kems Veritabanı taranıyor...</span>
                   </div>
                 ) : activeIssues.length === 0 ? (
@@ -280,7 +280,7 @@ export default function ConsistencyChecker({
 
                           {/* Proposed Fix Block */}
                           <div className="p-3 rounded bg-stone-50 dark:bg-stone-900/60 border border-stone-100 dark:border-stone-800/60 text-[11px] mb-4 space-y-1">
-                            <span className="font-mono text-[9px] font-bold text-[#D35057] block uppercase">Önerilen Çözüm:</span>
+                            <span className="font-mono text-[9px] font-bold text-[#F26B6F] block uppercase">Önerilen Çözüm:</span>
                             <p className="text-stone-800 dark:text-stone-300 font-sans">{issue.proposedFix}</p>
                           </div>
 
@@ -295,7 +295,7 @@ export default function ConsistencyChecker({
                             </button>
                             <button
                               onClick={() => handleAcceptFix(issue)}
-                              className="px-3 py-1 text-[10px] font-bold bg-[#D35057] hover:bg-[#B23A40] text-white rounded transition-colors flex items-center gap-1 shadow-sm"
+                              className="px-3 py-1 text-[10px] font-bold bg-[#F26B6F] hover:bg-[#B23A40] text-white rounded transition-colors flex items-center gap-1 shadow-sm"
                             >
                               <Check className="w-3 h-3" />
                               Kabul Et
@@ -311,7 +311,7 @@ export default function ConsistencyChecker({
               {/* AI DEEP ANALYSIS PANEL */}
               <div className="pt-6 border-t border-stone-200 dark:border-stone-800 space-y-3">
                 <div className="flex items-center justify-between">
-                  <h4 className="text-xs font-bold text-[#1B2A4A] dark:text-[#F3EFE8] uppercase tracking-wider font-mono flex items-center gap-1">
+                  <h4 className="text-xs font-bold text-[#0E1C4F] dark:text-[#F3EFE8] uppercase tracking-wider font-mono flex items-center gap-1">
                     <Sparkles className="w-3.5 h-3.5 text-indigo-500 animate-pulse" />
                     Derin Yapay Zekâ Analizi (Gemini 2.5)
                   </h4>

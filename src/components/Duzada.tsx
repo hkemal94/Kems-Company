@@ -20,7 +20,8 @@ import { SayfaRayi, type RayBolumu } from './SayfaRayi';
 /** Düzada'nın iki yüzü — sekme, kaydırma değil */
 const RAY_BOLUMLERI: RayBolumu[] = [
   { id: 'wiki', label: 'Düzada Wiki' },
-  { id: 'harita', label: 'Düzada Haritası' }
+  { id: 'harita', label: 'Düzada Haritası' },
+  { id: 'kurucu', label: 'Kurucu' }
 ];
 
 // MapLibre haritası ~1 MB'lık bir paket (motor + arazi verisi). Sekme
@@ -31,6 +32,10 @@ const DuzadaHarita = lazy(() =>
 // Düzenleyici de aynı motoru kullanıyor; "Düzenle"ye basılınca yüklenir (H2)
 const HaritaDuzenleyici = lazy(() =>
   import('./harita/HaritaDuzenleyici').then(m => ({ default: m.HaritaDuzenleyici }))
+);
+// Kurucu (şehir kurucu): harita verisini kullanır, sekme açılınca yüklenir
+const Kurucu = lazy(() =>
+  import('./kurucu/Kurucu').then(m => ({ default: m.Kurucu }))
 );
 
 interface DuzadaProps {
@@ -342,7 +347,7 @@ export default function Duzada({
   const [haritaDuzenleniyor, setHaritaDuzenleniyor] = useState(false);
 
   // Navigation / Tabs inside Düzada
-  const [activeTab, setActiveTab] = useState<'wiki' | 'harita'>('wiki');
+  const [activeTab, setActiveTab] = useState<'wiki' | 'harita' | 'kurucu'>('wiki');
   
   const regionsCreatedRef = useRef(false);
   const worldDetailsSyncedRef = useRef(false);
@@ -937,11 +942,11 @@ export default function Duzada({
 
   const getCategoryColor = (category?: string) => {
     switch (category) {
-      case 'lokasyon': return '#D35057'; // Red
+      case 'lokasyon': return '#F26B6F'; // Red
       case 'coğrafi': return '#F59E0B'; // Amber
       case 'kişi': return '#6366F1'; // Indigo
       case 'işletme': return '#10B981'; // Emerald
-      default: return '#1B2A4A'; // Navy
+      default: return '#0E1C4F'; // Navy
     }
   };
 
@@ -1587,7 +1592,7 @@ export default function Duzada({
                     }}
                     className="w-full text-left px-3 py-1.5 hover:bg-stone-50 dark:hover:bg-[#13204A] flex items-center gap-2 cursor-pointer"
                   >
-                    <Sparkles className="w-3.5 h-3.5 text-[#D35057]" />
+                    <Sparkles className="w-3.5 h-3.5 text-[#F26B6F]" />
                     <span>AI ile Devam Yazdır</span>
                   </button>
 
@@ -1643,7 +1648,7 @@ export default function Duzada({
           <span className="text-xs font-mono uppercase text-[#6A5E4C] dark:text-[#A6B0C9]">
             Düzada · Ada & Lore
           </span>
-          <h1 className="font-serif font-bold text-2xl text-[#1B2A4A] dark:text-[#F3EFE8] mt-1">
+          <h1 className="font-serif font-bold text-2xl text-[#0E1C4F] dark:text-[#F3EFE8] mt-1">
             Ada Evreni & Karakterler
           </h1>
         </div>
@@ -1658,15 +1663,21 @@ export default function Duzada({
           />
           <button
             onClick={() => setActiveTab('wiki')}
-            className={`px-4 py-2 rounded-lg cursor-pointer transition-all ${activeTab === 'wiki' ? 'bg-[#1B2A4A] dark:bg-[#D35057] text-[#F3EFE8]' : 'bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] text-[#6A5E4C] dark:text-[#A6B0C9]'}`}
+            className={`px-4 py-2 rounded-lg cursor-pointer transition-all ${activeTab === 'wiki' ? 'bg-[#0E1C4F] dark:bg-[#F26B6F] text-[#F3EFE8]' : 'bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] text-[#6A5E4C] dark:text-[#A6B0C9]'}`}
           >
             Düzada Wiki
           </button>
           <button
             onClick={() => setActiveTab('harita')}
-            className={`px-4 py-2 rounded-lg cursor-pointer transition-all ${activeTab === 'harita' ? 'bg-[#1B2A4A] dark:bg-[#D35057] text-[#F3EFE8]' : 'bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] text-[#6A5E4C] dark:text-[#A6B0C9]'}`}
+            className={`px-4 py-2 rounded-lg cursor-pointer transition-all ${activeTab === 'harita' ? 'bg-[#0E1C4F] dark:bg-[#F26B6F] text-[#F3EFE8]' : 'bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] text-[#6A5E4C] dark:text-[#A6B0C9]'}`}
           >
             Düzada Haritası
+          </button>
+          <button
+            onClick={() => setActiveTab('kurucu')}
+            className={`px-4 py-2 rounded-lg cursor-pointer transition-all ${activeTab === 'kurucu' ? 'bg-[#0E1C4F] dark:bg-[#F26B6F] text-[#F3EFE8]' : 'bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] text-[#6A5E4C] dark:text-[#A6B0C9]'}`}
+          >
+            Kurucu
           </button>
         </div>
       </div>
@@ -1677,6 +1688,37 @@ export default function Duzada({
         aktifId={activeTab}
         onSec={id => setActiveTab(id as typeof activeTab)}
       />
+
+      {/* KURUCU — şehir kurucu, 1. adım: yol aracı */}
+      {activeTab === 'kurucu' && (
+        <div className="bg-[#E7EBE6] dark:bg-[#13204A] border border-[#B9C7BD] dark:border-[#2C3C72] rounded-xl p-4 archive-shadow relative">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[10px] font-mono uppercase text-[#4A5E68] dark:text-[#A6B0C9] font-bold">
+              KURUCU · YOLLAR (TASLAK — HARİTA DEĞİŞMEZ)
+            </span>
+          </div>
+          {haritaDuzeni.ilkYukleme ? (
+            <Suspense
+              fallback={
+                <div className="h-[78vh] flex items-center justify-center rounded-lg border border-[#B9C7BD] bg-[#F3EFE8] font-mono text-xs text-[#6A5E4C]">
+                  Kurucu yükleniyor…
+                </div>
+              }
+            >
+              <Kurucu
+                className="w-full lg:h-[78vh]"
+                duzen={haritaDuzeni.duzen}
+                kaydet={haritaDuzeni.kaydet}
+                durum={haritaDuzeni.durum}
+              />
+            </Suspense>
+          ) : (
+            <div className="h-[78vh] flex items-center justify-center rounded-lg border border-[#B9C7BD] bg-[#F3EFE8] font-mono text-xs text-[#6A5E4C]">
+              Kayıtlı düzen okunuyor…
+            </div>
+          )}
+        </div>
+      )}
 
       {/* HARİTA — DÜZENLEME (H2) */}
       {activeTab === 'harita' && haritaDuzenleniyor && (
@@ -1724,7 +1766,7 @@ export default function Duzada({
                 <button
                   type="button"
                   onClick={() => setHaritaDuzenleniyor(true)}
-                  className="px-3 py-1.5 rounded-lg bg-[#1B2A4A] hover:bg-[#1B2A4A]/90 text-[#F3EFE8] text-[11px] font-mono cursor-pointer transition-colors"
+                  className="px-3 py-1.5 rounded-lg bg-[#0E1C4F] dark:bg-[#2C3C72] hover:bg-[#0E1C4F]/90 text-[#F3EFE8] text-[11px] font-mono cursor-pointer transition-colors"
                 >
                   Haritayı düzenle
                 </button>
@@ -1756,10 +1798,10 @@ export default function Duzada({
             <div className="bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] dark:border-[#2C3C72] p-5 rounded-xl archive-shadow paper-grain space-y-4">
               <div className="flex items-center justify-between border-b border-[#CFC5B4]/50 pb-2">
                 <div>
-                  <span className="text-[9px] font-mono uppercase bg-[#1B2A4A]/10 dark:bg-[#2C3C72] px-1.5 py-0.5 rounded-sm font-bold tracking-wider text-stone-600 dark:text-stone-300">
+                  <span className="text-[9px] font-mono uppercase bg-[#0E1C4F]/10 dark:bg-[#2C3C72] px-1.5 py-0.5 rounded-sm font-bold tracking-wider text-stone-600 dark:text-stone-300">
                     COĞRAFYA SİSTEMİ
                   </span>
-                  <h3 className="font-serif font-bold text-base text-[#1B2A4A] dark:text-[#F3EFE8] mt-0.5">
+                  <h3 className="font-serif font-bold text-base text-[#0E1C4F] dark:text-[#F3EFE8] mt-0.5">
                     Düzada Yerleşim Ağacı
                   </h3>
                 </div>
@@ -1777,7 +1819,7 @@ export default function Duzada({
                       setShowAddMahalleForm(!showAddMahalleForm);
                       setEditingMahalleId(null);
                     }}
-                    className="text-[10px] font-mono text-[#D35057] hover:underline cursor-pointer font-bold flex items-center gap-0.5"
+                    className="text-[10px] font-mono text-[#F26B6F] hover:underline cursor-pointer font-bold flex items-center gap-0.5"
                   >
                     <Plus className="w-3 h-3" />
                     {showAddMahalleForm ? 'Kapat' : 'Mahalle Ekle'}
@@ -1787,7 +1829,7 @@ export default function Duzada({
                 {/* Add Mahalle Form */}
                 {showAddMahalleForm && (
                   <div className="p-3 bg-white dark:bg-[#12224A]/40 border border-stone-200 dark:border-[#2C3C72] rounded-lg space-y-2 text-xs">
-                    <h4 className="font-bold font-serif text-[#1B2A4A] dark:text-[#F3EFE8]">Yeni Mahalle / Köy Ekle</h4>
+                    <h4 className="font-bold font-serif text-[#0E1C4F] dark:text-[#F3EFE8]">Yeni Mahalle / Köy Ekle</h4>
                     <input
                       type="text"
                       placeholder="Mahalle Adı (örn: Kuzey Yamacı)"
@@ -1803,7 +1845,7 @@ export default function Duzada({
                     />
                     <button
                       onClick={handleAddMahalle}
-                      className="w-full py-1.5 bg-[#D35057] text-white rounded text-xs font-mono font-bold cursor-pointer"
+                      className="w-full py-1.5 bg-[#F26B6F] text-white rounded text-xs font-mono font-bold cursor-pointer"
                     >
                       Mahalleyi Kaydet
                     </button>
@@ -1813,7 +1855,7 @@ export default function Duzada({
                 {/* Edit Mahalle Form */}
                 {editingMahalleId && (
                   <div className="p-3 bg-white dark:bg-[#12224A]/40 border border-stone-200 dark:border-[#2C3C72]/50 rounded-lg space-y-2 text-xs">
-                    <h4 className="font-bold font-serif text-[#1B2A4A] dark:text-[#F3EFE8]">Mahalleyi Düzenle</h4>
+                    <h4 className="font-bold font-serif text-[#0E1C4F] dark:text-[#F3EFE8]">Mahalleyi Düzenle</h4>
                     <input
                       type="text"
                       value={editingMahalleName}
@@ -1834,7 +1876,7 @@ export default function Duzada({
                       </button>
                       <button
                         onClick={() => handleUpdateMahalle(editingMahalleId, editingMahalleName, editingMahalleSummary)}
-                        className="flex-1 py-1 bg-[#D35057] text-white rounded text-[11px] font-mono font-bold"
+                        className="flex-1 py-1 bg-[#F26B6F] text-white rounded text-[11px] font-mono font-bold"
                       >
                         Kaydet
                       </button>
@@ -1848,7 +1890,7 @@ export default function Duzada({
                     <button
                       key={mah.id}
                       onClick={() => setSelectedRegion(mah.id)}
-                      className={`py-1.5 px-2 rounded-md transition-all border text-center truncate relative group ${selectedRegion === mah.id ? 'bg-[#1B2A4A] dark:bg-[#D35057] text-white border-transparent' : 'bg-[#F6F1E7] dark:bg-[#17345A] text-[#6A5E4C] dark:text-[#A6B0C9] border-[#CFC5B4] dark:border-[#2C3C72]'}`}
+                      className={`py-1.5 px-2 rounded-md transition-all border text-center truncate relative group ${selectedRegion === mah.id ? 'bg-[#0E1C4F] dark:bg-[#F26B6F] text-white border-transparent' : 'bg-[#F6F1E7] dark:bg-[#17345A] text-[#6A5E4C] dark:text-[#A6B0C9] border-[#CFC5B4] dark:border-[#2C3C72]'}`}
                     >
                       <span className="block truncate font-bold text-[11px]">{mah.name}</span>
                     </button>
@@ -1862,7 +1904,7 @@ export default function Duzada({
                   return (
                     <div className="p-3 bg-[#F6F1E7] dark:bg-[#17345A]/30 border border-[#CFC5B4]/50 dark:border-[#2C3C72]/30 rounded-lg space-y-2">
                       <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-serif font-bold text-[#1B2A4A] dark:text-[#F3EFE8] uppercase">
+                        <span className="text-[10px] font-serif font-bold text-[#0E1C4F] dark:text-[#F3EFE8] uppercase">
                           {activeMah.name} Açıklaması
                         </span>
                         <div className="flex gap-2">
@@ -1873,7 +1915,7 @@ export default function Duzada({
                               setEditingMahalleSummary(activeMah.summary || '');
                               setShowAddMahalleForm(false);
                             }}
-                            className="text-[10px] font-mono text-[#D35057] hover:underline cursor-pointer"
+                            className="text-[10px] font-mono text-[#F26B6F] hover:underline cursor-pointer"
                           >
                             Düzenle
                           </button>
@@ -1912,7 +1954,7 @@ export default function Duzada({
                       setShowAddSokakForm(!showAddSokakForm);
                       setEditingSokakId(null);
                     }}
-                    className="text-[10px] font-mono text-[#D35057] hover:underline cursor-pointer font-bold flex items-center gap-0.5"
+                    className="text-[10px] font-mono text-[#F26B6F] hover:underline cursor-pointer font-bold flex items-center gap-0.5"
                   >
                     <Plus className="w-3 h-3" />
                     {showAddSokakForm ? 'Kapat' : 'Sokak Ekle'}
@@ -1922,7 +1964,7 @@ export default function Duzada({
                 {/* Add Sokak Form */}
                 {showAddSokakForm && (
                   <div className="p-3 bg-white dark:bg-[#12224A]/40 border border-stone-200 dark:border-[#2C3C72] rounded-lg space-y-2 text-xs">
-                    <h4 className="font-bold font-serif text-[#1B2A4A] dark:text-[#F3EFE8]">Yeni Cadde / Sokak Ekle</h4>
+                    <h4 className="font-bold font-serif text-[#0E1C4F] dark:text-[#F3EFE8]">Yeni Cadde / Sokak Ekle</h4>
                     <p className="text-[10px] text-[#6A5E4C] dark:text-stone-400">Bu sokak, seçili mahalle olan <b>{mahalleler.find(m => m.id === selectedRegion)?.name}</b> içinde oluşturulacaktır.</p>
                     <div className="flex gap-1.5">
                       <input
@@ -1934,7 +1976,7 @@ export default function Duzada({
                       />
                       <button
                         onClick={() => handleAddSokak(selectedRegion)}
-                        className="px-3 bg-[#D35057] text-white rounded text-xs font-mono font-bold cursor-pointer"
+                        className="px-3 bg-[#F26B6F] text-white rounded text-xs font-mono font-bold cursor-pointer"
                       >
                         Ekle
                       </button>
@@ -1963,18 +2005,18 @@ export default function Duzada({
                                 type="text"
                                 value={editingSokakName}
                                 onChange={(e) => setEditingSokakName(e.target.value)}
-                                className="p-1 border border-[#D35057] rounded text-xs bg-transparent flex-1 text-stone-800 dark:text-stone-100"
+                                className="p-1 border border-[#F26B6F] rounded text-xs bg-transparent flex-1 text-stone-800 dark:text-stone-100"
                               />
                               <button
                                 onClick={() => handleUpdateSokak(sok.id, editingSokakName)}
-                                className="p-1 bg-[#D35057] text-white rounded cursor-pointer"
+                                className="p-1 bg-[#F26B6F] text-white rounded cursor-pointer"
                               >
                                 <Check className="w-3.5 h-3.5" />
                               </button>
                             </div>
                           ) : (
                             <div className="flex items-center gap-1.5">
-                              <span className="font-serif font-bold text-xs text-[#1B2A4A] dark:text-[#F3EFE8]">{sok.name}</span>
+                              <span className="font-serif font-bold text-xs text-[#0E1C4F] dark:text-[#F3EFE8]">{sok.name}</span>
                               <span className="text-[9px] font-mono text-stone-400 bg-stone-100 dark:bg-[#17345A] px-1 rounded-sm">
                                 {sokMekanlari.length} Mekan
                               </span>
@@ -2014,7 +2056,7 @@ export default function Duzada({
                             <span className="text-[10px] text-stone-400 italic block py-1">Bu sokakta henüz mekan bulunmuyor.</span>
                           ) : (
                             sokMekanlari.map(mekan => {
-                              let typeIcon = <MapPin className="w-3 h-3 text-[#D35057]" />;
+                              let typeIcon = <MapPin className="w-3 h-3 text-[#F26B6F]" />;
                               if (mekan.type === 'dükkân') {
                                 typeIcon = <Store className="w-3 h-3 text-amber-500" />;
                               } else if (mekan.type === 'yer') {
@@ -2028,7 +2070,7 @@ export default function Duzada({
                                       setActiveTab('wiki');
                                       onSelectItem(mekan.id);
                                     }}
-                                    className="flex items-center gap-1.5 cursor-pointer text-[11px] text-[#1B2A4A] dark:text-[#A6B0C9] hover:text-[#D35057] hover:underline truncate"
+                                    className="flex items-center gap-1.5 cursor-pointer text-[11px] text-[#0E1C4F] dark:text-[#A6B0C9] hover:text-[#F26B6F] hover:underline truncate"
                                   >
                                     {typeIcon}
                                     <span className="truncate font-medium">{mekan.title}</span>
@@ -2070,7 +2112,7 @@ export default function Duzada({
                               setAddingMekanSokakId(addingMekanSokakId === sok.id ? null : sok.id);
                               setLinkingMekanSokakId(null);
                             }}
-                            className="text-[#D35057] hover:underline font-mono font-bold flex items-center gap-0.5 cursor-pointer"
+                            className="text-[#F26B6F] hover:underline font-mono font-bold flex items-center gap-0.5 cursor-pointer"
                           >
                             <Plus className="w-2.5 h-2.5" />
                             Yeni Mekan Ekle
@@ -2087,7 +2129,7 @@ export default function Duzada({
                                 setSelectedMekanToLink(unplaced[0].id);
                               }
                             }}
-                            className="text-[#1B2A4A] dark:text-[#A6B0C9] hover:underline font-mono font-bold flex items-center gap-0.5 cursor-pointer"
+                            className="text-[#0E1C4F] dark:text-[#A6B0C9] hover:underline font-mono font-bold flex items-center gap-0.5 cursor-pointer"
                           >
                             <Link className="w-2.5 h-2.5" />
                             Mevcut Mekan Yerleştir
@@ -2117,7 +2159,7 @@ export default function Duzada({
                             </div>
                             <button
                               onClick={() => handleAddMekanToSokak(sok.id, selectedRegion)}
-                              className="w-full py-1 bg-[#D35057] text-white rounded font-mono font-bold cursor-pointer"
+                              className="w-full py-1 bg-[#F26B6F] text-white rounded font-mono font-bold cursor-pointer"
                             >
                               Yeni Mekanı Kaydet ve Yerleştir
                             </button>
@@ -2150,7 +2192,7 @@ export default function Duzada({
                                   </select>
                                   <button
                                     onClick={() => handleLinkMekanToSokak(selectedMekanToLink, sok.id, selectedRegion)}
-                                    className="w-full py-1 bg-[#1B2A4A] dark:bg-stone-700 text-white rounded font-mono font-bold cursor-pointer"
+                                    className="w-full py-1 bg-[#0E1C4F] dark:bg-stone-700 text-white rounded font-mono font-bold cursor-pointer"
                                   >
                                     Mevcut Mekanı Buraya Yerleştir
                                   </button>
@@ -2190,7 +2232,7 @@ export default function Duzada({
                               setActiveTab('wiki');
                               onSelectItem(mekan.id);
                             }}
-                            className="font-medium text-[#1B2A4A] dark:text-[#A6B0C9] hover:text-[#D35057] hover:underline truncate cursor-pointer"
+                            className="font-medium text-[#0E1C4F] dark:text-[#A6B0C9] hover:text-[#F26B6F] hover:underline truncate cursor-pointer"
                           >
                             {mekan.title}
                           </span>
@@ -2291,7 +2333,7 @@ export default function Duzada({
               <button
                 onClick={eksikMaddeyiKur}
                 disabled={maddeKuruluyor}
-                className="px-4 py-2 bg-[#1B2A4A] hover:opacity-90 disabled:opacity-40 text-[#F3EFE8] rounded-lg text-xs font-semibold font-mono cursor-pointer transition-opacity"
+                className="px-4 py-2 bg-[#0E1C4F] dark:bg-[#2C3C72] hover:opacity-90 disabled:opacity-40 text-[#F3EFE8] rounded-lg text-xs font-semibold font-mono cursor-pointer transition-opacity"
               >
                 {maddeKuruluyor ? 'Kuruluyor…' : 'Maddeyi aç'}
               </button>

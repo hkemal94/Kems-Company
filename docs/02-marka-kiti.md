@@ -37,9 +37,9 @@ değil, çalışma değerleri.
 
 **Poppins.** 28 Eylül 2026 kararı: her yerde Poppins — belgeler de arayüz de.
 
-Arayüz bugün hâlâ eski aileyi kullanıyor (Inter, Playfair Display,
-JetBrains Mono, Oswald). Geçiş yapılacak iş listesinde; o bitene kadar
-arayüzde göreceğin fontlar kararı yansıtmıyor.
+Arayüzün yazı tipi jetonları Poppins'e geçti (`src/index.css`). Arayüz
+renkleri de markanınki oldu (28 Eylül gece, K paketi): #1B2A4A → #0E1C4F,
+#D35057 → #F26B6F.
 
 ## Logo ve işaretler
 
