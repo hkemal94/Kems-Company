@@ -14,6 +14,7 @@ import { markaYapisi } from '../lib/markaYapisi';
 import { TemizlikKarti } from './TemizlikKarti';
 import { GaleriYedegiKarti } from './GaleriYedegiKarti';
 import { KanonKarti } from './KanonKarti';
+import { boslukDoldurma } from '../lib/boslukDoldurma';
 import { haritadaAra, maddeTohumu } from '../lib/haritaMaddesi';
 
 /**
@@ -714,6 +715,16 @@ export const Eksikler: React.FC<EksiklerProps> = ({
 
       {/* Kanon kararları ve eski otel yazıları (29 Eylül akşamı) — tek seferlik, önce yedek */}
       {onUpdateItem && <KanonKarti items={items} onUpdateItem={onUpdateItem} />}
+      {onUpdateItem && (
+        <KanonKarti
+          items={items}
+          onUpdateItem={onUpdateItem}
+          hesapla={boslukDoldurma}
+          baslik="boşluklar künyedeki cevaplarla dolacak"
+          aciklama="Künyede cevabı yazılı olan boş alanlar dolar (tür, mahalle, yıllar, sahibi, sezon, simgeler, sakinler). Dolu alana ve tarihçe metnine dokunulmaz. Önce yedek iner."
+          yedekAdi="bosluk-oncesi"
+        />
+      )}
 
       {/* Viki düzeltmeleri + Canva görselleri (W5) — tek seferlik; önce W4 */}
       {onUpdateItem && onAddItem && w3.guncellenenler.length === 0 && w4.guncellenenler.length === 0 && w5Is > 0 && (

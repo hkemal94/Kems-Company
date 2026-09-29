@@ -189,10 +189,35 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
     const isaretciler: maplibregl.Marker[] = [];
     const etiketKayitlari: Array<{ el: HTMLElement; tur: string }> = [];
 
+    /**
+     * Çakışan etiketler (29 Eylül gece, Kemal'in telefon görüntüsü: "MERKEZ"
+     * ile "ÇİFTLİK", "LİMAN" ile "Kuzey Sırtı" üst üste). Hareket bitince
+     * ekrandaki kutular karşılaştırılır; önce önemli olan yerleşir, ona
+     * binen gizlenir. Yakınlaşınca yer açılır, geri gelir.
+     */
+    const ONCELIK: Record<string, number> = { mahalle: 0, deniz: 1, zirve: 2, su: 3, mekan: 4, yapi: 5, anayol: 6, cadde: 7, yerleske: 8, sokak: 9 };
+    const carpisanlar = new Set<HTMLElement>();
+    const carpismaCoz = () => {
+      carpisanlar.clear();
+      const z = map.getZoom();
+      const adaylar = etiketKayitlari
+        .filter(({ tur }) => { const a = ETIKET_ARALIK[tur]; return !a || (z >= a[0] && z <= a[1]); })
+        .sort((a, b) => (ONCELIK[a.tur] ?? 9) - (ONCELIK[b.tur] ?? 9));
+      const yerlesen: DOMRect[] = [];
+      const pay = 3;
+      for (const { el } of adaylar) {
+        const k = el.getBoundingClientRect();
+        if (!k.width) continue;
+        const carpar = yerlesen.some(y => k.left < y.right + pay && k.right > y.left - pay && k.top < y.bottom + pay && k.bottom > y.top - pay);
+        if (carpar) carpisanlar.add(el); else yerlesen.push(k);
+      }
+      etiketGorunurluk(z);
+    };
+
     const etiketGorunurluk = (z: number) => {
       etiketKayitlari.forEach(({ el, tur }) => {
         const aralik = ETIKET_ARALIK[tur];
-        const gorunur = !aralik || (z >= aralik[0] && z <= aralik[1]);
+        const gorunur = (!aralik || (z >= aralik[0] && z <= aralik[1])) && !carpisanlar.has(el);
         el.style.opacity = gorunur ? '1' : '0';
         el.style.pointerEvents =
           gorunur && (tur === 'yapi' || tur === 'mekan' || tur === 'yerleske')
@@ -265,8 +290,11 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
       }
 
       etiketGorunurluk(map.getZoom());
+      // İşaretçiler yerine oturduktan sonra çakışmaları çöz
+      requestAnimationFrame(carpismaCoz);
     };
     etiketleriKurRef.current = etiketleriKur;
+    map.on('moveend', carpismaCoz);
 
     const katmanlariKur = () => {
       if (map.getLayer('ada')) return;

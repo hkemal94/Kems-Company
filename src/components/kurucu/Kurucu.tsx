@@ -563,25 +563,6 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
     }));
   }
 
-  // ---- özet -------------------------------------------------------------------
-  const ozet = useMemo(() => {
-    const yeni = Object.values(taslak.yeniYollar);
-    const gizli = new Set(taslak.gizlenen);
-    let uzun = 0;
-    for (const [id, y] of Object.entries(taslak.yeniYollar)) {
-      if (!gizli.has(id)) uzun += uzunluk(egri((y as { noktalar: Nokta[] }).noktalar));
-    }
-    return {
-      yeni: yeni.length, uzun,
-      tur: Object.keys(taslak.turDegisikligi).length,
-      gizli: taslak.gizlenen.length,
-      bina: Object.keys(taslak.yeniBinalar).length,
-      ozel: Object.keys(taslak.ozelYapilar).length,
-      doga: Object.keys(taslak.doga).length,
-      bag: Object.keys(taslak.baglar).length
-    };
-  }, [taslak]);
-  const degisiklikSayisi = ozet.yeni + ozet.tur + ozet.gizli + ozet.bina + ozet.ozel + ozet.doga + ozet.bag;
 
   // ---- Haritaya işle ------------------------------------------------------------
   const taslakBelgesi = useMemo(() => taslaktanBelge(taslak), [taslak]);
@@ -592,6 +573,12 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
   const [isleOnay, setIsleOnay] = useState(false);
   const [isleniyor, setIsleniyor] = useState(false);
   const [isleRaporu, setIsleRaporu] = useState<string | null>(null);
+  // "Haritaya işlendi" yazısı birkaç saniye sonra kalkar (29 Eylül gece)
+  useEffect(() => {
+    if (!isleRaporu || isleRaporu.startsWith('İşlenemedi')) return;
+    const z = setTimeout(() => setIsleRaporu(null), 6000);
+    return () => clearTimeout(z);
+  }, [isleRaporu]);
   const haritayaIsle = async () => {
     if (isleniyor) return;
     setIsleOnay(false);
@@ -618,6 +605,32 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
 
   // ---- çizim ------------------------------------------------------------------
   const px = (n: number) => n / olcek; // piksel → metre (kalınlık için)
+
+  /**
+   * Çakışmayan etiketler (29 Eylül gece). Ekrandaki kutusu önce mahalleye,
+   * sonra zirveye, sonra ötekilere yer açar; binen etiket bu yakınlıkta
+   * gizlenir, yaklaşınca geri gelir. Kutu yazının uzunluğundan kestirilir.
+   */
+  const gorunenEtiketler = useMemo(() => {
+    const sira = (t: string) => (t === 'mahalle' ? 0 : t === 'zirve' ? 1 : 2);
+    const kutular: Array<[number, number, number, number]> = [];
+    const kalan = new Set<number>();
+    zemin.etiketler
+      .map((et, i) => ({ et, i }))
+      .sort((a, b) => sira(a.et.tur) - sira(b.et.tur))
+      .forEach(({ et, i }) => {
+        const buyuk = et.tur === 'mahalle';
+        const yazi = buyuk ? 13 : 10;
+        const genPx = et.ad.length * yazi * (buyuk ? 0.62 + 2.5 / yazi : 0.58) + 6;
+        const yukPx = yazi * 1.3 + 4;
+        const g = genPx / olcek / 2, y = yukPx / olcek / 2;
+        const k: [number, number, number, number] = [et.m[0] - g, et.m[1] - y, et.m[0] + g, et.m[1] + y];
+        if (kutular.some(o => k[0] < o[2] && k[2] > o[0] && k[1] < o[3] && k[3] > o[1])) return;
+        kutular.push(k);
+        kalan.add(i);
+      });
+    return kalan;
+  }, [zemin.etiketler, olcek]);
   /**
    * Yol kalınlığı yakınlaşmaya bağlı: sokak düzeyinde tam kalınlık, adanın
    * tamamına bakarken üçte birine iner (29 Eylül, Kemal: "zoom out'tayken
@@ -689,16 +702,16 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
     );
   };
 
-  const ARACLAR: Array<{ id: Arac; ad: string; Ikon: React.ElementType; telefonda?: boolean }> = [
-    { id: 'gez', ad: 'Gez', Ikon: Hand, telefonda: true },
-    { id: 'sec', ad: 'Seç', Ikon: MousePointer2, telefonda: true },
+  const ARACLAR: Array<{ id: Arac; ad: string; Ikon: React.ElementType }> = [
+    { id: 'gez', ad: 'Gez', Ikon: Hand },
+    { id: 'sec', ad: 'Seç', Ikon: MousePointer2 },
     { id: 'ciz', ad: 'Yol', Ikon: PenLine },
     { id: 'bina', ad: 'Bina', Ikon: Home },
     { id: 'sablon', ad: 'Şablon', Ikon: LayoutGrid },
     { id: 'ozel', ad: 'Özel yapı', Ikon: Pentagon },
     { id: 'doga', ad: 'Doğa', Ikon: TreePine },
     { id: 'bagla', ad: 'Madde bağla', Ikon: Link2 },
-    { id: 'sil', ad: 'Kaldır', Ikon: Eraser, telefonda: true }
+    { id: 'sil', ad: 'Kaldır', Ikon: Eraser }
   ];
   const aracSec = (id: Arac) => { setArac(id); setCizilen([]); setCokgen([]); setImlec(null); if (id !== 'sec' && id !== 'bagla') setSecili(null); };
 
@@ -870,7 +883,7 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
           })()}
 
           {/* Etiketler: yalnız ad (mahalle sınırı çizilmez) */}
-          {zemin.etiketler.map((et, i) => (
+          {zemin.etiketler.map((et, i) => gorunenEtiketler.has(i) && (
             <text key={i} x={et.m[0]} y={et.m[1]} textAnchor="middle"
               fontSize={px(et.tur === 'mahalle' ? 13 : 10)} fontWeight={et.tur === 'mahalle' ? 700 : 500}
               letterSpacing={et.tur === 'mahalle' ? px(2.5) : 0}
@@ -911,9 +924,16 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
       {/* Sol üst: başlık ve görünüm düğmesi (Düzada'dan) */}
       {ustSol && <div className="absolute left-3 top-3 z-10 flex flex-wrap gap-2 pointer-events-none [&>*]:pointer-events-auto">{ustSol}</div>}
 
-      {/* Sağ üst: taslak ve Haritaya işle */}
+      {/* Sağ üst: her şey haritadaysa yalnız küçük bir işaret (29 Eylül gece) */}
+      {!islenmemis && !isleOnay && !isleniyor && !isleRaporu && (
+        <div className={`${kart} absolute right-3 top-16 sm:top-3 z-10 px-3 py-1.5 flex items-center gap-1.5 text-[11px] font-semibold text-[#2F7A45] dark:text-[#9FD3A9]`} title={kayitYazisi[durum]}>
+          <MapPinned className="w-3.5 h-3.5" /> Haritada ✓
+        </div>
+      )}
+      {/* Sağ üst: işlenmemiş değişiklik varken taslak ve Haritaya işle */}
+      {(islenmemis || isleOnay || isleniyor || !!isleRaporu) && (
       <div className={`${kart} absolute right-3 top-16 sm:top-3 z-10 px-3 py-2 flex flex-wrap items-center gap-2 text-[12px] max-w-[calc(100%-1.5rem)]`}>
-        <span>{degisiklikSayisi ? <>Taslak · <b className="text-[#D6484C] dark:text-[#F26B6F]">{degisiklikSayisi} değişiklik</b></> : 'Taslak boş'}</span>
+        <span>{islenmemis ? <>Taslak · <b className="text-[#D6484C] dark:text-[#F26B6F]">işlenmemiş değişiklik var</b></> : 'Taslak haritada'}</span>
         <span className="hidden sm:inline text-[10px] text-[#6A5E4C] dark:text-[#A6B0C9]">{kayitYazisi[durum]}</span>
         <button type="button" onClick={geriAl} disabled={adim === 0} className={dugmeBos} title="Geri al (Ctrl+Z)"><Undo2 className="w-3.5 h-3.5" /></button>
         <button type="button" onClick={yinele} disabled={adim >= gecmis.length - 1} className={`${dugmeBos} hidden sm:flex`} title="Yinele (Ctrl+Y)"><Redo2 className="w-3.5 h-3.5" /></button>
@@ -931,6 +951,7 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
         )}
         {isleRaporu && <span className="basis-full text-[10px] text-[#6A5E4C] dark:text-[#A6B0C9]">{isleRaporu}</span>}
       </div>
+      )}
 
       {/* Yakınlaştırma */}
       <div className="absolute right-3 top-1/2 -translate-y-1/2 z-10 flex flex-col gap-1">
@@ -940,7 +961,7 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
 
       {/* İpucu */}
       {ipucu && (
-        <div className="absolute left-1/2 -translate-x-1/2 top-16 z-10 max-w-[80%] px-3 py-1.5 rounded-full bg-[#0E1C4F]/85 text-[11px] text-[#F3EFE8] pointer-events-none text-center hidden sm:block">
+        <div className={`absolute left-1/2 -translate-x-1/2 ${islenmemis || isleRaporu ? 'top-[12rem]' : 'top-[6.75rem]'} sm:top-16 z-10 max-w-[88%] sm:max-w-[80%] px-3 py-1.5 rounded-2xl sm:rounded-full bg-[#0E1C4F]/85 text-[11px] text-[#F3EFE8] pointer-events-none text-center`}>
           {ipucu}
         </div>
       )}
@@ -1063,7 +1084,7 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
       {/* Alt: seçili aracın ayarları + araç çubuğu */}
       <div className="absolute left-1/2 -translate-x-1/2 bottom-3 z-10 flex flex-col items-center gap-2 w-[calc(100%-1.5rem)] max-w-max">
         {arac === 'ciz' && (
-          <div className={`${kart} hidden lg:flex items-center gap-2 px-3 py-2`}>
+          <div className={`${kart} flex items-center gap-2 px-3 py-2 max-w-full overflow-x-auto whitespace-nowrap`}>
             <span className={etiket}>Yol türü</span>
             {YOL_TURLERI.map(t => <button key={t.id} type="button" onClick={() => setCizTur(t.id)} className={cip(cizTur === t.id)} title={t.aciklama}>{t.ad}</button>)}
             <button type="button" onClick={() => bitir()} disabled={cizilen.length < 2} className={dugmeBos}><Check className="w-3.5 h-3.5" />Bitir</button>
@@ -1071,13 +1092,13 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
           </div>
         )}
         {arac === 'bina' && (
-          <div className={`${kart} hidden lg:flex flex-wrap items-center gap-1.5 px-3 py-2 max-w-[900px]`}>
+          <div className={`${kart} flex lg:flex-wrap items-center gap-1.5 px-3 py-2 max-w-full lg:max-w-[900px] overflow-x-auto whitespace-nowrap lg:whitespace-normal`}>
             <span className={etiket}>Bina</span>
             {BINA_TURLERI.filter(b => b.elle).map(b => <button key={b.id} type="button" onClick={() => setBinaTur(b.id)} className={cip(binaTur === b.id)}>{b.ad}</button>)}
           </div>
         )}
         {arac === 'sablon' && (
-          <div className={`${kart} hidden lg:flex flex-wrap items-center gap-2 px-3 py-2 max-w-[900px]`}>
+          <div className={`${kart} flex lg:flex-wrap items-center gap-2 px-3 py-2 max-w-full lg:max-w-[900px] overflow-x-auto whitespace-nowrap lg:whitespace-normal`}>
             <span className={etiket}>Şablon</span>
             {SABLONLAR.map(t => <button key={t.id} type="button" onClick={() => setSablonId(t.id)} className={cip(sablonId === t.id)} title={t.aciklama}>{t.ad}</button>)}
             <span className="text-[11px]">Yön</span>
@@ -1087,7 +1108,7 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
           </div>
         )}
         {arac === 'ozel' && (
-          <div className={`${kart} hidden lg:flex flex-wrap items-center gap-2 px-3 py-2 max-w-[1000px]`}>
+          <div className={`${kart} flex lg:flex-wrap items-center gap-2 px-3 py-2 max-w-full lg:max-w-[1000px] overflow-x-auto whitespace-nowrap lg:whitespace-normal`}>
             <span className={etiket}>Özel yapı</span>
             <button type="button" onClick={() => setKalipId(null)} className={cip(!kalipId)}>Köşe köşe çiz</button>
             {!kalipId && (
@@ -1113,7 +1134,7 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
           </div>
         )}
         {arac === 'doga' && (
-          <div className={`${kart} hidden lg:flex items-center gap-2 px-3 py-2`}>
+          <div className={`${kart} flex items-center gap-2 px-3 py-2 max-w-full overflow-x-auto whitespace-nowrap`}>
             <span className={etiket}>Doğa</span>
             {DOGA_TURLERI.map(d => <button key={d.id} type="button" onClick={() => setDogaTur(d.id)} className={cip(dogaTur === d.id)} title={d.aciklama}>{d.ad}</button>)}
             {cokgen.length >= 3 && <button type="button" onClick={() => cokgeniBitir()} className={dugmeBos}><Check className="w-3.5 h-3.5" />Kapat</button>}
@@ -1121,15 +1142,15 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
         )}
 
         <div className="flex items-stretch gap-1 p-1.5 rounded-2xl bg-[#0E1C4F]/95 border border-[#2C3C72] shadow-[0_10px_26px_-10px_rgba(0,0,0,0.6)] max-w-full overflow-x-auto">
-          {ARACLAR.map(({ id, ad, Ikon, telefonda }) => (
+          {ARACLAR.map(({ id, ad, Ikon }) => (
             <button key={id} type="button" onClick={() => aracSec(id)}
-              className={`${telefonda ? 'flex' : 'hidden lg:flex'} flex-col items-center justify-center gap-0.5 min-w-[64px] px-2 py-1.5 rounded-xl text-[10.5px] cursor-pointer ${arac === id ? 'bg-[#F26B6F] text-white' : 'text-[#C9D0E3] hover:bg-white/10'}`}>
+              className={`flex shrink-0 flex-col items-center justify-center gap-0.5 min-w-[58px] lg:min-w-[64px] px-2 py-1.5 rounded-xl text-[10.5px] cursor-pointer ${arac === id ? 'bg-[#F26B6F] text-white' : 'text-[#C9D0E3] hover:bg-white/10'}`}>
               <Ikon className="w-[18px] h-[18px]" />
               {id === 'sec' ? <><span className="lg:hidden">Bilgi</span><span className="hidden lg:inline">{ad}</span></> : ad}
             </button>
           ))}
           <span className="w-px my-1.5 bg-[#2C3C72]" />
-          <button type="button" onClick={geriAl} disabled={adim === 0} className="flex flex-col items-center justify-center gap-0.5 min-w-[60px] px-2 py-1.5 rounded-xl text-[10.5px] text-[#C9D0E3] hover:bg-white/10 disabled:opacity-35 cursor-pointer">
+          <button type="button" onClick={geriAl} disabled={adim === 0} className="flex shrink-0 flex-col items-center justify-center gap-0.5 min-w-[60px] px-2 py-1.5 rounded-xl text-[10.5px] text-[#C9D0E3] hover:bg-white/10 disabled:opacity-35 cursor-pointer">
             <Undo2 className="w-[18px] h-[18px]" />Geri al
           </button>
           <button type="button" onClick={() => setGizliGoster(g => !g)} className="hidden lg:flex flex-col items-center justify-center gap-0.5 min-w-[60px] px-2 py-1.5 rounded-xl text-[10.5px] text-[#C9D0E3] hover:bg-white/10 cursor-pointer" title="Kaldırılanları göster / gizle">
