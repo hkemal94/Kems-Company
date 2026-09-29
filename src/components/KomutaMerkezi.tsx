@@ -452,7 +452,7 @@ export default function KomutaMerkezi({
 
       {/* A1 · Neyin eksik — sayı değil, yapılacak iş */}
       <section id="km-durum" className="scroll-mt-24">
-        <Eksikler items={items} onSelectArea={onSelectArea} onUpdateItem={onUpdateItem} />
+        <Eksikler items={items} onSelectArea={onSelectArea} onUpdateItem={onUpdateItem} onAddItem={onAddItem} />
       </section>
 
       {/* 4. PROJELER (Folder Cards per area, click to go, auto progress %) */}

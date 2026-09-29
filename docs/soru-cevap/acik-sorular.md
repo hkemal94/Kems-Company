@@ -36,7 +36,6 @@ Ad sorularında Claude aday önerebilir; karar Kemal'in.
 - Stadyum: Dirlik Stadı bölümü.
 
 ## Claude'a iş
-- Dirlik ve kooperatif bilgilerini vikiye aktar (kuruluş 12 Mayıs 1957, renkler, rakip, pazar günü…).
-- **Vikide düzeltme (W5):** W4 kartı Dirlik künyesine "Lig: Profesyonel alt lig 1990'lar ve 2000'ler" yazdı; W3 52. turda kulüp hep amatör oldu. Bu satır eski metne taşınıp düzeltilecek (tek seferlik kart).
-- **Vikide düzeltme (W5):** ada künyesinde idari bağlılık "Ayvacık'a bağlı belde" olacak; fener otomatiğe geçiş 1970'ler; Dondurmacı Kızlar "liman kafesi" değil, dondurmacı (W3 60–64. tur). Vikide nasıl yazıldığına bakılıp aynı tek seferlik karta eklenecek.
+- ~~Dirlik ve kooperatif bilgilerini vikiye aktar~~ — W5 kartında.
+- ~~Vikide düzeltme (W5)~~ — W5 kartı hazır (29 Eylül); Kemal basınca biter.
 - **Haritayı yeni koordinata taşı (H):** 39,005 K · 25,805 D → 39,60 K · 25,85 D. Üretici (`gen/duzada.py` LAT0/LNG0), `duzadaKot.ts` ve Kemal'in kayıtlı harita düzeni birlikte kaydırılmalı; düzen boylam-enlemle saklanıyorsa tek seferlik düğme gerekir.
