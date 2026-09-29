@@ -1311,6 +1311,11 @@ export default function Duzada({
             onSelectItem(id);
           }}
           onHaritayaGit={() => setActiveTab('harita')}
+          onSitede={(it, acik) => {
+            // Yalnız Kemal basınca yazılır; kapatınca alan silinir (undefined yazılmaz)
+            const { sitede: _eski, ...meta } = (it.metadata || {}) as Record<string, unknown>;
+            void onUpdateItem({ ...it, metadata: (acik ? { ...meta, sitede: true } : meta) as Item['metadata'], updatedAt: Date.now() });
+          }}
         />
       )}
 

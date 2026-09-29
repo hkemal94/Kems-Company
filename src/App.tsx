@@ -30,7 +30,8 @@ import {
   Sun,
   Moon,
   UserRound,
-  Megaphone
+  Megaphone,
+  Globe
 } from 'lucide-react';
 import Durum from './components/Durum';
 import Duzada from './components/Duzada';
@@ -45,6 +46,7 @@ import HizliFikir from './components/HizliFikir';
 import Bosluklar from './components/Bosluklar';
 import Galeri from './components/Galeri';
 import Sosyal from './components/sosyal/Sosyal';
+import Site from './components/site/Site';
 import OyunEkrani from './components/oyun/OyunEkrani';
 import Markalar from './components/Markalar';
 import DuzadaDirectory from './components/DuzadaDirectory';
@@ -90,6 +92,14 @@ export default function App() {
   /** "+" ile gelen yeni not sayfası isteği */
   const [yeniNotBekliyor, setYeniNotBekliyor] = useState(false);
   const [bildirimNabzi, setBildirimNabzi] = useState(0);
+  /** Site önizlemesi (29 Eylül gece): adres `#site` iken KKM yerine tam sayfa site */
+  const siteAdresiMi = () => typeof location !== 'undefined' && /^#site(\/|$)/.test(location.hash);
+  const [siteAcik, setSiteAcik] = useState(siteAdresiMi);
+  useEffect(() => {
+    const degisti = () => setSiteAcik(siteAdresiMi());
+    window.addEventListener('hashchange', degisti);
+    return () => window.removeEventListener('hashchange', degisti);
+  }, []);
   /**
    * Google ile girilmiş mi (29 Eylül). Veriler 14 Eylül'e kadar Google
    * hesabının alanına yazıldı; girişsiz açılınca uygulama o kimliği yalnız
@@ -464,6 +474,7 @@ export default function App() {
         window.setTimeout(() => document.getElementById('bos-ozet')?.scrollIntoView({ behavior: 'smooth' }), 150);
         return;
       case 'eksikler': setEksikAcik(ayrinti ?? null); setActiveTab('eksikler'); break;
+      case 'site': location.hash = 'site'; return;
       default: setActiveTab(hedef as Sayfa);
     }
     try { window.scrollTo({ top: 0 }); } catch { /* yok */ }
@@ -558,6 +569,16 @@ export default function App() {
     );
   }
 
+  // Site önizlemesi: KKM'nin yerine tam sayfa (açılır pencere değil)
+  if (siteAcik) {
+    return (
+      <Site
+        items={items}
+        onKapat={() => { history.pushState(null, '', location.pathname + location.search); setSiteAcik(false); }}
+      />
+    );
+  }
+
   // 2. MAIN LOGGED-IN VIEW
   const kemsCompanyItem = items.find(b => b.type === 'marka' && (b.id === 'kems_company' || b.title.toLowerCase() === 'kems company'));
   const kemsLogo = kemsCompanyItem ? maddeGorseli(kemsCompanyItem, items) : undefined;
@@ -569,7 +590,7 @@ export default function App() {
    * telefonda altta beş düğme — Ana sayfa · Viki · Harita · Merch · Diğer.
    * "Diğer" işe göre gruplu: Evren · Marka · Araçlar.
    */
-  const RAY: Array<{ id: Sayfa; ad: string; simge: React.ElementType; nokta?: boolean }> = [
+  const RAY: Array<{ id: Sayfa | 'site'; ad: string; simge: React.ElementType; nokta?: boolean }> = [
     { id: 'komuta', ad: 'Ana sayfa', simge: Home, nokta: bildirimVar('aday') || bildirimVar('soru') },
     { id: 'duzada', ad: 'Düzada · viki ve harita', simge: Compass, nokta: bildirimVar('kanon') },
     { id: 'markalar', ad: 'Markalar', simge: Shield },
@@ -579,6 +600,7 @@ export default function App() {
     { id: 'galeri', ad: 'Galeri', simge: ImageIcon },
     { id: 'studyo', ad: 'Yapay zekâ stüdyosu · öneri tepsisi', simge: Sparkles, nokta: bildirimVar('aday') },
     { id: 'sosyal', ad: 'Sosyal medya · takvim ve seriler', simge: Megaphone },
+    { id: 'site', ad: 'Site önizlemesi · kems.company', simge: Globe },
     { id: 'eksikler', ad: 'Neyin Eksik', simge: ListChecks, nokta: bildirimVar('dugme') },
     { id: 'durum', ad: 'Durum · yüzdeler ve boşluklar', simge: Percent }
   ];
@@ -596,6 +618,7 @@ export default function App() {
     { grup: 'Araçlar', satirlar: [
       { hedef: 'studyo', ad: 'Stüdyo', simge: Sparkles, nokta: bildirimVar('aday') },
       { hedef: 'sosyal', ad: 'Sosyal medya', simge: Megaphone },
+      { hedef: 'site', ad: 'Site önizlemesi', simge: Globe },
       { hedef: 'eksikler', ad: 'Neyin Eksik', simge: ListChecks, nokta: bildirimVar('dugme') },
       { hedef: 'durum', ad: 'Durum ve boşluklar', simge: Percent }
     ] }

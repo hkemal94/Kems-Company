@@ -677,6 +677,36 @@ görünür; "Vikiye işle" deyince "Zeytinyağı" satırı silinir, "Yağ
 Fabrikası" satırı "Kooperatifin modern, küçük zeytinyağı fabrikası;
 kuruluş 1950–1970 arası" olur. Önce yedek iner; ikinci basışta iş kalmaz.
 
+## 29 Eylül gece — Kanon kartı basıldı
+
+Kemal Neyin Eksik'teki kanon kartını ("Vikiye işle") ve Çiftlik
+fabrikası birleştirmesini gerçek veride çalıştırdı. Kanon kararları
+vikide; bu iş kapandı.
+
+## 29 Eylül gece — Site, 1. adım: anasayfa ve menü (tek PR)
+
+Kaynak plan: Canva "Başlık" (DAHWBjgxb_4). Kemal'in kararları:
+
+- **Yer:** şimdilik KKM içinde, ama açılır pencere değil — **tam sayfa**.
+  KKM'de Araçlar → "Site önizlemesi" (rayda küre simgesi). Adres
+  `#site`; tarayıcının geri tuşu çalışır; sol altta "← KKM'ye dön".
+  Beğenilince kems.company adresine taşınacak.
+- **Anasayfa:** adanın canlı 3D haritası yavaşça döner (manzara videosu
+  gelene kadar). Haritaya yapı eklendikçe sitede de görünür. Ortada yarı
+  saydam etiket: KEMS COMPANY · Made with Culture · Est. 2025 · Düzada, TR
+  (Canva'daki yazılar).
+- **Menü** (sol üst): iki sekme, **Dükkân** ve **Keşfet**; adlar Türkçe.
+  Keşfet: Düzada · Viki · Ürünler · Haberler · Projeler · Hakkında ·
+  İletişim. Bu sayfalar sonraki adımlarda; şimdilik "yakında".
+  Dükkân: Merch'teki droplar; dış mağaza bağlanana kadar soluk.
+- **Sağ üst:** dil · hesap · arama · dükkân. Yalnız **arama** çalışır
+  (sitedeki maddelerde arar); diğerleri soluk.
+- **Sitede ne görünür:** yalnız Kemal'in işaretlediği viki maddeleri.
+  Vikide madde başlığının yanında "sitede göster" düğmesi; basınca
+  "sitede ✓" olur, bir daha basınca kalkar.
+- Kemal: "İçime sinmeyen çok şey var ama en azından başlamış olalım."
+  Eleştiriler dinlenecek, sonraki adımlar ona göre.
+
 ## Sıradaki
 
 - Oyunun tasarım belgesinin doldurulması (13 başlık)

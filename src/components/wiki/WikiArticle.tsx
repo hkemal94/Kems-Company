@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { AlertCircle, Link2, PencilLine, Unlink } from 'lucide-react';
+import { AlertCircle, Globe, Link2, PencilLine, Unlink } from 'lucide-react';
 import { StudyodaAc } from '../studyo/StudyodaAc';
 import { Item } from '../../types';
 import { resolveAllRelations, getRelationLabels, isEntityUnlinked } from '../../utils/relations';
@@ -77,6 +77,8 @@ interface WikiArticleProps {
   onEdit?: (id: string) => void;
   /** W3 · "Haritada göster" — verilmezse düğme çıkmaz */
   onHaritayaGit?: (binaId: string) => void;
+  /** Site (29 Eylül gece): verilmezse düğme çıkmaz */
+  onSitede?: (item: Item, acik: boolean) => void;
 }
 
 export const WikiArticle: React.FC<WikiArticleProps> = ({
@@ -86,7 +88,8 @@ export const WikiArticle: React.FC<WikiArticleProps> = ({
   onNavigate,
   mode,
   onEdit,
-  onHaritayaGit
+  onHaritayaGit,
+  onSitede
 }) => {
   const admin = mode === 'yonetim';
 
@@ -233,6 +236,16 @@ export const WikiArticle: React.FC<WikiArticleProps> = ({
               hedefId={item.id}
               className="ml-auto flex items-center gap-1.5 text-[11px] font-mono text-gri hover:text-kiremit dark:text-bej/85 transition-colors cursor-pointer"
             />
+          )}
+          {admin && onSitede && (
+            <button
+              type="button"
+              onClick={() => onSitede(item, item.metadata?.sitede !== true)}
+              title={item.metadata?.sitede === true ? 'Sitede görünüyor · basınca gizlenir' : 'Sitede görünmüyor · basınca görünür'}
+              className={`flex items-center gap-1.5 text-[11px] font-mono transition-colors cursor-pointer ${item.metadata?.sitede === true ? 'text-[#2F7A45] dark:text-[#9FD3A9]' : 'text-gri hover:text-lacivert dark:text-bej/85 dark:hover:text-krem'}`}
+            >
+              <Globe size={12} /> {item.metadata?.sitede === true ? 'sitede ✓' : 'sitede göster'}
+            </button>
           )}
           {admin && onEdit && (
             <button

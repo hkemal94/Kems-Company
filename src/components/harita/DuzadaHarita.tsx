@@ -69,6 +69,11 @@ interface DuzadaHaritaProps {
   /** 2D ↔ 3D geçişinde kamera aynı yere baksın diye (H, 29 Eylül) */
   bakis?: HaritaBakisi | null;
   onBakis?: (b: HaritaBakisi) => void;
+  /**
+   * Site anasayfası (29 Eylül gece): düğme, kart, etiket yok; dokunulmaz,
+   * ada kendi kendine yavaşça döner. Hareket azaltma açıksa dönmez.
+   */
+  vitrin?: boolean;
 }
 
 /** Haritanın baktığı yer: merkez (boylam, enlem) ve MapLibre yakınlığı */
@@ -120,7 +125,7 @@ function etiketElemani(p: Record<string, unknown>): {
   return { kok, ic };
 }
 
-export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className, duzen, bakis, onBakis }) => {
+export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className, duzen, bakis, onBakis, vitrin }) => {
   const kapsayici = useRef<HTMLDivElement | null>(null);
   const harita = useRef<MLMap | null>(null);
   /** Düzen değişince etiketleri yeniden kuran işlev — kurulum sırasında dolar */
@@ -140,6 +145,9 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
 
     // Arazi karolarını üreten protokol harita kurulmadan önce kayıtlı olmalı
     araziProtokolunuKur();
+    // Vitrinde ada ekranın ~%85'ini kaplasın (ölçü: 11.57 yakınlıkta ada ~970 px)
+    const vitrinGenislik = Math.min(kapsayici.current.clientWidth || 1440, (kapsayici.current.clientHeight || 900) * 1.5);
+    const vitrinZoom = 11.57 + Math.log2((0.85 * Math.max(320, vitrinGenislik)) / 970);
 
     const map = new maplibregl.Map({
       container: kapsayici.current,
@@ -158,8 +166,9 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
         layers: [{ id: 'deniz', type: 'background', paint: { 'background-color': '#1C4E8C' } }]
       },
       center: ilkBakis.current?.merkez ?? DUZADA_MERKEZ,
-      zoom: Math.max(9.5, ilkBakis.current?.zoom ?? BASLANGIC.zoom),
-      pitch: BASLANGIC.pitch,
+      zoom: vitrin ? Math.max(9.5, vitrinZoom) : Math.max(9.5, ilkBakis.current?.zoom ?? BASLANGIC.zoom),
+      pitch: vitrin ? 52 : BASLANGIC.pitch,
+      interactive: !vitrin,
       bearing: BASLANGIC.bearing,
       minZoom: 9.5,
       maxZoom: 19,
@@ -173,7 +182,7 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
       onBakisRef.current?.({ merkez: [c.lng, c.lat], zoom: map.getZoom() });
     });
     (window as unknown as { __duzadaHarita?: MLMap }).__duzadaHarita = map;
-    map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'top-right');
+    if (!vitrin) map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'top-right');
     map.on('error', e => console.error('[harita]', e && (e as { error?: unknown }).error));
 
     // ---- etiketler: HTML işaretçisi ----
@@ -504,9 +513,20 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
         }
       });
 
-      etiketleriKur();
+      if (!vitrin) etiketleriKur();
       setHazir(true);
+      if (vitrin) donmeyeBasla();
       setZoom(map.getZoom());
+    };
+
+    // Vitrin: ada yavaşça döner (turu ~4 dakika). Hareket azaltma açıksa durur.
+    const donmeyeBasla = () => {
+      let azalt = false;
+      try { azalt = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch { /* yok */ }
+      if (azalt) return;
+      const don = () => { if (harita.current === map) map.rotateTo(map.getBearing() + 90, { duration: 60000, easing: t => t }); };
+      map.on('rotateend', don);
+      don();
     };
 
     /**
@@ -601,8 +621,8 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
     (map.getSource('duzada') as maplibregl.GeoJSONSource | undefined)
       ?.setData(uygulanan as never);
     // Etiketler işaretçi olduğu için kaynakla birlikte güncellenmiyor
-    etiketleriKurRef.current?.(uygulanan);
-  }, [duzen, hazir]);
+    if (!vitrin) etiketleriKurRef.current?.(uygulanan);
+  }, [duzen, hazir, vitrin]);
 
   const gorunumuSifirla = () => {
     harita.current?.easeTo({ center: DUZADA_MERKEZ, ...BASLANGIC, duration: 1000 });
@@ -615,10 +635,11 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
     <div className={`relative ${className ?? 'w-full h-full min-h-[520px]'}`}>
       <div
         ref={kapsayici}
-        className="w-full h-full rounded-lg overflow-hidden duzada-harita"
+        className={`w-full h-full overflow-hidden duzada-harita ${vitrin ? '' : 'rounded-lg'}`}
       />
 
 
+      {!vitrin && <>
       {/* Başlık kartuşu */}
       <div className="hidden sm:block absolute top-[4.25rem] left-4 px-4 py-3 rounded-sm bg-[#f4efe4]/94 backdrop-blur-[2px] border border-[#8a7757]/45 shadow-[2px_3px_0_0_rgba(90,76,56,0.14)] pointer-events-none">
         <p className="font-serif text-xl leading-none text-[#0e1c4f] tracking-wide">Düzada</p>
@@ -676,6 +697,7 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
           görünümü sıfırla
         </button>
       )}
+      </>}
     </div>
   );
 };

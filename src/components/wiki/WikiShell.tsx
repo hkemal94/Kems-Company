@@ -15,6 +15,8 @@ interface WikiShellProps {
   onEdit?: (id: string) => void;
   /** W3 · maddeden haritaya geçiş */
   onHaritayaGit?: (binaId: string) => void;
+  /** Site (29 Eylül gece): maddeyi sitede göster / gizle */
+  onSitede?: (item: Item, acik: boolean) => void;
   readOnly?: boolean;
 }
 
@@ -30,6 +32,7 @@ export const WikiShell: React.FC<WikiShellProps> = ({
   onSelect,
   onEdit,
   onHaritayaGit,
+  onSitede,
   readOnly = false
 }) => {
   const [internalId, setInternalId] = useState<string | null>(null);
@@ -215,6 +218,7 @@ export const WikiShell: React.FC<WikiShellProps> = ({
             mode={mode}
             onEdit={onEdit}
             onHaritayaGit={onHaritayaGit}
+            onSitede={onSitede}
           />
         ) : (
           <>
