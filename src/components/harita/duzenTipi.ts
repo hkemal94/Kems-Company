@@ -53,6 +53,8 @@ export interface KurucuBelge {
   yeniYollar: Record<string, { tur: string; n: number[] }>;
   turDegisikligi: Record<string, string>;
   gizlenen: string[];
+  /** Kurucuda konan binalar (2. adım). Eski kayıtlarda yok. x/y: boylam/enlem */
+  yeniBinalar?: Record<string, { tur: string; x: number; y: number; en: number; boy: number; aci: number }>;
 }
 
 export interface HaritaDuzeni {
