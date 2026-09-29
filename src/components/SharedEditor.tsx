@@ -415,7 +415,7 @@ export default function SharedEditor({
                     <button
                       type="button"
                       onClick={() => handleDismissSuggestion(s.entity?.title || s.name)}
-                      className="px-2 py-1 border border-stone-200 dark:border-stone-800 text-stone-500 hover:text-red-500 hover:border-red-200 text-[10px] font-mono font-bold rounded flex items-center gap-1 cursor-pointer transition-colors"
+                      className="px-2 py-1 border border-stone-200 dark:border-stone-800 text-stone-500 dark:text-stone-400 hover:text-red-500 hover:border-red-200 text-[10px] font-mono font-bold rounded flex items-center gap-1 cursor-pointer transition-colors"
                       title="Bu öneriyi bir daha gösterme"
                     >
                       <X className="w-3 h-3" /> Reddet
@@ -454,7 +454,7 @@ export default function SharedEditor({
                       <button
                         type="button"
                         onClick={() => handleDismissSuggestion(s.name)}
-                        className="px-2 py-1 border border-stone-200 dark:border-stone-800 text-stone-500 hover:text-red-500 hover:border-red-200 text-[10px] font-mono font-bold rounded-md flex items-center gap-1 cursor-pointer transition-all"
+                        className="px-2 py-1 border border-stone-200 dark:border-stone-800 text-stone-500 dark:text-stone-400 hover:text-red-500 hover:border-red-200 text-[10px] font-mono font-bold rounded-md flex items-center gap-1 cursor-pointer transition-all"
                         title="Bu ismi bir daha önerme"
                       >
                         <X className="w-3 h-3" /> Reddet
@@ -491,7 +491,7 @@ export default function SharedEditor({
       </div>
 
       {/* Foot counts and indicators */}
-      <div className={`flex items-center justify-between text-[10px] font-mono text-stone-400 dark:text-stone-500 pt-2 border-t border-[#CFC5B4]/30 dark:border-stone-800 ${focusMode ? 'max-w-3xl mx-auto w-full' : ''}`}>
+      <div className={`flex items-center justify-between text-[10px] font-mono text-stone-500 dark:text-stone-500 pt-2 border-t border-[#CFC5B4]/30 dark:border-stone-800 ${focusMode ? 'max-w-3xl mx-auto w-full' : ''}`}>
         <div className="flex gap-4 items-center flex-wrap">
           <span className="bg-stone-100 dark:bg-stone-900 px-2 py-0.5 rounded font-bold text-stone-600 dark:text-stone-300">{wordCount} kelime</span>
           <span className="bg-stone-100 dark:bg-stone-900 px-2 py-0.5 rounded font-bold text-stone-600 dark:text-stone-300">{charCount} karakter</span>

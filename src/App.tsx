@@ -80,6 +80,8 @@ export default function App() {
    * rayı onun altında olmalı." Daraltılınca ray simge şeridine iner,
    * ekranın kalanı çalışma alanına kalır. Tercih hatırlanır.
    */
+  /** Üst köşedeki logo yüklenemediyse o adres (tekrar denenmez) */
+  const [logoHatasi, setLogoHatasi] = useState<string | null>(null);
   const [rayDar, setRayDar] = useState<boolean>(() => {
     try { return localStorage.getItem('kems_ray_dar') === '1'; } catch { return false; }
   });
@@ -680,7 +682,8 @@ export default function App() {
   // 2. MAIN LOGGED-IN VIEW
   const kemsCompanyItem = items.find(b => b.type === 'marka' && (b.id === 'kems_company' || b.title.toLowerCase() === 'kems company'));
   const kemsLogo = kemsCompanyItem?.metadata?.brandKit?.logoBase64 || kemsCompanyItem?.metadata?.brandKit?.selectedLogo;
-  const hasKemsLogo = !!(kemsLogo && (kemsLogo.startsWith('http') || kemsLogo.startsWith('data:')));
+  // Logo adresi yüklenemezse kırık resim yerine yazı logosu görünsün
+  const hasKemsLogo = !!(kemsLogo && (kemsLogo.startsWith('http') || kemsLogo.startsWith('data:'))) && logoHatasi !== kemsLogo;
 
   return (
     <div className="min-h-screen bg-[#E4DCCD] dark:bg-[#0B132B] text-[#0E1C4F] dark:text-[#F3EFE8] flex flex-col font-sans transition-colors duration-200 paper-grain selection:bg-[#F26B6F] selection:text-white">
@@ -700,6 +703,7 @@ export default function App() {
               alt="Kems Company Logo" 
               className="w-10 h-10 md:w-11 md:h-11 rounded-lg object-cover border-2 border-[#0F1E36] shrink-0 shadow-xs"
               referrerPolicy="no-referrer"
+              onError={() => setLogoHatasi(kemsLogo || null)}
             />
           ) : (
             <div className="flex flex-col border-[2.5px] border-[#0F1E36] rounded-md font-sans overflow-hidden w-[96px] shrink-0 select-none text-center shadow-xs">
@@ -733,9 +737,9 @@ export default function App() {
           >
             <div className="flex items-center gap-2">
               <Search className="w-3.5 h-3.5 group-hover:text-[#F26B6F] transition-colors" />
-              <span className="opacity-80">Arama yap...</span>
+              <span>Arama yap...</span>
             </div>
-            <kbd className="hidden sm:inline-block bg-[#F3EFE8] dark:bg-[#13204A] px-1.5 py-0.5 rounded text-[10px] text-[#9A8C76] dark:text-[#6E7CA0]">⌘K</kbd>
+            <kbd className="hidden sm:inline-block bg-[#F3EFE8] dark:bg-[#13204A] px-1.5 py-0.5 rounded text-[10px] text-[#6A5E4C] dark:text-[#95A1C2]">⌘K</kbd>
           </button>
 
           <button
@@ -822,7 +826,7 @@ export default function App() {
               type="button"
               onClick={rayiDegistir}
               title={rayDar ? 'Rayı genişlet' : 'Rayı daralt'}
-              className="hidden lg:flex ml-auto items-center justify-center w-6 h-6 rounded-md text-[#9A8C76] hover:text-[#F26B6F] hover:bg-[#F3EFE8] dark:hover:bg-[#17345A] transition-colors cursor-pointer"
+              className="hidden lg:flex ml-auto items-center justify-center w-6 h-6 rounded-md text-[#6A5E4C] dark:text-[#A6B0C9] hover:text-[#F26B6F] hover:bg-[#F3EFE8] dark:hover:bg-[#17345A] transition-colors cursor-pointer"
             >
               {rayDar ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronLeft className="w-3.5 h-3.5" />}
             </button>
@@ -856,7 +860,7 @@ export default function App() {
                   title={item.label}
                   className={`w-full text-left rounded-xl flex items-center cursor-pointer transition-all ${rayDar ? 'lg:justify-center lg:px-0 px-4 py-3 gap-3 lg:gap-0' : 'px-4 py-3 gap-3'} ${isActive ? 'bg-[#0E1C4F] dark:bg-[#F26B6F] text-[#F3EFE8] font-bold shadow-md' : 'bg-white dark:bg-[#13204A]/55 hover:bg-[#F6F1E7] hover:text-[#0E1C4F] dark:hover:bg-[#202E5C] dark:hover:text-[#F3EFE8] border border-[#CFC5B4]/40 text-[#6A5E4C] dark:text-[#A6B0C9]'}`}
                 >
-                  <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-[#F26B6F] dark:text-amber-200' : 'text-[#9A8C76]'}`} />
+                  <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-[#F26B6F] dark:text-amber-200' : 'text-[#6A5E4C]'}`} />
                   <span className={rayDar ? 'lg:hidden' : ''}>{item.label}</span>
                 </button>
               );
@@ -877,7 +881,7 @@ export default function App() {
             olmayan, gerçek varlıklar.
           */}
           {!rayDar && (
-          <div className="mt-4 p-4 bg-white/40 border border-[#CFC5B4] rounded-xl text-center space-y-1 font-mono text-[10px] text-[#6A5E4C] dark:text-[#A6B0C9]">
+          <div className="mt-4 p-4 bg-white/40 dark:bg-[#13204A]/50 border border-[#CFC5B4] rounded-xl text-center space-y-1 font-mono text-[10px] text-[#6A5E4C] dark:text-[#A6B0C9]">
             <p>KOMUTA MERKEZİ AKSI</p>
             <p className="font-bold text-xs text-[#F26B6F]">
               {varlikSayisi} Kayıtlı Varlık
@@ -890,7 +894,7 @@ export default function App() {
         </aside>
 
         {/* ACTIVE WORKSPACE AREA */}
-        <main className="flex-1 min-w-0">
+        <main className="flex-1 min-w-0 pb-20">
           {activeTab === 'komuta' && (
             <KomutaMerkezi 
               items={items}

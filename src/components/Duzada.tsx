@@ -1541,7 +1541,7 @@ export default function Duzada({
             e.stopPropagation();
             setActiveDropdownId(activeDropdownId === id ? null : id);
           }}
-          className="text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 p-1 rounded-full hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors cursor-pointer"
+          className="text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 p-1 rounded-full hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors cursor-pointer"
           title="Bölüm İşlemleri"
         >
           <MoreVertical className="w-4 h-4" />
@@ -1735,7 +1735,7 @@ export default function Duzada({
       {activeTab === 'harita' && haritaDuzenleniyor && (
         <div className="bg-[#E7EBE6] border border-[#B9C7BD] rounded-xl p-4 archive-shadow relative paper-grain">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] font-mono uppercase text-[#4A5E68] font-bold">
+            <span className="text-[10px] font-mono uppercase text-[#4A5E68] dark:text-[#A6B0C9] font-bold">
               DÜZADA HARİTASI · DÜZENLEME
             </span>
           </div>
@@ -1771,7 +1771,7 @@ export default function Duzada({
           {/* 3B arazi haritası — gen/duzada.py + gen/dem.py üretimi */}
           <div className="lg:col-span-2 bg-[#E7EBE6] border border-[#B9C7BD] rounded-xl p-4 archive-shadow relative paper-grain">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] font-mono uppercase text-[#4A5E68] font-bold">
+                <span className="text-[10px] font-mono uppercase text-[#4A5E68] dark:text-[#A6B0C9] font-bold">
                   DÜZADA ARAZİ HARİTASI
                 </span>
                 <button
@@ -1816,7 +1816,7 @@ export default function Duzada({
                     Düzada Yerleşim Ağacı
                   </h3>
                 </div>
-                <span className="text-xs font-mono text-stone-500 font-bold">🏝️ Düzada (Ada)</span>
+                <span className="text-xs font-mono text-stone-500 dark:text-stone-400 font-bold">🏝️ Düzada (Ada)</span>
               </div>
 
               {/* MAHALLE SEÇİMİ VE YÖNETİMİ */}
@@ -1998,7 +1998,7 @@ export default function Duzada({
                 {/* Sokaklar Accordion Tree */}
                 <div className="space-y-2.5 max-h-[400px] overflow-y-auto pr-1">
                   {sokaklar.filter(s => s.mahalleId === selectedRegion).length === 0 && (
-                    <span className="text-xs text-stone-400 italic block text-center py-4 bg-[#F6F1E7]/40 rounded-lg">Bu mahallede henüz tanımlanmış bir cadde/sokak yok.</span>
+                    <span className="text-xs text-stone-500 dark:text-stone-400 italic block text-center py-4 bg-[#F6F1E7]/40 rounded-lg">Bu mahallede henüz tanımlanmış bir cadde/sokak yok.</span>
                   )}
 
                   {sokaklar.filter(s => s.mahalleId === selectedRegion).map(sok => {
@@ -2028,7 +2028,7 @@ export default function Duzada({
                           ) : (
                             <div className="flex items-center gap-1.5">
                               <span className="font-serif font-bold text-xs text-[#0E1C4F] dark:text-[#F3EFE8]">{sok.name}</span>
-                              <span className="text-[9px] font-mono text-stone-400 bg-stone-100 dark:bg-[#17345A] px-1 rounded-sm">
+                              <span className="text-[9px] font-mono text-stone-500 dark:text-stone-400 bg-stone-100 dark:bg-[#17345A] px-1 rounded-sm">
                                 {sokMekanlari.length} Mekan
                               </span>
                             </div>
@@ -2064,7 +2064,7 @@ export default function Duzada({
                         {/* MEKANLAR (LEVEL 3) LIST ON THIS STREET */}
                         <div className="pl-1.5 space-y-1">
                           {sokMekanlari.length === 0 ? (
-                            <span className="text-[10px] text-stone-400 italic block py-1">Bu sokakta henüz mekan bulunmuyor.</span>
+                            <span className="text-[10px] text-stone-500 dark:text-stone-400 italic block py-1">Bu sokakta henüz mekan bulunmuyor.</span>
                           ) : (
                             sokMekanlari.map(mekan => {
                               let typeIcon = <MapPin className="w-3 h-3 text-[#F26B6F]" />;
@@ -2085,14 +2085,14 @@ export default function Duzada({
                                   >
                                     {typeIcon}
                                     <span className="truncate font-medium">{mekan.title}</span>
-                                    <span className="text-[8px] font-mono opacity-50 uppercase scale-90 text-stone-400">({mekan.type})</span>
+                                    <span className="text-[8px] font-mono opacity-50 uppercase scale-90 text-stone-500 dark:text-stone-400">({mekan.type})</span>
                                   </div>
 
                                   <div className="flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
                                     <button
                                       title="Sokaktan Kaldır"
                                       onClick={() => handleUnplaceMekanFromSokak(mekan.id)}
-                                      className="text-stone-500 hover:text-stone-800 dark:hover:text-stone-100 text-[9px] font-mono px-1 border border-stone-200 dark:border-stone-700 rounded bg-white/50 dark:bg-[#12224A]/40 cursor-pointer"
+                                      className="text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-100 text-[9px] font-mono px-1 border border-stone-200 dark:border-stone-700 rounded bg-white/50 dark:bg-[#12224A]/40 cursor-pointer"
                                     >
                                       Bağlantıyı Kes
                                     </button>
@@ -2187,7 +2187,7 @@ export default function Duzada({
                           return (
                             <div className="p-2 bg-[#F6F1E7]/40 dark:bg-stone-900/40 rounded-md border border-stone-200 dark:border-stone-700 space-y-1.5 text-[10px]">
                               {unplacedMekanlar.length === 0 ? (
-                                <span className="text-stone-400 italic block">Yerleştirilebilecek boşta mekan bulunamadı.</span>
+                                <span className="text-stone-500 dark:text-stone-400 italic block">Yerleştirilebilecek boşta mekan bulunamadı.</span>
                               ) : (
                                 <>
                                   <select
@@ -2247,7 +2247,7 @@ export default function Duzada({
                           >
                             {mekan.title}
                           </span>
-                          <span className="text-[9px] text-stone-400 font-mono italic">Sokaksız</span>
+                          <span className="text-[9px] text-stone-500 dark:text-stone-400 font-mono italic">Sokaksız</span>
                         </div>
                       ))}
                     </div>
@@ -2323,7 +2323,7 @@ export default function Duzada({
               <h3 className="font-serif font-bold text-lg text-stone-800 dark:text-[#F3EFE8]">
                 {eksikMadde.ad}
               </h3>
-              <p className="mt-1 font-mono text-[11px] text-stone-500 dark:text-[#6E7CA0]">
+              <p className="mt-1 font-mono text-[11px] text-stone-500 dark:text-[#95A1C2]">
                 {kunyeSatiri(eksikMadde)}
               </p>
             </div>

@@ -721,7 +721,7 @@ export default function OyunSimulasyon({
                 <div className="lg:col-span-7 bg-[#FAF6F0] dark:bg-[#161616] p-6 rounded-xl border border-stone-300 dark:border-stone-800 space-y-4 shadow-sm">
                   <div className="flex justify-between items-start border-b border-stone-200 dark:border-stone-800 pb-3">
                     <div>
-                      <span className="text-[10px] font-mono text-stone-400 block uppercase">AKTİF SEÇİLİ GÜN</span>
+                      <span className="text-[10px] font-mono text-stone-500 dark:text-stone-400 block uppercase">AKTİF SEÇİLİ GÜN</span>
                       <h2 className="text-2xl font-serif font-bold text-stone-900 dark:text-stone-100">
                         Gün {currentChapterIndex} - {dayNameStr}
                       </h2>
@@ -748,18 +748,18 @@ export default function OyunSimulasyon({
                   {/* Expected Departures / Arrivals Quick Glance */}
                   <div className="grid grid-cols-2 gap-4 pt-2">
                     <div className="p-3 bg-stone-100/60 dark:bg-stone-900 border border-stone-200 dark:border-stone-800/80 rounded-lg">
-                      <span className="text-[9px] font-mono font-bold text-stone-400 block uppercase mb-1">GİRİŞ YAPACAK MİSAFİRLER</span>
+                      <span className="text-[9px] font-mono font-bold text-stone-500 dark:text-stone-400 block uppercase mb-1">GİRİŞ YAPACAK MİSAFİRLER</span>
                       <div className="text-[11px] font-sans font-bold space-y-1">
                         {operations.filter(op => op.type === 'check-in' || op.type === 'walk-in').slice(0, 3).map((op, idx) => (
                           <div key={idx} className="truncate text-stone-800 dark:text-stone-300">👤 {op.whoWhat}</div>
                         ))}
                         {operations.filter(op => op.type === 'check-in' || op.type === 'walk-in').length === 0 && (
-                          <span className="text-stone-400 text-[10px] font-normal">Beklenen giriş bulunmuyor</span>
+                          <span className="text-stone-500 dark:text-stone-400 text-[10px] font-normal">Beklenen giriş bulunmuyor</span>
                         )}
                       </div>
                     </div>
                     <div className="p-3 bg-stone-100/60 dark:bg-stone-900 border border-stone-200 dark:border-stone-800/80 rounded-lg">
-                      <span className="text-[9px] font-mono font-bold text-stone-400 block uppercase mb-1">BEKLENEN ODA ÇIKIŞLARI</span>
+                      <span className="text-[9px] font-mono font-bold text-stone-500 dark:text-stone-400 block uppercase mb-1">BEKLENEN ODA ÇIKIŞLARI</span>
                       <div className="text-[11px] font-sans font-bold space-y-1 text-stone-800 dark:text-stone-300">
                         {expectedDepartures.slice(0, 3).map((dep, idx) => (
                           <div key={idx} className="truncate">🔑 {dep.name} ({dep.room})</div>
@@ -830,7 +830,7 @@ export default function OyunSimulasyon({
                 {/* Quick stats indicators */}
                 <div className="grid grid-cols-4 gap-4 text-center font-mono text-[10px]">
                   <div className="p-2.5 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-lg">
-                    <span className="block text-stone-400">Toplam Oda</span>
+                    <span className="block text-stone-500 dark:text-stone-400">Toplam Oda</span>
                     <strong className="text-stone-800 dark:text-stone-200 text-sm">{stats.total}</strong>
                   </div>
                   <div className="p-2.5 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-lg">
@@ -851,7 +851,7 @@ export default function OyunSimulasyon({
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
                   {[4, 3, 2, 1].map(floorNum => (
                     <div key={floorNum} className="bg-white dark:bg-[#161616] border border-stone-200 dark:border-stone-800 p-4 rounded-xl space-y-3 shadow-2xs">
-                      <h4 className="text-[10px] font-mono font-bold text-stone-400 border-b border-stone-100 dark:border-stone-800 pb-1 uppercase tracking-wider">
+                      <h4 className="text-[10px] font-mono font-bold text-stone-500 dark:text-stone-400 border-b border-stone-100 dark:border-stone-800 pb-1 uppercase tracking-wider">
                         🏢 {floorNum}. KAT
                       </h4>
                       <div className="space-y-2">
@@ -886,20 +886,20 @@ export default function OyunSimulasyon({
               <div className="space-y-6 animate-fadeIn">
                 <div className="bg-white dark:bg-[#161616] p-6 rounded-xl border border-stone-300 dark:border-stone-800 grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
                   <div className="space-y-1">
-                    <span className="text-[10px] font-mono text-stone-400 uppercase">BİRİKMİŞ TOPLAM SKOR</span>
+                    <span className="text-[10px] font-mono text-stone-500 dark:text-stone-400 uppercase">BİRİKMİŞ TOPLAM SKOR</span>
                     <div className="text-4xl font-serif font-bold text-amber-600 dark:text-amber-400">
                       +{gameProgress.cumulativeScore}
                     </div>
                   </div>
                   <div className="space-y-1 border-y md:border-y-0 md:border-x border-stone-200 dark:border-stone-800 py-4 md:py-0">
-                    <span className="text-[10px] font-mono text-stone-400 uppercase">TOPLAM ALINAN HATA</span>
+                    <span className="text-[10px] font-mono text-stone-500 dark:text-stone-400 uppercase">TOPLAM ALINAN HATA</span>
                     <div className="text-4xl font-serif font-bold text-red-600 dark:text-red-400">
                       {gameProgress.cumulativeErrors}
                     </div>
                   </div>
                   <div className="space-y-1">
-                    <span className="text-[10px] font-mono text-stone-400 uppercase">TAMAMLANAN GÜNLER</span>
-                    <div className="text-4xl font-serif font-bold text-emerald-600 dark:text-emerald-400">
+                    <span className="text-[10px] font-mono text-stone-500 dark:text-stone-400 uppercase">TAMAMLANAN GÜNLER</span>
+                    <div className="text-4xl font-serif font-bold text-emerald-700 dark:text-emerald-400">
                       {Object.keys(gameProgress.completedDays).length} / {days.length || 7}
                     </div>
                   </div>
@@ -907,11 +907,11 @@ export default function OyunSimulasyon({
 
                 {/* Score list */}
                 <div className="space-y-2">
-                  <h3 className="text-xs font-mono font-bold text-stone-400 uppercase tracking-widest border-b border-stone-200 dark:border-stone-800 pb-1.5">
+                  <h3 className="text-xs font-mono font-bold text-stone-500 dark:text-stone-400 uppercase tracking-widest border-b border-stone-200 dark:border-stone-800 pb-1.5">
                     GÜNLÜK RESEPSİYON DEĞERLENDİRME RAPORLARI
                   </h3>
                   {Object.keys(gameProgress.completedDays).length === 0 ? (
-                    <div className="text-center py-12 text-stone-400 text-xs border border-dashed border-stone-200 dark:border-stone-800 rounded-xl bg-white dark:bg-[#161616]">
+                    <div className="text-center py-12 text-stone-500 dark:text-stone-400 text-xs border border-dashed border-stone-200 dark:border-stone-800 rounded-xl bg-white dark:bg-[#161616]">
                       Henüz tamamlanmış bir vardiya kaydı bulunmuyor. İlk günü tamamlayarak başlayın!
                     </div>
                   ) : (
@@ -921,7 +921,7 @@ export default function OyunSimulasyon({
                           <div className="space-y-1 font-serif">
                             <span className="text-[9px] font-mono text-amber-600 dark:text-amber-500 font-bold uppercase">{item.date}</span>
                             <h4 className="text-sm font-bold text-stone-800 dark:text-stone-200 leading-snug">{item.title}</h4>
-                            <span className="inline-block text-[9px] font-mono bg-stone-100 dark:bg-stone-900 px-2 py-0.5 rounded text-stone-500">
+                            <span className="inline-block text-[9px] font-mono bg-stone-100 dark:bg-stone-900 px-2 py-0.5 rounded text-stone-500 dark:text-stone-400">
                               Değerlendirme: {item.rank}
                             </span>
                           </div>
@@ -973,18 +973,18 @@ export default function OyunSimulasyon({
                         className={`p-5 rounded-xl border transition-all ${
                           isUnlocked 
                             ? 'bg-white dark:bg-[#161616] border-stone-300 dark:border-stone-800 shadow-xs' 
-                            : 'bg-stone-100 dark:bg-stone-900/30 border-stone-200 dark:border-stone-900 opacity-60 text-stone-400'
+                            : 'bg-stone-100 dark:bg-stone-900/30 border-stone-200 dark:border-stone-900 opacity-60 text-stone-500 dark:text-stone-400'
                         }`}
                       >
                         <div className="flex items-center gap-2 border-b border-stone-100 dark:border-stone-800 pb-2 mb-2 font-mono text-[10px] font-bold">
                           {isUnlocked ? (
                             <>
-                              <CheckCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                              <CheckCircle className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
                               <span className="text-amber-600 dark:text-amber-500 uppercase">ÇÖZÜLDÜ • BELGE #{index + 1}</span>
                             </>
                           ) : (
                             <>
-                              <Lock className="w-4 h-4 text-stone-400" />
+                              <Lock className="w-4 h-4 text-stone-500 dark:text-stone-400" />
                               <span>KİLİTLİ • BELGE #{index + 1}</span>
                             </>
                           )}
@@ -1173,19 +1173,19 @@ export default function OyunSimulasyon({
 
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs font-serif text-stone-800 dark:text-stone-200">
                     <div>
-                      <span className="block text-[8px] font-mono text-stone-400 uppercase">KİMLİK/AD</span>
+                      <span className="block text-[8px] font-mono text-stone-500 dark:text-stone-400 uppercase">KİMLİK/AD</span>
                       <strong className="text-stone-900 dark:text-stone-100">{activeOp?.whoWhat || "Bilinmeyen Misafir"}</strong>
                     </div>
                     <div>
-                      <span className="block text-[8px] font-mono text-stone-400 uppercase">UYRUK</span>
+                      <span className="block text-[8px] font-mono text-stone-500 dark:text-stone-400 uppercase">UYRUK</span>
                       <strong>T.C. Vatandaşı</strong>
                     </div>
                     <div>
-                      <span className="block text-[8px] font-mono text-stone-400 uppercase">KODU</span>
+                      <span className="block text-[8px] font-mono text-stone-500 dark:text-stone-400 uppercase">KODU</span>
                       <strong className="font-mono">#{(activeOp?.whoWhat?.length || 0) * 19 + 54}</strong>
                     </div>
                     <div>
-                      <span className="block text-[8px] font-mono text-stone-400 uppercase">DURUM</span>
+                      <span className="block text-[8px] font-mono text-stone-500 dark:text-stone-400 uppercase">DURUM</span>
                       <span className="text-green-600 font-bold">Evrak Sunuldu</span>
                     </div>
                   </div>
@@ -1221,10 +1221,10 @@ export default function OyunSimulasyon({
               {/* INTEGRATED LIVE COMPACT HOTEL BLUEPRINT RIGHT IN THE MIDDLE AREA */}
               <div className="bg-white dark:bg-[#1a1a1a] p-4 rounded-xl border border-stone-300 dark:border-stone-800 shadow-sm space-y-2">
                 <div className="flex justify-between items-center border-b border-stone-100 dark:border-stone-800 pb-1.5">
-                  <h4 className="text-[10px] font-mono font-bold uppercase text-stone-500 flex items-center gap-1">
+                  <h4 className="text-[10px] font-mono font-bold uppercase text-stone-500 dark:text-stone-400 flex items-center gap-1">
                     <span>🗺️ REEL-TİME LOBİ ODA BLUEPRINTİ (KROKİ)</span>
                   </h4>
-                  <span className="text-[8px] font-mono text-stone-400">%{stats.occupancyRate} DOLU</span>
+                  <span className="text-[8px] font-mono text-stone-500 dark:text-stone-400">%{stats.occupancyRate} DOLU</span>
                 </div>
 
                 {/* Compact Grid of Rooms */}
@@ -1260,7 +1260,7 @@ export default function OyunSimulasyon({
                   disabled={currentStep === 0}
                   className={`px-3 py-1.5 border rounded-lg transition-all flex items-center gap-1 cursor-pointer text-[11px] ${
                     currentStep === 0
-                      ? 'border-stone-200 dark:border-stone-800 text-stone-400 dark:text-stone-600 cursor-not-allowed'
+                      ? 'border-stone-200 dark:border-stone-800 text-stone-500 dark:text-stone-600 cursor-not-allowed'
                       : 'border-stone-300 dark:border-stone-700 hover:border-stone-400 text-stone-700 dark:text-stone-300 hover:bg-stone-100/50'
                   }`}
                 >
@@ -1268,7 +1268,7 @@ export default function OyunSimulasyon({
                   Önceki İşlem
                 </button>
 
-                <span className="text-stone-400 text-[8px] uppercase tracking-wider">
+                <span className="text-stone-500 dark:text-stone-400 text-[8px] uppercase tracking-wider">
                   {isCorrectSelected ? "[GEÇİŞ SERBEST]" : "[DOĞRU KARAR BEKLENİYOR]"}
                 </span>
 
@@ -1277,8 +1277,8 @@ export default function OyunSimulasyon({
                   disabled={!isCorrectSelected}
                   className={`px-3 py-1.5 border rounded-lg transition-all flex items-center gap-1 cursor-pointer text-[11px] ${
                     (!isCorrectSelected)
-                      ? 'border-stone-200 dark:border-stone-800 text-stone-400 dark:text-stone-600 cursor-not-allowed opacity-50'
-                      : 'border-emerald-600 bg-emerald-600 hover:bg-emerald-700 text-white font-bold'
+                      ? 'border-stone-200 dark:border-stone-800 text-stone-500 dark:text-stone-600 cursor-not-allowed opacity-50'
+                      : 'border-emerald-600 bg-emerald-700 hover:bg-emerald-800 text-white font-bold'
                   }`}
                 >
                   {currentStep === operations.length - 1 ? "Günü Bitir ✓" : "Sıradaki İşlem"}
@@ -1343,7 +1343,7 @@ export default function OyunSimulasyon({
 
                         if (!isActive) {
                           // Disabled state
-                          style = "bg-[#FAF6F0] dark:bg-stone-900 border-[#E9E3D8] dark:border-stone-800 text-stone-400 dark:text-stone-600 opacity-40 cursor-not-allowed";
+                          style = "bg-[#FAF6F0] dark:bg-stone-900 border-[#E9E3D8] dark:border-stone-800 text-stone-500 dark:text-stone-600 opacity-40 cursor-not-allowed";
                           disabledAttr = true;
                         } else {
                           // Active states
@@ -1356,7 +1356,7 @@ export default function OyunSimulasyon({
                                 style = "bg-rose-700 text-white border-rose-700 shadow-md ring-2 ring-rose-500/20 animate-shake";
                               }
                             } else {
-                              style = "bg-stone-100 dark:bg-stone-800 text-stone-400 dark:text-stone-500 border-stone-200 dark:border-stone-700 opacity-50 cursor-not-allowed";
+                              style = "bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-500 border-stone-200 dark:border-stone-700 opacity-50 cursor-not-allowed";
                             }
                           } else {
                             // Hover/active styles based on colors in image
@@ -1393,7 +1393,7 @@ export default function OyunSimulasyon({
                     /* RETRO HOTEL TELEPHONE INTERCOM SYSTEM */
                     <div className="space-y-4 animate-fadeIn">
                       <div className="bg-[#FAF6F0] dark:bg-stone-900 border border-stone-300 dark:border-stone-800 p-3 rounded text-center space-y-2 font-serif">
-                        <div className="text-[9px] font-mono text-stone-500 uppercase tracking-widest">REZAN INTERCOM - 1954</div>
+                        <div className="text-[9px] font-mono text-stone-500 dark:text-stone-400 uppercase tracking-widest">REZAN INTERCOM - 1954</div>
                         <div className="h-10 flex items-center justify-center bg-stone-100 dark:bg-black/40 border border-stone-200 dark:border-stone-850 rounded font-mono text-xs font-bold tracking-widest text-[#1B3B2B] dark:text-[#EAD2AC]">
                           {dialStatus ? "📞 BAĞLANTI KURULDU..." : "☏ HAT SEÇİNİZ"}
                         </div>
@@ -1427,9 +1427,9 @@ export default function OyunSimulasyon({
                           >
                             <div className="text-[10px] font-bold text-[#1B3B2B] dark:text-[#EAD2AC] flex items-center justify-between">
                               <span>{tel.label}</span>
-                              <span className="font-mono text-stone-400 text-[9px]">ext: {tel.ext}</span>
+                              <span className="font-mono text-stone-500 dark:text-stone-400 text-[9px]">ext: {tel.ext}</span>
                             </div>
-                            <div className="text-[8px] text-stone-500 font-sans truncate">{tel.desc}</div>
+                            <div className="text-[8px] text-stone-500 dark:text-stone-400 font-sans truncate">{tel.desc}</div>
                           </button>
                         ))}
                       </div>
@@ -1453,7 +1453,7 @@ export default function OyunSimulasyon({
                   {isCorrectSelected && unlockedLoreSecret && (
                     <div className="p-3 bg-emerald-500/5 border-2 border-emerald-500/30 text-emerald-800 dark:text-emerald-400 rounded-xl space-y-2 animate-fadeIn">
                       <div className="flex items-center gap-1">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                        <CheckCircle2 className="w-4 h-4 text-emerald-700 dark:text-emerald-400 shrink-0" />
                         <strong className="text-[10px] uppercase font-mono font-bold">
                           DOĞRU İŞLEM: SIR AÇILDI
                         </strong>
@@ -1472,7 +1472,7 @@ export default function OyunSimulasyon({
                       </button>
 
                       {revealEffect && (
-                        <p className="text-[9px] font-mono text-stone-500 bg-emerald-500/10 p-1.5 rounded animate-fadeIn leading-relaxed">
+                        <p className="text-[9px] font-mono text-stone-500 dark:text-stone-400 bg-emerald-500/10 p-1.5 rounded animate-fadeIn leading-relaxed">
                           {activeOp?.effect || "Resepsiyon işlemi başarıyla sisteme kaydedildi. Puan eklendi."}
                         </p>
                       )}
@@ -1531,18 +1531,18 @@ export default function OyunSimulasyon({
               {/* Stats Card */}
               <div className="p-4 bg-white dark:bg-stone-900 border border-stone-300 dark:border-stone-800 rounded-xl grid grid-cols-2 gap-4 text-center">
                 <div className="space-y-0.5">
-                  <span className="text-[9px] font-mono text-stone-400 block uppercase">KAZANILAN SKOR</span>
+                  <span className="text-[9px] font-mono text-stone-500 dark:text-stone-400 block uppercase">KAZANILAN SKOR</span>
                   <strong className="text-xl font-mono text-green-600 dark:text-green-400">+{score} Puan</strong>
                 </div>
                 <div className="space-y-0.5 border-l border-stone-200 dark:border-stone-800">
-                  <span className="text-[9px] font-mono text-stone-400 block uppercase">YAPILAN HATA</span>
+                  <span className="text-[9px] font-mono text-stone-500 dark:text-stone-400 block uppercase">YAPILAN HATA</span>
                   <strong className="text-xl font-mono text-red-600 dark:text-red-400">{errors} / 3</strong>
                 </div>
               </div>
 
               {/* Cemal Salda Evaluation stamp */}
               <div className="p-4 bg-stone-100 dark:bg-stone-950/40 rounded-lg space-y-1.5 border border-stone-200 dark:border-stone-800/60 text-xs">
-                <span className="font-mono text-[9px] text-stone-400 font-bold uppercase tracking-wider block">CEMAL SALDA DEĞERLENDİRMESİ</span>
+                <span className="font-mono text-[9px] text-stone-500 dark:text-stone-400 font-bold uppercase tracking-wider block">CEMAL SALDA DEĞERLENDİRMESİ</span>
                 <p className="font-serif italic text-stone-700 dark:text-stone-300">
                   {errors === 0 && '"Mükemmel iş çıkardın resepsiyonist. Siciline tek bir leke bile geçmedi. Kemsköy ailesi adına teşekkür ederim."'}
                   {errors === 1 && '"Kabul edilebilir bir performans. Ufak bir hatan oldu ancak lobi nizamı bozulmadı. Devam et."'}
@@ -1553,7 +1553,7 @@ export default function OyunSimulasyon({
 
               {/* Unlocked story teaser */}
               <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg space-y-1 text-xs">
-                <span className="font-mono text-[9px] text-emerald-600 dark:text-emerald-400 font-bold block uppercase">📖 GÜNLÜK KANON SIRRI AÇILDI</span>
+                <span className="font-mono text-[9px] text-emerald-700 dark:text-emerald-400 font-bold block uppercase">📖 GÜNLÜK KANON SIRRI AÇILDI</span>
                 <p className="font-serif text-stone-700 dark:text-stone-300 italic">
                   "{DUZADA_SECRETS[(currentChapterIndex - 1) % DUZADA_SECRETS.length]}"
                 </p>
@@ -1598,19 +1598,19 @@ export default function OyunSimulasyon({
               {/* Kariyer Karnesi */}
               <div className="p-5 bg-white dark:bg-stone-900 border border-stone-300 dark:border-stone-800 rounded-xl grid grid-cols-3 gap-4 text-center">
                 <div className="space-y-1">
-                  <span className="text-[9px] font-mono text-stone-400 block uppercase">TOPLAM PUAN</span>
+                  <span className="text-[9px] font-mono text-stone-500 dark:text-stone-400 block uppercase">TOPLAM PUAN</span>
                   <strong className="text-2xl font-mono text-green-600 dark:text-green-400 font-bold">
                     +{gameProgress.cumulativeScore}
                   </strong>
                 </div>
                 <div className="space-y-1 border-x border-stone-200 dark:border-stone-800">
-                  <span className="text-[9px] font-mono text-stone-400 block uppercase">TOPLAM HATA</span>
+                  <span className="text-[9px] font-mono text-stone-500 dark:text-stone-400 block uppercase">TOPLAM HATA</span>
                   <strong className="text-2xl font-mono text-red-600 dark:text-red-400 font-bold">
                     {gameProgress.cumulativeErrors}
                   </strong>
                 </div>
                 <div className="space-y-1">
-                  <span className="text-[9px] font-mono text-stone-400 block uppercase">SIR ÇÖZÜMÜ</span>
+                  <span className="text-[9px] font-mono text-stone-500 dark:text-stone-400 block uppercase">SIR ÇÖZÜMÜ</span>
                   <strong className="text-2xl font-mono text-amber-600 dark:text-amber-500 font-bold">
                     {gameProgress.unlockedSecrets.length} / 11
                   </strong>
@@ -1633,7 +1633,7 @@ export default function OyunSimulasyon({
 
               {/* Unlocked Secrets list scrapbook */}
               <div className="space-y-2">
-                <h5 className="text-[10px] font-mono font-bold text-stone-400 uppercase tracking-widest border-b border-stone-200 dark:border-stone-800 pb-1.5">
+                <h5 className="text-[10px] font-mono font-bold text-stone-500 dark:text-stone-400 uppercase tracking-widest border-b border-stone-200 dark:border-stone-800 pb-1.5">
                   ÇÖZÜLEN REKOR KANON SIRLARI ALBÜMÜ ({gameProgress.unlockedSecrets.length} / 11)
                 </h5>
                 <div className="space-y-2.5 max-h-[160px] overflow-y-auto pr-1">
@@ -1694,7 +1694,7 @@ export default function OyunSimulasyon({
               <button className="py-2.5 text-center bg-[#FAF6F0] dark:bg-[#141414] text-stone-800 dark:text-stone-100 font-bold border-r border-stone-300 dark:border-stone-800">
                 BÖLÜM I (Sezon Sonu)
               </button>
-              <button disabled className="py-2.5 text-center bg-stone-100 dark:bg-stone-900/40 text-stone-400 cursor-not-allowed">
+              <button disabled className="py-2.5 text-center bg-stone-100 dark:bg-stone-900/40 text-stone-500 dark:text-stone-400 cursor-not-allowed">
                 BÖLÜM II (🔒 Yakında)
               </button>
             </div>
@@ -1720,7 +1720,7 @@ export default function OyunSimulasyon({
                     }`}
                   >
                     <div className="space-y-0.5">
-                      <span className={`text-[9px] font-mono font-bold block ${isActive ? 'text-amber-300' : 'text-stone-500'}`}>
+                      <span className={`text-[9px] font-mono font-bold block ${isActive ? 'text-amber-300' : 'text-stone-500 dark:text-stone-400'}`}>
                         GÜN {dayNum} - {getDayName(dayNum)}
                       </span>
                       <strong className="text-xs font-serif">{day.title}</strong>
@@ -1763,7 +1763,7 @@ export default function OyunSimulasyon({
               
               {/* Audio switches */}
               <div className="space-y-1.5">
-                <span className="text-[9px] font-mono font-bold text-stone-400 uppercase tracking-widest block">SES EFEKTLERİ</span>
+                <span className="text-[9px] font-mono font-bold text-stone-500 dark:text-stone-400 uppercase tracking-widest block">SES EFEKTLERİ</span>
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     onClick={() => setAudioEnabled(true)}
@@ -1792,7 +1792,7 @@ export default function OyunSimulasyon({
 
               {/* Difficulty selects */}
               <div className="space-y-1.5">
-                <span className="text-[9px] font-mono font-bold text-stone-400 uppercase tracking-widest block">ZORLUK SEVİYESİ</span>
+                <span className="text-[9px] font-mono font-bold text-stone-500 dark:text-stone-400 uppercase tracking-widest block">ZORLUK SEVİYESİ</span>
                 <div className="grid grid-cols-3 gap-1.5">
                   {(['kolay', 'normal', 'zor'] as const).map((level) => (
                     <button
@@ -1905,7 +1905,7 @@ export default function OyunSimulasyon({
               <button
                 onClick={() => setGuideSlide(prev => Math.max(0, prev - 1))}
                 disabled={guideSlide === 0}
-                className={`px-3 py-1.5 border rounded-md cursor-pointer ${guideSlide === 0 ? 'text-stone-400 border-stone-200 cursor-not-allowed' : 'border-stone-400 text-stone-700 hover:bg-stone-100'}`}
+                className={`px-3 py-1.5 border rounded-md cursor-pointer ${guideSlide === 0 ? 'text-stone-500 dark:text-stone-400 border-stone-200 cursor-not-allowed' : 'border-stone-400 text-stone-700 hover:bg-stone-100'}`}
               >
                 ◀ ÖNCEKİ
               </button>

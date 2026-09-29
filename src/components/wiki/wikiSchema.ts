@@ -101,6 +101,11 @@ function readPath(item: Item, path: string): unknown {
  * Bir maddenin künye alanlarını şemadan çıkarır.
  * `title` ve `notes` künyeye girmez — onlar sayfanın başlığı ve gövdesidir.
  */
+/** Kısmi eşleşmesi yasak olan künye başlıkları: [ayrıştırılan, şema] (küçük harf) */
+const YANLIS_ESLESMELER: Array<[string, string]> = [
+  ['kuruluş', 'kuruluş amacı ve misyon']
+];
+
 export function getKunyeFields(
   item: Item,
   opts: { includeEmpty?: boolean; includeSecrets?: boolean } = {}
@@ -116,7 +121,11 @@ export function getKunyeFields(
     const want = label.toLocaleLowerCase('tr');
     const hit = parsed.fields.find(f => {
       const have = f.label.toLocaleLowerCase('tr');
-      return have === want || want.includes(have) || have.includes(want);
+      if (have === want) return true;
+      // Kısmi eşleşme yanlış alana düşürmesin: "Kuruluş" (tarih) satırı
+      // "Kuruluş Amacı ve Misyon" alanında görünüyordu (29 Eylül).
+      if (YANLIS_ESLESMELER.some(([a, b]) => a === have && b === want)) return false;
+      return want.includes(have) || have.includes(want);
     });
     return hit ? hit.value : '';
   };

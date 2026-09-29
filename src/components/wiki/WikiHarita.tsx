@@ -96,7 +96,7 @@ export const WikiHarita: React.FC<WikiHaritaProps> = ({
 
   return (
     <div className="mt-4 border border-bej/50 dark:border-lacivert-600/50 rounded-lg overflow-hidden bg-krem-acik/70 dark:bg-lacivert-800/40 archive-shadow">
-      <h2 className="px-4 py-2.5 font-mono text-[10px] uppercase tracking-[0.14em] text-gri dark:text-bej/70 border-b border-bej/40 dark:border-lacivert-600/40 bg-bej/12 dark:bg-lacivert-600/25 flex items-center gap-1.5">
+      <h2 className="px-4 py-2.5 font-mono text-[10px] uppercase tracking-[0.14em] text-gri dark:text-bej/85 border-b border-bej/40 dark:border-lacivert-600/40 bg-bej/12 dark:bg-lacivert-600/25 flex items-center gap-1.5">
         <Compass size={12} /> Haritada
       </h2>
 
@@ -104,7 +104,7 @@ export const WikiHarita: React.FC<WikiHaritaProps> = ({
         <dl className="divide-y divide-bej/30 dark:divide-lacivert-600/30">
           {satirlar.map(([etiket, deger]) => (
             <div key={etiket} className="px-4 py-2.5">
-              <dt className="text-[10px] font-mono uppercase tracking-wide text-gri dark:text-bej/60 mb-0.5">
+              <dt className="text-[10px] font-mono uppercase tracking-wide text-gri dark:text-bej/85 mb-0.5">
                 {etiket}
               </dt>
               <dd className="text-[13px] text-lacivert dark:text-krem/90 leading-snug">
@@ -117,7 +117,7 @@ export const WikiHarita: React.FC<WikiHaritaProps> = ({
 
       {bilgi.komsular.length > 0 && (
         <div className="px-4 py-3 border-t border-bej/40 dark:border-lacivert-600/40">
-          <p className="text-[10px] font-mono uppercase tracking-wide text-gri dark:text-bej/60 mb-1.5">
+          <p className="text-[10px] font-mono uppercase tracking-wide text-gri dark:text-bej/85 mb-1.5">
             Aynı mahallede
           </p>
           <ul className="flex flex-wrap gap-1.5">
@@ -140,7 +140,7 @@ export const WikiHarita: React.FC<WikiHaritaProps> = ({
         <button
           type="button"
           onClick={() => onHaritayaGit(bilgi.binaId)}
-          className="w-full px-4 py-2.5 border-t border-bej/40 dark:border-lacivert-600/40 text-[11px] font-mono text-gri dark:text-bej/70 hover:text-lacivert dark:hover:text-krem hover:bg-bej/12 dark:hover:bg-lacivert-600/25 transition-colors cursor-pointer text-left"
+          className="w-full px-4 py-2.5 border-t border-bej/40 dark:border-lacivert-600/40 text-[11px] font-mono text-gri dark:text-bej/85 hover:text-lacivert dark:hover:text-krem hover:bg-bej/12 dark:hover:bg-lacivert-600/25 transition-colors cursor-pointer text-left"
         >
           Haritada göster →
         </button>

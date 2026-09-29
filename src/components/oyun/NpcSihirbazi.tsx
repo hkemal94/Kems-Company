@@ -165,7 +165,7 @@ export const NpcSihirbazi: React.FC<NpcSihirbaziProps> = ({ items, onAddItem, on
     liste: string[]; secili: string; sec: (s: string) => void; bosMesaj: string;
   }> = ({ liste, secili, sec, bosMesaj }) => (
     liste.length === 0 ? (
-      <p className="text-[12px] text-[#9A8C76] italic">{bosMesaj}</p>
+      <p className="text-[12px] text-[#6A5E4C] dark:text-[#A6B0C9] italic">{bosMesaj}</p>
     ) : (
       <div className="flex flex-wrap gap-2 max-h-[260px] overflow-y-auto">
         {liste.map(x => (
@@ -209,11 +209,11 @@ export const NpcSihirbazi: React.FC<NpcSihirbaziProps> = ({ items, onAddItem, on
           <h2 className="font-mono text-sm font-bold text-[#0E1C4F] dark:text-[#F3EFE8]">
             NPC yarat · {basliklar[adim]}
           </h2>
-          <span className="font-mono text-[10px] text-[#9A8C76]">
+          <span className="font-mono text-[10px] text-[#6A5E4C] dark:text-[#A6B0C9]">
             {sira + 1}/{adimlar.length}
           </span>
         </div>
-        <p className="text-[11px] text-[#9A8C76] dark:text-[#6E7CA0] mb-4">
+        <p className="text-[11px] text-[#6A5E4C] dark:text-[#95A1C2] mb-4">
           Hepsi tıklama. Adlar evrendeki kişilerden derleniyor, uydurulmuyor.
         </p>
 
@@ -260,10 +260,10 @@ export const NpcSihirbazi: React.FC<NpcSihirbaziProps> = ({ items, onAddItem, on
             {[['Rol', rol], ['Mahalle', mahalle], ['Mizaç', mizac], ['Oteldeki yeri', durum.ad]]
               .map(([k, v]) => (
                 <p key={k} className="text-[12px] text-[#6A5E4C] dark:text-[#A6B0C9]">
-                  <span className="font-mono text-[10px] uppercase tracking-wider text-[#9A8C76]">
+                  <span className="font-mono text-[10px] uppercase tracking-wider text-[#6A5E4C] dark:text-[#A6B0C9]">
                     {k}:
                   </span>{' '}
-                  {v || <span className="italic text-[#9A8C76]">boş</span>}
+                  {v || <span className="italic text-[#6A5E4C] dark:text-[#A6B0C9]">boş</span>}
                 </p>
               ))}
             {cakisma && (
@@ -271,7 +271,7 @@ export const NpcSihirbazi: React.FC<NpcSihirbaziProps> = ({ items, onAddItem, on
                 Bu adda bir kayıt zaten var — yine de eklersen iki kişi aynı adı taşır.
               </p>
             )}
-            <p className="text-[11px] text-[#9A8C76] pt-1.5">
+            <p className="text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9] pt-1.5">
               Künye metni boş kalıyor; Boşluklar sayfasından doldurabilirsin.
             </p>
           </div>

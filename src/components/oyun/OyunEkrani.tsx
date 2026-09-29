@@ -111,8 +111,8 @@ export const OyunEkrani: React.FC<OyunEkraniProps> = (p) => {
       >
         <button
           onClick={ac}
-          className="font-mono cursor-pointer"
-          style={{ fontSize: 10, letterSpacing: '0.1em', color: '#BBA591' }}
+          className="font-mono cursor-pointer text-[#6A5E4C] dark:text-[#95A1C2]"
+          style={{ fontSize: 10, letterSpacing: '0.1em' }}
           title="Eski otel simülasyonu — mekanik denemesi olarak saklanıyor"
         >
           prototip: otel simülasyonu →

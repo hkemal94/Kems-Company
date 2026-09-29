@@ -569,7 +569,7 @@ export default function KomutaMerkezi({
             <div>
               <div className="flex justify-between items-start">
                 <h3 className="font-bold text-lg text-[#0E1C4F] dark:text-[#F3EFE8] group-hover:text-amber-700 transition-colors">Kitap</h3>
-                <span className="text-xs font-mono text-[#BBA591] dark:text-[#A6B0C9] font-bold">%{projectStats.kitap.progress}</span>
+                <span className="text-xs font-mono text-[#6A5E4C] dark:text-[#A6B0C9] font-bold">%{projectStats.kitap.progress}</span>
               </div>
               <p className="text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9] mt-0.5 italic">Roman Projeleri</p>
             </div>
@@ -582,7 +582,7 @@ export default function KomutaMerkezi({
                 />
               </div>
               <div className="flex gap-2 mt-3">
-                <span className="text-[9px] bg-white/50 dark:bg-black/20 text-[#BBA591] px-2 py-0.5 rounded-full font-bold">{projectStats.kitap.count} Bölüm</span>
+                <span className="text-[9px] bg-white/50 dark:bg-black/20 text-[#6A5E4C] dark:text-[#A6B0C9] px-2 py-0.5 rounded-full font-bold">{projectStats.kitap.count} Bölüm</span>
               </div>
             </div>
           </div>
@@ -676,7 +676,7 @@ export default function KomutaMerkezi({
         {/* Priority Rows */}
         <div className="space-y-2.5 flex-1">
           {priorityItems.length === 0 ? (
-            <div className="text-center py-10 text-[#9A8C76] dark:text-[#6E7CA0] text-sm italic">
+            <div className="text-center py-10 text-[#6A5E4C] dark:text-[#95A1C2] text-sm italic">
               Harika! Bu hafta için kritik yüksek öncelikli bekleyen iş yok.
             </div>
           ) : (
@@ -714,7 +714,7 @@ export default function KomutaMerkezi({
                       <span className="text-xs font-mono text-[#6A5E4C] dark:text-[#A6B0C9] font-bold">
                         {areaName}
                       </span>
-                      <span className="text-[10px] font-mono text-[#9A8C76] dark:text-[#6E7CA0] opacity-80">
+                      <span className="text-[10px] font-mono text-[#6A5E4C] dark:text-[#95A1C2] opacity-80">
                         • {item.type}
                       </span>
                     </div>
@@ -930,9 +930,9 @@ export default function KomutaMerkezi({
 
         <div className="space-y-3.5 max-h-[300px] overflow-y-auto pr-1">
           {filteredProposals.length === 0 ? (
-            <div className="text-center py-10 text-[#9A8C76] dark:text-[#A6B0C9] text-xs">
+            <div className="text-center py-10 text-[#6A5E4C] dark:text-[#A6B0C9] text-xs">
               <p>Bu kategoride bekleyen yapay zeka önerisi bulunmamaktadır.</p>
-              <p className="text-[10px] mt-1.5 opacity-85">İçerik yazarken veya dünya kurarken AI yardımı talep edebilirsiniz.</p>
+              <p className="text-[10px] mt-1.5">İçerik yazarken veya dünya kurarken AI yardımı talep edebilirsiniz.</p>
             </div>
           ) : (
             filteredProposals.map(prop => (
@@ -1000,7 +1000,7 @@ export default function KomutaMerkezi({
                   return (
                     <div key={item.id} className="p-3 bg-[#FAF6EE]/80 dark:bg-[#1E294B]/35 border border-[#CFC5B4]/50 rounded-lg space-y-2 text-xs">
                       <div className="flex items-center justify-between gap-2">
-                        <span className="text-[9px] font-mono font-bold bg-[#F3EFE8] text-[#9A8C76] px-1.5 py-0.5 rounded uppercase">
+                        <span className="text-[9px] font-mono font-bold bg-[#F3EFE8] text-[#6A5E4C] dark:text-[#A6B0C9] px-1.5 py-0.5 rounded uppercase">
                           {item.type}
                         </span>
                         <button
@@ -1023,7 +1023,7 @@ export default function KomutaMerkezi({
                             <span className="font-bold text-[#0E1C4F] dark:text-stone-300">
                               → {targetTitle} ({rel.type === 'çalışanı' ? 'Çalışanı' : 'Bulunduğu Yer'})
                             </span>
-                            {rel.reason && <p className="text-[9px] leading-tight text-stone-500">{rel.reason}</p>}
+                            {rel.reason && <p className="text-[9px] leading-tight text-stone-500 dark:text-stone-400">{rel.reason}</p>}
                             <div className="flex gap-1.5 pt-1">
                               <button
                                 onClick={async () => {
@@ -1115,7 +1115,7 @@ export default function KomutaMerkezi({
         </h3>
         <div className="flex flex-wrap gap-2.5">
           {recentlyTouched.length === 0 ? (
-            <span className="text-xs text-[#9A8C76] dark:text-[#6E7CA0] italic">Henüz son dokunulan varlık bulunmuyor.</span>
+            <span className="text-xs text-[#6A5E4C] dark:text-[#95A1C2] italic">Henüz son dokunulan varlık bulunmuyor.</span>
           ) : (
             recentlyTouched.map(item => {
               const isOyun = item.tags.includes('oyun-tasarimi') || item.id.includes('oyun');
@@ -1152,7 +1152,7 @@ export default function KomutaMerkezi({
               <span className={`w-2 h-2 rounded-full bg-emerald-500 ${isSyncing ? 'animate-ping' : 'animate-pulse'}`} />
               <span className="font-medium">{isSyncing ? 'Canlı Çekiliyor...' : 'Canlı Akış'}</span>
               {lastSyncTime && (
-                <span className="opacity-75 text-[10px] ml-0.5">
+                <span className="text-[10px] ml-0.5">
                   ({lastSyncTime.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })})
                 </span>
               )}
@@ -1358,7 +1358,7 @@ export default function KomutaMerkezi({
             <div className="text-xs leading-relaxed font-serif text-[#0E1C4F] dark:text-stone-200 italic whitespace-pre-wrap">
               "{dailyNoteItem.notes}"
             </div>
-            <div className="mt-3 text-[10px] font-mono text-stone-400 dark:text-stone-500 flex justify-between items-center">
+            <div className="mt-3 text-[10px] font-mono text-stone-500 dark:text-stone-500 flex justify-between items-center">
               <span>Güncelleme: {new Date(dailyNoteItem.updatedAt).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</span>
               <button 
                 onClick={() => setIsEditingDailyNote(true)}
@@ -1398,7 +1398,7 @@ export default function KomutaMerkezi({
         {isEditingChannels ? (
           <div className="space-y-4 animate-in fade-in duration-200">
             <div className="space-y-2 max-h-60 overflow-y-auto bg-white/40 dark:bg-black/15 p-3 rounded-lg border border-[#CFC5B4]/50">
-              <span className="text-[10px] font-mono uppercase text-[#9A8C76] dark:text-[#A6B0C9] font-bold">Aktif Yayınlar:</span>
+              <span className="text-[10px] font-mono uppercase text-[#6A5E4C] dark:text-[#A6B0C9] font-bold">Aktif Yayınlar:</span>
               
               {items.filter(i => i.type === 'channel' && !i.archived).map(ch => (
                 <div key={ch.id} className="p-2.5 bg-white dark:bg-[#17345A] border border-[#CFC5B4]/50 rounded-lg text-xs font-mono">
@@ -1406,7 +1406,7 @@ export default function KomutaMerkezi({
                     <div className="space-y-2">
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                         <div>
-                          <label className="block text-[9px] text-stone-400 font-bold">Kanal İsmi</label>
+                          <label className="block text-[9px] text-stone-500 dark:text-stone-400 font-bold">Kanal İsmi</label>
                           <input
                             type="text"
                             value={editChannelTitle}
@@ -1415,7 +1415,7 @@ export default function KomutaMerkezi({
                           />
                         </div>
                         <div>
-                          <label className="block text-[9px] text-stone-400 font-bold">Platform URL</label>
+                          <label className="block text-[9px] text-stone-500 dark:text-stone-400 font-bold">Platform URL</label>
                           <input
                             type="url"
                             value={editChannelUrl}
@@ -1424,7 +1424,7 @@ export default function KomutaMerkezi({
                           />
                         </div>
                         <div>
-                          <label className="block text-[9px] text-stone-400 font-bold">İkon Türü</label>
+                          <label className="block text-[9px] text-stone-500 dark:text-stone-400 font-bold">İkon Türü</label>
                           <select
                             value={editChannelPlatform}
                             onChange={(e) => setEditChannelPlatform(e.target.value as any)}
@@ -1472,7 +1472,7 @@ export default function KomutaMerkezi({
                       <div className="flex items-center gap-2 overflow-hidden">
                         <span className="capitalize font-bold text-[#F26B6F] shrink-0">[{ch.metadata?.platform || 'custom'}]</span>
                         <span className="font-semibold text-[#0E1C4F] dark:text-[#F3EFE8] shrink-0">{ch.title}</span>
-                        <span className="text-[10px] text-stone-400 truncate max-w-[150px] sm:max-w-xs">{ch.notes}</span>
+                        <span className="text-[10px] text-stone-500 dark:text-stone-400 truncate max-w-[150px] sm:max-w-xs">{ch.notes}</span>
                       </div>
                       
                       <div className="flex items-center gap-1.5 shrink-0">
@@ -1483,7 +1483,7 @@ export default function KomutaMerkezi({
                             setEditChannelUrl(ch.notes || '');
                             setEditChannelPlatform((ch.metadata?.platform as any) || 'custom');
                           }}
-                          className="text-stone-500 hover:text-[#F26B6F] p-1 cursor-pointer"
+                          className="text-stone-500 dark:text-stone-400 hover:text-[#F26B6F] p-1 cursor-pointer"
                           title="Düzenle"
                         >
                           <Edit3 className="w-3.5 h-3.5" />
@@ -1519,7 +1519,7 @@ export default function KomutaMerkezi({
 
               {items.filter(i => i.type === 'channel' && !i.archived).length === 0 && (
                 <div className="text-center py-4 space-y-2">
-                  <p className="text-xs text-stone-400 italic">Veritabanında özelleştirilmiş kanal bulunamadı.</p>
+                  <p className="text-xs text-stone-500 dark:text-stone-400 italic">Veritabanında özelleştirilmiş kanal bulunamadı.</p>
                   <button
                     onClick={async () => {
                       const DEFAULTS = [
@@ -1654,10 +1654,10 @@ export default function KomutaMerkezi({
                   btnClass = "bg-[#F26B6F]/10 text-[#F26B6F] border border-dashed border-[#F26B6F]/40 hover:bg-[#F26B6F] hover:text-white";
                 } else if (isInstagram) {
                   icon = <Instagram className="w-4 h-4" />;
-                  btnClass = "bg-pink-600/10 text-pink-600 dark:text-pink-400 border border-dashed border-pink-600/40 hover:bg-pink-600 hover:text-white";
+                  btnClass = "bg-pink-600/10 text-pink-700 dark:text-pink-400 border border-dashed border-pink-600/40 hover:bg-pink-600 hover:text-white";
                 } else if (isTwitter) {
                   icon = <Twitter className="w-4 h-4" />;
-                  btnClass = "bg-sky-500/10 text-sky-500 dark:text-sky-400 border border-dashed border-sky-500/40 hover:bg-sky-500 hover:text-white";
+                  btnClass = "bg-sky-500/10 text-sky-700 dark:text-sky-400 border border-dashed border-sky-500/40 hover:bg-sky-500 hover:text-white";
                 }
 
                 return (
@@ -1700,7 +1700,7 @@ export default function KomutaMerkezi({
                   href="https://instagram.com/kems" 
                   target="_blank" 
                   rel="noopener noreferrer" 
-                  className="flex items-center gap-2.5 text-xs font-mono bg-pink-600/10 text-pink-600 dark:text-pink-400 border border-dashed border-pink-600/40 px-4 py-2 rounded-lg hover:bg-pink-600 hover:text-white transition-all cursor-pointer"
+                  className="flex items-center gap-2.5 text-xs font-mono bg-pink-600/10 text-pink-700 dark:text-pink-400 border border-dashed border-pink-600/40 px-4 py-2 rounded-lg hover:bg-pink-600 hover:text-white transition-all cursor-pointer"
                 >
                   <Instagram className="w-4 h-4" />
                   <span className="font-bold">Instagram (Kems)</span>
@@ -1710,7 +1710,7 @@ export default function KomutaMerkezi({
                   href="https://twitter.com/kems" 
                   target="_blank" 
                   rel="noopener noreferrer" 
-                  className="flex items-center gap-2.5 text-xs font-mono bg-sky-500/10 text-sky-500 dark:text-sky-400 border border-dashed border-sky-500/40 px-4 py-2 rounded-lg hover:bg-sky-500 hover:text-white transition-all cursor-pointer"
+                  className="flex items-center gap-2.5 text-xs font-mono bg-sky-500/10 text-sky-700 dark:text-sky-400 border border-dashed border-sky-500/40 px-4 py-2 rounded-lg hover:bg-sky-500 hover:text-white transition-all cursor-pointer"
                 >
                   <Twitter className="w-4 h-4" />
                   <span className="font-bold">Twitter (Kems)</span>
@@ -1737,7 +1737,7 @@ export default function KomutaMerkezi({
           </div>
           <button
             onClick={() => setIsBulkImportOpen(!isBulkImportOpen)}
-            className="text-xs font-mono bg-[#0E1C4F] dark:bg-[#2C3C72]/5 hover:bg-[#0E1C4F]/10 text-[#0E1C4F] dark:text-[#F3EFE8] border border-[#CFC5B4] dark:border-[#2C3C72] px-3 py-1.5 rounded-lg transition-all cursor-pointer"
+            className="text-xs font-mono bg-white dark:bg-[#2C3C72]/40 hover:bg-[#0E1C4F]/10 text-[#0E1C4F] dark:text-[#F3EFE8] border border-[#CFC5B4] dark:border-[#2C3C72] px-3 py-1.5 rounded-lg transition-all cursor-pointer"
           >
             {isBulkImportOpen ? 'Paneli Gizle' : 'Yükleme Panelini Aç'}
           </button>
@@ -1821,7 +1821,7 @@ export default function KomutaMerkezi({
                   </tbody>
                 </table>
               </div>
-              <p className="text-[10px] text-[#9A8C76] dark:text-[#6E7CA0]">
+              <p className="text-[10px] text-[#6A5E4C] dark:text-[#95A1C2]">
                 * <strong>Alan listesi:</strong> duzada, merch, blog, kitap. <strong>Tür listesi:</strong> karakter, mekân, kulüp, dükkân, olay, merch_urun, blog_post, kitap_bolum.
               </p>
             </div>

@@ -82,7 +82,7 @@ export const WikiGiris: React.FC<WikiGirisProps> = ({
       {/* --- 1. Kapılar --- */}
       {kapilar.length > 0 && (
         <section>
-          <h2 className="font-mono text-[10px] uppercase tracking-[0.14em] text-gri dark:text-bej/60 mb-2.5">
+          <h2 className="font-mono text-[10px] uppercase tracking-[0.14em] text-gri dark:text-bej/85 mb-2.5">
             Nereden girilir
           </h2>
           <ul className="flex flex-wrap gap-2">
@@ -109,7 +109,7 @@ export const WikiGiris: React.FC<WikiGirisProps> = ({
       {/* --- 2. Adanın düğümleri --- */}
       {dugumler.length > 0 && (
         <section>
-          <h2 className="font-mono text-[10px] uppercase tracking-[0.14em] text-gri dark:text-bej/60 mb-2.5 flex items-center gap-1.5">
+          <h2 className="font-mono text-[10px] uppercase tracking-[0.14em] text-gri dark:text-bej/85 mb-2.5 flex items-center gap-1.5">
             <Compass size={12} /> Adanın düğümleri
           </h2>
           <ul className="grid grid-cols-[repeat(auto-fill,minmax(210px,1fr))] gap-2">
@@ -123,7 +123,7 @@ export const WikiGiris: React.FC<WikiGirisProps> = ({
                   <span className="block font-serif text-[15px] text-lacivert dark:text-krem leading-tight truncate">
                     {item.title}
                   </span>
-                  <span className="block mt-0.5 font-mono text-[10px] text-gri dark:text-bej/55">
+                  <span className="block mt-0.5 font-mono text-[10px] text-gri dark:text-bej/85">
                     {TYPE_LABELS[item.type] || item.type} · {bag} bağlantı
                   </span>
                 </button>
@@ -149,7 +149,7 @@ export const WikiGiris: React.FC<WikiGirisProps> = ({
               <span className="block font-serif text-[15px] text-lacivert dark:text-krem leading-tight">
                 {oneri.item.title}
               </span>
-              <span className="block mt-0.5 text-[11px] text-gri dark:text-bej/60 leading-snug">
+              <span className="block mt-0.5 text-[11px] text-gri dark:text-bej/85 leading-snug">
                 {oneri.bag > 0
                   ? `Evrende ${oneri.bag} şey buna bağlı ama maddesi hâlâ boş — `
                     + 'doldurunca en çok karşılığı olan madde bu.'

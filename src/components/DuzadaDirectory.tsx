@@ -263,7 +263,7 @@ export default function DuzadaDirectory({
     switch (type) {
       case 'marka':
       case 'kulüp': 
-        return <Shield className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />;
+        return <Shield className="w-3 h-3 text-emerald-700 dark:text-emerald-400" />;
       case 'kisi':
       case 'karakter': 
         return <Users className="w-3 h-3 text-indigo-600 dark:text-indigo-400" />;
@@ -354,7 +354,7 @@ export default function DuzadaDirectory({
             <p className={`text-[11px] truncate font-serif font-bold leading-tight ${isActive ? 'text-[#0E1C4F] dark:text-[#F3EFE8]' : 'text-stone-800 dark:text-stone-200'}`}>
               {ent.title}
             </p>
-            <div className="flex items-center gap-1 text-[8px] font-mono text-stone-400">
+            <div className="flex items-center gap-1 text-[8px] font-mono text-stone-500 dark:text-stone-400">
               <span className="uppercase">{ent.type}</span>
               {ent.status && (
                 <>
@@ -378,7 +378,7 @@ export default function DuzadaDirectory({
           {kisiMi(ent) ? (
             adaSakiniMi(ent) ? (
               <span
-                className="opacity-0 group-hover:opacity-100 text-[8px] font-mono text-stone-400 transition-all"
+                className="opacity-0 group-hover:opacity-100 text-[8px] font-mono text-stone-500 dark:text-stone-400 transition-all"
                 title="Bu kişi zaten ada sakini"
               >
                 sakin
@@ -396,7 +396,7 @@ export default function DuzadaDirectory({
             ) : (
               <button
                 onClick={() => setDeleteConfirmId(ent.id)}
-                className="opacity-0 group-hover:opacity-100 p-0.5 text-stone-400 hover:text-[#0E1C4F] rounded transition-all cursor-pointer"
+                className="opacity-0 group-hover:opacity-100 p-0.5 text-stone-500 dark:text-stone-400 hover:text-[#0E1C4F] rounded transition-all cursor-pointer"
                 title="Otelden çıkar, ada sakini yap (kayıt silinmez)"
               >
                 <Home className="w-3 h-3" />
@@ -416,7 +416,7 @@ export default function DuzadaDirectory({
           ) : (
             <button
               onClick={() => setDeleteConfirmId(ent.id)}
-              className="opacity-0 group-hover:opacity-100 p-0.5 text-stone-400 hover:text-red-500 rounded transition-all cursor-pointer"
+              className="opacity-0 group-hover:opacity-100 p-0.5 text-stone-500 dark:text-stone-400 hover:text-red-500 rounded transition-all cursor-pointer"
               title="Sil"
             >
               <Trash2 className="w-3 h-3" />
@@ -446,7 +446,7 @@ export default function DuzadaDirectory({
         
         {/* Actions header (Add new) */}
         <div className="flex items-center justify-between">
-          <span className="text-[10px] font-mono text-stone-400 dark:text-stone-500 font-bold uppercase">
+          <span className="text-[10px] font-mono text-stone-500 dark:text-stone-500 font-bold uppercase">
             Sakinler &amp; Mekanlar
           </span>
           <button
@@ -520,7 +520,7 @@ export default function DuzadaDirectory({
             onChange={(e) => setSearchFilter(e.target.value)}
             className="w-full text-xs bg-white dark:bg-[#13204A] text-[#0E1C4F] dark:text-[#F3EFE8] border border-[#CFC5B4] dark:border-[#2C3C72] rounded-lg pl-8 pr-2.5 py-1.5 focus:outline-hidden hover:border-[#F26B6F] focus:border-[#F26B6F] transition-all"
           />
-          <Search className="w-3.5 h-3.5 text-stone-400 absolute left-2.5 top-2.5" />
+          <Search className="w-3.5 h-3.5 text-stone-500 dark:text-stone-400 absolute left-2.5 top-2.5" />
         </div>
 
         {/* Categories Tab Row */}
@@ -546,7 +546,7 @@ export default function DuzadaDirectory({
         {/* Sub-classifications for Kişiler */}
         {selectedCategory === 'Kişiler' && (
           <div className="flex flex-wrap items-center gap-1 bg-[#FAF8F5] dark:bg-[#12224A]/20 p-1.5 rounded-lg border border-[#CFC5B4]/30">
-            <span className="text-[9px] text-stone-500 font-mono font-bold uppercase mr-1">Sınıf:</span>
+            <span className="text-[9px] text-stone-500 dark:text-stone-400 font-mono font-bold uppercase mr-1">Sınıf:</span>
             {([
               { key: 'hepsi', label: 'Tümü' },
               { key: 'sakin', label: 'Ada Sakini' },
@@ -570,7 +570,7 @@ export default function DuzadaDirectory({
 
         {/* Sorting Control */}
         <div className="flex items-center justify-between gap-2 bg-[#FAF8F5]/50 dark:bg-stone-900/10 p-1 rounded">
-          <span className="text-[9px] text-stone-400 font-mono">Sıralama:</span>
+          <span className="text-[9px] text-stone-500 dark:text-stone-400 font-mono">Sıralama:</span>
           <div className="flex gap-1">
             <button
               onClick={() => setSortBy('name')}
@@ -738,7 +738,7 @@ export default function DuzadaDirectory({
                         <div className="flex items-center gap-1.5 py-0.5">
                           <button
                             onClick={() => setExpandedMahalles(prev => ({ ...prev, [mah.id]: !prev[mah.id] }))}
-                            className="p-0.5 hover:bg-stone-100 dark:hover:bg-stone-800 rounded text-stone-500 shrink-0 cursor-pointer"
+                            className="p-0.5 hover:bg-stone-100 dark:hover:bg-stone-800 rounded text-stone-500 dark:text-stone-400 shrink-0 cursor-pointer"
                           >
                             {isMahExpanded ? <ChevronDown className="w-3 h-3" /> : <ChevronUp className="w-3 h-3" />}
                           </button>
@@ -757,7 +757,7 @@ export default function DuzadaDirectory({
                           >
                             📍 {mah.name} Bölgesi
                           </div>
-                          <span className="text-[8px] font-mono text-stone-400 shrink-0">({streetList.length} Sokak)</span>
+                          <span className="text-[8px] font-mono text-stone-500 dark:text-stone-400 shrink-0">({streetList.length} Sokak)</span>
                         </div>
 
                         {/* Indented Sokaklar & Mekanlar */}
@@ -780,14 +780,14 @@ export default function DuzadaDirectory({
                                   <div className="flex items-center gap-1 py-0.5">
                                     <button
                                       onClick={() => setExpandedSokaklar(prev => ({ ...prev, [sok.id]: !prev[sok.id] }))}
-                                      className="p-0.5 hover:bg-stone-100 dark:hover:bg-stone-800 rounded text-stone-400 shrink-0 cursor-pointer"
+                                      className="p-0.5 hover:bg-stone-100 dark:hover:bg-stone-800 rounded text-stone-500 dark:text-stone-400 shrink-0 cursor-pointer"
                                     >
                                       {isSokExpanded ? <ChevronDown className="w-2.5 h-2.5" /> : <ChevronUp className="w-2.5 h-2.5" />}
                                     </button>
                                     <span className="text-[10px] font-serif font-bold text-stone-600 dark:text-stone-300 flex-1 truncate">
                                       🛣️ {sok.name}
                                     </span>
-                                    <span className="text-[8px] font-mono text-stone-400 shrink-0">({streetMekans.length})</span>
+                                    <span className="text-[8px] font-mono text-stone-500 dark:text-stone-400 shrink-0">({streetMekans.length})</span>
                                   </div>
 
                                   {/* Street Mekanlar */}
@@ -873,7 +873,7 @@ export default function DuzadaDirectory({
                 <div className="space-y-1 pl-1">
                   {mekanGroup.map(ent => renderEntityRow(ent, 0))}
                   {mekanGroup.length === 0 && (
-                    <div className="text-[10px] text-stone-400 italic pl-3">Mekân bulunmuyor.</div>
+                    <div className="text-[10px] text-stone-500 dark:text-stone-400 italic pl-3">Mekân bulunmuyor.</div>
                   )}
                 </div>
               )}
@@ -898,7 +898,7 @@ export default function DuzadaDirectory({
                 <div className="space-y-1 pl-1">
                   {kisilerGroup.map(ent => renderEntityRow(ent, 0))}
                   {kisilerGroup.length === 0 && (
-                    <div className="text-[10px] text-stone-400 italic pl-3">Kişi veya marka bulunmuyor.</div>
+                    <div className="text-[10px] text-stone-500 dark:text-stone-400 italic pl-3">Kişi veya marka bulunmuyor.</div>
                   )}
                 </div>
               )}
@@ -923,7 +923,7 @@ export default function DuzadaDirectory({
                 <div className="space-y-1 pl-1">
                   {olaylarGroup.map(ent => renderEntityRow(ent, 0))}
                   {olaylarGroup.length === 0 && (
-                    <div className="text-[10px] text-stone-400 italic pl-3">Olay bulunmuyor.</div>
+                    <div className="text-[10px] text-stone-500 dark:text-stone-400 italic pl-3">Olay bulunmuyor.</div>
                   )}
                 </div>
               )}
@@ -948,7 +948,7 @@ export default function DuzadaDirectory({
                 <div className="space-y-1 pl-1">
                   {urunlerGroup.map(ent => renderEntityRow(ent, 0))}
                   {urunlerGroup.length === 0 && (
-                    <div className="text-[10px] text-stone-400 italic pl-3">Ürün bulunmuyor.</div>
+                    <div className="text-[10px] text-stone-500 dark:text-stone-400 italic pl-3">Ürün bulunmuyor.</div>
                   )}
                 </div>
               )}
@@ -960,12 +960,12 @@ export default function DuzadaDirectory({
             <div className="space-y-1.5">
               <div className="bg-[#FAF8F5] dark:bg-[#12224A]/20 p-2 border border-[#CFC5B4]/30 rounded-lg text-xs">
                 <span className="font-serif font-bold text-[#0E1C4F] dark:text-white">🔑 Imperial Odaları</span>
-                <p className="text-[10px] text-stone-500 font-sans mt-0.5">The Imperial Kemsköy bünyesindeki tüm odalar.</p>
+                <p className="text-[10px] text-stone-500 dark:text-stone-400 font-sans mt-0.5">The Imperial Kemsköy bünyesindeki tüm odalar.</p>
               </div>
               <div className="space-y-1 pl-1">
                 {sortedEntities.map(ent => renderEntityRow(ent, 0))}
                 {sortedEntities.length === 0 && (
-                  <div className="text-[10px] text-stone-400 italic pl-3">Oda bulunmuyor.</div>
+                  <div className="text-[10px] text-stone-500 dark:text-stone-400 italic pl-3">Oda bulunmuyor.</div>
                 )}
               </div>
             </div>
@@ -976,19 +976,19 @@ export default function DuzadaDirectory({
             <div className="space-y-1.5">
               <div className="bg-[#FAF8F5] dark:bg-[#12224A]/20 p-2 border border-[#CFC5B4]/30 rounded-lg text-xs">
                 <span className="font-serif font-bold text-[#0E1C4F] dark:text-white">🗺️ Harita Etiketleri</span>
-                <p className="text-[10px] text-stone-500 font-sans mt-0.5">Harita üzerindeki görsel pinler ve işaretçiler.</p>
+                <p className="text-[10px] text-stone-500 dark:text-stone-400 font-sans mt-0.5">Harita üzerindeki görsel pinler ve işaretçiler.</p>
               </div>
               <div className="space-y-1 pl-1">
                 {sortedEntities.map(ent => renderEntityRow(ent, 0))}
                 {sortedEntities.length === 0 && (
-                  <div className="text-[10px] text-stone-400 italic pl-3">Harita etiketi bulunmuyor.</div>
+                  <div className="text-[10px] text-stone-500 dark:text-stone-400 italic pl-3">Harita etiketi bulunmuyor.</div>
                 )}
               </div>
             </div>
           )}
 
           {filteredEntities.length === 0 && (
-            <div className="text-center py-6 text-stone-400 italic text-[11px]">
+            <div className="text-center py-6 text-stone-500 dark:text-stone-400 italic text-[11px]">
               Kriterlere uygun madde bulunamadı.
             </div>
           )}

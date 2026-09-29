@@ -646,13 +646,13 @@ export default function Merch({
                     >
                       {p.title}
                     </span>
-                    <span className="text-[10px] bg-[#CFC5B4]/30 px-2 py-0.5 font-mono rounded text-[#6A5E4C] dark:text-[#A6B0C9]">
+                    <span className="text-[10px] bg-[#CFC5B4]/30 dark:bg-[#2C3C72] px-2 py-0.5 font-mono rounded text-[#6A5E4C] dark:text-[#A6B0C9]">
                       {p.status}
                     </span>
                   </div>
                 ))}
                 {products.filter(p => p.status === 'Konsept' || p.status === 'Tasarım' || p.status === 'Fikir').length === 0 && (
-                  <span className="text-xs text-[#9A8C76] italic">Konsept veya Tasarım aşamasında bekleyen ürün yok.</span>
+                  <span className="text-xs text-[#6A5E4C] dark:text-[#A6B0C9] italic">Konsept veya Tasarım aşamasında bekleyen ürün yok.</span>
                 )}
               </div>
             </div>
@@ -683,7 +683,7 @@ export default function Merch({
                   );
                 })}
                 {activeDrops.length === 0 && (
-                  <span className="text-xs text-[#9A8C76] italic">Şu an aktif bir drop taslağı bulunmuyor.</span>
+                  <span className="text-xs text-[#6A5E4C] dark:text-[#A6B0C9] italic">Şu an aktif bir drop taslağı bulunmuyor.</span>
                 )}
               </div>
             </div>
@@ -757,11 +757,11 @@ export default function Merch({
                         {drop.notes || "Bu drop için henüz bir kurgu notu yazılmadı."}
                       </p>
                       <div className="space-y-1 pt-1 border-t border-[#CFC5B4]/30">
-                        <div className="flex justify-between items-center text-[10px] font-mono text-[#9A8C76]">
+                        <div className="flex justify-between items-center text-[10px] font-mono text-[#6A5E4C] dark:text-[#A6B0C9]">
                           <span>Ürün İlerlemesi</span>
                           <span>%{progress}</span>
                         </div>
-                        <div className="w-full bg-[#CFC5B4]/30 h-1.5 rounded-full overflow-hidden">
+                        <div className="w-full bg-[#CFC5B4]/30 dark:bg-[#2C3C72] h-1.5 rounded-full overflow-hidden">
                           <div className="bg-[#F26B6F] h-full" style={{ width: `${progress}%` }} />
                         </div>
                       </div>
@@ -859,7 +859,7 @@ export default function Merch({
 
                 <div className="lg:col-span-2 bg-[#F6F1E7]/50 dark:bg-[#17345A]/20 border border-dashed border-[#CFC5B4] rounded-xl p-4 min-h-[200px] flex flex-col justify-center">
                   {aiRecommendationsResult.length === 0 ? (
-                    <div className="text-center text-xs text-[#9A8C76] py-10">
+                    <div className="text-center text-xs text-[#6A5E4C] dark:text-[#A6B0C9] py-10">
                       <ShoppingBag className="w-8 h-8 mx-auto text-[#CFC5B4] mb-2" />
                       <span>Konsept bilgisi girip butonuna tıklayarak ilk AI ürün önerilerinizi oluşturun.</span>
                     </div>
@@ -898,7 +898,7 @@ export default function Merch({
                               <p className="text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9] leading-relaxed line-clamp-4 mt-1">
                                 {rec.description}
                               </p>
-                              <p className="text-[10px] italic text-[#9A8C76] dark:text-stone-400 mt-2">
+                              <p className="text-[10px] italic text-[#6A5E4C] dark:text-stone-400 mt-2">
                                 "{rec.slogan}"
                               </p>
                             </div>
@@ -969,7 +969,7 @@ export default function Merch({
                       </h4>
                       <button 
                         onClick={() => { onSelectItem(d.id); setTimeout(() => startEditing(), 100); }}
-                        className="text-[#9A8C76] hover:text-[#F26B6F] p-1 rounded transition-colors cursor-pointer"
+                        className="text-[#6A5E4C] dark:text-[#A6B0C9] hover:text-[#F26B6F] p-1 rounded transition-colors cursor-pointer"
                         title="Düzenle"
                       >
                         <Edit3 className="w-3.5 h-3.5" />
@@ -982,11 +982,11 @@ export default function Merch({
 
                   <div className="w-full md:w-64 space-y-2 shrink-0">
                     <div className="space-y-1">
-                      <div className="flex justify-between items-center text-[10px] font-mono text-[#9A8C76]">
+                      <div className="flex justify-between items-center text-[10px] font-mono text-[#6A5E4C] dark:text-[#A6B0C9]">
                         <span>Gelişim İlerlemesi</span>
                         <span>%{progress}</span>
                       </div>
-                      <div className="w-full bg-[#CFC5B4]/30 h-1.5 rounded-full overflow-hidden">
+                      <div className="w-full bg-[#CFC5B4]/30 dark:bg-[#2C3C72] h-1.5 rounded-full overflow-hidden">
                         <div className="bg-[#F26B6F] h-full" style={{ width: `${progress}%` }} />
                       </div>
                     </div>
@@ -1080,7 +1080,7 @@ export default function Merch({
                               <img src={p.images[0]} alt={p.title} className="w-full h-full object-cover" />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center bg-stone-200">
-                                <ShoppingBag className="w-8 h-8 text-stone-400" />
+                                <ShoppingBag className="w-8 h-8 text-stone-500 dark:text-stone-400" />
                               </div>
                             )}
                             <span className="absolute top-2 right-2 text-[9px] font-mono bg-[#0E1C4F] dark:bg-[#2C3C72] text-white px-1.5 py-0.5 rounded capitalize">
@@ -1105,14 +1105,14 @@ export default function Merch({
                               </h4>
                               <button 
                                 onClick={(e) => { e.stopPropagation(); onSelectItem(p.id); setTimeout(() => startEditing(), 100); }}
-                                className="text-[#9A8C76] hover:text-[#F26B6F] p-0.5 rounded transition-colors cursor-pointer shrink-0"
+                                className="text-[#6A5E4C] dark:text-[#A6B0C9] hover:text-[#F26B6F] p-0.5 rounded transition-colors cursor-pointer shrink-0"
                                 title="Düzenle"
                               >
                                 <Edit3 className="w-3.5 h-3.5" />
                               </button>
                             </div>
                             {p.metadata?.variantColor && (
-                              <span className="text-[10px] font-mono text-[#9A8C76]">
+                              <span className="text-[10px] font-mono text-[#6A5E4C] dark:text-[#A6B0C9]">
                                 Renk: {p.metadata.variantColor}
                               </span>
                             )}
@@ -1139,11 +1139,11 @@ export default function Merch({
                     }}
                   >
                     {collapsedDrops['unassigned'] ? (
-                      <ChevronRight className="w-4 h-4 text-stone-500 transition-transform" />
+                      <ChevronRight className="w-4 h-4 text-stone-500 dark:text-stone-400 transition-transform" />
                     ) : (
-                      <ChevronDown className="w-4 h-4 text-stone-500 transition-transform" />
+                      <ChevronDown className="w-4 h-4 text-stone-500 dark:text-stone-400 transition-transform" />
                     )}
-                    <FolderDot className="w-4 h-4 text-stone-500" />
+                    <FolderDot className="w-4 h-4 text-stone-500 dark:text-stone-400" />
                     <h4 className="font-serif font-bold text-base text-[#0E1C4F] dark:text-[#F3EFE8] group-hover:text-[#F26B6F] transition-colors">
                       Diğer / Bağımsız Ürünler
                     </h4>
@@ -1166,7 +1166,7 @@ export default function Merch({
                             <img src={p.images[0]} alt={p.title} className="w-full h-full object-cover" />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center bg-stone-200">
-                              <ShoppingBag className="w-8 h-8 text-stone-400" />
+                              <ShoppingBag className="w-8 h-8 text-stone-500 dark:text-stone-400" />
                             </div>
                           )}
                           <span className="absolute top-2 right-2 text-[9px] font-mono bg-[#0E1C4F] dark:bg-[#2C3C72] text-white px-1.5 py-0.5 rounded capitalize">
@@ -1186,14 +1186,14 @@ export default function Merch({
                             </h4>
                             <button 
                               onClick={(e) => { e.stopPropagation(); onSelectItem(p.id); setTimeout(() => startEditing(), 100); }}
-                              className="text-[#9A8C76] hover:text-[#F26B6F] p-0.5 rounded transition-colors cursor-pointer shrink-0"
+                              className="text-[#6A5E4C] dark:text-[#A6B0C9] hover:text-[#F26B6F] p-0.5 rounded transition-colors cursor-pointer shrink-0"
                               title="Düzenle"
                             >
                               <Edit3 className="w-3.5 h-3.5" />
                             </button>
                           </div>
                           {p.metadata?.variantColor && (
-                            <span className="text-[10px] font-mono text-[#9A8C76]">
+                            <span className="text-[10px] font-mono text-[#6A5E4C] dark:text-[#A6B0C9]">
                               Renk: {p.metadata.variantColor}
                             </span>
                           )}
@@ -1206,7 +1206,7 @@ export default function Merch({
             )}
             
             {products.length === 0 && (
-              <p className="text-xs text-[#9A8C76] italic">Sistemde henüz kayıtlı ürün bulunmuyor.</p>
+              <p className="text-xs text-[#6A5E4C] dark:text-[#A6B0C9] italic">Sistemde henüz kayıtlı ürün bulunmuyor.</p>
             )}
           </div>
         </div>
@@ -1247,7 +1247,7 @@ export default function Merch({
               </div>
             ))}
             {archivedDrops.length === 0 && (
-              <p className="text-xs text-[#9A8C76] italic">Arşivlenmiş drop bulunmuyor.</p>
+              <p className="text-xs text-[#6A5E4C] dark:text-[#A6B0C9] italic">Arşivlenmiş drop bulunmuyor.</p>
             )}
           </div>
         </div>
@@ -1312,7 +1312,7 @@ export default function Merch({
                     ) : (
                       <div className="text-center p-8 space-y-3">
                         <Image className="w-16 h-16 mx-auto text-stone-300" />
-                        <p className="text-sm text-stone-400 font-mono">Bu koleksiyon için henüz görsel bulunmuyor.</p>
+                        <p className="text-sm text-stone-500 dark:text-stone-400 font-mono">Bu koleksiyon için henüz görsel bulunmuyor.</p>
                       </div>
                     )}
                   </div>
@@ -1349,7 +1349,7 @@ export default function Merch({
                       <span className="text-[10px] font-mono bg-[#F26B6F] text-white px-2.5 py-0.5 rounded font-bold uppercase tracking-wider">
                         {isDrop ? 'Koleksiyon Drop' : 'Ürün Tasarımı'}
                       </span>
-                      <span className="text-xs font-mono font-bold uppercase text-[#0E1C4F] dark:text-[#A6B0C9] bg-[#CFC5B4]/30 px-2.5 py-0.5 rounded">
+                      <span className="text-xs font-mono font-bold uppercase text-[#0E1C4F] dark:text-[#A6B0C9] bg-[#CFC5B4]/30 dark:bg-[#2C3C72] px-2.5 py-0.5 rounded">
                         {activeItem.status}
                       </span>
                     </div>
@@ -1479,7 +1479,7 @@ export default function Merch({
                           </div>
                           
                           <div className="flex justify-between items-center pt-2 border-t border-[#CFC5B4]/30">
-                            <span className="text-[10px] font-mono text-[#9A8C76]">
+                            <span className="text-[10px] font-mono text-[#6A5E4C] dark:text-[#A6B0C9]">
                               {p.metadata?.variantColor || 'Standart Varyant'}
                             </span>
                             <span className="text-[10px] text-[#F26B6F] font-mono font-bold group-hover:underline flex items-center gap-0.5">
@@ -1492,7 +1492,7 @@ export default function Merch({
                     
                     {activeProducts.length === 0 && (
                       <div className="col-span-full py-8 text-center bg-white/20 dark:bg-stone-900/10 border border-dashed border-[#CFC5B4] rounded-2xl">
-                        <ShoppingBag className="w-10 h-10 mx-auto text-[#9A8C76] opacity-60 mb-2" />
+                        <ShoppingBag className="w-10 h-10 mx-auto text-[#6A5E4C] dark:text-[#A6B0C9] opacity-60 mb-2" />
                         <p className="text-xs text-[#6A5E4C] dark:text-[#A6B0C9] italic font-serif">
                           Bu drop koleksiyonunda henüz ürün bulunmuyor. Düzenleme kısmından veya yukarıdaki butondan hemen yeni bir ürün tasarımı ekleyebilirsiniz.
                         </p>
@@ -1970,7 +1970,7 @@ export default function Merch({
                       ) : (
                         <div className="text-center p-6 space-y-2">
                           <Image className="w-12 h-12 mx-auto text-stone-300" />
-                          <p className="text-xs text-[#9A8C76] italic">Bu drop için görsel bulunmuyor.</p>
+                          <p className="text-xs text-[#6A5E4C] dark:text-[#A6B0C9] italic">Bu drop için görsel bulunmuyor.</p>
                         </div>
                       )}
                     </div>
@@ -2044,7 +2044,7 @@ export default function Merch({
                         className="w-full text-xs bg-transparent border-none focus:outline-hidden text-[#0E1C4F] dark:text-[#F3EFE8] leading-relaxed font-serif italic"
                         placeholder="Bu kreasyon veya tasarımın ardındaki vizyonu detaylandırın..."
                       />
-                      <div className="absolute bottom-2 right-2 text-[10px] font-mono text-[#9A8C76]">
+                      <div className="absolute bottom-2 right-2 text-[10px] font-mono text-[#6A5E4C] dark:text-[#A6B0C9]">
                         {hasLocalChanges ? "Değişiklikleri kaydetmek için sağ alttaki butona tıklayın." : "Doğrudan düzenleyebilirsiniz."}
                       </div>
                     </div>
@@ -2107,7 +2107,7 @@ export default function Merch({
                       className={`px-5 py-2.5 rounded-lg text-xs font-mono font-bold flex items-center gap-1.5 transition-all shadow-sm ${
                         hasLocalChanges
                           ? "bg-[#3E8E5E] text-white cursor-pointer hover:bg-emerald-600"
-                          : "bg-stone-200 text-stone-400 cursor-not-allowed"
+                          : "bg-stone-200 text-stone-500 dark:text-stone-400 cursor-not-allowed"
                       }`}
                     >
                       <Check className="w-4 h-4" />
@@ -2143,7 +2143,7 @@ export default function Merch({
                     >
                       <div>
                         <h5 className="font-bold text-[#0E1C4F] dark:text-[#F3EFE8]">{p.title}</h5>
-                        <span className="text-[10px] text-[#9A8C76] font-mono capitalize">{p.metadata?.variantColor || 'Standart Varyant'}</span>
+                        <span className="text-[10px] text-[#6A5E4C] dark:text-[#A6B0C9] font-mono capitalize">{p.metadata?.variantColor || 'Standart Varyant'}</span>
                       </div>
                       <span className="text-[10px] font-mono font-bold uppercase text-[#F26B6F]">
                         {p.status}
@@ -2151,7 +2151,7 @@ export default function Merch({
                     </div>
                   ))}
                   {products.filter(p => p.metadata?.dropId === activeItem.id).length === 0 && (
-                    <p className="text-xs text-[#9A8C76] italic">Bu dropa bağlı henüz bir ürün eklenmedi.</p>
+                    <p className="text-xs text-[#6A5E4C] dark:text-[#A6B0C9] italic">Bu dropa bağlı henüz bir ürün eklenmedi.</p>
                   )}
                 </div>
               </div>
@@ -2173,7 +2173,7 @@ export default function Merch({
                 className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
                   archiveConfirmId === activeItem.id
                     ? "bg-amber-500 text-white font-bold hover:bg-amber-600"
-                    : "bg-[#CFC5B4]/30 text-[#6A5E4C] hover:bg-[#CFC5B4]/50"
+                    : "bg-[#CFC5B4]/30 dark:bg-[#2C3C72] text-[#6A5E4C] hover:bg-[#CFC5B4]/50"
                 }`}
               >
                 {archiveConfirmId === activeItem.id ? "⚠️ Emin misiniz?" : "Arşivle"}
@@ -2255,7 +2255,7 @@ export default function Merch({
                       ) : (
                         <div className="text-center p-8">
                           <Image className="w-16 h-16 mx-auto text-stone-300 mb-2" />
-                          <p className="text-sm text-stone-400 font-mono">Bu koleksiyon için görsel bulunmuyor.</p>
+                          <p className="text-sm text-stone-500 dark:text-stone-400 font-mono">Bu koleksiyon için görsel bulunmuyor.</p>
                         </div>
                       )}
                     </div>
@@ -2338,7 +2338,7 @@ export default function Merch({
                                 </div>
                                 <div className="min-w-0 flex-1">
                                   <h5 className="font-serif font-bold text-xs text-[#0E1C4F] truncate">{p.title}</h5>
-                                  <p className="text-[9px] font-mono text-[#9A8C76] capitalize truncate">{p.metadata?.category || 'Ürün'} • {p.metadata?.variantColor || 'Standart'}</p>
+                                  <p className="text-[9px] font-mono text-[#6A5E4C] dark:text-[#A6B0C9] capitalize truncate">{p.metadata?.category || 'Ürün'} • {p.metadata?.variantColor || 'Standart'}</p>
                                 </div>
                               </div>
                             ))}
@@ -2348,7 +2348,7 @@ export default function Merch({
                     </div>
 
                     {/* Decorative footer stamp */}
-                    <div className="pt-8 border-t border-[#CFC5B4]/20 flex justify-between items-center text-[9px] font-mono text-[#9A8C76]">
+                    <div className="pt-8 border-t border-[#CFC5B4]/20 flex justify-between items-center text-[9px] font-mono text-[#6A5E4C] dark:text-[#A6B0C9]">
                       <span>KEMS KOMUTA MERKEZİ • KOLEKSİYON BÜLTENİ</span>
                       <span className="font-bold">EDİSYON: 2026</span>
                     </div>
@@ -2415,7 +2415,7 @@ export default function Merch({
                     <option key={k.id} value={k.id}>{k.title}</option>
                   ))}
                 </select>
-                <p className="mt-1 text-[10px] text-[#9A8C76] leading-snug">
+                <p className="mt-1 text-[10px] text-[#6A5E4C] dark:text-[#A6B0C9] leading-snug">
                   Satan yine marka. Kurum, serinin adada kimden çıktığı.
                 </p>
               </div>

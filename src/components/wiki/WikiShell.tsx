@@ -186,7 +186,7 @@ export const WikiShell: React.FC<WikiShellProps> = ({
                 setQ('');
                 setTypeFilter(null);
               }}
-              className="flex items-center gap-1 text-[12px] font-mono text-gri dark:text-bej/70 hover:text-lacivert dark:hover:text-krem transition-colors"
+              className="flex items-center gap-1 text-[12px] font-mono text-gri dark:text-bej/85 hover:text-lacivert dark:hover:text-krem transition-colors"
             >
               <ChevronLeft size={13} /> ada sayfası
             </button>
@@ -221,14 +221,14 @@ export const WikiShell: React.FC<WikiShellProps> = ({
             {!listeGorunumu && (
               <header className="mb-7">
                 <h1 className="font-serif text-4xl mb-1.5">Düzada</h1>
-                <p className="text-[15px] text-gri dark:text-bej/70 max-w-xl leading-relaxed">
+                <p className="text-[15px] text-gri dark:text-bej/85 max-w-xl leading-relaxed">
                   Ege Denizi'nde, zeytin ağaçlarıyla çevrili bir ada. {health.total} madde.
                 </p>
               </header>
             )}
 
             <label className="flex items-center gap-2 px-3 py-2.5 mb-6 rounded-lg border border-bej/55 dark:border-lacivert-600/55 bg-white/70 dark:bg-lacivert-800/40">
-              <Search size={15} className="text-gri dark:text-bej/70 shrink-0" />
+              <Search size={15} className="text-gri dark:text-bej/85 shrink-0" />
               <input
                 value={q}
                 onChange={e => setQ(e.target.value)}
@@ -258,7 +258,7 @@ export const WikiShell: React.FC<WikiShellProps> = ({
                 </div>
 
                 {listed.length === 0 ? (
-                  <p className="text-sm text-gri dark:text-bej/70 italic py-8 text-center">
+                  <p className="text-sm text-gri dark:text-bej/85 italic py-8 text-center">
                     Eşleşen madde yok.
                   </p>
                 ) : (
@@ -286,12 +286,12 @@ export const WikiShell: React.FC<WikiShellProps> = ({
                   onTipSec={t => setTypeFilter(t)}
                 />
                 <section>
-                  <h2 className="font-mono text-[10px] uppercase tracking-[0.14em] text-gri dark:text-bej/60 mb-3">
+                  <h2 className="font-mono text-[10px] uppercase tracking-[0.14em] text-gri dark:text-bej/85 mb-3">
                     Mahalleler
                   </h2>
 
                   {mahalleler.length === 0 ? (
-                    <p className="text-sm text-gri dark:text-bej/70 italic">
+                    <p className="text-sm text-gri dark:text-bej/85 italic">
                       Henüz mahalle kaydı yok.
                     </p>
                   ) : (
@@ -337,7 +337,7 @@ export const WikiShell: React.FC<WikiShellProps> = ({
 
                 {yersizMekanlar.length > 0 && (
                   <section>
-                    <h2 className="font-mono text-[10px] uppercase tracking-[0.14em] text-gri dark:text-bej/60 mb-3">
+                    <h2 className="font-mono text-[10px] uppercase tracking-[0.14em] text-gri dark:text-bej/85 mb-3">
                       Mahallesi belirtilmemiş mekânlar
                     </h2>
                     <ul className="flex flex-wrap gap-1.5">
@@ -364,7 +364,7 @@ export const WikiShell: React.FC<WikiShellProps> = ({
 
                 {admin && (health.unlinked > 0 || health.stubs > 0) && (
                   <section className="pt-5 border-t border-bej/40 dark:border-lacivert-600/40">
-                    <h2 className="font-mono text-[10px] uppercase tracking-[0.14em] text-gri dark:text-bej/60 mb-2">
+                    <h2 className="font-mono text-[10px] uppercase tracking-[0.14em] text-gri dark:text-bej/85 mb-2">
                       Yapılacaklar
                     </h2>
                     <div className="flex flex-wrap gap-2">
@@ -374,7 +374,7 @@ export const WikiShell: React.FC<WikiShellProps> = ({
                         </span>
                       )}
                       {health.stubs > 0 && (
-                        <span className="text-[11px] font-mono px-2 py-1 rounded border border-bej/60 bg-bej/15 text-[#6b5b46]">
+                        <span className="text-[11px] font-mono px-2 py-1 rounded border border-bej/60 bg-bej/15 text-[#6b5b46] dark:text-[#A6B0C9]">
                           {health.stubs} taslak
                         </span>
                       )}
@@ -412,7 +412,7 @@ const MaddeButonu: React.FC<{
         {floating && <Unlink size={11} className="text-kiremit shrink-0 mt-1" />}
       </span>
       <span className="flex items-center gap-1.5 mt-1.5">
-        <span className="text-[9px] font-mono uppercase tracking-wide text-gri dark:text-bej/55">
+        <span className="text-[9px] font-mono uppercase tracking-wide text-gri dark:text-bej/85">
           {TYPE_LABELS[item.type] || item.type}
         </span>
         {item.metadata?.adiGecici && (
@@ -442,7 +442,7 @@ const FilterChip: React.FC<{
     className={`text-[11px] font-mono px-2.5 py-1 rounded-full border transition-colors ${
       active
         ? 'border-lacivert bg-lacivert text-krem dark:border-bej dark:bg-bej dark:text-lacivert'
-        : 'border-bej/55 dark:border-lacivert-600/55 text-gri dark:text-bej/70 hover:border-lacivert/40 dark:hover:border-bej/45'
+        : 'border-bej/55 dark:border-lacivert-600/55 text-gri dark:text-bej/85 hover:border-lacivert/40 dark:hover:border-bej/45'
     }`}
   >
     {label}

@@ -159,23 +159,22 @@ export const OyunStudyo: React.FC<OyunStudyoProps> = ({
                 style={{ borderColor: aktif ? '#F26B6F' : '#CFC5B4' }}
               >
                 <div className="flex items-baseline justify-between gap-2">
-                  <span className="font-mono text-[9px] text-[#9A8C76]">
+                  <span className="font-mono text-[9px] text-[#6A5E4C] dark:text-[#A6B0C9]">
                     {String(i + 1).padStart(2, '0')}
                   </span>
                   <span
-                    className="font-mono text-[15px] font-bold tabular-nums"
-                    style={{ color: sayilar[a.id] ? '#F26B6F' : '#CFC5B4' }}
+                    className={`font-mono text-[15px] font-bold tabular-nums ${sayilar[a.id] ? 'text-[#F26B6F]' : 'text-[#6A5E4C] dark:text-[#A6B0C9]'}`}
                   >
                     {sayilar[a.id]}
                   </span>
                 </div>
                 <p className="text-[13px] font-semibold text-[#0E1C4F] dark:text-[#F3EFE8] mt-0.5">
                   {a.ad}
-                  <span className="ml-1.5 font-mono text-[9px] uppercase tracking-wider text-[#9A8C76]">
+                  <span className="ml-1.5 font-mono text-[9px] uppercase tracking-wider text-[#6A5E4C] dark:text-[#A6B0C9]">
                     {a.terim}
                   </span>
                 </p>
-                <p className="mt-1 text-[11px] leading-snug text-[#9A8C76] dark:text-[#6E7CA0]">
+                <p className="mt-1 text-[11px] leading-snug text-[#6A5E4C] dark:text-[#95A1C2]">
                   {a.cikti}
                 </p>
               </div>
@@ -210,14 +209,14 @@ export const OyunStudyo: React.FC<OyunStudyoProps> = ({
                     <span className="text-[13px] font-semibold text-[#0E1C4F] dark:text-[#F3EFE8]">
                       {a.ad}
                     </span>
-                    <span className="ml-2 font-mono text-[11px] text-[#9A8C76]">
+                    <span className="ml-2 font-mono text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9]">
                       {bunlar.length}
                     </span>
                   </button>
                   <button
                     onClick={() => { setYeniIs(a.id); setYeniBaslik(''); }}
                     title={`${a.ad} aşamasına iş ekle`}
-                    className="p-1 text-[#9A8C76] hover:text-[#F26B6F] cursor-pointer"
+                    className="p-1 text-[#6A5E4C] dark:text-[#A6B0C9] hover:text-[#F26B6F] cursor-pointer"
                   >
                     <Plus className="w-4 h-4" />
                   </button>
@@ -248,7 +247,7 @@ export const OyunStudyo: React.FC<OyunStudyoProps> = ({
                     <button
                       type="button"
                       onClick={() => setYeniIs(null)}
-                      className="p-1.5 text-[#9A8C76] hover:text-[#F26B6F] cursor-pointer"
+                      className="p-1.5 text-[#6A5E4C] dark:text-[#A6B0C9] hover:text-[#F26B6F] cursor-pointer"
                     >
                       <X className="w-3.5 h-3.5" />
                     </button>
@@ -305,11 +304,11 @@ export const OyunStudyo: React.FC<OyunStudyoProps> = ({
                          text-[#6A5E4C] dark:text-[#A6B0C9]">
             Tasarım belgesi
           </h2>
-          <span className="font-mono text-[10px] text-[#9A8C76]">
+          <span className="font-mono text-[10px] text-[#6A5E4C] dark:text-[#A6B0C9]">
             {belgeler.length}/{GDD_BOLUMLERI.length} bölüm açık
           </span>
         </div>
-        <p className="mb-3 text-[11px] text-[#9A8C76] dark:text-[#6E7CA0] max-w-2xl">
+        <p className="mb-3 text-[11px] text-[#6A5E4C] dark:text-[#95A1C2] max-w-2xl">
           Bölümü açıyorum, içine bir şey yazmıyorum. Başlığın altındaki soru
           ne yazman gerektiğini söylüyor; kutuyu sen dolduruyorsun.
         </p>
@@ -327,7 +326,7 @@ export const OyunStudyo: React.FC<OyunStudyoProps> = ({
                     <p className="text-[13px] font-semibold text-[#0E1C4F] dark:text-[#F3EFE8]">
                       {b.ad}
                     </p>
-                    <p className="text-[11px] text-[#9A8C76] dark:text-[#6E7CA0]">{b.soru}</p>
+                    <p className="text-[11px] text-[#6A5E4C] dark:text-[#95A1C2]">{b.soru}</p>
                   </div>
                   {!kayit && (
                     <button

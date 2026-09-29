@@ -229,8 +229,8 @@ export const Yedekleme: React.FC<YedeklemeProps> = ({ items, settings, onKayit }
               />
             </div>
 
-            <p className="mt-3 text-[11px] leading-snug text-[#9A8C76]
-                          dark:text-[#6E7CA0]">
+            <p className="mt-3 text-[11px] leading-snug text-[#6A5E4C] dark:text-[#A6B0C9]
+                          dark:text-[#95A1C2]">
               Geri yükleme eksiltmez: yedekteki kayıtlar eklenir ya da üstüne
               yazılır, yedekte olmayanlara dokunulmaz.
             </p>

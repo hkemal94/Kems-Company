@@ -519,7 +519,7 @@ export default function Kitap({
                         className={`p-1 rounded transition-colors flex items-center gap-1 text-[10px] font-mono ${
                           deleteConfirmId === activeBook.id
                             ? 'bg-red-600 text-white animate-pulse'
-                            : 'text-stone-400 hover:text-red-600 hover:bg-stone-100 dark:hover:bg-red-950/45'
+                            : 'text-stone-500 dark:text-stone-400 hover:text-red-600 hover:bg-stone-100 dark:hover:bg-red-950/45'
                         }`}
                         title="Kitap Projesini Sil"
                       >
@@ -532,7 +532,7 @@ export default function Kitap({
                   <span className="text-base font-bold font-mono text-[#F26B6F]">%{bookProgressPercent}</span>
                 </div>
                 
-                <div className="w-full bg-[#CFC5B4]/30 h-2 rounded-full overflow-hidden">
+                <div className="w-full bg-[#CFC5B4]/30 dark:bg-[#2C3C72] h-2 rounded-full overflow-hidden">
                   <div className="bg-[#F26B6F] h-full" style={{ width: `${bookProgressPercent}%` }} />
                 </div>
               </div>
@@ -574,7 +574,7 @@ export default function Kitap({
                               className={`p-1 rounded transition-colors flex items-center gap-1 text-[9px] font-mono ${
                                 deleteConfirmId === ch.id
                                   ? 'bg-red-600 text-white animate-pulse'
-                                  : 'text-stone-400 hover:text-red-600 hover:bg-stone-100 dark:hover:bg-red-950/40'
+                                  : 'text-stone-500 dark:text-stone-400 hover:text-red-600 hover:bg-stone-100 dark:hover:bg-red-950/40'
                               }`}
                               title="Bölümü Sil"
                             >
@@ -589,11 +589,11 @@ export default function Kitap({
                         </p>
 
                         <div className="space-y-1.5 pt-2 border-t border-[#CFC5B4]/30">
-                          <div className="flex justify-between items-center text-[9px] font-mono text-[#9A8C76]">
+                          <div className="flex justify-between items-center text-[9px] font-mono text-[#6A5E4C] dark:text-[#A6B0C9]">
                             <span>Yazım İlerlemesi</span>
                             <span>%{percent}</span>
                           </div>
-                          <div className="w-full bg-[#CFC5B4]/30 h-1 rounded-full overflow-hidden">
+                          <div className="w-full bg-[#CFC5B4]/30 dark:bg-[#2C3C72] h-1 rounded-full overflow-hidden">
                             <div className="bg-[#BBA591] h-full" style={{ width: `${percent}%` }} />
                           </div>
                         </div>
@@ -601,14 +601,14 @@ export default function Kitap({
                     );
                   })}
                   {currentChapters.length === 0 && (
-                    <p className="text-xs text-[#9A8C76] italic">Kitaba bağlı henüz bölüm yazılmadı.</p>
+                    <p className="text-xs text-[#6A5E4C] dark:text-[#A6B0C9] italic">Kitaba bağlı henüz bölüm yazılmadı.</p>
                   )}
                 </div>
               </div>
 
             </div>
           ) : (
-            <div className="py-20 text-center text-[#9A8C76] italic">
+            <div className="py-20 text-center text-[#6A5E4C] dark:text-[#A6B0C9] italic">
               Lütfen sol panelden bir kitap projesi seçin veya yeni bir proje ekleyerek yazar masasını başlatın.
             </div>
           )}
@@ -660,7 +660,7 @@ export default function Kitap({
                   }}
                   className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 cursor-pointer shadow-xs ${
                     activeChapter.status === 'Yayında'
-                      ? 'bg-emerald-600 hover:bg-emerald-700 text-white border border-emerald-500'
+                      ? 'bg-emerald-700 hover:bg-emerald-800 text-white border border-emerald-500'
                       : 'bg-[#F26B6F] hover:bg-[#b04046] text-white border border-[#c43b42] animate-pulse'
                   }`}
                   title={activeChapter.status === 'Yayında' ? "Bölümü taslak durumuna geri çek" : "Bölümü evrene bağla ve Düzada'da yayınla!"}
@@ -982,7 +982,7 @@ export default function Kitap({
                               }
                             });
                           }}
-                          className="text-stone-400 hover:text-red-500 font-bold ml-1 transition-colors cursor-pointer text-xs"
+                          className="text-stone-500 dark:text-stone-400 hover:text-red-500 font-bold ml-1 transition-colors cursor-pointer text-xs"
                           title="Öneriyi Geri Al (Yoksaymayı Kaldır)"
                         >
                           ✕
