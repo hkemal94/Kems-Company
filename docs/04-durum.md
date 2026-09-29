@@ -200,6 +200,14 @@ maddenin künyesine satırlar; ada maddesine "Ada hayatı", Liman / Merkez /
 Çiftlik maddelerine "Gündelik hayat" bölümü; iki kulübün künyesi. Yalnız
 ekleme, ikinci basış bir şey yapmaz. Kemal basacak.
 
+**Okunurluk denetimi ve kiremit kararı (K, 29 Eylül):** Bütün sekmeler
+aydınlık/karanlık, masaüstü/telefon genişliğinde tarandı. Soluk gri alt
+yazılar tek griye (`#6A5E4C`, karanlıkta `#A6B0C9`) indi, karanlıktaki soluk
+mavi `#95A1C2` oldu. **Kiremit (`#F26B6F`) yazılar ve kiremit düğmelerdeki
+beyaz yazı olduğu gibi kalır** (Kemal: seçenek A). Zıtlıkları okunurluk
+ölçüsünün altında (~2,8); bu bilerek kabul edildi, kendiliğinden
+"düzeltilmez". Seçenekler: `docs/gorseller/k-kiremit-secenekleri.png`.
+
 **W5 aktarım düğmesi (29 Eylül):** W4 bitince Neyin Eksik'te "viki
 düzeltmeleri ve Canva görselleri (W5) bekliyor" kartı çıkar
 (`src/lib/w5Aktarimi.ts`). Düzeltmeler: Dirlik "profesyonel alt lig" →
