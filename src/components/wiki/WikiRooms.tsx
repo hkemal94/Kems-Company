@@ -82,10 +82,10 @@ export const WikiRooms: React.FC<WikiRoomsProps> = ({ rooms, onNavigate }) => {
       >
         <DoorClosed size={16} className="text-gri dark:text-bej shrink-0" />
         <span className="font-serif text-base text-lacivert dark:text-krem">Odalar</span>
-        <span className="font-mono text-[11px] text-gri dark:text-bej/70">{rooms.length}</span>
+        <span className="font-mono text-[11px] text-gri dark:text-bej/85">{rooms.length}</span>
 
         {tipler.length > 0 && (
-          <span className="ml-auto hidden sm:flex items-center gap-1.5 text-[10px] font-mono text-gri dark:text-bej/60">
+          <span className="ml-auto hidden sm:flex items-center gap-1.5 text-[10px] font-mono text-gri dark:text-bej/85">
             {tipler.map(([t, n]) => (
               <span
                 key={t}
@@ -107,7 +107,7 @@ export const WikiRooms: React.FC<WikiRoomsProps> = ({ rooms, onNavigate }) => {
         <div className="border-t border-bej/40 dark:border-lacivert-600/40 p-4 space-y-5">
           {rooms.length > 8 && (
             <label className="flex items-center gap-2 px-3 py-2 rounded border border-bej/50 dark:border-lacivert-600/50 bg-white/70 dark:bg-lacivert/40">
-              <Search size={13} className="text-gri dark:text-bej/70 shrink-0" />
+              <Search size={13} className="text-gri dark:text-bej/85 shrink-0" />
               <input
                 value={q}
                 onChange={e => setQ(e.target.value)}
@@ -118,12 +118,12 @@ export const WikiRooms: React.FC<WikiRoomsProps> = ({ rooms, onNavigate }) => {
           )}
 
           {byFloor.length === 0 && (
-            <p className="text-sm text-gri dark:text-bej/70 italic">Eşleşen oda yok.</p>
+            <p className="text-sm text-gri dark:text-bej/85 italic">Eşleşen oda yok.</p>
           )}
 
           {byFloor.map(({ floor, list }) => (
             <div key={floor}>
-              <h4 className="font-mono text-[10px] uppercase tracking-[0.12em] text-gri dark:text-bej/60 mb-2">
+              <h4 className="font-mono text-[10px] uppercase tracking-[0.12em] text-gri dark:text-bej/85 mb-2">
                 {floor}
               </h4>
               <ul className="grid grid-cols-[repeat(auto-fill,minmax(170px,1fr))] gap-1.5">
@@ -140,7 +140,7 @@ export const WikiRooms: React.FC<WikiRoomsProps> = ({ rooms, onNavigate }) => {
                           {room.title}
                         </span>
                         {tip && (
-                          <span className="ml-auto text-[9px] font-mono text-gri dark:text-bej/55">
+                          <span className="ml-auto text-[9px] font-mono text-gri dark:text-bej/85">
                             {tip}
                           </span>
                         )}

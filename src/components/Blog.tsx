@@ -457,27 +457,27 @@ export default function Blog({
                   >
                     <div className="flex-1 min-w-0">
                       <h5 className="font-serif font-bold text-xs text-[#0E1C4F] dark:text-[#F3EFE8] line-clamp-1">{p.title}</h5>
-                      <span className="text-[9px] font-mono text-[#9A8C76] capitalize block mt-0.5">{p.metadata?.categoryType}</span>
+                      <span className="text-[9px] font-mono text-[#6A5E4C] dark:text-[#A6B0C9] capitalize block mt-0.5">{p.metadata?.categoryType}</span>
                     </div>
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         onDeleteItem(p.id);
                       }}
-                      className="text-stone-400 hover:text-red-600 transition-colors p-1 rounded hover:bg-red-50 dark:hover:bg-red-950/40 shrink-0"
+                      className="text-stone-500 dark:text-stone-400 hover:text-red-600 transition-colors p-1 rounded hover:bg-red-50 dark:hover:bg-red-950/40 shrink-0"
                       title="Sil"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 ))}
-                {drafts.length === 0 && <p className="text-xs text-[#9A8C76] italic">Taslak bulunmuyor.</p>}
+                {drafts.length === 0 && <p className="text-xs text-[#6A5E4C] dark:text-[#A6B0C9] italic">Taslak bulunmuyor.</p>}
               </div>
             </div>
 
             {/* Yayına Hazır */}
             <div className="bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] rounded-xl p-5 paper-grain space-y-3 archive-shadow">
-              <span className="text-[10px] font-mono text-emerald-600 font-bold block uppercase">
+              <span className="text-[10px] font-mono text-emerald-700 dark:text-emerald-400 font-bold block uppercase">
                 Yayına Hazır / Yayında ({readyToPublish.length})
               </span>
               <div className="space-y-2.5 max-h-[220px] overflow-y-auto pr-1">
@@ -489,27 +489,27 @@ export default function Blog({
                   >
                     <div className="flex-1 min-w-0">
                       <h5 className="font-serif font-bold text-xs text-[#0E1C4F] dark:text-[#F3EFE8] line-clamp-1">{p.title}</h5>
-                      <span className="text-[9px] font-mono text-emerald-600 block mt-0.5">Yayınlandı</span>
+                      <span className="text-[9px] font-mono text-emerald-700 dark:text-emerald-400 block mt-0.5">Yayınlandı</span>
                     </div>
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         onDeleteItem(p.id);
                       }}
-                      className="text-stone-400 hover:text-red-600 transition-colors p-1 rounded hover:bg-red-50 dark:hover:bg-red-950/40 shrink-0"
+                      className="text-stone-500 dark:text-stone-400 hover:text-red-600 transition-colors p-1 rounded hover:bg-red-50 dark:hover:bg-red-950/40 shrink-0"
                       title="Sil"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 ))}
-                {readyToPublish.length === 0 && <p className="text-xs text-[#9A8C76] italic">Yayınlanan yazı yok.</p>}
+                {readyToPublish.length === 0 && <p className="text-xs text-[#6A5E4C] dark:text-[#A6B0C9] italic">Yayınlanan yazı yok.</p>}
               </div>
             </div>
 
             {/* Varlığa Bağlı Yazılar */}
             <div className="bg-[#E7EBE6] dark:bg-[#13204A] border border-[#B9C7BD] dark:border-[#2C3C72] rounded-xl p-5 paper-grain space-y-3 archive-shadow">
-              <span className="text-[10px] font-mono text-[#4A5E68] font-bold block uppercase">
+              <span className="text-[10px] font-mono text-[#4A5E68] dark:text-[#A6B0C9] font-bold block uppercase">
                 Varlığa Bağlı Yazılar ({linkedToEntities.length})
               </span>
               <div className="space-y-2.5 max-h-[220px] overflow-y-auto pr-1">
@@ -536,7 +536,7 @@ export default function Blog({
                           e.stopPropagation();
                           onDeleteItem(p.id);
                         }}
-                        className="text-stone-400 hover:text-red-600 transition-colors p-1 rounded hover:bg-red-50 dark:hover:bg-red-950/40 shrink-0"
+                        className="text-stone-500 dark:text-stone-400 hover:text-red-600 transition-colors p-1 rounded hover:bg-red-50 dark:hover:bg-red-950/40 shrink-0"
                         title="Sil"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -544,19 +544,19 @@ export default function Blog({
                     </div>
                   );
                 })}
-                {linkedToEntities.length === 0 && <p className="text-xs text-[#9A8C76] italic">Lore bağlı yazı yok.</p>}
+                {linkedToEntities.length === 0 && <p className="text-xs text-[#6A5E4C] dark:text-[#A6B0C9] italic">Lore bağlı yazı yok.</p>}
               </div>
             </div>
 
             {/* Tüm Listesi Grid */}
             <div className="bg-[#F6F1E7] dark:bg-[#13204A] border border-[#CFC5B4] rounded-xl p-5 paper-grain space-y-3 archive-shadow">
-              <span className="text-[10px] font-mono text-[#7C95A0] font-bold block uppercase">
+              <span className="text-[10px] font-mono text-[#4A5E68] dark:text-[#A6B0C9] font-bold block uppercase">
                 Kemsinblogu Son Aktivite
               </span>
               <div className="space-y-1.5 text-xs">
                 <p className="text-[#6A5E4C] dark:text-[#A6B0C9]">Kems Company kişisel blog istatistiğidir. Tüm yazılar wiki kancalıdır.</p>
-                <div className="p-3 bg-white/40 border border-[#CFC5B4] rounded-lg">
-                  <span className="font-mono text-[10px] block text-[#9A8C76]">TOPLAM KELİME:</span>
+                <div className="p-3 bg-white/40 dark:bg-[#13204A]/50 border border-[#CFC5B4] rounded-lg">
+                  <span className="font-mono text-[10px] block text-[#6A5E4C] dark:text-[#A6B0C9]">TOPLAM KELİME:</span>
                   <span className="text-base font-serif font-bold text-[#0E1C4F] dark:text-[#F3EFE8]">
                     {posts.reduce((sum, p) => sum + (p.notes?.split(/\s+/).length || 0), 0)} Kelime
                   </span>
@@ -757,7 +757,7 @@ export default function Blog({
                   </span>
                 ))}
                 {(activePost.links || []).length === 0 && (
-                  <span className="text-xs text-[#9A8C76] italic">Herhangi bir varlık kancalanmadı.</span>
+                  <span className="text-xs text-[#6A5E4C] dark:text-[#A6B0C9] italic">Herhangi bir varlık kancalanmadı.</span>
                 )}
               </div>
             </div>
@@ -852,7 +852,7 @@ export default function Blog({
                           </li>
                         ))}
                       </ul>
-                      <span className="text-[9px] text-[#9A8C76] dark:text-[#A6B0C9] block mt-1">Başlığa tıklayarak yazı başlığı yapabilirsiniz.</span>
+                      <span className="text-[9px] text-[#6A5E4C] dark:text-[#A6B0C9] block mt-1">Başlığa tıklayarak yazı başlığı yapabilirsiniz.</span>
                     </div>
                   )}
 
@@ -920,7 +920,7 @@ export default function Blog({
                               }
                             });
                           }}
-                          className="text-stone-400 hover:text-red-500 font-bold ml-1 transition-colors cursor-pointer text-xs"
+                          className="text-stone-500 dark:text-stone-400 hover:text-red-500 font-bold ml-1 transition-colors cursor-pointer text-xs"
                           title="Öneriyi Geri Al (Yoksaymayı Kaldır)"
                         >
                           ✕

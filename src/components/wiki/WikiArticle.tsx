@@ -30,7 +30,7 @@ const RelationGroup: React.FC<{
 
   return (
     <div>
-      <h3 className="text-[11px] font-mono text-gri dark:text-bej/70 mb-1.5">
+      <h3 className="text-[11px] font-mono text-gri dark:text-bej/85 mb-1.5">
         {label}
         {count > LIMIT && <span className="ml-1.5 opacity-60">{count}</span>}
       </h3>
@@ -41,7 +41,7 @@ const RelationGroup: React.FC<{
             <button
               type="button"
               onClick={() => setExpanded(true)}
-              className="text-[13px] px-2.5 py-1 rounded border border-dashed border-gri/40 dark:border-bej/30 text-gri dark:text-bej/70 hover:border-gri dark:hover:border-bej/60 transition-colors"
+              className="text-[13px] px-2.5 py-1 rounded border border-dashed border-gri/40 dark:border-bej/30 text-gri dark:text-bej/85 hover:border-gri dark:hover:border-bej/60 transition-colors"
             >
               +{hidden} tane daha
             </button>
@@ -52,7 +52,7 @@ const RelationGroup: React.FC<{
             <button
               type="button"
               onClick={() => setExpanded(false)}
-              className="text-[13px] px-2.5 py-1 rounded border border-dashed border-gri/40 dark:border-bej/30 text-gri dark:text-bej/70 hover:border-gri dark:hover:border-bej/60 transition-colors"
+              className="text-[13px] px-2.5 py-1 rounded border border-dashed border-gri/40 dark:border-bej/30 text-gri dark:text-bej/85 hover:border-gri dark:hover:border-bej/60 transition-colors"
             >
               daralt
             </button>
@@ -95,6 +95,15 @@ export const WikiArticle: React.FC<WikiArticleProps> = ({
   const completeness = useMemo(() => kunyeCompleteness(item), [item]);
   /** W3: yan sütun künye boş olsa da harita kartı için açılabilir */
   const haritada = useMemo(() => haritaKarsiligiVar(item), [item]);
+  /**
+   * W5: künyenin başında maddenin görseli. Yalnız uygulamanın kendi
+   * verisindeki görseller (galeriden bağlanan ya da yüklenen); eski
+   * tohumlardaki hazır internet fotoğrafları gösterilmez.
+   */
+  const gorsel = useMemo(
+    () => (item.images || []).find(s => typeof s === 'string' && s.startsWith('data:image/')),
+    [item]
+  );
 
   /** Bu mekâna bağlı odalar — ayrı ve katlanmış gösterilir */
   const rooms = useMemo(
@@ -197,7 +206,7 @@ export const WikiArticle: React.FC<WikiArticleProps> = ({
       {/* --- Başlık --- */}
       <header className="pb-4 mb-6 border-b-2 border-lacivert/15 dark:border-bej/20">
         <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-          <span className="postmark-label text-gri dark:text-bej/70">
+          <span className="postmark-label text-gri dark:text-bej/85">
             {TYPE_LABELS[item.type] || item.type}
           </span>
           {item.isProposal && (
@@ -218,7 +227,7 @@ export const WikiArticle: React.FC<WikiArticleProps> = ({
             <button
               type="button"
               onClick={() => onEdit(item.id)}
-              className="ml-auto flex items-center gap-1.5 text-[11px] font-mono text-gri hover:text-lacivert dark:text-bej/70 dark:hover:text-krem transition-colors"
+              className="ml-auto flex items-center gap-1.5 text-[11px] font-mono text-gri hover:text-lacivert dark:text-bej/85 dark:hover:text-krem transition-colors"
             >
               <PencilLine size={12} /> düzenle
             </button>
@@ -256,7 +265,7 @@ export const WikiArticle: React.FC<WikiArticleProps> = ({
             </p>
           )}
           {stub && (
-            <p className="flex items-start gap-2 text-[13px] px-3 py-2 rounded border border-bej/60 bg-bej/15 text-[#6b5b46]">
+            <p className="flex items-start gap-2 text-[13px] px-3 py-2 rounded border border-bej/60 bg-bej/15 text-[#6b5b46] dark:text-[#A6B0C9]">
               <AlertCircle size={14} className="mt-0.5 shrink-0" />
               <span>
                 Taslak. Künyenin %{completeness.pct}'i dolu ({completeness.filled}/
@@ -283,7 +292,7 @@ export const WikiArticle: React.FC<WikiArticleProps> = ({
         <div className="min-w-0 order-1">
           {body.length === 0 ? (
             admin ? (
-              <p className="text-gri dark:text-bej/60 italic text-sm">
+              <p className="text-gri dark:text-bej/85 italic text-sm">
                 Gövde metni yok — bu maddenin bildikleri künyeden ibaret.
               </p>
             ) : null
@@ -327,7 +336,7 @@ export const WikiArticle: React.FC<WikiArticleProps> = ({
           {/* --- Geri bağlantılar --- */}
           {grouped.length > 0 && (
             <section className="mt-8 pt-6 border-t border-bej/40 dark:border-lacivert-600/40">
-              <h2 className="font-mono text-[10px] uppercase tracking-[0.14em] text-gri dark:text-bej/60 mb-4 flex items-center gap-1.5">
+              <h2 className="font-mono text-[10px] uppercase tracking-[0.14em] text-gri dark:text-bej/85 mb-4 flex items-center gap-1.5">
                 <Link2 size={12} /> Evrendeki bağlantıları
               </h2>
 
@@ -353,7 +362,7 @@ export const WikiArticle: React.FC<WikiArticleProps> = ({
                               title={r.reason}
                             >
                               {otherTitle}
-                              <span className="ml-1.5 text-[9px] font-mono text-gri dark:text-bej/50">
+                              <span className="ml-1.5 text-[9px] font-mono text-gri dark:text-bej/85">
                                 {TYPE_LABELS[otherType] || otherType}
                               </span>
                             </button>
@@ -368,7 +377,7 @@ export const WikiArticle: React.FC<WikiArticleProps> = ({
         </div>
 
         {/* --- Künye + Haritada --- */}
-        {(kunye.length > 0 || haritada) && (
+        {(kunye.length > 0 || haritada || gorsel) && (
           <aside
             className={
               body.length > 0
@@ -376,11 +385,20 @@ export const WikiArticle: React.FC<WikiArticleProps> = ({
                 : 'order-2 mt-2'
             }
           >
-            {kunye.length > 0 && (
+            {(kunye.length > 0 || gorsel) && (
             <div className="border border-bej/50 dark:border-lacivert-600/50 rounded-lg overflow-hidden bg-krem-acik/70 dark:bg-lacivert-800/40 archive-shadow">
-              <h2 className="px-4 py-2.5 font-mono text-[10px] uppercase tracking-[0.14em] text-gri dark:text-bej/70 border-b border-bej/40 dark:border-lacivert-600/40 bg-bej/12 dark:bg-lacivert-600/25">
+              <h2 className="px-4 py-2.5 font-mono text-[10px] uppercase tracking-[0.14em] text-gri dark:text-bej/85 border-b border-bej/40 dark:border-lacivert-600/40 bg-bej/12 dark:bg-lacivert-600/25">
                 Künye
               </h2>
+              {gorsel && (
+                <div className="border-b border-bej/40 dark:border-lacivert-600/40 bg-[#F3EFE8] p-3">
+                  <img
+                    src={gorsel}
+                    alt={item.title}
+                    className="block mx-auto w-full max-h-64 object-contain"
+                  />
+                </div>
+              )}
               <dl
                 className={
                   body.length > 0
@@ -397,7 +415,7 @@ export const WikiArticle: React.FC<WikiArticleProps> = ({
                         : 'px-4 py-3 bg-krem-acik/90 dark:bg-lacivert-800/60'
                     }
                   >
-                    <dt className="text-[10px] font-mono uppercase tracking-wide text-gri dark:text-bej/60 mb-0.5">
+                    <dt className="text-[10px] font-mono uppercase tracking-wide text-gri dark:text-bej/85 mb-0.5">
                       {f.label}
                     </dt>
                     <dd className="text-[13px] text-lacivert dark:text-krem/90 leading-snug">
@@ -409,7 +427,7 @@ export const WikiArticle: React.FC<WikiArticleProps> = ({
 
               {admin && completeness.total > 0 && (
                 <div className="px-4 py-2 border-t border-bej/40 dark:border-lacivert-600/40">
-                  <div className="flex items-center justify-between text-[10px] font-mono text-gri dark:text-bej/60 mb-1">
+                  <div className="flex items-center justify-between text-[10px] font-mono text-gri dark:text-bej/85 mb-1">
                     <span>künye doluluğu</span>
                     <span>%{completeness.pct}</span>
                   </div>

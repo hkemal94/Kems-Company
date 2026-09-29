@@ -200,6 +200,18 @@ maddenin künyesine satırlar; ada maddesine "Ada hayatı", Liman / Merkez /
 Çiftlik maddelerine "Gündelik hayat" bölümü; iki kulübün künyesi. Yalnız
 ekleme, ikinci basış bir şey yapmaz. Kemal basacak.
 
+**W5 aktarım düğmesi (29 Eylül):** W4 bitince Neyin Eksik'te "viki
+düzeltmeleri ve Canva görselleri (W5) bekliyor" kartı çıkar
+(`src/lib/w5Aktarimi.ts`). Düzeltmeler: Dirlik "profesyonel alt lig" →
+hep amatör, kuruluş 12 Mayıs 1957; ada idari bağlılığı Ayvacık'a bağlı
+belde; fener otomatiğe 1970'ler; pazar cumartesi. Değişen satırın eskisi
+`eskiMetin`e taşınır. W3 44–65. turların cevapları künyelere. Canva'daki
+17 görsel (önizleme boyutu, 447 px) `public/galeri/canva/` altında depoda
+yedekli; düğme onları galeriye ekler, beşini maddesine bağlar (Kems
+Company, Dirlik, Küçükçetmi, Dondurmacı Kızlar, otel). Viki künyesinin
+başında artık maddenin görseli görünür (yalnız uygulamaya yüklenmiş
+görseller). Kemal basacak.
+
 **Konut kararı (Kemal, 28 Eylül):** Mahallelerdeki binalar çoğunlukla
 müstakil ev olacak. Apartman / çok katlı blok az; yoksa nüfus istenmeyen
 seviyeye çıkar. Sokak dokusu sıklaşsa da adalar bahçeli müstakil evlerle

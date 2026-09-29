@@ -13,6 +13,7 @@ import { vikiSifirlama, vikiSifirlamaYazilari } from '../lib/vikiSifirlama';
 import { soruCevapAktarimi } from '../lib/soruCevapAktarimi';
 import { w3Aktarimi } from '../lib/w3Aktarimi';
 import { w4Aktarimi } from '../lib/w4Aktarimi';
+import { w5Aktarimi, w5GorselAdresi, W5_ETIKETI } from '../lib/w5Aktarimi';
 
 /**
  * "Neyin eksik" paneli (A1).
@@ -244,10 +245,12 @@ interface EksiklerProps {
   onSelectArea: (area: AreaType, itemId?: string) => void;
   /** Kayıt yazma — ø temizliği için */
   onUpdateItem?: (item: Item) => Promise<void>;
+  /** W5: galeriye görsel eklemek için */
+  onAddItem?: (item: Omit<Item, 'id' | 'createdAt' | 'updatedAt' | 'userId'>) => Promise<void>;
 }
 
 export const Eksikler: React.FC<EksiklerProps> = ({
-  items, onSelectArea, onUpdateItem
+  items, onSelectArea, onUpdateItem, onAddItem
 }) => {
   const eksikler = useMemo(() => eksikleriCikar(items), [items]);
 
@@ -470,6 +473,110 @@ export const Eksikler: React.FC<EksiklerProps> = ({
     }
   };
 
+  /** W5: viki düzeltmeleri + Canva görselleri galeriye — W4 bitince görünür */
+  const w5 = useMemo(() => w5Aktarimi(items), [items]);
+  const w5Is = w5.guncellenenler.length + w5.gorseller.length;
+  const [w5Isi, setW5Isi] = useState(false);
+  const [w5Raporu, setW5Raporu] = useState<string | null>(null);
+  const [w5Onay, setW5Onay] = useState(false);
+
+  const w5Aktar = async () => {
+    if (!onUpdateItem || !onAddItem || w5Isi) return;
+    setW5Onay(false);
+    setW5Isi(true);
+    let kayit = 0;
+    let gorsel = 0;
+    const hatalar: string[] = [];
+    try {
+      // 1. Görsel dosyaları depodan okunur (public/galeri/canva)
+      const veriler = new Map<string, string>();
+      for (const { gorsel: g } of w5.gorseller) {
+        try {
+          const yanit = await fetch(w5GorselAdresi(g));
+          if (!yanit.ok) throw new Error(String(yanit.status));
+          const blob = await yanit.blob();
+          const veri = await new Promise<string>((coz, red) => {
+            const r = new FileReader();
+            r.onload = () => coz(String(r.result || ''));
+            r.onerror = () => red(new Error('okunamadı'));
+            r.readAsDataURL(blob);
+          });
+          if (veri.startsWith('data:image/')) veriler.set(g.anahtar, veri);
+          else hatalar.push(`${g.baslik}: görsel değil`);
+        } catch (e) {
+          hatalar.push(`${g.baslik}: ${e instanceof Error ? e.message : 'okunamadı'}`);
+        }
+      }
+
+      // 2. Kayda bağlanacak görseller, kayıt kimliğine göre
+      const bagliGorseller = new Map<string, string[]>();
+      for (const { gorsel: g, hedefId } of w5.gorseller) {
+        const veri = veriler.get(g.anahtar);
+        if (!hedefId || !veri) continue;
+        bagliGorseller.set(hedefId, [...(bagliGorseller.get(hedefId) || []), veri]);
+      }
+      const gorselEkle = (i: Item): Item => {
+        const ek = (bagliGorseller.get(i.id) || []).filter(v => !(i.images || []).includes(v));
+        return ek.length ? { ...i, images: [...(i.images || []), ...ek] } : i;
+      };
+
+      // 3. Viki kayıtları (görselleriyle birlikte)
+      const yazilan = new Set<string>();
+      for (const k of w5.guncellenenler) {
+        await onUpdateItem(gorselEkle(k));
+        yazilan.add(k.id);
+        kayit++;
+      }
+      // Etiketi daha önce almış kayıtlara yalnız görsel eklenir
+      for (const hedefId of bagliGorseller.keys()) {
+        if (yazilan.has(hedefId)) continue;
+        const hedef = items.find(i => i.id === hedefId);
+        if (!hedef) continue;
+        const yeni = gorselEkle(hedef);
+        if (yeni !== hedef) { await onUpdateItem({ ...yeni, updatedAt: Date.now() }); kayit++; }
+      }
+
+      // 4. Galeri kayıtları
+      for (const { gorsel: g, hedefId } of w5.gorseller) {
+        const veri = veriler.get(g.anahtar);
+        if (!veri) continue;
+        await onAddItem({
+          title: g.baslik,
+          area: 'ilham',
+          type: 'ilham_gorsel',
+          status: 'Arşivde',
+          priority: 'düşük',
+          tags: ['galeri', g.tur, 'canva', W5_ETIKETI],
+          links: [],
+          notes: '',
+          images: [veri],
+          isProposal: false,
+          archived: false,
+          metadata: {
+            gorselTuru: g.tur,
+            kaynakDosya: g.dosya,
+            canvaKaynak: g.anahtar,
+            canvaTasarim: g.canvaTasarim,
+            ...(hedefId ? { bagliId: hedefId } : {})
+          }
+        });
+        gorsel++;
+      }
+      setW5Raporu(
+        `${kayit} kayıt güncellendi, ${gorsel} görsel galeriye eklendi.`
+        + (w5.bulunamayan.length ? ` Bulunamayan: ${w5.bulunamayan.join(', ')}.` : '')
+        + (hatalar.length ? ` Okunamayan görsel: ${hatalar.join('; ')}. Tekrar basınca yalnız bunlar denenir.` : '')
+      );
+    } catch (e) {
+      setW5Raporu(
+        `${kayit} kayıt, ${gorsel} görsel yazıldı, sonra hata: `
+        + `${e instanceof Error ? e.message : 'bilinmeyen'}. Kalanlar için tekrar bas.`
+      );
+    } finally {
+      setW5Isi(false);
+    }
+  };
+
   /** İçi boş proje kayıtları — tek düğmeyle arşive */
   const bosProje = useMemo(() => bosProjeler(items), [items]);
   const [projeIsi, setProjeIsi] = useState(false);
@@ -515,7 +622,7 @@ export const Eksikler: React.FC<EksiklerProps> = ({
             <span className="block text-[13px] font-semibold text-[#0E1C4F] dark:text-[#F3EFE8]">
               viki baştan kuruluyor: kayıtlar arşive kalkacak
             </span>
-            <span className="block mt-0.5 text-[11px] text-[#9A8C76] dark:text-[#6E7CA0] leading-snug">
+            <span className="block mt-0.5 text-[11px] text-[#6A5E4C] dark:text-[#95A1C2] leading-snug">
               {viki.dagilim.map(d => `${d.sayi} ${d.tur}`).join(' · ')}.
               Ada kaydı, Kems Company, kurumlar ve harita yerinde kalır.
               Hiçbir şey silinmez; arşivden geri gelir.
@@ -571,7 +678,7 @@ export const Eksikler: React.FC<EksiklerProps> = ({
             <span className="block text-[13px] font-semibold text-[#0E1C4F] dark:text-[#F3EFE8]">
               yeni soru-cevaplar (W3) vikiye aktarılmayı bekliyor
             </span>
-            <span className="block mt-0.5 text-[11px] text-[#9A8C76] dark:text-[#6E7CA0] leading-snug">
+            <span className="block mt-0.5 text-[11px] text-[#6A5E4C] dark:text-[#95A1C2] leading-snug">
               {w3.ozet.join(' · ')}.
               Tarihçe bölümleri boş kalır. Hiçbir şey silinmez.
             </span>
@@ -626,7 +733,7 @@ export const Eksikler: React.FC<EksiklerProps> = ({
             <span className="block text-[13px] font-semibold text-[#0E1C4F] dark:text-[#F3EFE8]">
               ada hayatı bilgileri (W4) vikiye aktarılmayı bekliyor
             </span>
-            <span className="block mt-0.5 text-[11px] text-[#9A8C76] dark:text-[#6E7CA0] leading-snug">
+            <span className="block mt-0.5 text-[11px] text-[#6A5E4C] dark:text-[#95A1C2] leading-snug">
               {w4.ozet.join(' · ')}.
               Yalnız ekleme; var olan yazıya dokunulmaz, hiçbir şey silinmez.
             </span>
@@ -671,6 +778,61 @@ export const Eksikler: React.FC<EksiklerProps> = ({
         </p>
       )}
 
+      {/* Viki düzeltmeleri + Canva görselleri (W5) — tek seferlik; önce W4 */}
+      {onUpdateItem && onAddItem && w3.guncellenenler.length === 0 && w4.guncellenenler.length === 0 && w5Is > 0 && (
+        <div className="mb-2.5 flex flex-wrap sm:flex-nowrap items-start gap-3 px-4 py-3 rounded-xl border border-[#F26B6F]/40 bg-[#FAF8F5] dark:bg-[#13204A]">
+          <span className="font-mono text-lg font-bold text-[#F26B6F] leading-none mt-0.5 shrink-0 tabular-nums">
+            {w5Is}
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-[13px] font-semibold text-[#0E1C4F] dark:text-[#F3EFE8]">
+              viki düzeltmeleri ve Canva görselleri (W5) bekliyor
+            </span>
+            <span className="block mt-0.5 text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9] leading-snug">
+              {w5.ozet.join(' · ')}.
+              Değişen satırların eskisi "eski metin"e taşınır; hiçbir şey silinmez.
+            </span>
+          </span>
+          {w5Onay ? (
+            <span className="shrink-0 flex flex-col items-end gap-1.5">
+              <span className="text-[11px] font-semibold text-[#F26B6F]">
+                {w5.guncellenenler.length} kayıt ve {w5.gorseller.length} görsel yazılsın mı?
+              </span>
+              <span className="flex gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setW5Onay(false)}
+                  className="px-3 py-1.5 text-[11px] font-mono rounded-lg border border-[#CFC5B4] dark:border-[#2C3C72] text-[#6A5E4C] dark:text-[#A6B0C9] hover:border-[#0E1C4F] cursor-pointer"
+                >
+                  Vazgeç
+                </button>
+                <button
+                  type="button"
+                  onClick={w5Aktar}
+                  className="px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#F26B6F] text-[#F3EFE8] hover:opacity-90 cursor-pointer"
+                >
+                  Evet, aktar
+                </button>
+              </span>
+            </span>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setW5Onay(true)}
+              disabled={w5Isi}
+              className="shrink-0 px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#0E1C4F] dark:bg-[#2C3C72] text-[#F3EFE8] hover:opacity-90 disabled:opacity-40 cursor-pointer"
+            >
+              {w5Isi ? 'Aktarılıyor…' : 'Aktar'}
+            </button>
+          )}
+        </div>
+      )}
+      {w5Raporu && (
+        <p className="mb-2.5 px-4 py-2 rounded-lg bg-[#F3EFE8] dark:bg-[#17345A] text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9]">
+          {w5Raporu}
+        </p>
+      )}
+
       {/* Soru-cevaplar vikiye (W2) — tek seferlik */}
       {onUpdateItem && aktarimIsiVar && (
         <div className="mb-2.5 flex items-start gap-3 px-4 py-3 rounded-xl border border-[#F26B6F]/40 bg-[#FAF8F5] dark:bg-[#13204A]">
@@ -681,7 +843,7 @@ export const Eksikler: React.FC<EksiklerProps> = ({
             <span className="block text-[13px] font-semibold text-[#0E1C4F] dark:text-[#F3EFE8]">
               soru-cevaplar vikiye aktarılmayı bekliyor
             </span>
-            <span className="block mt-0.5 text-[11px] text-[#9A8C76] dark:text-[#6E7CA0] leading-snug">
+            <span className="block mt-0.5 text-[11px] text-[#6A5E4C] dark:text-[#95A1C2] leading-snug">
               {aktarim.ozet.join(' · ')}.
               Yalnız senin cevapların yazılır; boş bölümler boş kalır.
               Hiçbir şey silinmez.
@@ -737,7 +899,7 @@ export const Eksikler: React.FC<EksiklerProps> = ({
             <span className="block text-[13px] font-semibold text-[#0E1C4F] dark:text-[#F3EFE8]">
               yerde Norveç ø'sü var
             </span>
-            <span className="block mt-0.5 text-[11px] text-[#9A8C76] dark:text-[#6E7CA0] leading-snug">
+            <span className="block mt-0.5 text-[11px] text-[#6A5E4C] dark:text-[#95A1C2] leading-snug">
               {temizlik.degisenler.length} kayıtta geçiyor — "Kemskøy" gibi.
               Kimliklere ve görsellere dokunulmaz, yalnız ø → ö.
             </span>
@@ -762,7 +924,7 @@ export const Eksikler: React.FC<EksiklerProps> = ({
             <span className="block text-[13px] font-semibold text-[#0E1C4F] dark:text-[#F3EFE8]">
               kulüp hâlâ marka olarak kayıtlı
             </span>
-            <span className="block mt-0.5 text-[11px] text-[#9A8C76] dark:text-[#6E7CA0] leading-snug">
+            <span className="block mt-0.5 text-[11px] text-[#6A5E4C] dark:text-[#95A1C2] leading-snug">
               {marka.tipiDegisecek.map(k => k.title).join(', ') || 'Kurumlar'} kurum olur
               {marka.baglanacakDrop.length > 0
                 ? `; ${marka.baglanacakDrop.length} drop kendi kurumuna bağlanır, satan Kems Company kalır.`
@@ -795,7 +957,7 @@ export const Eksikler: React.FC<EksiklerProps> = ({
             <span className="block text-[13px] font-semibold text-[#0E1C4F] dark:text-[#F3EFE8]">
               kayıtta oyun verisi vikiye karışmış
             </span>
-            <span className="block mt-0.5 text-[11px] text-[#9A8C76] dark:text-[#6E7CA0] leading-snug">
+            <span className="block mt-0.5 text-[11px] text-[#6A5E4C] dark:text-[#95A1C2] leading-snug">
               "Ekim 2008'e taşı" düğmesinden kalan iz.
               {otel.bolumSayisi > 0 ? ` Otel maddesindeki ${otel.bolumSayisi} "Oyun:" bölümü vikiden çıkıp kaydın arşivine taşınır.` : ''}
               {otel.tarihSayisi > 0 ? ` ${otel.tarihSayisi} kayıtta "Ekim 2008" eski hâline döner.` : ''}
@@ -828,7 +990,7 @@ export const Eksikler: React.FC<EksiklerProps> = ({
             <span className="block text-[13px] font-semibold text-[#0E1C4F] dark:text-[#F3EFE8]">
               tema kaydı hâlâ duruyor
             </span>
-            <span className="block mt-0.5 text-[11px] text-[#9A8C76] dark:text-[#6E7CA0] leading-snug">
+            <span className="block mt-0.5 text-[11px] text-[#6A5E4C] dark:text-[#95A1C2] leading-snug">
               Zincir artık marka → drop → ürün. Temalar arşive kalkar,
               {tema.markaDevri > 0
                 ? ` ${tema.markaDevri} dropun markası temadan devralınır.`
@@ -861,7 +1023,7 @@ export const Eksikler: React.FC<EksiklerProps> = ({
             <span className="block text-[13px] font-semibold text-[#0E1C4F] dark:text-[#F3EFE8]">
               proje kaydı boş duruyor
             </span>
-            <span className="block mt-0.5 text-[11px] text-[#9A8C76] dark:text-[#6E7CA0] leading-snug">
+            <span className="block mt-0.5 text-[11px] text-[#6A5E4C] dark:text-[#95A1C2] leading-snug">
               {bosProje.map(p => p.title).join(', ')} · bölümü yok, gövdesi yok.
               Arşive kalkar, silinmez.
             </span>
@@ -890,7 +1052,7 @@ export const Eksikler: React.FC<EksiklerProps> = ({
 
       {eksikler.length === 0 ? (
         <div className="flex items-center gap-2.5 px-4 py-3 rounded-xl border border-[#CFC5B4] dark:border-[#2C3C72] bg-[#FAF8F5] dark:bg-[#13204A]">
-          <CircleCheck className="w-4 h-4 text-[#4A5E68] shrink-0" />
+          <CircleCheck className="w-4 h-4 text-[#4A5E68] dark:text-[#A6B0C9] shrink-0" />
           <p className="text-[13px] text-[#6A5E4C] dark:text-[#A6B0C9]">
             Takip ettiğim boşluk kalmadı. Yeni bir şey eklediğinde burası
             kendiliğinden dolar.
@@ -912,7 +1074,7 @@ export const Eksikler: React.FC<EksiklerProps> = ({
                   <span className="block text-[13px] font-semibold text-[#0E1C4F] dark:text-[#F3EFE8]">
                     {e.baslik}
                   </span>
-                  <span className="block mt-0.5 text-[11px] text-[#9A8C76] dark:text-[#6E7CA0] leading-snug">
+                  <span className="block mt-0.5 text-[11px] text-[#6A5E4C] dark:text-[#95A1C2] leading-snug">
                     {e.aciklama}
                   </span>
                 </span>

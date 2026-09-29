@@ -78,7 +78,7 @@ export const DropKunyesi: React.FC<DropKunyesiProps> = ({
         <h3 className="text-[10px] font-mono uppercase tracking-[0.14em] text-[#6A5E4C] dark:text-[#A6B0C9] font-bold">
           Drop Künyesi
         </h3>
-        <span className="ml-auto text-[10px] font-mono text-[#9A8C76] dark:text-[#6E7CA0]">
+        <span className="ml-auto text-[10px] font-mono text-[#6A5E4C] dark:text-[#95A1C2]">
           {kunye.kaynak}
         </span>
       </div>
@@ -91,7 +91,7 @@ export const DropKunyesi: React.FC<DropKunyesiProps> = ({
           ['Ürün', `${urunler.length} parça`]
         ].map(([etk, deger]) => (
           <div key={etk} className="px-4 py-3 bg-[#FAF8F5] dark:bg-[#13204A]">
-            <p className="text-[10px] font-mono uppercase tracking-wide text-[#9A8C76] dark:text-[#6E7CA0] mb-0.5">
+            <p className="text-[10px] font-mono uppercase tracking-wide text-[#6A5E4C] dark:text-[#95A1C2] mb-0.5">
               {etk}
             </p>
             <p className="text-[13px] text-[#0E1C4F] dark:text-[#F3EFE8] leading-snug">
@@ -102,7 +102,7 @@ export const DropKunyesi: React.FC<DropKunyesiProps> = ({
       </div>
 
       <div className="px-4 py-3 border-t border-[#CFC5B4]/60 dark:border-[#2C3C72]">
-        <p className="text-[10px] font-mono uppercase tracking-wide text-[#9A8C76] dark:text-[#6E7CA0] mb-1.5">
+        <p className="text-[10px] font-mono uppercase tracking-wide text-[#6A5E4C] dark:text-[#95A1C2] mb-1.5">
           Bakım / menşe etiketi
         </p>
         <p className="font-mono text-[11px] leading-relaxed text-[#0E1C4F] dark:text-[#F3EFE8]">
@@ -144,7 +144,7 @@ export const DropKunyesi: React.FC<DropKunyesiProps> = ({
           {calisiyor ? 'İşleniyor…' : islendi ? 'Künyeyi tazele' : 'Künyeyi işle'}
         </button>
         {renksiz.length > 0 && !rapor && (
-          <span className="text-[11px] text-[#9A8C76] dark:text-[#6E7CA0]">
+          <span className="text-[11px] text-[#6A5E4C] dark:text-[#95A1C2]">
             {renksiz.length} ürünün rengi boş — lookbook'tan dolabilir
           </span>
         )}

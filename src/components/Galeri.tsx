@@ -234,7 +234,7 @@ export const Galeri: React.FC<GaleriProps> = ({
               <Upload className="w-3.5 h-3.5" />
               {yukleniyor ? 'Yükleniyor…' : 'Görsel seç'}
             </button>
-            <span className="text-[11px] text-[#9A8C76] dark:text-[#6E7CA0]">
+            <span className="text-[11px] text-[#6A5E4C] dark:text-[#95A1C2]">
               ya da dosyaları buraya sürükle · birden çok seçebilirsin
             </span>
             <input
@@ -325,7 +325,7 @@ export const Galeri: React.FC<GaleriProps> = ({
                     <p className="text-[11px] font-semibold text-[#0E1C4F] dark:text-[#F3EFE8] truncate">
                       {g.title}
                     </p>
-                    <p className="text-[9px] font-mono uppercase tracking-wider text-[#9A8C76] mt-0.5 truncate">
+                    <p className="text-[9px] font-mono uppercase tracking-wider text-[#6A5E4C] dark:text-[#A6B0C9] mt-0.5 truncate">
                       {TUR_ADI[(m.gorselTuru as GorselTuru) || 'diger']}
                       {bagli ? ` · ${bagli.title}` : ''}
                     </p>
@@ -378,7 +378,7 @@ export const Galeri: React.FC<GaleriProps> = ({
                 <h2 className="font-mono text-sm font-bold text-[#0E1C4F] dark:text-[#F3EFE8] truncate">
                   {buyuk.title}
                 </h2>
-                <p className="text-[11px] text-[#9A8C76]">
+                <p className="text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9]">
                   {TUR_ADI[((buyuk.metadata as any)?.gorselTuru as GorselTuru) || 'diger']}
                   {' · '}
                   {Math.round(kabaBoyut(buyuk.images![0]) / 1024)} KB

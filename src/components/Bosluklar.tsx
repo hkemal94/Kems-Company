@@ -123,7 +123,7 @@ const BoslukSatiri: React.FC<BoslukSatiriProps> = ({ bosluk, onKaydet }) => {
   if (bitti) {
     return (
       <li className="flex items-center gap-2 px-4 py-2 text-[12px] text-[#6A5E4C] dark:text-[#A6B0C9]">
-        <Check className="w-3.5 h-3.5 text-[#4A5E68] shrink-0" />
+        <Check className="w-3.5 h-3.5 text-[#4A5E68] dark:text-[#A6B0C9] shrink-0" />
         <span className="truncate">{bosluk.etiket} yazıldı.</span>
       </li>
     );
@@ -135,7 +135,7 @@ const BoslukSatiri: React.FC<BoslukSatiriProps> = ({ bosluk, onKaydet }) => {
         <span className="text-[12px] font-semibold text-[#0E1C4F] dark:text-[#F3EFE8]">
           {bosluk.etiket}
         </span>
-        <span className="text-[11px] text-[#9A8C76] dark:text-[#6E7CA0]">
+        <span className="text-[11px] text-[#6A5E4C] dark:text-[#95A1C2]">
           {bosluk.soru}
         </span>
       </div>

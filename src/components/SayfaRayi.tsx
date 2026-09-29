@@ -114,7 +114,7 @@ export const SayfaRayi: React.FC<SayfaRayiProps> = ({
 
   return createPortal(
     <div className="mt-3 pt-3 border-t border-[#CFC5B4]/50 dark:border-[#2C3C72]/60">
-      <span className="text-[10px] font-mono uppercase tracking-wider text-[#9A8C76] dark:text-[#6E7CA0] font-bold px-1 block mb-1.5">
+      <span className="text-[10px] font-mono uppercase tracking-wider text-[#6A5E4C] dark:text-[#95A1C2] font-bold px-1 block mb-1.5">
         {baslik ?? 'Bu sayfada'}
       </span>
       <nav className="space-y-0.5 font-mono text-[11px]">

@@ -535,7 +535,7 @@ export default function Markalar({
             <p className="text-[11px] font-mono text-[#6A5E4C] dark:text-[#A6B0C9]">
               {kunyeRaporu.join(' · ')}
             </p>
-            <p className="mt-1 text-[11px] text-[#9A8C76] dark:text-[#6E7CA0]">
+            <p className="mt-1 text-[11px] text-[#6A5E4C] dark:text-[#95A1C2]">
               Renk paleti Canva'daki marka kitine göre güncellendi. Yüklediğin
               logolar ve moodboard'lar olduğu gibi duruyor.
             </p>
@@ -568,14 +568,14 @@ export default function Markalar({
               {yapi.digerMarkalar.map(markaSatiri)}
 
               {!yapi.anaMarka && yapi.digerMarkalar.length === 0 && (
-                <div className="text-center py-6 text-[11px] text-stone-400 italic">
+                <div className="text-center py-6 text-[11px] text-stone-500 dark:text-stone-400 italic">
                   Henüz marka bulunmuyor.
                 </div>
               )}
             </div>
 
             {yapi.digerMarkalar.length > 0 && (
-              <p className="text-[10px] text-[#9A8C76] dark:text-[#6E7CA0] leading-snug">
+              <p className="text-[10px] text-[#6A5E4C] dark:text-[#95A1C2] leading-snug">
                 Karar gereği tek marka var: Kems Company. Buradaki fazladan
                 kayıt ya yeni bir marka ya da kurum olması gereken bir kulüp.
               </p>
@@ -591,13 +591,13 @@ export default function Markalar({
               {yapi.kurumlar.map(markaSatiri)}
 
               {yapi.kurumlar.length === 0 && (
-                <div className="text-center py-5 text-[11px] text-stone-400 italic leading-snug">
+                <div className="text-center py-5 text-[11px] text-stone-500 dark:text-stone-400 italic leading-snug">
                   Kurum kaydı yok.<br />Kulüpler henüz marka olarak duruyor.
                 </div>
               )}
             </div>
 
-            <p className="text-[10px] text-[#9A8C76] dark:text-[#6E7CA0] leading-snug">
+            <p className="text-[10px] text-[#6A5E4C] dark:text-[#95A1C2] leading-snug">
               Kulüpler adanın kurumları: kendi arması, rengi ve künyesi var,
               altında drop serisi açılabilir. Ama gerçekte satan tek marka
               Kems Company — kurumun serileri onun ürünü olarak kaydedilir.
@@ -611,10 +611,10 @@ export default function Markalar({
               className={`p-2.5 rounded-lg border cursor-pointer transition-all flex items-center justify-between ${activeBrandId === 'unassigned' ? 'bg-[#E7EBE6] dark:bg-[#17345A] border-[#9DB0A4] dark:border-[#2C3C72] shadow-xs font-semibold' : 'bg-white dark:bg-[#112440] border-transparent hover:bg-stone-50'}`}
             >
               <div className="flex items-center gap-2">
-                <Layers className="w-4 h-4 text-stone-500" />
+                <Layers className="w-4 h-4 text-stone-500 dark:text-stone-400" />
                 <span className="text-xs text-[#0E1C4F] dark:text-[#F3EFE8]">Bağımsız Varlıklar</span>
               </div>
-              <span className="text-[9px] font-mono text-stone-400 bg-stone-100 dark:bg-[#13204A] px-1.5 py-0.5 rounded-full">
+              <span className="text-[9px] font-mono text-stone-500 dark:text-stone-400 bg-stone-100 dark:bg-[#13204A] px-1.5 py-0.5 rounded-full">
                 {items.filter(i => !i.archived && (i.type === 'kisi' || i.type === 'karakter' || i.type === 'yer' || i.type === 'mekân' || i.type === 'dükkân' || i.type === 'olay') && !i.metadata?.brandId).length}
               </span>
             </div>
@@ -663,7 +663,7 @@ export default function Markalar({
                     {/* Merch yap button directly bound to Brand Kit! */}
                     <button
                       onClick={() => setShowMerchForm(true)}
-                      className="flex items-center gap-1 bg-emerald-600 hover:bg-emerald-700 text-white font-mono text-xs px-3.5 py-2 rounded-lg cursor-pointer shadow-xs"
+                      className="flex items-center gap-1 bg-emerald-700 hover:bg-emerald-800 text-white font-mono text-xs px-3.5 py-2 rounded-lg cursor-pointer shadow-xs"
                       title={kurumMu(activeBrand)
                         ? `${activeBrand.title} serisi olarak yeni bir drop — ürün Kems Company'nin olur`
                         : 'Bu markanın kitiyle yeni bir drop açın'}
@@ -856,14 +856,14 @@ export default function Markalar({
                             “{bk.slogan}”
                           </p>
                         ) : (
-                          <span className="text-[10px] font-mono text-stone-400 group-hover:text-[#F26B6F] transition-colors flex items-center justify-center gap-1">
+                          <span className="text-[10px] font-mono text-stone-500 dark:text-stone-400 group-hover:text-[#F26B6F] transition-colors flex items-center justify-center gap-1">
                             ✨ Slogan / Manifesto Ekle
                           </span>
                         )}
                       </div>
                     ) : (
                       <div className="space-y-1 pb-4 border-b border-stone-100">
-                        <label className="block text-[10px] font-mono text-stone-500 uppercase">
+                        <label className="block text-[10px] font-mono text-stone-500 dark:text-stone-400 uppercase">
                           Slogan / Manifesto / Misyon
                         </label>
                         <input
@@ -902,19 +902,19 @@ export default function Markalar({
                                     />
                                   </div>
                                 ) : (
-                                  <div className="text-center space-y-1.5 text-stone-400">
+                                  <div className="text-center space-y-1.5 text-stone-500 dark:text-stone-400">
                                     <Upload className="w-8 h-8 mx-auto stroke-1" />
                                     <span className="text-[11px] block font-sans">Henüz seçilen logo bulunmuyor.</span>
                                   </div>
                                 )}
-                                <span className="absolute bottom-2 left-2 text-[8px] font-mono text-stone-400 uppercase tracking-widest bg-white dark:bg-stone-900 px-1.5 py-0.5 rounded">
+                                <span className="absolute bottom-2 left-2 text-[8px] font-mono text-stone-500 dark:text-stone-400 uppercase tracking-widest bg-white dark:bg-stone-900 px-1.5 py-0.5 rounded">
                                   Resmi Amblem
                                 </span>
                               </div>
 
                               {/* Idea Logos strip */}
                               <div className="space-y-1.5">
-                                <span className="block text-[9px] font-mono uppercase tracking-widest text-stone-400">
+                                <span className="block text-[9px] font-mono uppercase tracking-widest text-stone-500 dark:text-stone-400">
                                   Alternatif Fikir Logoları
                                 </span>
                                 <div className="flex gap-2.5 overflow-x-auto pb-1">
@@ -950,7 +950,7 @@ export default function Markalar({
                                   ))}
                                   {(bk.ideaLogos || []).filter(l => typeof l === 'string'
                                     && (l.startsWith('data:') || l.startsWith('http'))).length === 0 && (
-                                    <span className="text-[10px] text-stone-400 italic font-sans py-1">Alternatif tasarım taslağı bulunmuyor.</span>
+                                    <span className="text-[10px] text-stone-500 dark:text-stone-400 italic font-sans py-1">Alternatif tasarım taslağı bulunmuyor.</span>
                                   )}
                                 </div>
 
@@ -962,7 +962,7 @@ export default function Markalar({
                                 {Array.isArray(activeBrand.metadata?.armaTarifi)
                                   && activeBrand.metadata.armaTarifi.length > 0 && (
                                   <div className="mt-3 pt-3 border-t border-stone-200 dark:border-[#2C3C72]">
-                                    <span className="block text-[9px] font-mono uppercase tracking-widest text-stone-400 mb-1.5">
+                                    <span className="block text-[9px] font-mono uppercase tracking-widest text-stone-500 dark:text-stone-400 mb-1.5">
                                       Arma Tarifi
                                     </span>
                                     <ul className="space-y-1">
@@ -981,7 +981,7 @@ export default function Markalar({
                               
                               {/* Main logo inputs */}
                               <div className="space-y-1.5">
-                                <label className="block text-[10px] font-mono text-stone-500 uppercase font-bold">
+                                <label className="block text-[10px] font-mono text-stone-500 dark:text-stone-400 uppercase font-bold">
                                   Resmi Amblem Seçin
                                 </label>
                                 <div className="flex items-center gap-3">
@@ -997,7 +997,7 @@ export default function Markalar({
                                       </button>
                                     </div>
                                   ) : (
-                                    <div className="w-14 h-14 bg-stone-100 border border-dashed border-stone-300 rounded flex items-center justify-center shrink-0 text-stone-400 text-xs">
+                                    <div className="w-14 h-14 bg-stone-100 border border-dashed border-stone-300 rounded flex items-center justify-center shrink-0 text-stone-500 dark:text-stone-400 text-xs">
                                       Boş
                                     </div>
                                   )}
@@ -1018,16 +1018,16 @@ export default function Markalar({
                                         };
                                         reader.readAsDataURL(file);
                                       }}
-                                      className="text-[10px] text-stone-500 block w-full"
+                                      className="text-[10px] text-stone-500 dark:text-stone-400 block w-full"
                                     />
-                                    <span className="text-[9px] text-stone-400 block leading-tight">Yüklenen görsel resmi marka logosu olarak belirlenecektir.</span>
+                                    <span className="text-[9px] text-stone-500 dark:text-stone-400 block leading-tight">Yüklenen görsel resmi marka logosu olarak belirlenecektir.</span>
                                   </div>
                                 </div>
                               </div>
 
                               {/* Idea Logos array editor */}
                               <div className="space-y-1.5 pt-2 border-t border-stone-200/50">
-                                <label className="block text-[10px] font-mono text-stone-500 uppercase font-bold">
+                                <label className="block text-[10px] font-mono text-stone-500 dark:text-stone-400 uppercase font-bold">
                                   Alternatif Fikir / Taslak Havuzu
                                 </label>
                                 <div className="flex gap-2 flex-wrap items-center">
@@ -1043,7 +1043,7 @@ export default function Markalar({
                                       </button>
                                     </div>
                                   ))}
-                                  <label className="w-12 h-12 border-2 border-dashed border-stone-300 hover:border-[#F26B6F] rounded flex flex-col items-center justify-center cursor-pointer text-stone-400 hover:text-[#F26B6F] transition-all">
+                                  <label className="w-12 h-12 border-2 border-dashed border-stone-300 hover:border-[#F26B6F] rounded flex flex-col items-center justify-center cursor-pointer text-stone-500 dark:text-stone-400 hover:text-[#F26B6F] transition-all">
                                     <Plus className="w-4 h-4" />
                                     <span className="text-[7px] font-mono uppercase font-bold">Yükle</span>
                                     <input
@@ -1108,7 +1108,7 @@ export default function Markalar({
                                     />
                                     <div className="min-w-0 flex-1 leading-tight">
                                       <span className="block text-[10px] font-mono font-bold text-stone-700 dark:text-[#F3EFE8] uppercase truncate">{hex}</span>
-                                      <span className="text-[8px] font-mono text-stone-400 block tracking-widest">KOPYALA</span>
+                                      <span className="text-[8px] font-mono text-stone-500 dark:text-stone-400 block tracking-widest">KOPYALA</span>
                                     </div>
                                     
                                     {copiedColor === hex && (
@@ -1120,7 +1120,7 @@ export default function Markalar({
                                 );
                               })}
                               {(bk.colorPalette || []).length === 0 && (
-                                <p className="text-[11px] text-stone-400 italic py-2 col-span-full">Henüz renk paleti tanımlanmadı.</p>
+                                <p className="text-[11px] text-stone-500 dark:text-stone-400 italic py-2 col-span-full">Henüz renk paleti tanımlanmadı.</p>
                               )}
                             </div>
                           ) : (
@@ -1177,7 +1177,7 @@ export default function Markalar({
                           {!isEditingBrand ? (
                             <div className="p-4 bg-stone-50 dark:bg-[#112440]/30 border border-stone-200 rounded-xl space-y-3">
                               <div className="flex items-center justify-between text-xs border-b border-stone-200/50 pb-1.5">
-                                <span className="font-mono text-stone-500">Tercih Edilen Yazı Tipi:</span>
+                                <span className="font-mono text-stone-500 dark:text-stone-400">Tercih Edilen Yazı Tipi:</span>
                                 <span className="font-bold font-serif text-[#F26B6F]">{bk.selectedFont || 'Inter'}</span>
                               </div>
                               <div className="py-4 text-center select-none overflow-hidden">
@@ -1189,7 +1189,7 @@ export default function Markalar({
                                 </span>
                                 <span 
                                   style={{ fontFamily: activeFont }} 
-                                  className="text-[10px] text-stone-400 uppercase tracking-widest block mt-1"
+                                  className="text-[10px] text-stone-500 dark:text-stone-400 uppercase tracking-widest block mt-1"
                                 >
                                   ABCDEFGHIJKLMNOPQRSTUVWXYZ
                                 </span>
@@ -1197,7 +1197,7 @@ export default function Markalar({
                             </div>
                           ) : (
                             <div className="space-y-1">
-                              <label className="block text-[10px] font-mono text-stone-500 uppercase">
+                              <label className="block text-[10px] font-mono text-stone-500 dark:text-stone-400 uppercase">
                                 Tercih Edilen Font Seçin
                               </label>
                               <select
@@ -1230,7 +1230,7 @@ export default function Markalar({
                               ) : (
                                 <span 
                                   onClick={() => setIsEditingBrand(true)}
-                                  className="text-[10px] font-mono text-stone-400 hover:text-[#F26B6F] cursor-pointer block text-center py-2"
+                                  className="text-[10px] font-mono text-stone-500 dark:text-stone-400 hover:text-[#F26B6F] cursor-pointer block text-center py-2"
                                 >
                                   ✨ Ton ve Ses Kılavuzu Ekle...
                                 </span>
@@ -1238,7 +1238,7 @@ export default function Markalar({
                             </div>
                           ) : (
                             <div className="space-y-1">
-                              <label className="block text-[10px] font-mono text-stone-500 uppercase">
+                              <label className="block text-[10px] font-mono text-stone-500 dark:text-stone-400 uppercase">
                                 Ton ve Ses Tanımı (Nasıl Konuşur, Nasıl İfade Eder?)
                               </label>
                               <textarea
@@ -1262,7 +1262,7 @@ export default function Markalar({
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                               {/* Do list */}
                               <div className="p-3 bg-emerald-50/35 dark:bg-emerald-950/10 border border-emerald-200/40 rounded-xl space-y-2">
-                                <span className="text-[9px] font-mono uppercase tracking-wider text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1">
+                                <span className="text-[9px] font-mono uppercase tracking-wider text-emerald-700 dark:text-emerald-400 font-bold flex items-center gap-1">
                                   ✓ YAPIN (DO)
                                 </span>
                                 <ul className="space-y-1.5 text-[11px] font-sans text-stone-700 dark:text-stone-300">
@@ -1273,7 +1273,7 @@ export default function Markalar({
                                     </li>
                                   ))}
                                   {(bk.usageRulesDo || []).length === 0 && (
-                                    <span className="text-[10px] text-stone-400 italic font-sans block text-center py-1">Kural belirtilmedi.</span>
+                                    <span className="text-[10px] text-stone-500 dark:text-stone-400 italic font-sans block text-center py-1">Kural belirtilmedi.</span>
                                   )}
                                 </ul>
                               </div>
@@ -1291,7 +1291,7 @@ export default function Markalar({
                                     </li>
                                   ))}
                                   {(bk.usageRulesDont || []).length === 0 && (
-                                    <span className="text-[10px] text-stone-400 italic font-sans block text-center py-1">Kural belirtilmedi.</span>
+                                    <span className="text-[10px] text-stone-500 dark:text-stone-400 italic font-sans block text-center py-1">Kural belirtilmedi.</span>
                                   )}
                                 </ul>
                               </div>
@@ -1301,7 +1301,7 @@ export default function Markalar({
                               
                               {/* Edit Do rules */}
                               <div className="space-y-2">
-                                <label className="block text-[9px] font-mono font-bold uppercase text-emerald-600">✓ YAPIN (DO)</label>
+                                <label className="block text-[9px] font-mono font-bold uppercase text-emerald-700 dark:text-emerald-400">✓ YAPIN (DO)</label>
                                 <div className="space-y-1.5 max-h-[100px] overflow-y-auto pr-1">
                                   {editUsageRulesDo.map((rule, idx) => (
                                     <div key={idx} className="flex justify-between items-center bg-white p-1 rounded border text-[10px] font-sans">
@@ -1403,7 +1403,7 @@ export default function Markalar({
                                 {work.startsWith('data:image') || work.startsWith('http') ? (
                                   <img src={work} alt={`Örnek Çalışma ${idx+1}`} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                                 ) : (
-                                  <div className="p-2 text-[10px] font-sans text-stone-500 flex items-center justify-center h-full text-center break-words leading-tight bg-stone-100">
+                                  <div className="p-2 text-[10px] font-sans text-stone-500 dark:text-stone-400 flex items-center justify-center h-full text-center break-words leading-tight bg-stone-100">
                                     {work}
                                   </div>
                                 )}
@@ -1412,7 +1412,7 @@ export default function Markalar({
                             {(bk.exemplaryWorks || []).length === 0 && (
                               <span 
                                 onClick={() => setIsEditingBrand(true)}
-                                className="text-[10px] font-mono text-stone-400 hover:text-[#F26B6F] cursor-pointer block text-center py-4 col-span-full"
+                                className="text-[10px] font-mono text-stone-500 dark:text-stone-400 hover:text-[#F26B6F] cursor-pointer block text-center py-4 col-span-full"
                               >
                                 ➕ Tasarım Örnekleri Ekle...
                               </span>
@@ -1426,7 +1426,7 @@ export default function Markalar({
                                   {work.startsWith('data:image') || work.startsWith('http') ? (
                                     <img src={work} alt="Arşiv" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                                   ) : (
-                                    <div className="p-1 text-[8px] flex items-center justify-center h-full text-center overflow-hidden font-sans text-stone-500 leading-tight">
+                                    <div className="p-1 text-[8px] flex items-center justify-center h-full text-center overflow-hidden font-sans text-stone-500 dark:text-stone-400 leading-tight">
                                       {work}
                                     </div>
                                   )}
@@ -1439,7 +1439,7 @@ export default function Markalar({
                                   </button>
                                 </div>
                               ))}
-                              <label className="aspect-square border-2 border-dashed border-stone-300 hover:border-[#F26B6F] rounded flex flex-col items-center justify-center cursor-pointer text-stone-400 hover:text-[#F26B6F] transition-all">
+                              <label className="aspect-square border-2 border-dashed border-stone-300 hover:border-[#F26B6F] rounded flex flex-col items-center justify-center cursor-pointer text-stone-500 dark:text-stone-400 hover:text-[#F26B6F] transition-all">
                                 <Plus className="w-4 h-4" />
                                 <span className="text-[8px] font-mono font-bold uppercase mt-1">Yükle</span>
                                 <input
@@ -1504,7 +1504,7 @@ export default function Markalar({
                             {(bk.atmosphereMoodboard || []).length === 0 && (
                               <span 
                                 onClick={() => setIsEditingBrand(true)}
-                                className="text-[10px] font-mono text-stone-400 hover:text-[#F26B6F] cursor-pointer block text-center py-4 col-span-full"
+                                className="text-[10px] font-mono text-stone-500 dark:text-stone-400 hover:text-[#F26B6F] cursor-pointer block text-center py-4 col-span-full"
                               >
                                 ➕ Moodboard Görseli Ekle...
                               </span>
@@ -1525,7 +1525,7 @@ export default function Markalar({
                                   </button>
                                 </div>
                               ))}
-                              <label className="aspect-square border-2 border-dashed border-stone-300 hover:border-[#F26B6F] rounded flex flex-col items-center justify-center cursor-pointer text-stone-400 hover:text-[#F26B6F] transition-all">
+                              <label className="aspect-square border-2 border-dashed border-stone-300 hover:border-[#F26B6F] rounded flex flex-col items-center justify-center cursor-pointer text-stone-500 dark:text-stone-400 hover:text-[#F26B6F] transition-all">
                                 <Plus className="w-4 h-4" />
                                 <span className="text-[8px] font-mono font-bold uppercase mt-1">Yükle</span>
                                 <input
@@ -1548,7 +1548,7 @@ export default function Markalar({
                                 />
                               </label>
                             </div>
-                            <span className="text-[9px] font-mono text-stone-400 block leading-tight">İlham verici atmosfer paneli için Base64 görseller ekleyin.</span>
+                            <span className="text-[9px] font-mono text-stone-500 dark:text-stone-400 block leading-tight">İlham verici atmosfer paneli için Base64 görseller ekleyin.</span>
                           </div>
                         )}
                       </div>
@@ -1631,7 +1631,7 @@ export default function Markalar({
                       </div>
                     ))}
                     {brandKisiler.length === 0 && (
-                      <p className="text-[10px] text-stone-400 italic">Bu markaya bağlı kişi tanımlanmadı.</p>
+                      <p className="text-[10px] text-stone-500 dark:text-stone-400 italic">Bu markaya bağlı kişi tanımlanmadı.</p>
                     )}
                   </div>
                 </div>
@@ -1686,7 +1686,7 @@ export default function Markalar({
                       </div>
                     ))}
                     {brandYerler.length === 0 && (
-                      <p className="text-[10px] text-stone-400 italic">Bu markaya bağlı mekan tanımlanmadı.</p>
+                      <p className="text-[10px] text-stone-500 dark:text-stone-400 italic">Bu markaya bağlı mekan tanımlanmadı.</p>
                     )}
                   </div>
                 </div>
@@ -1702,7 +1702,7 @@ export default function Markalar({
                       Marka Merch & Tasarımları
                     </h3>
                   </div>
-                  <span className="text-[10px] font-mono text-stone-500">
+                  <span className="text-[10px] font-mono text-stone-500 dark:text-stone-400">
                     Tema → Drop → Ürün Zinciri
                   </span>
                 </div>
@@ -1711,7 +1711,7 @@ export default function Markalar({
 
                   {/* Drop List */}
                   <div className="space-y-2">
-                    <span className="text-[10px] font-mono uppercase tracking-wider text-stone-400 block">
+                    <span className="text-[10px] font-mono uppercase tracking-wider text-stone-500 dark:text-stone-400 block">
                       📦 Droplar ({brandDroplar.length})
                     </span>
                     <div className="space-y-1">
@@ -1722,18 +1722,18 @@ export default function Markalar({
                           className="p-2 bg-white dark:bg-[#112440] border border-stone-200 rounded-lg text-xs hover:border-[#F26B6F] transition-all flex justify-between items-center cursor-pointer"
                         >
                           <span className="font-bold text-[#0E1C4F] dark:text-[#F3EFE8] truncate max-w-[120px]">{d.title}</span>
-                          <span className="text-[9px] font-mono text-emerald-600 font-bold bg-emerald-50 dark:bg-emerald-950 px-1 py-0.5 rounded">{d.status}</span>
+                          <span className="text-[9px] font-mono text-emerald-700 dark:text-emerald-400 font-bold bg-emerald-50 dark:bg-emerald-950 px-1 py-0.5 rounded">{d.status}</span>
                         </div>
                       ))}
                       {brandDroplar.length === 0 && (
-                        <span className="text-[11px] text-stone-400 italic block">Aktif Drop bulunmuyor.</span>
+                        <span className="text-[11px] text-stone-500 dark:text-stone-400 italic block">Aktif Drop bulunmuyor.</span>
                       )}
                     </div>
                   </div>
 
                   {/* Ürün List */}
                   <div className="space-y-2">
-                    <span className="text-[10px] font-mono uppercase tracking-wider text-stone-400 block">
+                    <span className="text-[10px] font-mono uppercase tracking-wider text-stone-500 dark:text-stone-400 block">
                       👕 Ürünler ({brandUrunler.length})
                     </span>
                     <div className="space-y-1">
@@ -1748,7 +1748,7 @@ export default function Markalar({
                         </div>
                       ))}
                       {brandUrunler.length === 0 && (
-                        <span className="text-[11px] text-stone-400 italic block">Oluşturulmuş ürün bulunmuyor.</span>
+                        <span className="text-[11px] text-stone-500 dark:text-stone-400 italic block">Oluşturulmuş ürün bulunmuyor.</span>
                       )}
                     </div>
                   </div>
@@ -1775,7 +1775,7 @@ export default function Markalar({
           <div className="max-w-md w-full bg-[#F3EFE8] border-2 border-[#CFC5B4] rounded-2xl shadow-2xl p-6 space-y-4 paper-grain">
             <div className="flex items-center justify-between pb-2 border-b border-[#CFC5B4]">
               <h3 className="font-serif font-bold text-lg text-[#0E1C4F]">Yeni Yaratıcı Marka</h3>
-              <button onClick={() => setShowCreateForm(false)} className="p-1 text-stone-400 hover:text-stone-700">
+              <button onClick={() => setShowCreateForm(false)} className="p-1 text-stone-500 dark:text-stone-400 hover:text-stone-700">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -1833,20 +1833,20 @@ export default function Markalar({
                 <ShoppingBag className="w-5 h-5 text-[#F26B6F]" />
                 <h3 className="font-serif font-bold text-lg text-[#0E1C4F]">{activeBrand.title} Merch Yap</h3>
               </div>
-              <button onClick={() => setShowMerchForm(false)} className="p-1 text-stone-400 hover:text-stone-700">
+              <button onClick={() => setShowMerchForm(false)} className="p-1 text-stone-500 dark:text-stone-400 hover:text-stone-700">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {kurumMu(activeBrand) ? (
-              <p className="text-xs text-stone-500 leading-relaxed font-mono">
+              <p className="text-xs text-stone-500 dark:text-stone-400 leading-relaxed font-mono">
                 Drop <strong>{activeBrand.title}</strong> serisi olarak açılır ve
                 kurumun arması, rengi, fontuyla çalışır. Satan ise{' '}
                 <strong>{yapi.anaMarka?.title ?? 'ana marka'}</strong>: ürün onun ürünü olarak
                 kaydedilir. Zincir: marka → kurum → drop → ürün.
               </p>
             ) : (
-              <p className="text-xs text-stone-500 leading-relaxed font-mono">
+              <p className="text-xs text-stone-500 dark:text-stone-400 leading-relaxed font-mono">
                 Bu işlem, <strong>{activeBrand.title}</strong> markasının kurumsal logosunu, fontunu ve
                 renk paletini kullanarak yeni bir drop başlatır. Zincir: marka → drop → ürün.
               </p>
@@ -1916,7 +1916,7 @@ export default function Markalar({
                   setIsCreatingNew(false);
                   setSearchQuery('');
                 }} 
-                className="p-1 text-stone-400 hover:text-stone-700"
+                className="p-1 text-stone-500 dark:text-stone-400 hover:text-stone-700"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -1925,7 +1925,7 @@ export default function Markalar({
             {!isCreatingNew ? (
               // SEARCH & SELECT INTERFACE (Primary option)
               <div className="space-y-4">
-                <p className="text-xs text-stone-500 leading-relaxed font-mono">
+                <p className="text-xs text-stone-500 dark:text-stone-400 leading-relaxed font-mono">
                   Sistemde kayıtlı olan <strong>{showAddEntityForm === 'kisi' ? 'kişilerden' : 'yer ve mekânlardan'}</strong> birini seçerek doğrudan <strong>{activeBrand.title}</strong> markasına bağlayabilirsiniz.
                 </p>
 
@@ -1939,7 +1939,7 @@ export default function Markalar({
                       onChange={(e) => setSearchQuery(e.target.value)}
                       className="w-full text-xs bg-white text-[#0E1C4F] border border-[#CFC5B4] rounded-lg p-2.5 pl-8 focus:outline-hidden"
                     />
-                    <Search className="w-4 h-4 text-stone-400 absolute left-2.5 top-3" />
+                    <Search className="w-4 h-4 text-stone-500 dark:text-stone-400 absolute left-2.5 top-3" />
                   </div>
                 </div>
 
@@ -1948,7 +1948,7 @@ export default function Markalar({
                     Seçilebilir Varlıklar ({filteredExistingEntities.length})
                   </span>
                   
-                  <div className="border border-[#CFC5B4] rounded-xl bg-white/50 max-h-[220px] overflow-y-auto divide-y divide-stone-200/60 p-1.5">
+                  <div className="border border-[#CFC5B4] rounded-xl bg-white/50 dark:bg-[#13204A]/50 max-h-[220px] overflow-y-auto divide-y divide-stone-200/60 p-1.5">
                     {filteredExistingEntities.map(ent => (
                       <div
                         key={ent.id}
@@ -1958,7 +1958,7 @@ export default function Markalar({
                         <div className="min-w-0 flex-1">
                           <div className="font-serif font-bold text-xs text-[#0E1C4F] truncate">{ent.title}</div>
                           {ent.notes && (
-                            <div className="text-[10px] text-stone-500 truncate font-mono mt-0.5">{ent.notes}</div>
+                            <div className="text-[10px] text-stone-500 dark:text-stone-400 truncate font-mono mt-0.5">{ent.notes}</div>
                           )}
                         </div>
                         <span className="text-[10px] font-mono text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded font-bold shrink-0">
@@ -1967,7 +1967,7 @@ export default function Markalar({
                       </div>
                     ))}
                     {filteredExistingEntities.length === 0 && (
-                      <div className="p-4 text-center text-xs text-stone-400 italic font-mono">
+                      <div className="p-4 text-center text-xs text-stone-500 dark:text-stone-400 italic font-mono">
                         Seçilebilir varlık bulunamadı.
                       </div>
                     )}
@@ -1976,7 +1976,7 @@ export default function Markalar({
 
                 {/* Secondary Option: Create New */}
                 <div className="pt-2 border-t border-dashed border-[#CFC5B4] text-center">
-                  <p className="text-[10px] text-stone-500 font-mono mb-2">
+                  <p className="text-[10px] text-stone-500 dark:text-stone-400 font-mono mb-2">
                     Aradığınız varlık listede yok mu?
                   </p>
                   <button
@@ -1992,7 +1992,7 @@ export default function Markalar({
             ) : (
               // CREATE NEW INTERFACE (Secondary option)
               <form onSubmit={handleAddChildEntity} className="space-y-4 font-mono text-xs">
-                <p className="text-xs text-stone-500 leading-relaxed">
+                <p className="text-xs text-stone-500 dark:text-stone-400 leading-relaxed">
                   Bu yeni varlık otomatik olarak oluşturulacak ve <strong>{activeBrand.title}</strong> markasına bağlanacaktır.
                 </p>
 

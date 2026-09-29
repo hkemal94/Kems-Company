@@ -167,7 +167,7 @@ export default function ConsistencyChecker({
         disabled={isLoading}
         className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:scale-[1.02] active:scale-[0.98] ${
           isLoading 
-            ? 'bg-stone-100 text-stone-400 dark:bg-stone-800 dark:text-stone-600 cursor-not-allowed'
+            ? 'bg-stone-100 text-stone-500 dark:bg-stone-800 dark:text-stone-600 cursor-not-allowed'
             : buttonClassName || 'bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/20 text-[#F26B6F] dark:text-[#EFA39F] border border-amber-200/50 dark:border-amber-900/40'
         }`}
       >
@@ -196,7 +196,7 @@ export default function ConsistencyChecker({
                   <h3 className="font-serif font-bold text-base text-[#0E1C4F] dark:text-[#F3EFE8]">
                     {module.toUpperCase()} Tutarlılık Denetimi
                   </h3>
-                  <p className="text-[10px] font-mono text-stone-500 uppercase">KEMS EVREN ENTEGRASYON PROTOKOLÜ</p>
+                  <p className="text-[10px] font-mono text-stone-500 dark:text-stone-400 uppercase">KEMS EVREN ENTEGRASYON PROTOKOLÜ</p>
                 </div>
               </div>
               <button 
@@ -230,7 +230,7 @@ export default function ConsistencyChecker({
                 </div>
 
                 {isLoading ? (
-                  <div className="py-12 flex flex-col items-center justify-center gap-3 text-stone-400">
+                  <div className="py-12 flex flex-col items-center justify-center gap-3 text-stone-500 dark:text-stone-400">
                     <RefreshCw className="w-8 h-8 animate-spin text-[#F26B6F]" />
                     <span className="text-xs font-mono">Kems Veritabanı taranıyor...</span>
                   </div>
@@ -238,7 +238,7 @@ export default function ConsistencyChecker({
                   <div className="py-12 text-center border-2 border-dashed border-stone-200 dark:border-stone-800 rounded-xl space-y-2">
                     <ShieldCheck className="w-10 h-10 text-green-600 dark:text-green-400 mx-auto" />
                     <div className="text-xs font-bold text-stone-800 dark:text-stone-200">Kusursuz Entegrasyon!</div>
-                    <p className="text-[11px] text-stone-500 max-w-xs mx-auto">
+                    <p className="text-[11px] text-stone-500 dark:text-stone-400 max-w-xs mx-auto">
                       Bu modül bünyesinde herhangi bir mantıksal veya kurgusal çelişki tespit edilmedi.
                     </p>
                   </div>
@@ -269,7 +269,7 @@ export default function ConsistencyChecker({
                             <strong className={`text-xs font-sans ${isError ? 'text-red-700 dark:text-red-400' : isWarning ? 'text-amber-700 dark:text-amber-400' : 'text-stone-800 dark:text-stone-300'}`}>
                               {issue.title}
                             </strong>
-                            <span className="ml-auto text-[8px] font-mono uppercase bg-stone-100 dark:bg-stone-800 text-stone-500 px-1.5 py-0.5 rounded">
+                            <span className="ml-auto text-[8px] font-mono uppercase bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-400 px-1.5 py-0.5 rounded">
                               {issue.type}
                             </span>
                           </div>
@@ -333,7 +333,7 @@ export default function ConsistencyChecker({
                   <div className="p-6 text-center border border-dashed border-indigo-200 dark:border-indigo-900/60 rounded-xl bg-indigo-50/10 space-y-2">
                     <RefreshCw className="w-6 h-6 animate-spin text-indigo-500 mx-auto" />
                     <div className="text-xs font-bold text-indigo-900 dark:text-indigo-400">Gemini Edebî Tutarlılık Süzgeci Çalışıyor</div>
-                    <p className="text-[10px] text-stone-500 max-w-xs mx-auto leading-relaxed">
+                    <p className="text-[10px] text-stone-500 dark:text-stone-400 max-w-xs mx-auto leading-relaxed">
                       Edebî üslup, saklı sırlar ve adanın geçmiş lore'u analiz edilerek derinlemesine bir rapor hazırlanıyor...
                     </p>
                   </div>
@@ -355,7 +355,7 @@ export default function ConsistencyChecker({
             </div>
 
             {/* Footer */}
-            <div className="p-4 border-t border-[#CFC5B4] dark:border-stone-800 bg-[#FAF8F5] dark:bg-[#151311] text-center text-[10px] font-mono text-stone-400">
+            <div className="p-4 border-t border-[#CFC5B4] dark:border-stone-800 bg-[#FAF8F5] dark:bg-[#151311] text-center text-[10px] font-mono text-stone-500 dark:text-stone-400">
               KEMS® KONSİSTANS PROTOKOLÜ 4.2 • DÜZADA, TR
             </div>
           </div>

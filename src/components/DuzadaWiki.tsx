@@ -325,7 +325,7 @@ export default function DuzadaWiki({
 
   // Helper to dynamically match text with entity names and render as clickable links
   const renderWikiText = (content: string) => {
-    if (!content) return <span className="italic text-stone-400 dark:text-stone-500">Henüz bilgi girilmemiş.</span>;
+    if (!content) return <span className="italic text-stone-500 dark:text-stone-500">Henüz bilgi girilmemiş.</span>;
     
     // Grab other entities to link automatically (excluding the world details item)
     const entities = items.filter(e => e.id !== 'duzada_world_details' && !e.archived && e.area === 'duzada');
@@ -402,7 +402,7 @@ export default function DuzadaWiki({
   }, [items]);
 
   const getEntityIcon = (type: string, isRoom?: boolean) => {
-    if (isRoom) return <Key className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />;
+    if (isRoom) return <Key className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />;
     switch (type) {
       case 'kisi':
       case 'karakter':
@@ -411,13 +411,13 @@ export default function DuzadaWiki({
       case 'yer':
       case 'dükkân':
       case 'oda':
-        return <Building className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />;
+        return <Building className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />;
       case 'marka':
         return <ShoppingBag className="w-4 h-4 text-[#F26B6F]" />;
       case 'olay':
         return <Calendar className="w-4 h-4 text-amber-600 dark:text-amber-400" />;
       default:
-        return <Tag className="w-4 h-4 text-stone-500" />;
+        return <Tag className="w-4 h-4 text-stone-500 dark:text-stone-400" />;
     }
   };
 
@@ -1109,7 +1109,7 @@ export default function DuzadaWiki({
             <h2 className="font-serif font-bold text-3xl text-[#0E1C4F] dark:text-[#F3EFE8] mt-1.5 leading-tight">
               Düzada Dünyası Wiki
             </h2>
-            <p className="text-xs text-[#9A8C76] dark:text-[#A6B0C9] mt-1 font-serif italic">
+            <p className="text-xs text-[#6A5E4C] dark:text-[#A6B0C9] mt-1 font-serif italic">
               Tüm karakterler, markalar, konumlar ve sırlar arasındaki bağları barındıran kurgusal şemsiye evren.
             </p>
           </div>
@@ -1125,7 +1125,7 @@ export default function DuzadaWiki({
               }}
               className={`flex items-center gap-2 text-xs font-mono px-4 py-2.5 rounded-lg transition-all cursor-pointer font-bold ${
                 isEditing 
-                  ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm' 
+                  ? 'bg-emerald-700 hover:bg-emerald-800 text-white shadow-sm' 
                   : 'bg-[#FAF8F5] hover:bg-[#F3EFE8] dark:bg-[#1E293B] dark:hover:bg-[#334155] border border-[#CFC5B4] dark:border-[#384260] text-[#6A5E4C] dark:text-[#F3EFE8]'
               }`}
             >
@@ -1152,7 +1152,7 @@ export default function DuzadaWiki({
           className={`flex items-center gap-2 text-xs font-mono uppercase tracking-wider py-3 px-6 font-bold border-b-2 cursor-pointer transition-all ${
             activeSubTab === 'atlas'
               ? 'border-[#F26B6F] text-[#0E1C4F] dark:text-[#F3EFE8] bg-stone-100/50 dark:bg-[#17345A]/20'
-              : 'border-transparent text-stone-500 hover:text-stone-800 dark:hover:text-stone-200'
+              : 'border-transparent text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200'
           }`}
         >
           <BookOpen className="w-4 h-4 text-[#F26B6F]" />
@@ -1164,7 +1164,7 @@ export default function DuzadaWiki({
           className={`flex items-center gap-2 text-xs font-mono uppercase tracking-wider py-3 px-6 font-bold border-b-2 cursor-pointer transition-all relative ${
             activeSubTab === 'doluluk'
               ? 'border-[#F26B6F] text-[#0E1C4F] dark:text-[#F3EFE8] bg-stone-100/50 dark:bg-[#17345A]/20'
-              : 'border-transparent text-stone-500 hover:text-stone-800 dark:hover:text-stone-200'
+              : 'border-transparent text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200'
           }`}
         >
           <Sparkles className="w-4 h-4 text-amber-500" />
@@ -1326,7 +1326,7 @@ export default function DuzadaWiki({
                   ))}
 
                   {sections.length === 0 && (
-                    <span className="text-xs font-serif text-stone-400 italic block">Tanımlanmış bir kütüphane alt bölümü bulunmuyor.</span>
+                    <span className="text-xs font-serif text-stone-500 dark:text-stone-400 italic block">Tanımlanmış bir kütüphane alt bölümü bulunmuyor.</span>
                   )}
                 </div>
               </div>
@@ -1394,7 +1394,7 @@ export default function DuzadaWiki({
                   placeholder="İsim, bilgi veya etiket ara..."
                   className="w-full text-xs bg-white dark:bg-[#13204A] text-[#0E1C4F] dark:text-[#F3EFE8] border border-stone-300 dark:border-[#2C3C72] rounded-lg pl-8 pr-3 py-2 focus:ring-1 focus:ring-[#F26B6F] focus:outline-hidden font-sans"
                 />
-                <Search className="absolute left-2.5 top-2.5 w-3.5 h-3.5 text-stone-400" />
+                <Search className="absolute left-2.5 top-2.5 w-3.5 h-3.5 text-stone-500 dark:text-stone-400" />
               </div>
 
               {/* Filter Pills and Sorting */}
@@ -1416,7 +1416,7 @@ export default function DuzadaWiki({
                 </div>
 
                 <div className="flex items-center gap-1 shrink-0 self-end md:self-auto">
-                  <span className="text-[9px] font-mono text-stone-400">Sırala:</span>
+                  <span className="text-[9px] font-mono text-stone-500 dark:text-stone-400">Sırala:</span>
                   <select
                     value={wikiSortBy}
                     onChange={(e) => setWikiSortBy(e.target.value as 'name' | 'completeness')}
@@ -1451,7 +1451,7 @@ export default function DuzadaWiki({
                             <span className="text-[9px] text-[#F26B6F] font-mono">★</span>
                           )}
                         </div>
-                        <p className="text-[10px] text-stone-400 font-serif line-clamp-1 mt-0.5">
+                        <p className="text-[10px] text-stone-500 dark:text-stone-400 font-serif line-clamp-1 mt-0.5">
                           {item.notes || 'Açıklama bulunmuyor.'}
                         </p>
                       </div>
@@ -1460,7 +1460,7 @@ export default function DuzadaWiki({
                 })}
 
                 {filteredWikiItems.length === 0 && (
-                  <div className="text-center py-8 text-stone-400 dark:text-stone-500 font-serif italic text-xs">
+                  <div className="text-center py-8 text-stone-500 dark:text-stone-500 font-serif italic text-xs">
                     Aranan kriterlere uygun varlık bulunamadı.
                   </div>
                 )}
@@ -1483,7 +1483,7 @@ export default function DuzadaWiki({
                     <div key={m.id} className="space-y-2 border-l-2 border-stone-200 dark:border-stone-800 pl-3">
                       <div className="flex items-center justify-between">
                         <span className="text-xs font-serif font-bold text-[#0E1C4F] dark:text-[#F3EFE8] tracking-tight">{m.name}</span>
-                        <span className="text-[9px] font-mono text-stone-400 font-semibold uppercase">Mahalle</span>
+                        <span className="text-[9px] font-mono text-stone-500 dark:text-stone-400 font-semibold uppercase">Mahalle</span>
                       </div>
 
                       <div className="space-y-1.5 pl-2.5">
@@ -1504,13 +1504,13 @@ export default function DuzadaWiki({
                                     }}
                                     className="flex items-center gap-1.5 text-xs text-[#F26B6F] dark:text-[#E76F51] hover:underline cursor-pointer text-left font-serif"
                                   >
-                                    <MapPin className="w-3 h-3 shrink-0 text-stone-400" />
+                                    <MapPin className="w-3 h-3 shrink-0 text-stone-500 dark:text-stone-400" />
                                     <span>{pl.title}</span>
                                   </button>
                                 ))}
                                 
                                 {streetPlaces.length === 0 && (
-                                  <span className="text-[9px] font-mono text-stone-400 dark:text-stone-600 italic block pl-4">Kayıtlı mekan yok</span>
+                                  <span className="text-[9px] font-mono text-stone-500 dark:text-stone-600 italic block pl-4">Kayıtlı mekan yok</span>
                                 )}
                               </div>
                             </div>
@@ -1519,7 +1519,7 @@ export default function DuzadaWiki({
 
                         {regionMekansWithoutStreet.length > 0 && (
                           <div className="space-y-1">
-                            <span className="text-[10px] font-mono text-stone-400 block italic">↳ Diğer Konumlar</span>
+                            <span className="text-[10px] font-mono text-stone-500 dark:text-stone-400 block italic">↳ Diğer Konumlar</span>
                             <div className="pl-3.5 space-y-1">
                               {regionMekansWithoutStreet.map((pl) => (
                                 <button
@@ -1530,7 +1530,7 @@ export default function DuzadaWiki({
                                   }}
                                   className="flex items-center gap-1.5 text-xs text-[#F26B6F] dark:text-[#E76F51] hover:underline cursor-pointer text-left font-serif"
                                 >
-                                  <MapPin className="w-3 h-3 shrink-0 text-stone-400" />
+                                  <MapPin className="w-3 h-3 shrink-0 text-stone-500 dark:text-stone-400" />
                                   <span>{pl.title}</span>
                                 </button>
                               ))}
@@ -1539,7 +1539,7 @@ export default function DuzadaWiki({
                         )}
 
                         {neighborhoodSokaklar.length === 0 && regionMekansWithoutStreet.length === 0 && (
-                          <span className="text-[9px] font-mono text-stone-400 dark:text-stone-600 italic block">Sokak veya konum eklenmemiş</span>
+                          <span className="text-[9px] font-mono text-stone-500 dark:text-stone-600 italic block">Sokak veya konum eklenmemiş</span>
                         )}
                       </div>
                     </div>
@@ -1563,7 +1563,7 @@ export default function DuzadaWiki({
             {/* Global Completeness Circle */}
             <div className="bg-[#FBF9F6] dark:bg-[#1E293B]/40 border border-[#CFC5B4] dark:border-[#2C3C72] p-5 rounded-xl archive-shadow paper-grain flex items-center justify-between">
               <div>
-                <span className="text-[10px] font-mono text-stone-400 dark:text-stone-400 uppercase font-bold tracking-wider block">
+                <span className="text-[10px] font-mono text-stone-500 dark:text-stone-400 uppercase font-bold tracking-wider block">
                   Genel Evren Doluluğu
                 </span>
                 <span className="text-xs text-stone-600 dark:text-stone-300 block font-serif mt-1">
@@ -1584,15 +1584,15 @@ export default function DuzadaWiki({
 
             {/* Filled Count */}
             <div className="bg-[#FBF9F6] dark:bg-[#1E293B]/40 border border-[#CFC5B4] dark:border-[#2C3C72] p-5 rounded-xl archive-shadow paper-grain flex items-center gap-4">
-              <div className="p-3 bg-emerald-100 dark:bg-emerald-950/40 rounded-lg text-emerald-600 dark:text-emerald-400 shrink-0">
+              <div className="p-3 bg-emerald-100 dark:bg-emerald-950/40 rounded-lg text-emerald-700 dark:text-emerald-400 shrink-0">
                 <CheckCircle2 className="w-6 h-6" />
               </div>
               <div>
-                <span className="text-[10px] font-mono text-stone-400 dark:text-stone-400 uppercase font-bold tracking-wider block">
+                <span className="text-[10px] font-mono text-stone-500 dark:text-stone-400 uppercase font-bold tracking-wider block">
                   Dolu Varlık Sayısı (%80+)
                 </span>
                 <span className="text-2xl font-bold font-mono text-[#0E1C4F] dark:text-[#F3EFE8] block mt-0.5">
-                  {stats.completed} <span className="text-xs font-normal text-stone-400">varlık</span>
+                  {stats.completed} <span className="text-xs font-normal text-stone-500 dark:text-stone-400">varlık</span>
                 </span>
               </div>
             </div>
@@ -1603,11 +1603,11 @@ export default function DuzadaWiki({
                 <AlertCircle className="w-6 h-6" />
               </div>
               <div>
-                <span className="text-[10px] font-mono text-stone-400 dark:text-stone-400 uppercase font-bold tracking-wider block">
+                <span className="text-[10px] font-mono text-stone-500 dark:text-stone-400 uppercase font-bold tracking-wider block">
                   Geliştirilecek Eksikler
                 </span>
                 <span className="text-2xl font-bold font-mono text-[#0E1C4F] dark:text-[#F3EFE8] block mt-0.5">
-                  {stats.developing} <span className="text-xs font-normal text-stone-400">varlık</span>
+                  {stats.developing} <span className="text-xs font-normal text-stone-500 dark:text-stone-400">varlık</span>
                 </span>
               </div>
             </div>
@@ -1635,7 +1635,7 @@ export default function DuzadaWiki({
                   placeholder="Varlıklarda ara..."
                   className="w-full text-xs bg-white dark:bg-[#13204A] text-[#0E1C4F] dark:text-[#F3EFE8] border border-stone-300 dark:border-[#2C3C72] rounded-lg pl-8 pr-3 py-2 focus:ring-1 focus:ring-[#F26B6F] focus:outline-hidden font-sans"
                 />
-                <Search className="absolute left-2.5 top-2.5 w-3.5 h-3.5 text-stone-400" />
+                <Search className="absolute left-2.5 top-2.5 w-3.5 h-3.5 text-stone-500 dark:text-stone-400" />
               </div>
 
               {/* Category selector pills */}
@@ -1681,7 +1681,7 @@ export default function DuzadaWiki({
                   let textColor = 'text-red-500';
                   if (item.score >= 80) {
                     progressColor = 'bg-emerald-500';
-                    textColor = 'text-emerald-600 dark:text-emerald-400';
+                    textColor = 'text-emerald-700 dark:text-emerald-400';
                   } else if (item.score >= 40) {
                     progressColor = 'bg-amber-500';
                     textColor = 'text-amber-600 dark:text-amber-400';
@@ -1703,7 +1703,7 @@ export default function DuzadaWiki({
                       <div className="flex items-start justify-between w-full gap-2">
                         <div className="flex items-center gap-2 min-w-0">
                           <span className="p-1 bg-stone-100 dark:bg-stone-800 rounded shrink-0">
-                            {isSokak ? <Trees className="w-3.5 h-3.5 text-emerald-600" /> : isMahalle ? <Building className="w-3.5 h-3.5 text-indigo-600" /> : getEntityIcon(item.originalItem.type)}
+                            {isSokak ? <Trees className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" /> : isMahalle ? <Building className="w-3.5 h-3.5 text-indigo-600" /> : getEntityIcon(item.originalItem.type)}
                           </span>
                           <span className="text-xs font-serif font-bold text-stone-800 dark:text-stone-200 truncate group-hover:text-[#F26B6F] transition-colors">
                             {item.title}
@@ -1720,7 +1720,7 @@ export default function DuzadaWiki({
                       </div>
 
                       {/* Small Description */}
-                      <div className="flex justify-between items-center w-full mt-2 text-[9px] font-mono text-stone-400">
+                      <div className="flex justify-between items-center w-full mt-2 text-[9px] font-mono text-stone-500 dark:text-stone-400">
                         <span>{item.type}</span>
                         <span>{item.filledCount}/{item.questionsCount} dolu</span>
                       </div>
@@ -1729,7 +1729,7 @@ export default function DuzadaWiki({
                 })}
 
                 {filteredCompletenessList.length === 0 && (
-                  <div className="text-center py-12 text-stone-400 dark:text-stone-500 font-serif italic text-xs bg-white dark:bg-[#111A2E]/30 rounded-lg border border-dashed border-stone-200 dark:border-stone-800">
+                  <div className="text-center py-12 text-stone-500 dark:text-stone-500 font-serif italic text-xs bg-white dark:bg-[#111A2E]/30 rounded-lg border border-dashed border-stone-200 dark:border-stone-800">
                     Kategoriye uygun varlık bulunamadı.
                   </div>
                 )}
@@ -1760,7 +1760,7 @@ export default function DuzadaWiki({
                       
                       <button
                         onClick={() => setIsEditingQuestions(false)}
-                        className="text-xs text-stone-500 hover:text-[#F26B6F] transition-all cursor-pointer font-serif border border-stone-200 hover:border-stone-300 dark:border-stone-800 dark:hover:border-stone-700 px-2.5 py-1 rounded-lg"
+                        className="text-xs text-stone-500 dark:text-stone-400 hover:text-[#F26B6F] transition-all cursor-pointer font-serif border border-stone-200 hover:border-stone-300 dark:border-stone-800 dark:hover:border-stone-700 px-2.5 py-1 rounded-lg"
                       >
                         Kapat
                       </button>
@@ -1775,12 +1775,12 @@ export default function DuzadaWiki({
                       {editingQuestionsList.map((q, idx) => (
                         <div key={q.id} className="p-3 bg-stone-50 dark:bg-stone-900/40 border border-stone-200 dark:border-stone-800 rounded-xl space-y-2">
                           <div className="flex items-center justify-between gap-2">
-                            <span className="text-[10px] font-mono text-stone-400 font-bold">SORU #{idx + 1}</span>
+                            <span className="text-[10px] font-mono text-stone-500 dark:text-stone-400 font-bold">SORU #{idx + 1}</span>
                             <button
                               onClick={() => {
                                 setEditingQuestionsList(prev => prev.filter(item => item.id !== q.id));
                               }}
-                              className="text-stone-400 hover:text-red-500 p-1 rounded hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+                              className="text-stone-500 dark:text-stone-400 hover:text-red-500 p-1 rounded hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
                               title="Soruyu Kaldır"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
@@ -1789,7 +1789,7 @@ export default function DuzadaWiki({
                           
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                             <div>
-                              <label className="text-[9px] font-mono font-bold text-stone-500 block uppercase mb-1">Başlık / Alan Adı</label>
+                              <label className="text-[9px] font-mono font-bold text-stone-500 dark:text-stone-400 block uppercase mb-1">Başlık / Alan Adı</label>
                               <input
                                 type="text"
                                 value={q.label}
@@ -1802,7 +1802,7 @@ export default function DuzadaWiki({
                               />
                             </div>
                             <div>
-                              <label className="text-[9px] font-mono font-bold text-stone-500 block uppercase mb-1">Kayıt Yeri (Metadata Alanı)</label>
+                              <label className="text-[9px] font-mono font-bold text-stone-500 dark:text-stone-400 block uppercase mb-1">Kayıt Yeri (Metadata Alanı)</label>
                               <input
                                 type="text"
                                 value={q.fieldPath}
@@ -1811,14 +1811,14 @@ export default function DuzadaWiki({
                                   const newVal = e.target.value;
                                   setEditingQuestionsList(prev => prev.map(item => item.id === q.id ? { ...item, fieldPath: newVal } : item));
                                 }}
-                                className="w-full text-xs bg-stone-100 dark:bg-[#13204A]/30 border border-stone-200 dark:border-[#2C3C72] text-stone-500 rounded px-2 py-1 cursor-not-allowed font-mono"
+                                className="w-full text-xs bg-stone-100 dark:bg-[#13204A]/30 border border-stone-200 dark:border-[#2C3C72] text-stone-500 dark:text-stone-400 rounded px-2 py-1 cursor-not-allowed font-mono"
                                 placeholder="örn: metadata.profile.custom"
                               />
                             </div>
                           </div>
                           
                           <div>
-                            <label className="text-[9px] font-mono font-bold text-stone-500 block uppercase mb-1">Soru Detayı (Soru-Cevap Rehberi)</label>
+                            <label className="text-[9px] font-mono font-bold text-stone-500 dark:text-stone-400 block uppercase mb-1">Soru Detayı (Soru-Cevap Rehberi)</label>
                             <input
                               type="text"
                               value={q.question}
@@ -1834,7 +1834,7 @@ export default function DuzadaWiki({
                         ))}
 
                         {editingQuestionsList.length === 0 && (
-                          <div className="text-center py-6 text-xs text-stone-400 italic">Soru bulunmuyor. Yeni soru ekleyin.</div>
+                          <div className="text-center py-6 text-xs text-stone-500 dark:text-stone-400 italic">Soru bulunmuyor. Yeni soru ekleyin.</div>
                         )}
                       </div>
 
@@ -1878,7 +1878,7 @@ export default function DuzadaWiki({
                         <button
                           onClick={handleSaveQuestions}
                           disabled={saveStatus === 'saving'}
-                          className="text-xs bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-bold shadow-sm transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                          className="text-xs bg-emerald-700 hover:bg-emerald-800 text-white px-4 py-2 rounded-lg font-bold shadow-sm transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
                         >
                           {saveStatus === 'saving' ? (
                             <span>Kaydediliyor...</span>
@@ -1934,7 +1934,7 @@ export default function DuzadaWiki({
                       <div className="border-b border-[#CFC5B4]/40 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div className="flex items-center gap-3">
                           <span className="p-2 bg-[#FAF6EE] dark:bg-stone-800 rounded-lg">
-                            {isSokak ? <Trees className="w-5 h-5 text-emerald-600" /> : isMahalle ? <Building className="w-5 h-5 text-indigo-600" /> : getEntityIcon(currentItem.originalItem.type)}
+                            {isSokak ? <Trees className="w-5 h-5 text-emerald-700 dark:text-emerald-400" /> : isMahalle ? <Building className="w-5 h-5 text-indigo-600" /> : getEntityIcon(currentItem.originalItem.type)}
                           </span>
                           <div>
                             <span className="text-[9px] font-mono uppercase bg-[#F26B6F]/10 text-[#F26B6F] px-2 py-0.5 rounded font-bold">
@@ -2018,7 +2018,7 @@ export default function DuzadaWiki({
 
                       {/* Action save panel */}
                       <div className="pt-4 border-t border-[#CFC5B4]/30 flex items-center justify-between font-sans">
-                        <span className="text-xs text-stone-400 italic">
+                        <span className="text-xs text-stone-500 dark:text-stone-400 italic">
                           Detaylar kurgusal şemsiye evren geneline anında yansır.
                         </span>
 
@@ -2027,7 +2027,7 @@ export default function DuzadaWiki({
                           disabled={saveStatus === 'saving'}
                           className={`flex items-center gap-2 text-xs font-mono px-5 py-2.5 rounded-lg font-bold transition-all shadow-sm cursor-pointer ${
                             saveStatus === 'saving'
-                              ? 'bg-stone-300 text-stone-500 cursor-not-allowed'
+                              ? 'bg-stone-300 text-stone-500 dark:text-stone-400 cursor-not-allowed'
                               : saveStatus === 'success'
                               ? 'bg-emerald-600 text-white'
                               : saveStatus === 'error'

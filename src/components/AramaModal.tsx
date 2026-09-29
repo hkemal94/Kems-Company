@@ -57,13 +57,13 @@ export default function AramaModal({ isOpen, onClose, items, onSelectResult }: A
         {/* Results Container */}
         <div className="max-h-[400px] overflow-y-auto p-4 space-y-2">
           {queryStr.trim() === '' ? (
-            <div className="text-center py-8 text-[#9A8C76] dark:text-[#6E7CA0] text-sm">
+            <div className="text-center py-8 text-[#6A5E4C] dark:text-[#95A1C2] text-sm">
               <Search className="w-8 h-8 mx-auto mb-2 opacity-55" />
               <p>Aramaya başlamak için bir şeyler yazın.</p>
               <p className="text-xs mt-1 font-mono">İpucu: 'karakter', 'küçükçetmi' veya 'tişört' yazmayı deneyin.</p>
             </div>
           ) : filteredItems.length === 0 ? (
-            <div className="text-center py-8 text-[#9A8C76] dark:text-[#6E7CA0] text-sm">
+            <div className="text-center py-8 text-[#6A5E4C] dark:text-[#95A1C2] text-sm">
               <p>Eşleşen öğe bulunamadı.</p>
             </div>
           ) : (
@@ -91,13 +91,13 @@ export default function AramaModal({ isOpen, onClose, items, onSelectResult }: A
                     </span>
                   </div>
                   {item.notes && (
-                    <p className="text-xs text-[#9A8C76] dark:text-[#A6B0C9] line-clamp-1">
+                    <p className="text-xs text-[#6A5E4C] dark:text-[#A6B0C9] line-clamp-1">
                       {item.notes}
                     </p>
                   )}
                   {item.tags.length > 0 && (
                     <div className="flex items-center gap-1.5 flex-wrap pt-1">
-                      <Tag className="w-3 h-3 text-[#9A8C76] dark:text-[#6E7CA0]" />
+                      <Tag className="w-3 h-3 text-[#6A5E4C] dark:text-[#95A1C2]" />
                       {Array.from(new Set(item.tags)).map((t, idx) => (
                         <span key={`${t}-${idx}`} className="text-[10px] text-[#6A5E4C] dark:text-[#A6B0C9] font-mono bg-[#E4DCCD]/30 px-1 py-0.1 rounded-xs">
                           #{t}
@@ -107,7 +107,7 @@ export default function AramaModal({ isOpen, onClose, items, onSelectResult }: A
                   )}
                 </div>
 
-                <div className="flex items-center gap-2 text-[#9A8C76] dark:text-[#6E7CA0] group-hover:text-[#F26B6F] transition-all shrink-0">
+                <div className="flex items-center gap-2 text-[#6A5E4C] dark:text-[#95A1C2] group-hover:text-[#F26B6F] transition-all shrink-0">
                   <span className="text-[10px] font-mono capitalize">
                     {item.area === 'duzada' ? 'Ada & Lore' : item.area}
                   </span>
