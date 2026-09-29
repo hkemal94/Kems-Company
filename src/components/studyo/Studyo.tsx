@@ -14,7 +14,7 @@ import { useStudyo, type StudyoIslemleri } from './StudyoBaglami';
  */
 
 const SORU_ARACI = 'kanon-secenek';
-const GRUPLAR: StudyoGrubu[] = ['viki', 'yazi', 'marka', 'kanon'];
+const GRUPLAR: StudyoGrubu[] = ['viki', 'yazi', 'marka', 'kanon', 'sosyal'];
 
 /** Kota satırı; bir çağrıdan sonra `nabiz` artınca yeniden okunur */
 function useKota(nabiz: number): [KotaHali, string | null] {

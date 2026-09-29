@@ -10,7 +10,7 @@ import type { Bosluk } from '../Bosluklar';
 export interface StudyoIstegi {
   /** Açılacak araç; yoksa gruptaki araçlar listelenir */
   arac?: string;
-  grup?: 'viki' | 'yazi' | 'marka' | 'kanon';
+  grup?: 'viki' | 'yazi' | 'marka' | 'kanon' | 'sosyal';
   hedefId?: string;
   /** Günün sorusu / atölye sorusu için seçenek */
   bosluk?: Bosluk;

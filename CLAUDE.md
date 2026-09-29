@@ -119,13 +119,13 @@ terimsiz olur. Kodu değil, **ekranda ne değiştiğini** anlat.
 
 ## Kapsam
 
-**Bu deponun işi:** Komuta Merkezi'nin bütün ekranları, ve ileride
-**site / ön yüz** ile **sosyal medya stüdyosu**. İkisi de bu depoda,
-KKM'nin parçası olarak yapılacak.
+**Bu deponun işi:** Komuta Merkezi'nin bütün ekranları, **sosyal medya**
+sayfası (Araçlar, 29 Eylül gece; kararlar `docs/04-durum.md`'de) ve
+ileride **site / ön yüz**. Hepsi bu depoda, KKM'nin parçası.
 
-Site ve sosyal medya henüz tasarlanmadı; Kemal ikisini de yeniden
-düşünüyor. Onun isteklerini duymadan bunlara başlama, kendi başına
-iskelet de kurma.
+Site henüz tasarlanmadı. Kemal'in isteklerini duymadan başlama, kendi
+başına iskelet de kurma. Sosyal medyada paylaşımı Kemal yapar; Buffer
+bağlantısı 2. adım.
 
 **Bu deponun işi DEĞİL:** oyun. Ayrı depo, ayrı oturum.
 

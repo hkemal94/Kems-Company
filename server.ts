@@ -108,7 +108,11 @@ app.get("/api/pinterest", async (req, res) => {
   }
 
   try {
-    const url = `https://www.pinterest.com/${encodeURIComponent(username.trim())}/feed.rss`;
+    // Sosyal medya (29 Eylül gece): pano verilirse yalnız o panonun akışı
+    const pano = typeof req.query.pano === "string" ? req.query.pano.trim() : "";
+    const url = pano
+      ? `https://www.pinterest.com/${encodeURIComponent(username.trim())}/${encodeURIComponent(pano)}.rss`
+      : `https://www.pinterest.com/${encodeURIComponent(username.trim())}/feed.rss`;
     console.log("Fetching Pinterest RSS:", url);
     const response = await fetch(url, {
       headers: {
@@ -263,6 +267,23 @@ Bölüm:
         prompt = `Aşağıdaki roman bölümünden sonra hikâyenin nereye gidebileceğine dair 3 kısa fikir yaz. Yeni özel ad (kişi, yer, kurum) uydurma; yalnız metinde geçen adları kullan. Madde madde yaz.
 Bölüm:
 "${data.text || ""}"`;
+        break;
+
+      // Sosyal medya (29 Eylül gece): gönderi kartındaki stüdyo araçları
+      case "sosyal-hashtag":
+        prompt = `Kems Company'nin bir sosyal medya gönderisi için 8 hashtag öner. Kurgusal Düzada adasının özel adlarını ancak aşağıda geçiyorsa kullan; yeni ad uydurma. Türkçe ve İngilizce karışık olabilir. Yanıtı sade bir JSON dizi olarak ver, # işaretsiz. Örnek: ["ege", "vintage"]
+Başlık: "${data.baslik || ""}"
+Metin: "${data.metin || ""}"
+Bağlı kayıtlar: ${JSON.stringify(data.baglar || [])}`;
+        systemInstruction += " Sadece saf bir JSON dizisi döndür.";
+        break;
+
+      case "sosyal-metin":
+        prompt = `Kems Company'nin bir sosyal medya gönderisi için kısa bir metin taslağı yaz (en fazla 4 cümle, sade, süssüz). Yeni özel ad (kişi, yer, ürün) uydurma; yalnız aşağıda geçen adları kullan. Fiyat, tarih ya da sayı uydurma. "Hâlâ", "şu anda", "günümüzde" yazma. Hashtag ekleme.
+Başlık: "${data.baslik || ""}"
+Mevcut metin: "${data.metin || ""}"
+İstek: "${data.istek || ""}"
+Bağlı kayıtlar: ${JSON.stringify(data.baglar || [])}`;
         break;
 
       case "tutarlilik-kontrolu":
