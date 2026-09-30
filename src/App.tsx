@@ -863,7 +863,7 @@ export default function App() {
           */}
           <div id={SAYFA_RAYI_YUVASI} className="lg:w-48 lg:shrink-0 lg:sticky lg:top-6 lg:self-start empty:hidden min-w-0" />
 
-          <main className="flex-1 min-w-0">
+          <main className="flex-1 min-w-0 overflow-x-clip">
             {/* Ortak alandaysa: veriler Google hesabının alanında (29 Eylül) */}
             {!girisli && (
               <div className="mb-4 flex flex-wrap items-center gap-3 px-4 py-3 rounded-xl border border-[#0E1C4F]/25 dark:border-[#2C3C72] bg-[#FAF8F5] dark:bg-[#13204A]">
@@ -1079,6 +1079,9 @@ export default function App() {
             </div>
             <p className="text-center text-[10px] font-mono text-[#6A5E4C] dark:text-[#A6B0C9]">
               {varlikSayisi} kayıtlı varlık · {girisli ? `Google: ${user?.email || ''}` : 'tarayıcı hatırlıyor'}
+            </p>
+            <p className="text-center text-[10px] font-mono text-[#6A5E4C] dark:text-[#A6B0C9]">
+              Sürüm: {import.meta.env.VITE_SURUM || 'bilinmiyor'}
             </p>
           </div>
         </div>

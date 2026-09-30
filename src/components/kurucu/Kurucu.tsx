@@ -3,7 +3,7 @@ import { Eraser, Hand, MousePointer2, PenLine, Redo2, Undo2, Check, X, Eye, EyeO
 import type { Item } from '../../types';
 import { DEM_SINIR } from '../../data/duzadaDem';
 import { ANIT_KALIPLARI, kalipBul, kalibiYerlestir, alan, merkez as cokgenMerkezi, yolCokgeneBiniyor } from './anitKaliplari';
-import { belgelerAyniMi } from './kurucuHarita';
+import { belgelerAyniMi, belgeFarklari } from './kurucuHarita';
 import type { KurucuBelge } from '../harita/duzenTipi';
 import { DUZADA_GEO } from '../../data/duzadaGeo';
 import type { HaritaBakisi } from '../harita/DuzadaHarita';
@@ -828,8 +828,20 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
   const taslakBelgesi = useMemo(() => taslaktanBelge(taslak), [taslak]);
   // Kayıt buluttan geri dönene kadar az önce işlenen hâl burada tutulur
   const [yerelIslenen, setYerelIslenen] = useState<KurucuBelge | undefined>(undefined);
-  const islenmemis = !belgelerAyniMi(taslakBelgesi, duzen?.kurucuIslenen)
+  /*
+   * Karşılaştırma aynı süzgeçten geçmiş iki hâl arasında (30 Eylül, Kemal:
+   * "hiçbir şey yapmadım, işlenmemiş değişiklik var diyor"). Kayıttan dönen
+   * hâl taslağa çevrilip yeniden belgelenir; biçim farkı değişiklik sayılmaz.
+   */
+  const haritadaki = useMemo(
+    () => (duzen?.kurucuIslenen ? taslaktanBelge(belgedenTaslak(duzen.kurucuIslenen)) : undefined),
+    [duzen?.kurucuIslenen]
+  );
+  const islenmemis = !belgelerAyniMi(taslakBelgesi, haritadaki)
     && !belgelerAyniMi(taslakBelgesi, yerelIslenen);
+  const farklar = useMemo(() => (islenmemis ? belgeFarklari(taslakBelgesi, yerelIslenen ?? haritadaki) : []), [islenmemis, taslakBelgesi, yerelIslenen, haritadaki]);
+  /** Taslağı haritadaki hâle döndür (Kemal'in düğmesi; geri alınabilir) */
+  const haritadakineDon = () => degistir(() => belgedenTaslak(yerelIslenen ?? duzen?.kurucuIslenen));
   const [isleOnay, setIsleOnay] = useState(false);
   const [isleniyor, setIsleniyor] = useState(false);
   const [isleRaporu, setIsleRaporu] = useState<string | null>(null);
@@ -1252,6 +1264,12 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#F26B6F] text-white text-[11px] font-semibold cursor-pointer disabled:opacity-40">
             <MapPinned className="w-3.5 h-3.5" />{isleniyor ? 'İşleniyor…' : islenmemis ? 'Haritaya işle' : 'Haritada'}
           </button>
+        )}
+        {islenmemis && !isleOnay && (
+          <span className="basis-full flex flex-wrap items-center gap-2 text-[10px] text-[#6A5E4C] dark:text-[#A6B0C9]">
+            <span>Fark: {farklar.join(' · ') || 'küçük'}</span>
+            <button type="button" onClick={haritadakineDon} className="underline cursor-pointer hover:text-[#D6484C]">Haritadaki hâle döndür</button>
+          </span>
         )}
         {isleRaporu && <span className="basis-full text-[10px] text-[#6A5E4C] dark:text-[#A6B0C9]">{isleRaporu}</span>}
       </div>

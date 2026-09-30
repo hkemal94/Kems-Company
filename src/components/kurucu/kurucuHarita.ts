@@ -158,9 +158,41 @@ export function belgelerAyniMi(a: KurucuBelge | undefined, b: KurucuBelge | unde
   a = temiz(a) as KurucuBelge | undefined;
   b = temiz(b) as KurucuBelge | undefined;
   if (bos(a) && bos(b)) return true;
-  const sirali = (x?: KurucuBelge) => JSON.stringify(x ?? {}, (_k, v) =>
-    v && typeof v === 'object' && !Array.isArray(v)
-      ? Object.fromEntries(Object.keys(v).sort().map(k => [k, v[k]]))
-      : v);
   return sirali(a) === sirali(b);
+}
+
+/**
+ * Anahtarları sıralı, sayıları yuvarlanmış metin (30 Eylül: kayıttan dönen
+ * sayılardaki çok küçük farklar "işlenmemiş değişiklik" sanılıyordu).
+ */
+const sirali = (x?: unknown) => JSON.stringify(x ?? {}, (_k, v) =>
+  typeof v === 'number' ? Math.round(v * 1e5) / 1e5
+    : v && typeof v === 'object' && !Array.isArray(v)
+      ? Object.fromEntries(Object.keys(v).sort().map(k => [k, (v as Record<string, unknown>)[k]]))
+      : v);
+
+const ALAN_ADLARI: Record<string, string> = {
+  yeniYollar: 'yeni yol', turDegisikligi: 'yol türü', gizlenen: 'kaldırılan', yeniBinalar: 'yeni yapı',
+  ozelYapilar: 'özel yapı', doga: 'doğa alanı', baglar: 'madde bağı', yolDuzeni: 'yol düzeni', binaDuzeni: 'yapı düzeni'
+};
+
+/** Taslak ile haritadaki hâl arasında ne farklı: "2 yapı düzeni · 1 yol düzeni" */
+export function belgeFarklari(a: KurucuBelge | undefined, b: KurucuBelge | undefined): string[] {
+  const cikti: string[] = [];
+  for (const [alan, ad] of Object.entries(ALAN_ADLARI)) {
+    const x = (a as unknown as Record<string, unknown> | undefined)?.[alan];
+    const y = (b as unknown as Record<string, unknown> | undefined)?.[alan];
+    if (Array.isArray(x) || Array.isArray(y)) {
+      const xs = new Set((x as string[]) ?? []), ys = new Set((y as string[]) ?? []);
+      const n = [...xs].filter(v => !ys.has(v)).length + [...ys].filter(v => !xs.has(v)).length;
+      if (n) cikti.push(`${n} ${ad}`);
+      continue;
+    }
+    const xo = (x as Record<string, unknown>) ?? {}, yo = (y as Record<string, unknown>) ?? {};
+    const anahtarlar = new Set([...Object.keys(xo), ...Object.keys(yo)]);
+    let n = 0;
+    anahtarlar.forEach(k => { if (sirali(xo[k]) !== sirali(yo[k])) n++; });
+    if (n) cikti.push(`${n} ${ad}`);
+  }
+  return cikti;
 }
