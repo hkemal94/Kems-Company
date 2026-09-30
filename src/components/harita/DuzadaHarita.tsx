@@ -196,6 +196,20 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
     // ---- etiketler: HTML işaretçisi ----
     const isaretciler: maplibregl.Marker[] = [];
     const etiketKayitlari: Array<{ el: HTMLElement; tur: string }> = [];
+    /**
+     * Yapı adları binanın tepesinde dursun (30 Eylül, Kemal: "koordinasyon
+     * problemleri"). Etiket zemindeki noktaya bağlı; eğik bakışta bina
+     * yukarı uzadığı için ad yanında kalıyordu. Binanın boyu kadar
+     * (ekranda) yukarı itilir; eğim ve yakınlık değiştikçe yeniden hesaplanır.
+     */
+    const yuksekEtiketler: Array<{ m: maplibregl.Marker; h: number; taban: number; enlem: number }> = [];
+    const etiketleriYukselt = () => {
+      const z = map.getZoom(), egim = (map.getPitch() * Math.PI) / 180;
+      for (const e of yuksekEtiketler) {
+        const mpp = (78271.517 * Math.cos((e.enlem * Math.PI) / 180)) / 2 ** z;
+        e.m.setOffset([0, e.taban - (e.h / mpp) * Math.sin(egim)]);
+      }
+    };
 
     /**
      * Çakışan etiketler (29 Eylül gece, Kemal'in telefon görüntüsü: "MERKEZ"
@@ -243,6 +257,13 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
       isaretciler.forEach(m => m.remove());
       isaretciler.length = 0;
       etiketKayitlari.length = 0;
+      yuksekEtiketler.length = 0;
+      // Madde bağlı binaların boyu (etiketi tepesine çıkarmak için)
+      const binaBoyu = new Map<string, number>();
+      for (const f of geo.features) {
+        const q = f.properties as Record<string, unknown> | null;
+        if (q?.katman === 'bina' && q.wikiId) binaBoyu.set(String(q.wikiId), Number(q.yukseklik) || 0);
+      }
       geo.features
         .filter(f => f.properties?.katman === 'etiket')
         .forEach(f => {
@@ -273,6 +294,8 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
             .setLngLat(koordinat)
             .addTo(map);
 
+          const h = p.wikiId ? binaBoyu.get(String(p.wikiId)) : undefined;
+          if (h && (tur === 'yapi' || tur === 'mekan')) yuksekEtiketler.push({ m, h, taban: tur === 'yapi' ? -14 : -10, enlem: koordinat[1] });
           isaretciler.push(m);
           etiketKayitlari.push({ el: ic, tur });
         });
@@ -298,6 +321,7 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
       }
 
       etiketGorunurluk(map.getZoom());
+      etiketleriYukselt();
       // İşaretçiler yerine oturduktan sonra çakışmaları çöz
       requestAnimationFrame(carpismaCoz);
     };
@@ -343,6 +367,34 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
         ]
       });
       map.addLayer({ id: 'ada-fiziki', type: 'raster', source: 'ada-fiziki', paint: { 'raster-fade-duration': 0 } });
+
+      /*
+       * Yakın doku (30 Eylül, Kemal: yakından bulanık). Zemin görseli bir
+       * pikselde birkaç metre gösteriyor; yakınlaşınca üstüne ekranla aynı
+       * ölçekte ince bir çim / toprak benekleri dokusu biner, keskinlik verir.
+       */
+      if (!map.hasImage('zemin-doku')) {
+        const N = 96, tuval = document.createElement('canvas');
+        tuval.width = N; tuval.height = N;
+        const c = tuval.getContext('2d')!;
+        let t = 7;
+        const r = () => { t = (t * 16807) % 2147483647; return t / 2147483647; };
+        for (let i = 0; i < 520; i++) {
+          const koyu = r() < 0.6;
+          c.fillStyle = koyu ? `rgba(40,52,24,${0.10 + r() * 0.16})` : `rgba(255,250,225,${0.06 + r() * 0.1})`;
+          const x = r() * N, y = r() * N, w = 1 + r() * 2.2;
+          c.fillRect(x, y, w, w * (0.6 + r() * 0.8));
+        }
+        map.addImage('zemin-doku', c.getImageData(0, 0, N, N));
+      }
+      map.addLayer({
+        id: 'zemin-doku', type: 'fill', source: src, minzoom: 14.5,
+        filter: ['==', ['get', 'katman'], 'ada'],
+        paint: {
+          'fill-pattern': 'zemin-doku',
+          'fill-opacity': ['interpolate', ['linear'], ['zoom'], 14.5, 0, 16, 0.85]
+        }
+      });
 
       // Kara katmanı görünmez: tıklama ve katman sırası için duruyor
       map.addLayer({
@@ -646,6 +698,7 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
       setYon(map.getBearing());
       setZoom(map.getZoom());
       etiketGorunurluk(map.getZoom());
+      etiketleriYukselt();
     };
     map.on('move', hareket);
 

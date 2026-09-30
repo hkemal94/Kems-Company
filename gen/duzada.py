@@ -1283,7 +1283,8 @@ print(f"  İskele           : kıyıya dik, T başı {ISKELE_BAS:.0f} m")
 
 # Deniz feneri — adanın kuzeybatı ucunda, Liman'ı yukarıdan görür
 fx, fy = kara(141, 0.985)
-bina("bina_fener", "Deniz Feneri", daire(fx, fy, 7), 24, "fener", "yer_liman",
+# Boy 30 m (Kemal, 30 Eylül: "deniz feneri çok kısa"; uzun seçildi)
+bina("bina_fener", "Deniz Feneri", daire(fx, fy, 7), 30, "fener", "yer_liman",
      wiki_id="viki_mekan_fener")
 # Fener bekçisinin evi (Kemal, 28 Eylül): fenerin hemen yanında, karaya doğru
 _fe = (fx * 0.994, fy * 0.994)
@@ -1983,6 +1984,22 @@ YOLLAR.append(("yol_bag_merkez", "Merkez Bağlantısı",
 YOLLAR.append(("yol_merkez_dag", "Merkez Dağ Yolu",
                _merkez_yollari[DAG_KAVSAGI], "yol", "yer_merkez"))
 
+
+# --- fener patikası ----------------------------------------------------------
+# Kemal, 30 Eylül: "deniz fenerinin yolu yok". En yakın yoldan fenerin
+# kapısına kısa bir toprak patika; eğimi gözeten güzergâhla. Kurucu'da
+# öteki yollar gibi düzenlenir.
+_fener_kapi = (fx * 0.9975, fy * 0.9975)
+_aday_yollar = [LineString(n) for _, _, n, t, _ in YOLLAR if t != "merdiven" and len(n) > 1]
+_fener_yakin = min(_aday_yollar, key=lambda h: h.distance(Point(*_fener_kapi)))
+_fener_uc = _fener_yakin.interpolate(_fener_yakin.project(Point(*_fener_kapi)))
+try:
+    _fener_hat = yol_guzergahi(_fener_kapi, [(_fener_uc.x, _fener_uc.y)])[(_fener_uc.x, _fener_uc.y)]
+except Exception:
+    _fener_hat = [_fener_kapi, (_fener_uc.x, _fener_uc.y)]
+if len(_fener_hat) >= 2:
+    YOLLAR.append(("toprak_fener", "Fener Patikası", list(_fener_hat), "toprak", "yer_liman"))
+    print(f"  Fener patikası   : {LineString(_fener_hat).length:.0f} m")
 
 # --- ağ bağlantı denetimi -------------------------------------------------
 # "Yollar adanın sonuna kadar gidip kesilen şeyler olamaz." Bütün yolların

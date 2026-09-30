@@ -12,9 +12,9 @@ export interface YolIsi { id: string; ad: string; nereden: string; kimde: 'claud
 
 export const YOL_HARITASI: YolIsi[] = [
   { id: 'ortak-alan-tasima', ad: 'Ortak alanda kalmış kayıt varsa Google alanına taşıma', nereden: 'yapisal-2, 26', kimde: 'kemal', not: 'Ortak alan kalktı; eski kayıt varsa Kemal söyleyince tek seferlik kart.' },
-  { id: 'kalip-sapka', ad: '3B stüdyoya şapka, bez çanta, kupa, poster / sticker kalıpları', nereden: 'yapisal-4, 24', kimde: 'claude' },
-  { id: 'harita-doku', ad: 'Haritada yakından bulanık görünen ada yüzeyi (çözünürlük)', nereden: '30 Eylül', kimde: 'claude' },
-  { id: 'harita-telefon', ad: 'Harita atmosferinin (trafik, saat, mevsim) telefonda denenmesi', nereden: '30 Eylül', kimde: 'claude' },
+  { id: 'kalip-3b', ad: '3B stüdyo: gerçekçi kalıplar (tişört, sweatshirt, şapka, bez çanta, kupa, poster)', nereden: 'yapisal-5', kimde: 'kemal', not: 'Şimdilik duruyor; model ya da mockup kararı senin.' },
+  { id: 'tasarim-3b', ad: '3B stüdyo: parça renk, baskı yerleri, baskı / nakış görünümü, desen, deneme atölyesi', nereden: 'yapisal-5', kimde: 'claude' },
+  { id: 'atolyeler', ad: '"Atölyeler" bölümü (3B stüdyo, Kurucu vb. tek yerde)', nereden: 'yapisal-5', kimde: 'kemal', not: 'Henüz karar yok.' },
   { id: 'yardimci', ad: 'Yardımcı erişimi: düzenler ama silemez', nereden: 'yapisal-2, 26', kimde: 'claude', not: 'İhtiyaç olunca.' },
   { id: 'buffer', ad: 'Sosyal medyada Buffer bağlantısı (2. adım)', nereden: '29 Eylül', kimde: 'kemal', not: 'Bütçe kararı.' },
   { id: 'site-ingilizce', ad: 'Sitenin İngilizcesi', nereden: 'yapisal-4, 19', kimde: 'claude', not: 'Yayından sonra.' },

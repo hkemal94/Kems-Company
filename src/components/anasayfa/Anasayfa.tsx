@@ -1,5 +1,9 @@
 import React, { useMemo, useState } from 'react';
-import { Plus, Search } from 'lucide-react';
+import { LayoutGrid, Plus, Search } from 'lucide-react';
+import { ARACLAR } from '../araclar/Araclar';
+
+/** Ana sayfadaki kısayollar (sıra ARACLAR'daki gibi) */
+const KISAYOLLAR = ['studyo3b', 'fanzin', 'takvim', 'yolharitasi', 'studyo', 'site'];
 import type { Item } from '../../types';
 import { durumOranlari } from '../../lib/durumOranlari';
 import { adayKaydi, soruyuErtele, sorulacaklar } from '../../lib/adaylar';
@@ -29,7 +33,7 @@ import { ETIKET, KART, IKINCIL, YAZI } from './stil';
 
 export type TelSekmesi = 'bugun' | 'atolye' | 'notlar' | 'durum';
 
-type Hedef = SeritHedefi | 'eksikler' | 'harita';
+type Hedef = SeritHedefi | 'eksikler' | 'harita' | 'studyo3b' | 'fanzin' | 'takvim' | 'yolharitasi' | 'studyo' | 'site' | 'araclar';
 
 interface Props {
   items: Item[];
@@ -145,6 +149,27 @@ export const Anasayfa: React.FC<Props> = ({
           <EksikOzeti eksikler={eksikler} dugmeler={bugunDugmeler} onAc={a => onGit('eksikler', a)} />
         </div>
       )}
+
+      {/*
+        Kısayollar (30 Eylül, Kemal: "büyük şeyler çok derinlere saklanmış"):
+        büyük araçlar ana sayfadan tek dokunuşla. Telefonda yana kayar.
+      */}
+      <div className={`${sekme === 'bugun' ? '' : 'hidden'} lg:block`}>
+        <div className="flex gap-2 overflow-x-auto -mx-4 px-4 lg:mx-0 lg:px-0 lg:grid lg:grid-cols-7">
+          {ARACLAR.filter(a => KISAYOLLAR.includes(a.id)).map(a => (
+            <button key={a.id} type="button" onClick={() => onGit(a.id as Hedef)}
+              className={`${KART} shrink-0 w-[132px] lg:w-auto p-3 text-left hover:border-[#F26B6F] cursor-pointer`}>
+              <a.simge className="w-5 h-5 text-[#F26B6F]" />
+              <span className={`mt-2 block text-[13px] font-bold leading-tight ${YAZI}`}>{a.ad}</span>
+            </button>
+          ))}
+          <button type="button" onClick={() => onGit('araclar')}
+            className={`${KART} shrink-0 w-[132px] lg:w-auto p-3 text-left hover:border-[#F26B6F] cursor-pointer`}>
+            <LayoutGrid className="w-5 h-5 text-[#6A5E4C] dark:text-[#A6B0C9]" />
+            <span className={`mt-2 block text-[13px] font-bold leading-tight ${YAZI}`}>Bütün araçlar</span>
+          </button>
+        </div>
+      </div>
 
       {/* Yüzde şeridi */}
       <div className={gorunur('durum')}>

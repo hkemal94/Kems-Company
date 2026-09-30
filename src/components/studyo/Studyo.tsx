@@ -42,7 +42,7 @@ const AracKartlari: React.FC<{ secili: string | null; onSec: (id: string) => voi
     {(grup ? [grup] : GRUPLAR).map(g => (
       <div key={g}>
         <div className={ETIKET}>{GRUP_ADLARI[g]}</div>
-        <div className="mt-2 grid gap-2 grid-cols-2 xl:grid-cols-3">
+        <div className="mt-2 grid gap-2 grid-cols-2 xl:grid-cols-3 [&>*]:min-w-0 [&>*]:break-words">
           {[...STUDYO_ARACLARI.filter(a => a.grup === g && !a.gizli && (!hedefTuru || !a.hedefTurleri || a.hedefTurleri.includes(hedefTuru as never))).map(a => ({ id: a.id, ad: a.ad, aciklama: a.aciklama })),
             ...(g === 'kanon' ? [{ id: SORU_ARACI, ad: 'Soru seçenekleri', aciklama: 'Günün sorusu ve atölye soruları için kısa seçenekler.' }] : [])
           ].map(a => (
@@ -76,7 +76,7 @@ export const Studyo: React.FC<StudyoIslemleri & { onTemizlik?: () => void }> = (
         <p className={`mt-1 text-[13px] ${IKINCIL}`}>Bütün yapay zekâ işleri burada. Ürettiği her şey önce tepsiye düşer; sen eklemeden hiçbir kayda yazılmaz.</p>
       </div>
       <KotaSatiri hal={hal} />
-      <div className="grid gap-4 lg:grid-cols-[1.1fr_1fr] items-start">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.1fr_1fr] items-start [&>*]:min-w-0">
         <section className={`${KART} p-4 space-y-4`}>
           <AracKartlari secili={secili} onSec={id => setSecili(s => (s === id ? null : id))} />
           {secili === SORU_ARACI && (

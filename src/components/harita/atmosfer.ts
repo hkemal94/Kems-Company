@@ -29,8 +29,23 @@ type Nokta = [number, number];
 
 // ---- yer bilgisi ------------------------------------------------------------
 
-/** Liman İskelesi (feribotun yanaştığı yer) */
-const LIMAN: Nokta = [25.7876, 39.6254];
+/**
+ * Liman İskelesi'nin T başı (üreteçteki bina_liman_iskele). Feribot T başının
+ * deniz tarafına, ona paralel yanaşır (30 Eylül, Kemal: "koordinasyon
+ * problemleri": feribot iskelenin üstüne biniyordu).
+ */
+const ISKELE_T: [Nokta, Nokta] = [[25.787492, 39.62536], [25.787726, 39.625712]];
+const LIMAN: Nokta = (() => {
+  const [a, b] = ISKELE_T;
+  const orta: Nokta = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+  const kx = Math.cos((orta[1] * Math.PI) / 180) * 111_320;
+  const dx = (b[0] - a[0]) * kx, dy = (b[1] - a[1]) * 111_320;
+  const L = Math.hypot(dx, dy);
+  // T başına dik, batıya (denize) 14 m
+  const nx = -dy / L, ny = dx / L;
+  const yon = nx < 0 ? 1 : -1;
+  return [orta[0] + (yon * nx * 14) / kx, orta[1] + (yon * ny * 14) / 111_320];
+})();
 export const KUCUKKUYU: Nokta = [26.607, 39.548];
 
 /**
@@ -207,7 +222,7 @@ function yildizKatmani(): HTMLDivElement {
 
 // ---- atmosferin kendisi ----------------------------------------------------------
 
-interface Arac { hat: Hat; s0: number; hiz: number; yon: 1 | -1; renk: string; sira: number; agir: number }
+interface Arac { hat: Hat; s0: number; hiz: number; yon: 1 | -1; renk: string; sira: number; agir: number; serit: number }
 interface Tekne { merkez: Nokta; rx: number; ry: number; a0: number; w: number; sira: number }
 
 const ARAC_RENKLERI = ['#E9E3D6', '#F26B6F', '#3B5B8C', '#D9CBA8', '#7A8B6F', '#FFFFFF'];
@@ -219,6 +234,7 @@ export class Atmosfer {
   private tekneler: Tekne[] = [];
   private feribotHatti: Hat;
   private fener: Nokta | null = null;
+  private fenerBoyu = 30;
   private gunduzBinaRengi: unknown;
   private yildiz: HTMLDivElement;
   private etiket: maplibregl.Marker;
@@ -256,20 +272,24 @@ export class Atmosfer {
       if (p.katman === 'bina' && p.tur === 'fener' && f.geometry.type === 'Polygon') {
         const k = f.geometry.coordinates[0] as Nokta[];
         this.fener = [k.reduce((t, q) => t + q[0], 0) / k.length, k.reduce((t, q) => t + q[1], 0) / k.length];
+        this.fenerBoyu = Number(p.yukseklik) || 30;
       }
       if (p.katman !== 'yol' || f.geometry.type !== 'LineString') continue;
       const tur = String(p.tur);
       if (!['ana yol', 'yol', 'cadde', 'sokak'].includes(tur)) continue;
       const hat = hatKur(f.geometry.coordinates as Nokta[]);
-      if (hat.L < 150) continue;
-      // Yer ağırlığı: sahil (çevre) yolu en canlı, sokaklar sakin
-      const agir = tur === 'ana yol' ? 1 : tur === 'sokak' ? 0.25 : 0.5;
-      const adet = tur === 'sokak' ? (sans(String(p.id)) < 0.12 ? 1 : 0) : Math.ceil(hat.L / (tur === 'ana yol' ? 650 : 1400));
+      if (hat.L < (tur === 'sokak' ? 60 : 150)) continue;
+      // Yer ağırlığı: sahil (çevre) yolu en canlı, sokaklar sakin (Kemal,
+      // 30 Eylül: "araçlar küçük sokaklara girmiyor" → sokaklarda seyrek)
+      const agir = tur === 'ana yol' ? 1 : tur === 'sokak' ? 0.3 : 0.5;
+      const adet = tur === 'sokak' ? (sans(String(p.id)) < 0.45 ? 1 : 0) : Math.ceil(hat.L / (tur === 'ana yol' ? 200 : 550));
+      // Sağdan gidiş: araç yolun ortasından bu kadar metre sağında
+      const serit = tur === 'ana yol' ? 3.2 : tur === 'sokak' ? 1.4 : 2.4;
       for (let i = 0; i < adet; i++) {
         const k = `${p.id}${i}`;
         this.araclar.push({
           hat, s0: sans(k + 's') * hat.L, hiz: 9 + sans(k + 'h') * 7, yon: sans(k + 'y') < 0.5 ? 1 : -1,
-          renk: ARAC_RENKLERI[Math.floor(sans(k + 'r') * ARAC_RENKLERI.length)], sira: sira++ % 97 / 97, agir
+          renk: ARAC_RENKLERI[Math.floor(sans(k + 'r') * ARAC_RENKLERI.length)], sira: sira++ % 97 / 97, agir, serit
         });
       }
     }
@@ -331,10 +351,13 @@ export class Atmosfer {
       paint: { 'icon-color': ['get', 'renk'], 'icon-halo-color': 'rgba(14,28,79,0.55)', 'icon-halo-width': 0.6 }
     });
 
-    // Fener: dönen ışık huzmesi
+    // Fener: tepede yanan lamba ve dönen huzme (30 Eylül, Kemal: "ışık altından
+    // dağılıyor"). İkisi de fenerin boyunda, havada duran ince kütleler.
     m.addSource('fener', { type: 'geojson', data: bos });
-    m.addLayer({ id: 'fener-huzme', type: 'line', source: 'fener', filter: ['==', ['geometry-type'], 'LineString'], paint: { 'line-color': '#FFF1C4', 'line-width': ['interpolate', ['linear'], ['zoom'], 10, 5, 15, 18], 'line-blur': 10, 'line-opacity': 0 } });
-    m.addLayer({ id: 'fener-isik', type: 'circle', source: 'fener', filter: ['==', ['geometry-type'], 'Point'], paint: { 'circle-color': '#FFF1C4', 'circle-radius': ['interpolate', ['linear'], ['zoom'], 10, 4, 16, 14], 'circle-blur': 0.8, 'circle-opacity': 0 } });
+    m.addLayer({ id: 'fener-huzme', type: 'fill-extrusion', source: 'fener', filter: ['==', ['get', 'k'], 'huzme'],
+      paint: { 'fill-extrusion-color': '#FFFFFF', 'fill-extrusion-base': ['get', 'alt'], 'fill-extrusion-height': ['get', 'ust'], 'fill-extrusion-opacity': 0, 'fill-extrusion-vertical-gradient': false } });
+    m.addLayer({ id: 'fener-isik', type: 'fill-extrusion', source: 'fener', filter: ['==', ['get', 'k'], 'lamba'],
+      paint: { 'fill-extrusion-color': '#FFF6D8', 'fill-extrusion-base': ['get', 'alt'], 'fill-extrusion-height': ['get', 'ust'], 'fill-extrusion-opacity': 0, 'fill-extrusion-vertical-gradient': false } });
   }
 
   /** Ufuk çizgisinin ekrandaki yeri: yıldızlar yalnız gökte görünsün */
@@ -391,8 +414,8 @@ export class Atmosfer {
       ] as never);
     }
     m.setPaintProperty('lamba', 'circle-opacity', 0.9 * gece);
-    m.setPaintProperty('fener-isik', 'circle-opacity', 0.9 * gece);
-    m.setPaintProperty('fener-huzme', 'line-opacity', 0.35 * gece);
+    m.setPaintProperty('fener-isik', 'fill-extrusion-opacity', 0.95 * gece);
+    m.setPaintProperty('fener-huzme', 'fill-extrusion-opacity', 0.5 * gece);
     m.setPaintProperty('trafik-far', 'circle-opacity', 0.55 * gece);
     m.setLayoutProperty('trafik', 'visibility', this.ayar.trafik ? 'visible' : 'none');
     m.setLayoutProperty('trafik-far', 'visibility', this.ayar.trafik ? 'visible' : 'none');
@@ -415,7 +438,7 @@ export class Atmosfer {
     };
     // Limanda bekleyen
     const d0 = hattaNokta(h, 0);
-    ciktilar.push({ type: 'Feature', properties: { ikon: 'feribot', aci: yonAcisi(LIMAN, FERIBOT_ROTASI[1]) - 90 + 180, boy: 1, renk: '#FFFFFF' }, geometry: { type: 'Point', coordinates: d0.p } });
+    ciktilar.push({ type: 'Feature', properties: { ikon: 'feribot', aci: yonAcisi(ISKELE_T[0], ISKELE_T[1]) - 90, boy: 1, renk: '#FFFFFF' }, geometry: { type: 'Point', coordinates: d0.p } });
     for (const t of seferler) {
       const gecen = simdiSaat - t;                          // kalkıştan beri (saat)
       if (gecen > 0 && gecen < sure) ekle(gecen * 3600 * hiz, false);           // giden
@@ -441,11 +464,17 @@ export class Atmosfer {
 
     // Fener huzmesi döner (gece)
     if (gece > 0.05 && this.fener) {
-      const a = t * 0.9, uz = 0.03;
+      const a = t * 0.9, c = this.fener, H = this.fenerBoyu;
+      const kx = mBoylam(c[1]);
+      const nokta = (aci: number, r: number): Nokta => [c[0] + (Math.cos(aci) * r) / kx, c[1] + (Math.sin(aci) * r) / M_ENLEM];
+      const lamba: Nokta[] = [];
+      for (let i = 0; i <= 12; i++) lamba.push(nokta((i / 12) * Math.PI * 2, 4.2));
+      const acik = 0.07, R = 650;
+      const huzme: Nokta[] = [nokta(a, 2), nokta(a - acik, R), nokta(a + acik, R), nokta(a, 2)];
       (m.getSource('fener') as maplibregl.GeoJSONSource).setData({
         type: 'FeatureCollection', features: [
-          { type: 'Feature', properties: {}, geometry: { type: 'Point', coordinates: this.fener } },
-          { type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: [this.fener, [this.fener[0] + Math.cos(a) * uz * 1.3, this.fener[1] + Math.sin(a) * uz]] } }
+          { type: 'Feature', properties: { k: 'lamba', alt: H, ust: H + 4 }, geometry: { type: 'Polygon', coordinates: [lamba] } },
+          { type: 'Feature', properties: { k: 'huzme', alt: H + 1.6, ust: H + 2.4 }, geometry: { type: 'Polygon', coordinates: [huzme] } }
         ]
       });
     }
@@ -458,7 +487,11 @@ export class Atmosfer {
       let s = (a.s0 + a.yon * a.hiz * t) % a.hat.L;
       if (s < 0) s += a.hat.L;
       const { p, yon } = hattaNokta(a.hat, s);
-      ozellikler.push({ type: 'Feature', properties: { ikon: 'arac', aci: (a.yon > 0 ? yon : yon + 180) - 90, boy: 0.6, renk: a.renk }, geometry: { type: 'Point', coordinates: p } });
+      // Gidiş yönünün sağına kaydır: iki yönlü akış ayrı şeritlerde
+      const gidis = a.yon > 0 ? yon : yon + 180;
+      const r = ((gidis + 90) * Math.PI) / 180;
+      const q: Nokta = [p[0] + (Math.sin(r) * a.serit) / mBoylam(p[1]), p[1] + (Math.cos(r) * a.serit) / M_ENLEM];
+      ozellikler.push({ type: 'Feature', properties: { ikon: 'arac', aci: gidis - 90, boy: 0.6, renk: a.renk }, geometry: { type: 'Point', coordinates: q } });
     }
     const tekneOrani = (0.35 + 0.65 * (1 - gece)) * (1 - 0.65 * kis);
     for (const b of this.tekneler) {

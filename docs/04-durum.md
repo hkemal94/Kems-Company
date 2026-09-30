@@ -1056,3 +1056,29 @@ Brief v2 (17 Eylül) de 28 Eylül kararlarını içermiyor.
 | Güncel brief | Drive — Kems-Company-Brief-v2 |
 | Logo indirme notu | Drive — "Kems — Logo dosyaları" |
 | Marka kitleri, logolar, lookbook | Canva |
+
+## 30 Eylül akşam — toplu PR (yapisal-5)
+
+**Uygulamada var:**
+- Künyesi %100 dolu madde taslak sayılmıyor.
+- Harita taslağı: biçim farkı "işlenmemiş değişiklik" sayılmıyor; uyarıda
+  fark yazıyor ("2 yapı düzeni"), "Haritadaki hâle döndür" düğmesi var.
+- Stüdyo telefona sığıyor; hiçbir sayfa yana taşmıyor.
+- Menünün altında **sürüm** satırı (Diğer menüsünde): telefondaki uygulamanın
+  hangi kodla çalıştığı görünür. "Düzenle" önizlemede çalışıyor; telefonda
+  çalışmıyorsa büyük ihtimalle açılan adres son sürümü almamış.
+- Harita: feribot iskelenin T başına yanaşıyor; yapı adları binanın
+  tepesinde; telefonda atmosfer düğmeleri yalnız simge; trafik sağdan, iki
+  yönlü; sokaklarda seyrek araç, sahil yolu daha canlı; fener 30 m, lamba
+  ve huzme tepede; **Fener Patikası** (448 m, harita verisinde, Kurucu'da
+  düzenlenir); ada zemini 1,5 kat ayrıntılı (`gen/ada_fiziki.py`) ve
+  yakınlaşınca ince zemin dokusu.
+- Yerleşim: menüde 3B stüdyo, Fanzin, Takvim, Yol haritası, Bütün araçlar;
+  ana sayfada kısayol şeridi; tek **Araçlar** ekranı; telefonda Diğer'de
+  Araçlar en üstte. Yol haritası Durum'dan kendi sayfasına taşındı.
+
+**Henüz yok:** 3B stüdyo kalıpları ve tasarım özellikleri; "Atölyeler"
+bölümü (karar yok). Yol haritasında.
+
+Görseller: `docs/gorseller/h2-*.png`, `yerlesim-*.png` (önizleme, örnek veri).
+
