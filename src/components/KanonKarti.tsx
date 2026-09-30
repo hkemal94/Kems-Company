@@ -23,7 +23,7 @@ interface Props {
   yedekAdi?: string;
 }
 
-const KANON_ACIKLAMA = 'Eskibey Ailesi, Yağ Fabrikası, Küçükkuyu Gençlerbirliği, Eylül Hanım (yalnız ad), Kemsköy adı, antik yerleşim, kesinleşen adlar; Ekim 2003 paragrafı, Liman 54 / Peron cümleleri ve Oda Yapısı bölümü silinir. Önce yedek iner.';
+const KANON_ACIKLAMA = 'Eskibey Ailesi, Yağ Fabrikası, Küçükkuyu Gençlerbirliği, Eylül Hanım (yalnız ad), Kemsköy adı, antik yerleşim, kesinleşen adlar; Ekim 2003 paragrafı, Liman 54 / Peron cümleleri ve Oda Yapısı bölümü silinir.';
 
 export const KanonKarti: React.FC<Props> = ({
   items, onUpdateItem, hesapla = kanonKararlari,
@@ -57,7 +57,7 @@ export const KanonKarti: React.FC<Props> = ({
     let n = 0;
     try {
       for (const d of liste) { await onUpdateItem(d.item); n++; }
-      setRapor(`${n} madde güncellendi. Yedek dosyası indirilenler klasöründe.`);
+      setRapor(`${n} madde güncellendi.`);
     } catch (e) {
       setRapor(`${n} madde yazıldı, sonra hata: ${e instanceof Error ? e.message : 'bilinmeyen'}. Kalanlar için tekrar bas.`);
     } finally {
@@ -97,17 +97,17 @@ export const KanonKarti: React.FC<Props> = ({
       )}
 
       <div className="mt-3 flex flex-wrap items-center gap-2">
-        <button type="button" onClick={yedekIndir} className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#0E1C4F] dark:bg-[#2C3C72] text-[#F3EFE8] hover:opacity-90 cursor-pointer">
-          <Download className="w-3.5 h-3.5" /> {yedeklendi ? 'Yedek indi ✓' : '1 · Yedeği indir'}
-        </button>
         <button
           type="button"
           onClick={isle}
-          disabled={!yedeklendi || calisiyor}
-          title={yedeklendi ? '' : 'Önce yedeği indir'}
+          disabled={calisiyor}
           className="px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#F26B6F] text-white hover:opacity-90 disabled:opacity-35 disabled:cursor-not-allowed cursor-pointer"
         >
-          {calisiyor ? 'Yazılıyor…' : '2 · Vikiye işle'}
+          {calisiyor ? 'Yazılıyor…' : 'Vikiye işle'}
+        </button>
+        {/* Yedek isteğe bağlı (Kemal, 30 Eylül: "sürekli veriyi indirmek istemiyorum") */}
+        <button type="button" onClick={yedekIndir} className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-mono rounded-lg border border-[#CFC5B4] dark:border-[#2C3C72] text-[#6A5E4C] dark:text-[#A6B0C9] hover:border-[#0E1C4F] cursor-pointer">
+          <Download className="w-3.5 h-3.5" /> {yedeklendi ? 'Yedek indi ✓' : 'Yedek indir · isteğe bağlı'}
         </button>
       </div>
       {rapor && <p className="mt-2 text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9]">{rapor}</p>}

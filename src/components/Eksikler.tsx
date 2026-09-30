@@ -721,7 +721,7 @@ export const Eksikler: React.FC<EksiklerProps> = ({
           onUpdateItem={onUpdateItem}
           hesapla={boslukDoldurma}
           baslik="boşluklar künyedeki cevaplarla dolacak"
-          aciklama="Künyede cevabı yazılı olan boş alanlar dolar (tür, mahalle, yıllar, sahibi, sezon, simgeler, sakinler). Dolu alana ve tarihçe metnine dokunulmaz. Önce yedek iner."
+          aciklama="Künyede cevabı yazılı olan boş alanlar dolar (tür, mahalle, yıllar, sahibi, sezon, simgeler, sakinler). Dolu alana ve tarihçe metnine dokunulmaz."
           yedekAdi="bosluk-oncesi"
         />
       )}

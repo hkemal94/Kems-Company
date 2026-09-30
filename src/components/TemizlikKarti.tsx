@@ -7,9 +7,9 @@ import { silinecekler, silmeOzeti } from '../lib/temizlik';
  * Temizlik kartı (29 Eylül). Kemal: "Arka tarafta kullanmadığımız ne varsa
  * sil, arşiv işi beni sinirlendirdi." Silinecekler `lib/temizlik.ts`'de.
  *
- * Silme geri alınamaz; o yüzden sıra sabit: önce yedek iner (bütün
- * kayıtlar, bir .json dosyası), sonra "Sil" açılır. İkinci basışta silinecek
- * bir şey kalmaz, kart kendini gizler.
+ * Silme geri alınamaz; "Sil"e basınca önce onay sorulur. Yedek (bütün
+ * kayıtlar, bir .json dosyası) isteğe bağlı (Kemal, 30 Eylül). İkinci
+ * basışta silinecek bir şey kalmaz, kart kendini gizler.
  */
 
 interface Props {
@@ -46,7 +46,7 @@ export const TemizlikKarti: React.FC<Props> = ({ items, onDeleteItem }) => {
     let n = 0;
     try {
       for (const s of liste) { await onDeleteItem(s.item.id); n++; }
-      setRapor(`${n} kayıt silindi. Yedek dosyası indirilenler klasöründe.`);
+      setRapor(`${n} kayıt silindi.`);
     } catch (e) {
       setRapor(`${n} kayıt silindi, sonra hata: ${e instanceof Error ? e.message : 'bilinmeyen'}. Kalanlar için tekrar bas.`);
     } finally {
@@ -88,9 +88,6 @@ export const TemizlikKarti: React.FC<Props> = ({ items, onDeleteItem }) => {
       )}
 
       <div className="mt-3 flex flex-wrap items-center gap-2">
-        <button type="button" onClick={yedekIndir} className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-mono rounded-lg bg-[#0E1C4F] dark:bg-[#2C3C72] text-[#F3EFE8] hover:opacity-90 cursor-pointer">
-          <Download className="w-3.5 h-3.5" /> {yedeklendi ? 'Yedek indi ✓' : '1 · Yedeği indir'}
-        </button>
         {onay ? (
           <>
             <span className="text-[11px] font-semibold text-[#D6484C] dark:text-[#F26B6F]">{liste.length} kayıt kalıcı olarak silinsin mi?</span>
@@ -101,13 +98,16 @@ export const TemizlikKarti: React.FC<Props> = ({ items, onDeleteItem }) => {
           <button
             type="button"
             onClick={() => setOnay(true)}
-            disabled={!yedeklendi || calisiyor}
-            title={yedeklendi ? '' : 'Önce yedeği indir'}
+            disabled={calisiyor}
             className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-mono rounded-lg border border-[#F26B6F] text-[#D6484C] dark:text-[#F26B6F] hover:bg-[#F26B6F]/10 disabled:opacity-35 disabled:cursor-not-allowed cursor-pointer"
           >
-            <Trash2 className="w-3.5 h-3.5" /> {calisiyor ? 'Siliniyor…' : '2 · Sil'}
+            <Trash2 className="w-3.5 h-3.5" /> {calisiyor ? 'Siliniyor…' : 'Sil'}
           </button>
         )}
+        {/* Yedek isteğe bağlı (Kemal, 30 Eylül: "sürekli veriyi indirmek istemiyorum") */}
+        <button type="button" onClick={yedekIndir} className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-mono rounded-lg border border-[#CFC5B4] dark:border-[#2C3C72] text-[#6A5E4C] dark:text-[#A6B0C9] hover:border-[#0E1C4F] cursor-pointer">
+          <Download className="w-3.5 h-3.5" /> {yedeklendi ? 'Yedek indi ✓' : 'Yedek indir · isteğe bağlı'}
+        </button>
       </div>
       {rapor && <p className="mt-2 text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9]">{rapor}</p>}
     </div>
