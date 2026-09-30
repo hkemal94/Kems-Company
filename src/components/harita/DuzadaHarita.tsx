@@ -15,6 +15,7 @@ import { duzeniUygula, type HaritaDuzeni } from './duzenKatmani';
 import type { FeatureCollection } from 'geojson';
 import { yolEtiketleri } from './yolEtiketleri';
 import { DEM_SINIR } from '../../data/duzadaDem';
+import { Atmosfer, atmosferVerisi, ATMOSFER_KAPALI, type AtmosferAyari } from './atmosfer';
 
 /**
  * Düzada haritası.
@@ -74,6 +75,11 @@ interface DuzadaHaritaProps {
    * ada kendi kendine yavaşça döner. Hareket azaltma açıksa dönmez.
    */
   vitrin?: boolean;
+  /**
+   * Trafik, gerçek saat, takvim mevsimi (30 Eylül). Sitede hep açık, KKM'de
+   * düğmeyle. Verilmezse kapalı.
+   */
+  atmosfer?: AtmosferAyari;
 }
 
 /** Haritanın baktığı yer: merkez (boylam, enlem) ve MapLibre yakınlığı */
@@ -125,7 +131,7 @@ function etiketElemani(p: Record<string, unknown>): {
   return { kok, ic };
 }
 
-export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className, duzen, bakis, onBakis, vitrin }) => {
+export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className, duzen, bakis, onBakis, vitrin, atmosfer = ATMOSFER_KAPALI }) => {
   const kapsayici = useRef<HTMLDivElement | null>(null);
   const harita = useRef<MLMap | null>(null);
   /** Düzen değişince etiketleri yeniden kuran işlev — kurulum sırasında dolar */
@@ -137,6 +143,8 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
   // Kurulumda da düzenli hâlle başlasın (harita bir kez kuruluyor)
   const ilkDuzen = useRef(duzen ?? null);
   const ilkBakis = useRef(bakis ?? null);
+  const atmosferAyari = useRef(atmosfer);
+  const atmosferNesnesi = useRef<Atmosfer | null>(null);
   const onBakisRef = useRef(onBakis);
   useEffect(() => { onBakisRef.current = onBakis; }, [onBakis]);
 
@@ -158,7 +166,7 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
         sources: {
           duzada: {
             type: 'geojson',
-            data: duzeniUygula(DUZADA_GEO, ilkDuzen.current) as never,
+            data: atmosferVerisi(duzeniUygula(DUZADA_GEO, ilkDuzen.current)) as never,
             promoteId: 'id'
           },
           [ARAZI_KAYNAK]: araziKaynagi()
@@ -543,6 +551,12 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
       });
 
       if (!vitrin) etiketleriKur();
+      try {
+        atmosferNesnesi.current = new Atmosfer(map, duzeniUygula(DUZADA_GEO, ilkDuzen.current), atmosferAyari.current);
+      } catch (e) {
+        // Atmosfer süstür: kurulamazsa harita yine çalışır
+        console.error('[harita] atmosfer kurulamadı', e);
+      }
       setHazir(true);
       if (vitrin) donmeyeBasla();
       setZoom(map.getZoom());
@@ -637,6 +651,8 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
 
     return () => {
       isaretciler.forEach(m => m.remove());
+      atmosferNesnesi.current?.kaldir();
+      atmosferNesnesi.current = null;
       map.remove();
       harita.current = null;
     };
@@ -648,10 +664,16 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
     if (!map || !hazir) return;
     const uygulanan = duzeniUygula(DUZADA_GEO, duzen ?? null);
     (map.getSource('duzada') as maplibregl.GeoJSONSource | undefined)
-      ?.setData(uygulanan as never);
+      ?.setData(atmosferVerisi(uygulanan) as never);
     // Etiketler işaretçi olduğu için kaynakla birlikte güncellenmiyor
     if (!vitrin) etiketleriKurRef.current?.(uygulanan);
   }, [duzen, hazir, vitrin]);
+
+  // Atmosfer düğmeleri (KKM) değişince
+  useEffect(() => {
+    atmosferAyari.current = atmosfer;
+    atmosferNesnesi.current?.ayarla(atmosfer);
+  }, [atmosfer.trafik, atmosfer.saat, atmosfer.mevsim]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const gorunumuSifirla = () => {
     harita.current?.easeTo({ center: DUZADA_MERKEZ, ...BASLANGIC, duration: 1000 });

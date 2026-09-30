@@ -3,6 +3,7 @@ import { ArrowRight, ArrowUpRight, AtSign, Mail } from 'lucide-react';
 import type { Item } from '../../types';
 import { DuzadaHarita } from '../harita/DuzadaHarita';
 import type { HaritaDuzeni } from '../harita/duzenTipi';
+import { ATMOSFER_ACIK } from '../harita/atmosfer';
 import { TYPE_LABELS, getKunyeFields, getArticleBody } from '../wiki/wikiSchema';
 
 /**
@@ -85,7 +86,7 @@ export const DuzadaSayfasi: React.FC<{ items: Item[]; duzen: HaritaDuzeni | null
   return (
     <div className="absolute inset-x-0 bottom-0 top-[68px] sm:top-[82px]">
       {/* Yalnız sitedeki maddeye gidilir; öbür yapılar haritada durur ama açılmaz */}
-      <DuzadaHarita duzen={duzen} onSelect={id => { if (sitede.has(id)) onMadde(id); }} className="absolute inset-0 w-full h-full" />
+      <DuzadaHarita duzen={duzen} atmosfer={ATMOSFER_ACIK} onSelect={id => { if (sitede.has(id)) onMadde(id); }} className="absolute inset-0 w-full h-full" />
       <div className="absolute left-4 sm:left-7 bottom-16 z-10 max-w-[calc(100%-2rem)] sm:max-w-xs rounded-2xl bg-[#0E1C4F]/85 backdrop-blur-md text-[#F3EFE8] p-4">
         <div className="text-[11px] font-bold uppercase tracking-[0.24em] text-[#A6B0C9]">Düzada · Ege Denizi</div>
         <div className="mt-1 text-[22px] font-extrabold tracking-tight">Adanın haritası</div>

@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect, useRef, useCallback, lazy, Suspense } from 'react';
 import type { HaritaBakisi } from './harita/DuzadaHarita';
-import { MapPin, Shield, Users, Compass, Store, ShoppingBag, Calendar, BookOpen, ChevronDown, ChevronUp, Sparkles, Plus, Check, Trash2, Edit3, Save, Eye, EyeOff, MoreVertical, Database, Trash, AlertTriangle, Link, Maximize2, Minimize2 } from 'lucide-react';
+import { MapPin, Shield, Users, Compass, Store, ShoppingBag, Calendar, BookOpen, ChevronDown, ChevronUp, Sparkles, Plus, Check, Trash2, Edit3, Save, Eye, EyeOff, MoreVertical, Database, Trash, AlertTriangle, Link, Maximize2, Minimize2, Car, Moon, Snowflake } from 'lucide-react';
+import { ATMOSFER_KAPALI, type AtmosferAyari } from './harita/atmosfer';
 import { Item, ItemType, WikiSection, BrandKit, AreaType } from '../types';
 import { compressImageBase64 } from '../lib/imageCompressor';
 import { resolveAllRelations, getRelationLabels, cleanupRelationsOnDelete } from '../utils/relations';
@@ -351,6 +352,19 @@ export default function Duzada({
    * pencereyi kaplar. Esc ya da düğme ile çıkılır.
    */
   const haritaKabi = useRef<HTMLDivElement>(null);
+
+  /**
+   * Trafik, saat, mevsim (30 Eylül): sitede hep açık; KKM'de bu düğmelerle.
+   * Seçim bu tarayıcıda hatırlanır (kayda yazılmaz).
+   */
+  const [atmosfer, setAtmosfer] = useState<AtmosferAyari>(() => {
+    try { return { ...ATMOSFER_KAPALI, ...JSON.parse(localStorage.getItem('kems_harita_atmosfer') || '{}') }; } catch { return ATMOSFER_KAPALI; }
+  });
+  const atmosferDegistir = (k: keyof AtmosferAyari) => setAtmosfer(a => {
+    const y = { ...a, [k]: !a[k] };
+    try { localStorage.setItem('kems_harita_atmosfer', JSON.stringify(y)); } catch { /* yok */ }
+    return y;
+  });
   const [tamEkran, setTamEkran] = useState(false);
   const tamEkranDegistir = useCallback(() => {
     const el = haritaKabi.current;
@@ -1312,8 +1326,21 @@ export default function Duzada({
                   duzen={haritaDuzeni.duzen}
                   bakis={haritaBakisi.current}
                   onBakis={bakisiTut}
+                  atmosfer={atmosfer}
                 />
                 <div className="absolute left-3 top-3 z-10">{gorunumDugmesi}</div>
+                {/* Atmosfer düğmeleri sol altta: üstteki ada kartıyla çakışmasın */}
+                <div className="absolute left-3 bottom-3 z-10">
+                  <div className="flex items-center gap-1 p-1 rounded-xl bg-[#FAF8F5]/95 dark:bg-[#13204A]/95 border border-[#CFC5B4] dark:border-[#2C3C72] shadow-[0_8px_24px_-12px_rgba(14,28,79,0.5)]">
+                    {([['trafik', 'Trafik', Car], ['saat', 'Saat', Moon], ['mevsim', 'Mevsim', Snowflake]] as const).map(([k, ad, Ikon]) => (
+                      <button key={k} type="button" onClick={() => atmosferDegistir(k)} aria-pressed={atmosfer[k]}
+                        title={k === 'trafik' ? 'Araçlar, tekneler, feribot' : k === 'saat' ? 'Gerçek saate göre gündüz / gece' : 'Takvime göre yaz / kış'}
+                        className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[12px] font-semibold cursor-pointer ${atmosfer[k] ? 'bg-[#0E1C4F] dark:bg-[#2C3C72] text-white' : 'text-[#6A5E4C] dark:text-[#A6B0C9]'}`}>
+                        <Ikon className="w-3.5 h-3.5" />{ad}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
             ) : (
               <Kurucu
