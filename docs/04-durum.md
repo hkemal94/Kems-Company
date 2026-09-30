@@ -867,6 +867,17 @@ aylık **fanzin** stüdyoda yapay zekâ taslağıyla (Kemal onaylar). Haritaya
 anakara silueti, feribot hattı ve ufak trafik. Çıkan işler belgenin
 sonunda.
 
+## 30 Eylül — Yapısal soru-cevap, 3. set
+
+40 soru daha: `docs/soru-cevap/yapisal-3.md`. Öne çıkanlar: girişte
+günün sorusu + her gün bir madde + 3 üretim önerisi; 3B stüdyoda PNG'yi
+serbest yerleştirme; fanzin (ad boş) sitede, PDF'te, Instagram'da; site
+değişiklikleri taslak → "Yayınla"; Aile künyesi, gizli esin notu, yaşlar
+kalkar; feribot **Küçükkuyu Limanı**'na, gerçek saat ve takvim mevsimi;
+droplar sınırlı adet; paylaşımlar Türkçe; haftalık özet Kemal'in
+Gmail'inden, yedek Drive'a da. Buffer ve kendi adrese taşıma bütçeye
+kadar ertelendi.
+
 ## Sıradaki
 
 - Oyunun tasarım belgesinin doldurulması (13 başlık)
