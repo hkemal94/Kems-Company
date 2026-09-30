@@ -3,6 +3,7 @@ import { AlertCircle, Globe, Link2, PencilLine, Unlink } from 'lucide-react';
 import { StudyodaAc } from '../studyo/StudyodaAc';
 import { Item } from '../../types';
 import { MaddeDuzenleyici, AileUyeleri } from './MaddeDuzenleyici';
+import { maddeyiAnanNotlar } from '../../lib/notBaglari';
 import { resolveAllRelations, getRelationLabels, isEntityUnlinked } from '../../utils/relations';
 import { AutoLinkedText, LinkIndexEntry } from './autoLink';
 import { WikiRooms } from './WikiRooms';
@@ -294,6 +295,16 @@ export const WikiArticle: React.FC<WikiArticleProps> = ({
           <p className="mt-2 whitespace-pre-line text-gri dark:text-bej/85">{item.metadata.esin}</p>
         </details>
       )}
+
+      {/* Not → madde bağı: bu maddeyi #ad ile anan not sayfaları (yalnız yönetim yüzü) */}
+      {admin && (() => {
+        const notlar = maddeyiAnanNotlar(item, allItems);
+        return notlar.length ? (
+          <p className="mb-6 text-[12px] font-mono text-gri dark:text-bej/85">
+            Not defterinde geçiyor: {notlar.map(n => n.title || 'adsız sayfa').join(' · ')}
+          </p>
+        ) : null;
+      })()}
 
       {/* Aile: üyeler ve basit aile ağacı */}
       {item.type === 'aile' && <AileUyeleri aile={item} allItems={allItems} onNavigate={onNavigate} />}

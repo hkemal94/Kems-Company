@@ -194,7 +194,7 @@ export const Anasayfa: React.FC<Props> = ({
           <EksikOzeti eksikler={eksikler} dugmeler={bugunDugmeler} onAc={a => onGit('eksikler', a)} />
         </div>
         <div className={`${gorunur('notlar')} lg:[&>*]:h-full`}>
-          <NotDefteri items={items} onAddItem={onAddItem} onUpdateItem={onUpdateItem} uzun={sekme === 'notlar'} yeniSayfaBekliyor={yeniNotBekliyor} onYeniSayfaAcildi={onYeniNotAcildi} />
+          <NotDefteri items={items} onAddItem={onAddItem} onUpdateItem={onUpdateItem} onMaddeAc={onMaddeyiAc} uzun={sekme === 'notlar'} yeniSayfaBekliyor={yeniNotBekliyor} onYeniSayfaAcildi={onYeniNotAcildi} />
         </div>
         <div className={`${gorunur('durum')} lg:[&>*]:h-full`}>
           <DuzadaKarti items={items} onHarita={() => onGit('harita')} onMadde={onMaddeyiAc} />

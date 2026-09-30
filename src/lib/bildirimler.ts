@@ -13,7 +13,7 @@ import { useHaritaDuzeni } from './haritaDuzeni';
  * telefon bildirimi ve e-posta ayrı bir iş.
  */
 
-export type BildirimTuru = 'aday' | 'dugme' | 'kanon' | 'soru';
+export type BildirimTuru = 'aday' | 'dugme' | 'kanon' | 'soru' | 'yedek';
 
 export interface Bildirim {
   tur: BildirimTuru;
@@ -36,6 +36,14 @@ function gununSorusuBittiMi(): boolean {
 }
 
 const KANON_TURLERI = new Set(['yer', 'mekân', 'dükkân', 'kulüp', 'marka', 'kisi', 'karakter', 'olay', 'kitap_bolum', 'blog_post']);
+
+/** Son yedekten bu yana geçen gün (Yedekleme penceresi yazar); hiç yoksa null */
+function sonYedekGunu(): number | null {
+  try {
+    const v = Number(localStorage.getItem('kems_son_yedek'));
+    return v ? Math.floor((Date.now() - v) / 86_400_000) : null;
+  } catch { return null; }
+}
 
 /** Metninde kanonla çelişen bir tarih geçen maddeler */
 export function kanonUyarililar(items: Item[]): Item[] {
@@ -61,6 +69,11 @@ export function useBildirimler(items: Item[], yenile = 0): Bildirim[] {
     if (dugme.length) liste.push({ tur: 'dugme', sayi: dugme.length, baslik: 'Tek seferlik düğme bekliyor', ayrinti: dugme.join(' · ') });
     const kanon = kanonUyarililar(items);
     if (kanon.length) liste.push({ tur: 'kanon', sayi: kanon.length, baslik: 'Kanon uyarısı', ayrinti: 'Metinde kanonla çelişen tarih', maddeler: kanon.slice(0, 5) });
+    // Ayda bir yedek hatırlatması (yapisal-2, 27). İndirme yine Kemal'in düğmesiyle.
+    const son = sonYedekGunu();
+    if (son === null || son >= 30) {
+      liste.push({ tur: 'yedek', sayi: 1, baslik: 'Aylık yedek', ayrinti: son === null ? 'Henüz yedek alınmadı' : `Son yedek ${son} gün önce` });
+    }
     return liste;
     // `yenile`: günün sorusu cevaplanınca liste yeniden hesaplansın
   }, [items, haritaEski, yenile]); // eslint-disable-line react-hooks/exhaustive-deps

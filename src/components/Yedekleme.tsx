@@ -1,6 +1,8 @@
 import React, { useRef, useState } from 'react';
 import { Download, Upload, Archive, X } from 'lucide-react';
 import type { Item, UserSettings } from '../types';
+import { driveYedekYukle, YEDEK_KLASORU } from '../lib/googleApi';
+import { getCachedAccessToken, signInWithGoogle } from '../lib/firebase';
 import {
   haritaDuzeniniYedekIcinOku, haritaDuzeniniYedektenYaz
 } from '../lib/haritaDuzeni';
@@ -60,6 +62,19 @@ export const Yedekleme: React.FC<YedeklemeProps> = ({ items, settings, onKayit, 
   const [sonYedek, setSonYedek] = useState<number | null>(() => sonYedekZamani());
   const dosyaGirdisi = useRef<HTMLInputElement | null>(null);
 
+  // Zildeki "aylık yedek" bildirimi pencereyi açar
+  const tetik = useRef<HTMLButtonElement | null>(null);
+  React.useEffect(() => {
+    // Düğme iki yerde (ray, "Diğer"); yalnız görünen ve ilk yanıt veren açılır
+    const ac = (e: Event) => {
+      if (e.defaultPrevented || !tetik.current || tetik.current.offsetParent === null) return;
+      e.preventDefault();
+      setAcik(true);
+    };
+    window.addEventListener('kems-yedek-ac', ac);
+    return () => window.removeEventListener('kems-yedek-ac', ac);
+  }, []);
+
   // Esc ile çıkış — düğme kırpılsa bile bir yolu kalsın
   React.useEffect(() => {
     if (!acik) return;
@@ -67,6 +82,35 @@ export const Yedekleme: React.FC<YedeklemeProps> = ({ items, settings, onKayit, 
     window.addEventListener('keydown', tus);
     return () => window.removeEventListener('keydown', tus);
   }, [acik]);
+
+  const yedekVerisi = (): YedekDosyasi => ({
+    uygulama: 'Kems Komuta Merkezi',
+    surum: SURUM,
+    tarih: new Date().toISOString(),
+    sayilar: { madde: items.length },
+    settings,
+    items,
+    haritaDuzeni: haritaDuzeniniYedekIcinOku()
+  });
+
+  /** Drive'daki "KKM yedekleri" klasörüne (yapisal-2, 27) */
+  const driveaKaydet = async () => {
+    setCalisiyor(true);
+    setDurum(null);
+    try {
+      if (!getCachedAccessToken()) await signInWithGoogle();
+      const bugun = new Date().toISOString().slice(0, 10);
+      await driveYedekYukle(`kems-yedek-${bugun}.json`, JSON.stringify(yedekVerisi()));
+      const simdi = Date.now();
+      try { localStorage.setItem(SON_YEDEK_ANAHTARI, String(simdi)); } catch { /* yok */ }
+      setSonYedek(simdi);
+      setDurum(`${items.length} madde Drive'da "${YEDEK_KLASORU}" klasörüne kaydedildi.`);
+    } catch (e) {
+      setDurum(`Drive'a kaydedilemedi: ${e instanceof Error ? e.message : 'bilinmeyen hata'}`);
+    } finally {
+      setCalisiyor(false);
+    }
+  };
 
   const indir = () => {
     const yedek: YedekDosyasi = {
@@ -132,6 +176,7 @@ export const Yedekleme: React.FC<YedeklemeProps> = ({ items, settings, onKayit, 
   return (
     <>
       <button
+        ref={tetik}
         onClick={() => setAcik(true)}
         title={
           gun === null ? 'Henüz yedek alınmadı'
@@ -208,6 +253,19 @@ export const Yedekleme: React.FC<YedeklemeProps> = ({ items, settings, onKayit, 
               >
                 <Download className="w-3.5 h-3.5" />
                 Yedek indir · {items.length} madde
+              </button>
+
+              <button
+                onClick={() => void driveaKaydet()}
+                disabled={calisiyor}
+                className="flex items-center justify-center gap-2 py-2.5 rounded-lg
+                           border border-[#0E1C4F] dark:border-[#F26B6F]
+                           text-[#0E1C4F] dark:text-[#F3EFE8] text-xs font-mono
+                           hover:bg-[#F3EFE8] dark:hover:bg-[#17345A]
+                           disabled:opacity-40 cursor-pointer"
+              >
+                <Upload className="w-3.5 h-3.5" />
+                Drive'a kaydet · {YEDEK_KLASORU}
               </button>
 
               <button

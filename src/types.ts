@@ -38,7 +38,9 @@ export type ItemType =
   // Site ayarları (30 Eylül): taslak + yayındaki, tek kayıt
   | 'site_ayar'
   // Gece hazırlığının defteri (30 Eylül): son yapılan gün, son fanzin ayı
-  | 'gece_hazirlik';
+  | 'gece_hazirlik'
+  // KKM ayarları (30 Eylül): Durum hedefleri, yol haritasında bitenler
+  | 'kkm_ayar';
 
 export interface WikiSection {
   id: string;

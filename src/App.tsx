@@ -111,6 +111,8 @@ export default function App() {
    * (kems_public) düşülüyor — veriler orada değil.
    */
   const [girisli, setGirisli] = useState(false);
+  /** Tarayıcı Kemal'i hiç tanımıyor: giriş ekranı (ortak alan yok) */
+  const [girisGerekli, setGirisGerekli] = useState(false);
   const [baglanmaHatasi, setBaglanmaHatasi] = useState<string | null>(null);
   const googleIleBaglan = async () => {
     setBaglanmaHatasi(null);
@@ -190,6 +192,7 @@ export default function App() {
     const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser) => {
       setGirisli(!!currentUser);
       if (currentUser) {
+        setGirisGerekli(false);
         try {
           localStorage.setItem('kems_last_uid', currentUser.uid);
         } catch (_) {}
@@ -204,7 +207,18 @@ export default function App() {
         try {
           storedUid = localStorage.getItem('kems_last_uid');
         } catch (_) {}
-        const publicUid = storedUid || 'kems_public';
+        /*
+         * Ortak alan kalktı (yapisal-2, 26; Kemal: "hep Google ile gireyim").
+         * Tarayıcı Kemal'i hatırlıyorsa kendi alanı açılır; hiç tanımıyorsa
+         * ortak alan (kems_public) yerine "Google ile bağlan" ekranı çıkar.
+         */
+        if (!storedUid) {
+          setGirisGerekli(true);
+          setLoading(false);
+          return;
+        }
+        setGirisGerekli(false);
+        const publicUid = storedUid;
         await setupWorkspaceForUser(publicUid, {
           displayName: 'Açık Erişim',
           email: 'acik@kems.local',
@@ -539,6 +553,7 @@ export default function App() {
     if (b.tur === 'dugme') git('eksikler');
     else if (b.tur === 'kanon') { if (b.maddeler?.[0]) maddeyiAc(b.maddeler[0]); }
     else if (b.tur === 'aday') git('studyo');
+    else if (b.tur === 'yedek') window.dispatchEvent(new Event('kems-yedek-ac', { cancelable: true }));
     else { setTelSekme('bugun'); git('komuta'); }
   };
 
@@ -611,6 +626,22 @@ export default function App() {
       metadata: {}
     });
   };
+
+  if (girisGerekli && !user) {
+    return (
+      <div className="min-h-screen bg-[#E4DCCD] dark:bg-[#0B132B] flex items-center justify-center p-6">
+        <div className="max-w-sm w-full rounded-2xl bg-[#FAF8F5] dark:bg-[#13204A] border border-[#CFC5B4] dark:border-[#2C3C72] p-6 text-center space-y-4">
+          <div className="font-extrabold text-[28px] leading-none tracking-tight text-[#0E1C4F] dark:text-[#F3EFE8]">KEMS</div>
+          <div className="mx-auto -mt-2 w-max bg-[#F26B6F] text-white text-[10px] font-bold tracking-[0.3em] pl-2.5 pr-2 py-0.5">COMPANY</div>
+          <p className="text-[13px] leading-relaxed text-[#6A5E4C] dark:text-[#A6B0C9]">Komuta Merkezi Google hesabınla açılır. Kayıtların o hesabın alanında.</p>
+          <button type="button" onClick={googleIleBaglan} className="w-full py-2.5 rounded-xl bg-[#0E1C4F] dark:bg-[#2C3C72] text-[#F3EFE8] text-[13px] font-semibold hover:opacity-90 cursor-pointer">
+            Google ile bağlan
+          </button>
+          {baglanmaHatasi && <p className="text-[12px] text-[#B23A40] dark:text-[#F26B6F]">{baglanmaHatasi}</p>}
+        </div>
+      </div>
+    );
+  }
 
   if (loading || !user) {
     return (
@@ -797,7 +828,7 @@ export default function App() {
           <button
             type="button"
             onClick={girisli ? undefined : googleIleBaglan}
-            title={girisli ? `Google hesabı: ${user?.email || ''}` : 'Ortak alandasın — Google ile bağlan'}
+            title={girisli ? `Google hesabı: ${user?.email || ''}` : 'Google ile bağlan'}
             className={`relative w-full h-11 rounded-xl flex items-center gap-3 px-3 ${girisli ? 'text-[#A6B0C9]' : 'text-[#F26B6F] hover:bg-white/10 cursor-pointer'}`}
           >
             {girisli && user?.photoURL
@@ -838,7 +869,7 @@ export default function App() {
               <div className="mb-4 flex flex-wrap items-center gap-3 px-4 py-3 rounded-xl border border-[#0E1C4F]/25 dark:border-[#2C3C72] bg-[#FAF8F5] dark:bg-[#13204A]">
                 <UserRound className="w-4 h-4 shrink-0 text-[#D6484C] dark:text-[#F26B6F]" />
                 <p className="flex-1 min-w-[220px] text-[12px] leading-snug text-[#0E1C4F] dark:text-[#F3EFE8]">
-                  <b>Ortak alandasın.</b> Bu tarayıcı seni tanımıyor; kayıtların Google hesabının alanında duruyor. Bağlanınca hepsi geri gelir.
+                  <b>Google'a bağlı değilsin.</b> Bu tarayıcı seni hatırlıyor, kayıtların açık; Drive'a yedek ve Gmail özeti için bağlan.
                   {baglanmaHatasi && <span className="block mt-1 text-[#B23A40] dark:text-[#F26B6F]">{baglanmaHatasi}</span>}
                 </p>
                 <button type="button" onClick={googleIleBaglan} className="shrink-0 px-3.5 py-2 rounded-lg bg-[#0E1C4F] dark:bg-[#2C3C72] text-[#F3EFE8] text-[12px] font-semibold hover:opacity-90 cursor-pointer">
@@ -868,7 +899,7 @@ export default function App() {
             )}
 
             {activeTab === 'durum' && (
-              <Durum items={items} onSec={h => git(h)} onUpdateItem={handleUpdateItem} />
+              <Durum items={items} onSec={h => git(h)} onUpdateItem={handleUpdateItem} onAddItem={handleAddItem} eposta={girisli ? user?.email : null} />
             )}
 
             {activeTab === 'eksikler' && (
@@ -1047,7 +1078,7 @@ export default function App() {
               )}
             </div>
             <p className="text-center text-[10px] font-mono text-[#6A5E4C] dark:text-[#A6B0C9]">
-              {varlikSayisi} kayıtlı varlık · {girisli ? `Google: ${user?.email || ''}` : 'ortak alan'}
+              {varlikSayisi} kayıtlı varlık · {girisli ? `Google: ${user?.email || ''}` : 'tarayıcı hatırlıyor'}
             </p>
           </div>
         </div>
