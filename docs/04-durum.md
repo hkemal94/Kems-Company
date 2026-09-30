@@ -878,6 +878,14 @@ droplar sınırlı adet; paylaşımlar Türkçe; haftalık özet Kemal'in
 Gmail'inden, yedek Drive'a da. Buffer ve kendi adrese taşıma bütçeye
 kadar ertelendi.
 
+## 30 Eylül — Yapısal soru-cevap, 4. set ve sıra
+
+40 soru: `docs/soru-cevap/yapisal-4.md`. **2. ve 3. set yalnız belgeydi;
+uygulamada yapılmadı** (Kemal haritada fark etti). Sıra: tek büyük PR,
+ilk teslim **harita düzeltmeleri + trafik / saat / mevsim**; sonra 3B
+stüdyo, site düzenleme, fanzin. Stüdyoya kural istisnası: geceleri günde
+bir kez 3 öneri ve aylık fanzin taslağı, yalnız öneri tepsisine.
+
 ## Sıradaki
 
 - Oyunun tasarım belgesinin doldurulması (13 başlık)

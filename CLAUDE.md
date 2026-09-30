@@ -95,6 +95,11 @@ terimsiz olur. Kodu değil, **ekranda ne değiştiğini** anlat.
   `src/components/studyo/`). Sayfalara yeni AI düğmesi konmaz; yalnız
   "✨ Stüdyoda aç". Sonuç öneri tepsisine düşer, Kemal "Ekle" demeden
   kayda yazılmaz. Sayfa açılınca kendiliğinden yapay zekâya sorulmaz.
+- **Tek istisna** (Kemal, 30 Eylül, `docs/soru-cevap/yapisal-4.md`): stüdyo
+  geceleri günde bir kez 3 üretim önerisi, ayın ilk günü fanzin taslağı
+  hazırlar — **yalnız öneri tepsisine**. Kanona / kayda hiçbir şey yazmaz.
+- Belge ile uygulama ayrıdır: karar belgeye yazıldıysa "uygulamada henüz
+  yok" diye açıkça söylenir (30 Eylül'de karışmıştı).
 
 **Kod**
 - React kancaları (`useState`, `useMemo`…) her zaman erken `return`'den
