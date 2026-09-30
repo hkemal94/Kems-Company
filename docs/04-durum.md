@@ -989,6 +989,50 @@ Sunucu kapalıyken (önizleme) gece hazırlığı hiçbir şey yazmaz.
 
 Görseller: `docs/gorseller/fanzin-*.png` (önizleme; bölüm metinleri yer tutucu).
 
+## 30 Eylül gece — büyük PR, 5. teslim: küçükler
+
+**Uygulamada var:**
+- **Giriş:** atölyenin üç kanon sorusu kalktı; yerine lacivert kart —
+  **Ada'dan bilgi** (her gün başka bir viki maddesi, künyesinden ve metninden;
+  yapay zekâ yok) ve **Bugünün üretim önerileri** (gece hazırlanan üçü).
+  Günün sorusu tek soru; Neyin Eksik özeti duruyor; telefonda ilk ekran
+  yine Neyin Eksik. Telefon sekmesi "Atölye" → "Ada".
+- **Viki:** Karakter → Kişi (tek seferlik kart, künye ve metin aynen kalır);
+  yaş alanı kalktı; **Aile** türü (mahalle, uğraş, bağlı mekânlar, bağlı
+  kişiler, adaya geliş) ve aile sayfasında **üyeler + basit aile ağacı**
+  (kişinin künyesindeki "Aile" alanından); **sabit bağ türleri** (bulunduğu
+  yer, sahibi, çalışır, üyesi, akrabası, ait olduğu kurum, ilgili olay,
+  tanıdığı, genel bağ); maddede **"düzenle"** artık düzenleyici açar (künye,
+  bağlar, **esin notu** — yalnız Kemal görür, sitede yok); vikide
+  **"+ yeni madde"** (ad Kemal'in).
+- **Tek seferlik kart (Neyin Eksik):** "viki düzeni: Karakter → Kişi, yaş
+  alanı kalkar, Kems Company 2025".
+- **Merch:** ürünün Süreç sekmesinde **aşama yapılacakları** (hazır liste,
+  işaretlenir, eklenir, silinir). Drop'ta **çıkış tarihi**.
+- **Takvim:** drop çıkışları sosyal medya takviminde; Araçlar'da genel
+  **Takvim** (drop · gönderi · fanzin günü).
+- **Durum:** **sıradaki 3 iş**, **hedefler** (künye, kitap, harita, boşluk),
+  **yol haritası** (karar verilmiş, uygulamada henüz olmayan işler; "tamam"
+  ile düşer), **haftalık özet** ("Gmail'de aç": Kemal'in hesabında hazır
+  ileti; göndermek Kemal'de).
+- **Not defteri:** "#Madde adı" yazınca maddeye bağ olur; maddenin
+  sayfasında "Not defterinde geçiyor".
+- **Ortak alan kalktı:** tarayıcı Kemal'i hiç tanımıyorsa "Google ile
+  bağlan" ekranı. Tanıyorsa kendi alanı açılır.
+- **Yedek:** zilde **aylık yedek** hatırlatması (30 günü geçince); Yedekleme
+  penceresinde **"Drive'a kaydet · KKM yedekleri"** (klasör yoksa açılır).
+
+**Henüz yok / sınırlı:**
+- Haftalık özet kendiliğinden gönderilmiyor; Gmail'de hazır ileti açılır.
+  Kendiliğinden göndermek için Gmail gönderme izni gerekir (Google onayı).
+- Ortak alanda (kems_public) kalmış kayıt varsa görünmez; taşıma kartı Kemal
+  isterse (yol haritasında).
+- Yardımcı erişimi: ihtiyaç olunca.
+
+Görseller: `docs/gorseller/giris-*.png`, `viki-*.png`, `takvim.png`,
+`merch-yapilacaklar.png`, `durum-yol-haritasi.png`, `not-madde-bagi.png`,
+`zil-aylik-yedek.png` (önizleme, örnek veri).
+
 ## Sıradaki
 
 - Oyunun tasarım belgesinin doldurulması (13 başlık)

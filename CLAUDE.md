@@ -143,9 +143,15 @@ bağlantısı 2. adım.
 
 **Bu deponun işi DEĞİL:** oyun. Ayrı depo, ayrı oturum.
 
-**Veri alanı:** Kayıtlar Google hesabının alanında (14 Eylül'e kadar Google
-girişi vardı). Tarayıcı Kemal'i tanımazsa "ortak alan"a düşülür; sayfanın
-üstünde "Google ile bağlan" çıkar.
+**Veri alanı:** Kayıtlar Google hesabının alanında. Ortak alan kalktı
+(30 Eylül): tarayıcı Kemal'i hiç tanımıyorsa "Google ile bağlan" ekranı
+çıkar; tanıyorsa kendi alanı açılır.
+
+**Tek kayıtlık ayarlar** (30 Eylül): `site_ayar` (sitenin taslağı ve
+yayındaki hâli), `gece_hazirlik` (gece önerilerinin defteri), `kkm_ayar`
+(Durum hedefleri, yol haritasında bitenler). Temizlik bunlara dokunmaz.
+Yol haritası `src/lib/yolHaritasi.ts`'te: karar verilip uygulamada henüz
+olmayan iş oraya yazılır, bitince silinir.
 
 ## Açık işler (29 Eylül itibarıyla)
 
