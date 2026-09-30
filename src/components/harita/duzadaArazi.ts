@@ -38,19 +38,55 @@ export const ARAZI_ABARTI = 1.6;
 const KARO = 256;
 const [BATI, GUNEY, DOGU, KUZEY] = DEM_SINIR;
 
-let kaynakGorsel: Promise<CanvasImageSource> | null = null;
+/**
+ * Rakımlar, DEM görüntüsünden bir kez çözülür (metre, satır satır).
+ *
+ * 30 Eylül: önceden karo, DEM görüntüsünün renkleri yumuşatılarak
+ * büyütülüyordu. Terrarium'da rakım üç kanala bölünmüş olduğu için renk
+ * kanalları ayrı ayrı karışınca 256 m, 512 m gibi eşiklerde yüz metreyi
+ * aşan sahte sivri duvarlar çıkıyordu (Kemal: "mahalle sınırlarında bir
+ * bent"). Artık ara değer rakımın kendisinden hesaplanıyor.
+ */
+interface Rakimlar { en: number; boy: number; m: Float32Array }
+let rakimlar: Promise<Rakimlar> | null = null;
 let kayitli = false;
 
-function gorseliYukle(): Promise<CanvasImageSource> {
-  if (!kaynakGorsel) {
-    kaynakGorsel = new Promise((coz, hata) => {
+function rakimlariYukle(): Promise<Rakimlar> {
+  if (!rakimlar) {
+    rakimlar = new Promise((coz, hata) => {
       const im = new Image();
-      im.onload = () => coz(im);
+      im.onload = () => {
+        const en = im.naturalWidth;
+        const boy = im.naturalHeight;
+        const tuval = document.createElement('canvas');
+        tuval.width = en;
+        tuval.height = boy;
+        const ct = tuval.getContext('2d');
+        if (!ct) { hata(new Error('2B bağlam alınamadı')); return; }
+        ct.drawImage(im, 0, 0);
+        const v = ct.getImageData(0, 0, en, boy).data;
+        const m = new Float32Array(en * boy);
+        for (let i = 0; i < en * boy; i++) {
+          m[i] = v[i * 4] * 256 + v[i * 4 + 1] + v[i * 4 + 2] / 256 - 32768;
+        }
+        coz({ en, boy, m });
+      };
       im.onerror = () => hata(new Error('DEM görüntüsü yüklenemedi'));
       im.src = DEM_PNG;
     });
   }
-  return kaynakGorsel;
+  return rakimlar;
+}
+
+/** DEM'de (x, y) pikselindeki rakım; çift doğrusal ara değer, dışarısı deniz */
+function rakimOku(r: Rakimlar, x: number, y: number): number {
+  if (x < 0 || y < 0 || x > r.en - 1 || y > r.boy - 1) return 0;
+  const x0 = Math.floor(x), y0 = Math.floor(y);
+  const x1 = Math.min(x0 + 1, r.en - 1), y1 = Math.min(y0 + 1, r.boy - 1);
+  const tx = x - x0, ty = y - y0;
+  const a = r.m[y0 * r.en + x0], b = r.m[y0 * r.en + x1];
+  const c = r.m[y1 * r.en + x0], d = r.m[y1 * r.en + x1];
+  return (a * (1 - tx) + b * tx) * (1 - ty) + (c * (1 - tx) + d * tx) * ty;
 }
 
 /** Web Mercator karo numarasından enlem (derece) */
@@ -69,12 +105,10 @@ function karoBoylam(x: number, z: number): number {
  *
  * DEM enlem/boylamda düzgün aralıklı, karo ise Mercator'da. Bir karonun
  * kapsadığı enlem aralığı bu ölçeklerde çok küçük olduğu için aradaki
- * eğrilik fark edilmiyor; doğrudan dikdörtgen bir kesit alıyoruz.
+ * eğrilik fark edilmiyor; satır satır doğrusal eşleme yeterli.
  */
 async function karoUret(z: number, x: number, y: number): Promise<ArrayBuffer> {
-  const gorsel = await gorseliYukle();
-  const en = (gorsel as HTMLImageElement).naturalWidth;
-  const boy = (gorsel as HTMLImageElement).naturalHeight;
+  const r = await rakimlariYukle();
 
   const tuval = document.createElement('canvas');
   tuval.width = KARO;
@@ -82,31 +116,32 @@ async function karoUret(z: number, x: number, y: number): Promise<ArrayBuffer> {
   const ct = tuval.getContext('2d');
   if (!ct) throw new Error('2B bağlam alınamadı');
 
-  // Karonun kapsamadığı her yer deniz seviyesi: Terrarium'da 0 m = #800000
-  ct.fillStyle = '#800000';
-  ct.fillRect(0, 0, KARO, KARO);
-
   const bati = karoBoylam(x, z);
   const dogu = karoBoylam(x + 1, z);
   const kuzey = karoEnlem(y, z);
   const guney = karoEnlem(y + 1, z);
 
   // Karonun DEM üzerindeki piksel karşılığı
-  const px = (lng: number) => ((lng - BATI) / (DOGU - BATI)) * en;
-  const py = (lat: number) => ((KUZEY - lat) / (KUZEY - GUNEY)) * boy;
+  const px = (lng: number) => ((lng - BATI) / (DOGU - BATI)) * r.en;
+  const py = (lat: number) => ((KUZEY - lat) / (KUZEY - GUNEY)) * r.boy;
+  const sx = px(bati), sy = py(kuzey);
+  const adimX = (px(dogu) - sx) / KARO;
+  const adimY = (py(guney) - sy) / KARO;
 
-  const sx = px(bati);
-  const sy = py(kuzey);
-  const sEn = px(dogu) - sx;
-  const sBoy = py(guney) - sy;
-
-  if (sEn > 0 && sBoy > 0 && sx < en && sy < boy && sx + sEn > 0 && sy + sBoy > 0) {
-    // Ara değerleri yumuşak alsın: karo DEM hücresinden küçük olduğunda
-    // basamaklı arazi yerine düzgün yamaç çıkar.
-    ct.imageSmoothingEnabled = true;
-    ct.imageSmoothingQuality = 'high';
-    ct.drawImage(gorsel, sx, sy, sEn, sBoy, 0, 0, KARO, KARO);
+  const cikti = ct.createImageData(KARO, KARO);
+  const v = cikti.data;
+  for (let j = 0; j < KARO; j++) {
+    for (let i = 0; i < KARO; i++) {
+      // Piksel merkezi; kaynağın -0,5 kayması ara değeri hücre ortasına oturtur
+      const h = Math.max(-32768, rakimOku(r, sx + (i + 0.5) * adimX - 0.5, sy + (j + 0.5) * adimY - 0.5)) + 32768;
+      const R = Math.floor(h / 256);
+      const G = Math.floor(h - R * 256);
+      const B = Math.floor((h - R * 256 - G) * 256);
+      const k = (j * KARO + i) * 4;
+      v[k] = R; v[k + 1] = G; v[k + 2] = B; v[k + 3] = 255;
+    }
   }
+  ct.putImageData(cikti, 0, 0);
 
   const blob: Blob = await new Promise((coz, hata) =>
     tuval.toBlob(b => (b ? coz(b) : hata(new Error('karo çizilemedi'))), 'image/png')

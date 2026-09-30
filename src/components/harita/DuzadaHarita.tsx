@@ -357,12 +357,13 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
             ...Object.entries(MAHALLE_TONU).flat(),
             '#8a7757'
           ] as unknown as maplibregl.ExpressionSpecification,
-          // Üzerine gelince ton koyulaşıyor — tıklanabilir olduğu anlaşılsın
-          // Sınır çizilmez (fiziki ada); üzerine gelince hafifçe belirir
+          // Sınır çizilmez; mahalle zeminde çok hafif bir tonla anlaşılır
+          // (Kemal, 30 Eylül: "ad + zeminde çok hafif renk"). Üzerine
+          // gelince biraz koyulaşır — tıklanabilir olduğu anlaşılsın.
           'fill-opacity': [
             'case',
-            ['boolean', ['feature-state', 'uzerinde'], false], 0.16,
-            0
+            ['boolean', ['feature-state', 'uzerinde'], false], 0.2,
+            0.08
           ]
         }
       });
