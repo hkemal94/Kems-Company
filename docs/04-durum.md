@@ -721,7 +721,7 @@ Kemal akşam listeyi sıraladı, "sabaha kadar tek seferde" dedi.
   dönülür.
 - "Sitede göster" ikinci basışta kalkar (kayıt eskisinin üstüne eklenerek
   yazıldığı için alanı silmek işe yaramıyordu; artık "sitede değil" yazılır).
-- Site: "Est. 2024" (Kemal: kuruluş 2024).
+- Site: "Est. 2024" (Kemal: kuruluş 2024). → 30 Eylül: **2025** oldu (yapisal-2).
 - KKM'de **Site** sayfası (Araçlar, küre simgesi): "Önizlemeyi aç" ve
   **Sitede görünenler** listesi, her satırda "Siteden kaldır". Bu yönetim
   düğmeleri yalnız KKM'de; ziyaretçinin gördüğü sitede yok.
@@ -855,6 +855,17 @@ sayfa notları ve örnek görseller.
 - Madde sayfası adresi: `#site/viki/<kimlik>`.
 
 Görseller: `docs/gorseller/site-*.png` (önizleme, **örnek veri**).
+
+## 30 Eylül — Yapısal soru-cevap, 2. set
+
+32 soru, Kemal'in tıklamalı cevapları: `docs/soru-cevap/yapisal-2.md`.
+Öne çıkanlar: kuruluş **2025**; **dönem yok** (geçmişten ilham alan bir
+günümüz markası); Kişi ve Karakter tek tür, yeni tür **Aile**; site önce
+Türkçe, dönen 3B ada kalır, bülten yok; KKM'de **telefon öncelikli**,
+ortak alan kalkar, ayda bir yedek hatırlatması, haftalık özet e-postası;
+aylık **fanzin** stüdyoda yapay zekâ taslağıyla (Kemal onaylar). Haritaya
+anakara silueti, feribot hattı ve ufak trafik. Çıkan işler belgenin
+sonunda.
 
 ## Sıradaki
 

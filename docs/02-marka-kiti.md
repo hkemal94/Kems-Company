@@ -111,7 +111,7 @@ Marka  →  Drop  →  Ürün
 Kems Company's
 Apparel + Objects
 Made with Culture
-Est. 2024
+Est. 2025
 Düzada, TR
 ```
 
