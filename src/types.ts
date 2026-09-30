@@ -14,7 +14,7 @@ export type KitapStatus = 'taslak' | 'yazıldı' | 'düzeltildi';
 export type ItemType = 
   // Düzada types
   | 'kulüp' | 'dükkân' | 'karakter' | 'mekân' | 'ürün' | 'olay' | 'map_settings' | 'map_pin'
-  | 'marka' | 'kisi' | 'yer' | 'oda'
+  | 'marka' | 'kisi' | 'yer' | 'oda' | 'aile'
   // Merch types
   | 'drop' | 'merch_urun'
   // Blog types

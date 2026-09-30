@@ -78,7 +78,7 @@ export function yapilacaklar(items: Item[], simdi = new Date()): { oneriler: boo
 
 const canli = (items: Item[]) => items.filter(i => !i.archived && !i.isProposal);
 const kisa = (s = '', n = 240) => (s.length > n ? s.slice(0, n) + '…' : s);
-const VIKI = ['yer', 'mekân', 'dükkân', 'kulüp', 'marka', 'kisi', 'karakter', 'olay'];
+const VIKI = ['yer', 'mekân', 'dükkân', 'kulüp', 'marka', 'kisi', 'karakter', 'aile', 'olay'];
 
 /** Yapay zekâya giden özet: yalnız adlar ve kısa notlar */
 export function geceBaglami(items: Item[]) {

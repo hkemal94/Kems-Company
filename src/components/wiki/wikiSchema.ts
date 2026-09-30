@@ -9,6 +9,7 @@ import { parseKunye } from './kunyeParser';
 const TYPE_TO_SCHEMA: Partial<Record<ItemType, string>> = {
   kisi: 'kisi',
   karakter: 'kisi',
+  aile: 'aile',
   mekân: 'mekan',
   dükkân: 'mekan',
   yer: 'yer',
@@ -21,7 +22,9 @@ const TYPE_TO_SCHEMA: Partial<Record<ItemType, string>> = {
 
 export const TYPE_LABELS: Partial<Record<ItemType, string>> = {
   kisi: 'Kişi',
-  karakter: 'Karakter',
+  // Karakter → Kişi (yapisal-4, 25): ayrım kalktı; eski kayıtlar da Kişi görünür
+  karakter: 'Kişi',
+  aile: 'Aile',
   mekân: 'Mekân',
   dükkân: 'Dükkân',
   yer: 'Mahalle',
@@ -34,7 +37,7 @@ export const TYPE_LABELS: Partial<Record<ItemType, string>> = {
 
 /** Wiki'de kendi sayfası olan tipler */
 export const WIKI_TYPES: ItemType[] = [
-  'yer', 'mekân', 'dükkân', 'kulüp', 'marka', 'kisi', 'karakter', 'olay', 'ürün', 'oda'
+  'yer', 'mekân', 'dükkân', 'kulüp', 'marka', 'kisi', 'karakter', 'aile', 'olay', 'ürün', 'oda'
 ];
 
 export function schemaKeyFor(type: ItemType): string | undefined {
@@ -154,7 +157,6 @@ function kunyeyiCoz(item: Item, includeSecrets: boolean): KunyeCozumu | null {
       if (!value) value = fromParsed([f.label, ...(f.esAdlar || [])]);
       // Meslek alanı künye başlığından da gelebilir ("Ad (38) — Başaşçı")
       if (!value && f.id === 'profession' && parsed.rol) value = parsed.rol;
-      if (!value && f.id === 'age' && parsed.yas) value = parsed.yas;
       // Markanın renkleri marka kitinde de durabilir
       if (!value && f.id === 'colors') {
         const palet = (item.metadata as { brandKit?: { colorPalette?: unknown } } | undefined)?.brandKit?.colorPalette;
@@ -172,8 +174,9 @@ function kunyeyiCoz(item: Item, includeSecrets: boolean): KunyeCozumu | null {
    * görünür (Kemal, 29 Eylül: "daha kompakt bir künye, diğer bilgiler
    * sayfa kısmında").
    */
+  // Yaş alanı kalktı (yapisal-4): eski "Yaş" satırları da gösterilmez
   const ekler: KunyeField[] = parsed.fields
-    .filter((_, n) => !kullanilan.has(n))
+    .filter((f, n) => !kullanilan.has(n) && !/^yaş$/i.test(f.label.trim()))
     .map(f => ({ id: `ek_${f.label}`, label: f.label, value: f.value }));
 
   // Eski alan listesine yazılmış değerler

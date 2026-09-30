@@ -70,7 +70,7 @@ export const fanzinIstegi = (s = '') => {
   return m ? { sira: Number(m[1]), ton: m[2] } : null;
 };
 
-const VIKI: ItemType[] = ['yer', 'mekân', 'dükkân', 'kulüp', 'marka', 'kisi', 'karakter', 'olay'];
+const VIKI: ItemType[] = ['yer', 'mekân', 'dükkân', 'kulüp', 'marka', 'kisi', 'karakter', 'aile', 'olay'];
 const YAZI: ItemType[] = ['blog_post', 'kitap_bolum'];
 
 const vikiBaglami = (items: Item[]) => items

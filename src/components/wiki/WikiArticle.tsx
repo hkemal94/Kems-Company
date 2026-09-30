@@ -1,7 +1,8 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { AlertCircle, Globe, Link2, PencilLine, Unlink } from 'lucide-react';
 import { StudyodaAc } from '../studyo/StudyodaAc';
 import { Item } from '../../types';
+import { MaddeDuzenleyici, AileUyeleri } from './MaddeDuzenleyici';
 import { resolveAllRelations, getRelationLabels, isEntityUnlinked } from '../../utils/relations';
 import { AutoLinkedText, LinkIndexEntry } from './autoLink';
 import { WikiRooms } from './WikiRooms';
@@ -79,6 +80,8 @@ interface WikiArticleProps {
   onHaritayaGit?: (binaId: string) => void;
   /** Site (29 Eylül gece): verilmezse düğme çıkmaz */
   onSitede?: (item: Item, acik: boolean) => void;
+  /** Madde düzenleyici (yapisal-4): verilirse "düzenle" onu açar */
+  onUpdateItem?: (item: Item) => Promise<void>;
 }
 
 export const WikiArticle: React.FC<WikiArticleProps> = ({
@@ -89,9 +92,13 @@ export const WikiArticle: React.FC<WikiArticleProps> = ({
   mode,
   onEdit,
   onHaritayaGit,
-  onSitede
+  onSitede,
+  onUpdateItem
 }) => {
   const admin = mode === 'yonetim';
+  const [duzenle, setDuzenle] = useState(false);
+  // Başka maddeye geçince düzenleyici kapanır
+  useEffect(() => { setDuzenle(false); }, [item.id]);
 
   // Sırlar yalnızca yönetim yüzünde
   const kunye = useMemo(
@@ -247,10 +254,10 @@ export const WikiArticle: React.FC<WikiArticleProps> = ({
               <Globe size={12} /> {item.metadata?.sitede === true ? 'sitede ✓' : 'sitede göster'}
             </button>
           )}
-          {admin && onEdit && (
+          {admin && (onUpdateItem || onEdit) && (
             <button
               type="button"
-              onClick={() => onEdit(item.id)}
+              onClick={() => (onUpdateItem ? setDuzenle(d => !d) : onEdit?.(item.id))}
               className="flex items-center gap-1.5 text-[11px] font-mono text-gri hover:text-lacivert dark:text-bej/85 dark:hover:text-krem transition-colors"
             >
               <PencilLine size={12} /> düzenle
@@ -275,6 +282,21 @@ export const WikiArticle: React.FC<WikiArticleProps> = ({
           </ul>
         )}
       </header>
+
+      {admin && duzenle && onUpdateItem && (
+        <MaddeDuzenleyici item={item} allItems={allItems} onKaydet={onUpdateItem} onKapat={() => setDuzenle(false)} />
+      )}
+
+      {/* Esin notu (yapisal-4): yalnız yönetim yüzünde, sitede hiç yok */}
+      {admin && typeof item.metadata?.esin === 'string' && item.metadata.esin.trim() && (
+        <details className="mb-6 rounded border border-dashed border-bej/70 px-3 py-2 text-[13px]">
+          <summary className="cursor-pointer postmark-label text-gri dark:text-bej/85">Esin notu · yalnız sen görürsün</summary>
+          <p className="mt-2 whitespace-pre-line text-gri dark:text-bej/85">{item.metadata.esin}</p>
+        </details>
+      )}
+
+      {/* Aile: üyeler ve basit aile ağacı */}
+      {item.type === 'aile' && <AileUyeleri aile={item} allItems={allItems} onNavigate={onNavigate} />}
 
       {/* --- Yönetim uyarıları: ziyaretçi bunları görmez --- */}
       {admin && (unlinked || stub) && (
