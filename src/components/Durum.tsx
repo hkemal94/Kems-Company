@@ -4,11 +4,8 @@ import { durumOranlari } from '../lib/durumOranlari';
 import { YuzdeSeridi, type SeritHedefi } from './anasayfa/YuzdeSeridi';
 import { Bosluklar } from './Bosluklar';
 import { SayfaRayi, type RayBolumu } from './SayfaRayi';
-import { KkmPaneli } from './anasayfa/KkmPaneli';
 
 const RAY: RayBolumu[] = [
-  { id: 'durum-kkm', label: 'Sıradaki işler' },
-  { id: 'yol-haritasi', label: 'Yol haritası' },
   { id: 'durum-yuzdeler', label: 'Yüzdeler' },
   { id: 'bos-ozet', label: 'Boşluklar' },
   { id: 'bos-liste', label: 'Boş alanlar' }
@@ -39,9 +36,6 @@ export const Durum: React.FC<{
         <p className="mt-1 text-[12px] text-[#6A5E4C] dark:text-[#A6B0C9]">Her kart kendi sayfasına götürür. Sayılar kayıtlardan sayılır; kayıt yoksa "–".</p>
       </div>
       <SayfaRayi baslik="Durum" bolumler={RAY} />
-      <section id="durum-kkm" className="scroll-mt-24">
-        <KkmPaneli items={items} oranlar={oranlar} eposta={eposta} onUpdateItem={onUpdateItem} onAddItem={onAddItem} />
-      </section>
       <section id="durum-yuzdeler" className="scroll-mt-24">
         <YuzdeSeridi oranlar={oranlar} onSec={onSec} ayrintili />
       </section>

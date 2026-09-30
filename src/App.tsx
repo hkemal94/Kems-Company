@@ -34,6 +34,10 @@ import {
   Megaphone,
   Globe,
   CalendarDays,
+  Box,
+  Newspaper,
+  Milestone,
+  LayoutGrid,
 } from 'lucide-react';
 import Durum from './components/Durum';
 import Duzada from './components/Duzada';
@@ -51,6 +55,10 @@ import Sosyal from './components/sosyal/Sosyal';
 import Site from './components/site/Site';
 import SiteYonetimi from './components/site/SiteYonetimi';
 import Takvim from './components/takvim/Takvim';
+import Araclar from './components/araclar/Araclar';
+import Studyo3BSayfasi from './components/merch/Studyo3BSayfasi';
+import FanzinSayfasi from './components/fanzin/FanzinSayfasi';
+import YolHaritasiSayfasi from './components/anasayfa/YolHaritasiSayfasi';
 import OyunEkrani from './components/oyun/OyunEkrani';
 import Markalar from './components/Markalar';
 import DuzadaDirectory from './components/DuzadaDirectory';
@@ -63,7 +71,7 @@ import { Zil } from './components/kabuk/Zil';
 import { useBildirimler, type Bildirim } from './lib/bildirimler';
 
 /** Uygulamanın sayfaları. 'komuta' ana sayfa; eski Komuta Merkezi 'durum'. */
-type Sayfa = 'komuta' | 'durum' | 'eksikler' | 'markalar' | 'duzada' | 'merch' | 'yazi' | 'oyun' | 'galeri' | 'studyo' | 'sosyal' | 'site' | 'takvim';
+type Sayfa = 'komuta' | 'durum' | 'eksikler' | 'markalar' | 'duzada' | 'merch' | 'yazi' | 'oyun' | 'galeri' | 'studyo' | 'sosyal' | 'site' | 'takvim' | 'studyo3b' | 'fanzin' | 'yolharitasi' | 'araclar';
 
 export interface WorkspaceUser {
   uid: string;
@@ -691,12 +699,16 @@ export default function App() {
     { grup: 'Marka', satirlar: [
       { id: 'markalar', ad: 'Markalar', simge: Shield },
       { id: 'merch', ad: 'Merch', alt: 'droplar ve ürünler', simge: ShoppingBag },
+      { id: 'studyo3b', ad: '3B stüdyo', alt: 'renk ve baskı denemesi', simge: Box },
       { id: 'galeri', ad: 'Galeri', simge: ImageIcon }
     ] },
     { grup: 'Araçlar', satirlar: [
+      { id: 'araclar', ad: 'Bütün araçlar', alt: 'hepsi tek ekranda', simge: LayoutGrid },
       { id: 'studyo', ad: 'Stüdyo', alt: 'yapay zekâ, öneri tepsisi', simge: Sparkles, nokta: bildirimVar('aday') },
-      { id: 'sosyal', ad: 'Sosyal medya', alt: 'takvim ve seriler', simge: Megaphone },
+      { id: 'fanzin', ad: 'Fanzin', alt: 'aylık dergi', simge: Newspaper },
       { id: 'takvim', ad: 'Takvim', alt: 'drop, gönderi, fanzin', simge: CalendarDays },
+      { id: 'yolharitasi', ad: 'Yol haritası', alt: 'sıradaki işler, hedefler', simge: Milestone },
+      { id: 'sosyal', ad: 'Sosyal medya', alt: 'takvim ve seriler', simge: Megaphone },
       { id: 'site', ad: 'Site', alt: 'kems.company önizlemesi', simge: Globe },
       { id: 'eksikler', ad: 'Neyin Eksik', simge: ListChecks, nokta: bildirimVar('dugme') },
       { id: 'durum', ad: 'Durum', alt: 'yüzdeler ve boşluklar', simge: Percent }
@@ -706,7 +718,24 @@ export default function App() {
   /** Menü açılınca görünen yazılar (kapalıyken gizli, yer kaplamaz) */
   const RAY_ADI = 'min-w-0 whitespace-nowrap opacity-0 group-hover/ray:opacity-100 group-has-[:focus-visible]/ray:opacity-100 transition-opacity duration-150';
 
+  /**
+   * Telefonda "Diğer" (30 Eylül, Kemal: "büyük şeyler çok derine saklanmış"):
+   * en çok kullanılan araçlar en üstte; 3B stüdyo, Fanzin, Takvim, Yol
+   * haritası kendi satırlarında.
+   */
   const DIGER: Array<{ grup: string; satirlar: Array<{ hedef: string; ad: string; simge: React.ElementType; nokta?: boolean }> }> = [
+    { grup: 'Araçlar', satirlar: [
+      { hedef: 'studyo', ad: 'Stüdyo', simge: Sparkles, nokta: bildirimVar('aday') },
+      { hedef: 'studyo3b', ad: '3B stüdyo', simge: Box },
+      { hedef: 'fanzin', ad: 'Fanzin', simge: Newspaper },
+      { hedef: 'takvim', ad: 'Takvim', simge: CalendarDays },
+      { hedef: 'yolharitasi', ad: 'Yol haritası', simge: Milestone },
+      { hedef: 'sosyal', ad: 'Sosyal medya', simge: Megaphone },
+      { hedef: 'site', ad: 'Site', simge: Globe },
+      { hedef: 'eksikler', ad: 'Neyin Eksik', simge: ListChecks, nokta: bildirimVar('dugme') },
+      { hedef: 'durum', ad: 'Durum ve boşluklar', simge: Percent },
+      { hedef: 'araclar', ad: 'Bütün araçlar', simge: LayoutGrid }
+    ] },
     { grup: 'Evren', satirlar: [
       { hedef: 'kitap', ad: 'Kitap', simge: BookOpen },
       { hedef: 'blog', ad: 'Blog', simge: PenTool },
@@ -715,14 +744,6 @@ export default function App() {
     { grup: 'Marka', satirlar: [
       { hedef: 'markalar', ad: 'Markalar', simge: Shield },
       { hedef: 'galeri', ad: 'Galeri', simge: ImageIcon }
-    ] },
-    { grup: 'Araçlar', satirlar: [
-      { hedef: 'studyo', ad: 'Stüdyo', simge: Sparkles, nokta: bildirimVar('aday') },
-      { hedef: 'sosyal', ad: 'Sosyal medya', simge: Megaphone },
-      { hedef: 'takvim', ad: 'Takvim', simge: CalendarDays },
-      { hedef: 'site', ad: 'Site', simge: Globe },
-      { hedef: 'eksikler', ad: 'Neyin Eksik', simge: ListChecks, nokta: bildirimVar('dugme') },
-      { hedef: 'durum', ad: 'Durum ve boşluklar', simge: Percent }
     ] }
   ];
 
@@ -737,7 +758,7 @@ export default function App() {
 
   const SAYFA_ADI: Record<Sayfa, string> = {
     komuta: 'Ana sayfa', duzada: 'Düzada', markalar: 'Markalar', merch: 'Merch', yazi: 'Yazı',
-    oyun: 'Oyun', galeri: 'Galeri', eksikler: 'Neyin Eksik', durum: 'Durum', studyo: 'Yapay zekâ stüdyosu', sosyal: 'Sosyal medya', site: 'Site', takvim: 'Takvim'
+    oyun: 'Oyun', galeri: 'Galeri', eksikler: 'Neyin Eksik', durum: 'Durum', studyo: 'Yapay zekâ stüdyosu', sosyal: 'Sosyal medya', site: 'Site', takvim: 'Takvim', studyo3b: '3B stüdyo', fanzin: 'Fanzin', yolharitasi: 'Yol haritası', araclar: 'Araçlar'
   };
 
   const logo = hasKemsLogo ? (
@@ -775,7 +796,7 @@ export default function App() {
     <div className="min-h-screen bg-[#E4DCCD] dark:bg-[#0B132B] text-[#0E1C4F] dark:text-[#F3EFE8] font-sans transition-colors duration-200 paper-grain selection:bg-[#F26B6F] selection:text-white">
 
       {/* MASAÜSTÜ: ince simge çubuğu; üstüne gelince açılır, adlar görünür */}
-      <nav className="group/ray hidden lg:flex fixed inset-y-0 left-0 z-40 w-16 hover:w-60 has-[:focus-visible]:w-60 hover:delay-150 transition-[width,box-shadow] duration-200 hover:shadow-2xl flex-col py-3 overflow-x-hidden overflow-y-auto bg-[#0E1C4F] dark:bg-[#081029]">
+      <nav className="group/ray hidden lg:flex fixed inset-y-0 left-0 z-40 w-16 hover:w-60 has-[:focus-visible]:w-60 hover:delay-150 transition-[width,box-shadow] duration-200 hover:shadow-2xl flex-col py-3 overflow-x-hidden overflow-y-auto [scrollbar-width:none] bg-[#0E1C4F] dark:bg-[#081029]">
         <button type="button" onClick={() => git('komuta')} aria-label="Ana sayfa" className="mx-3 mb-2 flex items-center gap-3 cursor-pointer">
           {logo}
           <span className={RAY_ADI}><b className="block text-[13px] text-white">Kems Komuta</b><span className="block text-[10px] text-[#A6B0C9]">Merkezi</span></span>
@@ -986,6 +1007,11 @@ export default function App() {
             {activeTab === 'site' && (
               <SiteYonetimi items={items} onUpdateItem={handleUpdateItem} onAddItem={handleAddItem} onOnizleme={() => git('site-onizleme')} onMaddeyiAc={maddeyiAc} />
             )}
+
+            {activeTab === 'araclar' && <Araclar onGit={id => git(id)} />}
+            {activeTab === 'studyo3b' && <Studyo3BSayfasi items={items} onUpdateItem={handleUpdateItem} onAddItem={handleAddItem} />}
+            {activeTab === 'fanzin' && <FanzinSayfasi items={items} onUpdateItem={handleUpdateItem} onStudyo={() => git('studyo')} />}
+            {activeTab === 'yolharitasi' && <YolHaritasiSayfasi items={items} eposta={girisli ? user?.email : null} onUpdateItem={handleUpdateItem} onAddItem={handleAddItem} />}
 
             {activeTab === 'takvim' && (
               <Takvim items={items} onAc={o => {
