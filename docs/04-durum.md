@@ -915,6 +915,27 @@ Bu sefer kod değişti (2.–4. set belgeydi).
 
 Görseller: `docs/gorseller/h1-*.png` (önizleme, örnek veri).
 
+## 30 Eylül akşam — büyük PR, 2. teslim: Merch 3B stüdyo (yapisal-4, 6. tur)
+
+**Uygulamada var:**
+- Merch → **3B Stüdyo** sekmesi. Tişört ve sweatshirt; regular / oversize.
+  Giysi kalıptan çiziliyor (dosya indirilmiyor), ön ve arka ayrı.
+- Renk: Kems Company paleti, künyesinde renk kodu yazan kurumların paleti
+  (örn. Dirlik "Renkler:" satırı), serbest renk seçici ve kod kutusu.
+- Katmanlar: "PNG ekle" (birden çok) ya da "Galeri'den". Giysinin üstünde
+  sürükleyerek yerleşir; boyut, açı, ön / arka, sıra, sil.
+- Sade krem stüdyo zemini, yumuşak ışık; Ön · Arka · Yan düğmeleri.
+- Çıktı: **PNG indir**, **Galeri'ye kaydet** (ürün görseli olarak),
+  **Tasarımı ürüne kaydet** (renk, kalıp, katmanlar ürünün kaydına; ürün
+  seçilince yeniden açılır). Ürün sayfasında "3B stüdyoda dene / 3B
+  tasarımı aç" düğmesi.
+- Kayda yalnız bu düğmelerle yazılır.
+
+**Henüz yok:** şapka, bez çanta, kupa, poster / sticker kalıpları (soluk
+duruyor). Kumaş gerçek fotoğraf kalitesinde değil; sade bir önizleme.
+
+Görseller: `docs/gorseller/3b-studyo-*.png` (önizleme, örnek veri).
+
 ## Sıradaki
 
 - Oyunun tasarım belgesinin doldurulması (13 başlık)

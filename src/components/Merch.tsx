@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, Suspense, lazy } from 'react';
 import { ShoppingBag, Sparkles, FolderDot, Bookmark, ChevronRight, ChevronLeft, ChevronDown, ChevronUp, RotateCcw, Palette, Image, Plus, Layers, Check, Trash2, Archive, Edit3 } from 'lucide-react';
 import { StudyodaAc } from './studyo/StudyodaAc';
 import { Item, ItemType, AreaType } from '../types';
@@ -11,12 +11,16 @@ import { markaYapisi, KURUM_ALANI } from '../lib/markaYapisi';
 import { KurumOzeti } from './marka/KurumOzeti';
 import { MerchPano } from './merch/MerchPano';
 
+// three.js büyük; yalnız 3B stüdyo açılınca yüklenir
+const Studyo3B = lazy(() => import('./merch/Studyo3B'));
+
 /** Merch ekranının bölümleri — bunlar sekme, kaydırma değil */
 const RAY_BOLUMLERI: RayBolumu[] = [
   { id: 'home', label: 'Genel bakış' },
   { id: 'pano', label: 'Pano' },
   { id: 'droplar', label: 'Dropler' },
   { id: 'urunler', label: 'Ürünler' },
+  { id: 'studyo3b', label: '3B Stüdyo' },
   { id: 'arsiv', label: 'Arşiv' }
 ];
 
@@ -44,7 +48,8 @@ export default function Merch({
   // drop/ürüne kurumun arması konur (merchYedekGorseli).
   const items = useMemo(() => hamItems.map(hazirFotosuz), [hamItems]);
   const kapak = (i: Item) => (i.images && i.images[0]) || merchYedekGorseli(i, items);
-  const [activeTab, setActiveTab] = useState<'home' | 'pano' | 'droplar' | 'urunler' | 'arsiv'>('home');
+  const [activeTab, setActiveTab] = useState<'home' | 'pano' | 'droplar' | 'urunler' | 'studyo3b' | 'arsiv'>('home');
+  const [studyoUrunu, setStudyoUrunu] = useState<string | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [archiveConfirmId, setArchiveConfirmId] = useState<string | null>(null);
   
@@ -543,6 +548,20 @@ export default function Merch({
           {/* Sekmeler sayfa rayında (masaüstünde solda, telefonda üstte) — burada tekrar edilmez */}
         </div>
       </div>
+
+      {/* 3B STÜDYO (yapisal-4, 6. tur) */}
+      {activeTab === 'studyo3b' && !activeItem && (
+        <Suspense fallback={<div className="h-[60vh] rounded-2xl bg-[#F3EFE8] dark:bg-[#13204A] animate-pulse" />}>
+          <Studyo3B
+            items={items}
+            urunler={products}
+            kurumlar={kurumlar}
+            baslangicUrunId={studyoUrunu}
+            onUpdateItem={onUpdateItem}
+            onAddItem={onAddItem}
+          />
+        </Suspense>
+      )}
 
       {/* PANO (Paket 5): Konsept → Tasarım → Üretim → Satışta */}
       {activeTab === 'pano' && !activeItem && (
@@ -1503,6 +1522,15 @@ export default function Merch({
                   })}
                 </div>
               ) : null}
+              {activeItem.type === 'merch_urun' && (
+                <button
+                  type="button"
+                  onClick={() => { setStudyoUrunu(activeItem.id); setActiveTab('studyo3b'); onSelectItem(null); }}
+                  className="mt-2 w-full py-2 rounded-lg border border-[#CFC5B4] bg-white dark:bg-[#17345A] text-xs font-bold text-[#0E1C4F] dark:text-[#F3EFE8] hover:border-[#F26B6F]"
+                >
+                  {(activeItem.metadata as any)?.tasarim3b ? '3B tasarımı aç' : '3B stüdyoda dene'}
+                </button>
+              )}
             </div>
 
             {/* Düzenle (Edit) Button Bar */}
