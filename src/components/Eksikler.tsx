@@ -14,6 +14,7 @@ import { markaYapisi } from '../lib/markaYapisi';
 import { TemizlikKarti } from './TemizlikKarti';
 import { GaleriYedegiKarti } from './GaleriYedegiKarti';
 import { KanonKarti } from './KanonKarti';
+import { vikiDuzeni } from '../lib/vikiDuzeni';
 import { boslukDoldurma } from '../lib/boslukDoldurma';
 import { haritadaAra, maddeTohumu } from '../lib/haritaMaddesi';
 
@@ -723,6 +724,18 @@ export const Eksikler: React.FC<EksiklerProps> = ({
           baslik="boşluklar künyedeki cevaplarla dolacak"
           aciklama="Künyede cevabı yazılı olan boş alanlar dolar (tür, mahalle, yıllar, sahibi, sezon, simgeler, sakinler). Dolu alana ve tarihçe metnine dokunulmaz."
           yedekAdi="bosluk-oncesi"
+        />
+      )}
+
+      {/* Viki düzeni (yapisal-4): Karakter → Kişi, yaş alanı, Kems Company 2025 — tek seferlik */}
+      {onUpdateItem && (
+        <KanonKarti
+          items={items}
+          onUpdateItem={onUpdateItem}
+          hesapla={vikiDuzeni}
+          baslik="viki düzeni: Karakter → Kişi, yaş alanı kalkar, Kems Company 2025"
+          aciklama="Karakter türündeki kayıtlar Kişi olur (künye ve metin aynen kalır); kişilerin künyesindeki Yaş satırı ve yaş alanı silinir; Kems Company'nin kuruluş yılı 2025 olur."
+          yedekAdi="viki-duzeni-oncesi"
         />
       )}
 

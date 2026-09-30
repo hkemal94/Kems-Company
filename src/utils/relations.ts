@@ -1,8 +1,25 @@
 import { Item, ItemType } from '../types';
 
+/**
+ * Bağ türleri — sabit liste (yapisal-4, 28: "sahibi, çalışır, akrabası…").
+ * Madde düzenleyicide bağ bu listeden seçilir; yeni tür elle eklenmez.
+ */
+export const BAG_TURLERI = [
+  { id: 'bulunduğu yer', ad: 'Bulunduğu yer' },
+  { id: 'sahibi', ad: 'Sahibi' },
+  { id: 'çalışanı', ad: 'Çalışır' },
+  { id: 'üyesi', ad: 'Üyesi' },
+  { id: 'akrabası', ad: 'Akrabası' },
+  { id: 'ait olduğu marka', ad: 'Ait olduğu kurum' },
+  { id: 'ilgili olay', ad: 'İlgili olay' },
+  { id: 'tanıdığı kişi', ad: 'Tanıdığı' },
+  { id: 'genel bağlantı', ad: 'Genel bağ' }
+] as const;
+export type BagTuru = typeof BAG_TURLERI[number]['id'];
+
 export interface Relation {
   targetId: string;
-  type: 'bulunduğu yer' | 'sahibi' | 'çalışanı' | 'üyesi' | 'ait olduğu marka' | 'ilgili olay' | 'tanıdığı kişi' | 'genel bağlantı';
+  type: BagTuru;
   isProposal?: boolean;
   reason?: string;
 }
@@ -15,7 +32,7 @@ export interface BidirectionalRelation {
   targetTitle: string;
   sourceType: ItemType;
   targetType: ItemType;
-  type: 'bulunduğu yer' | 'sahibi' | 'çalışanı' | 'üyesi' | 'ait olduğu marka' | 'ilgili olay' | 'tanıdığı kişi' | 'genel bağlantı';
+  type: BagTuru;
   isProposal: boolean;
   reason?: string;
   originItemId: string; // Which item actually stores this relation record
@@ -23,6 +40,11 @@ export interface BidirectionalRelation {
 
 // Check if an item has any accepted links/connections (implicit or explicit)
 export function isEntityUnlinked(item: Item, allItems: Item[]): boolean {
+  // Aile bağı (yapisal-4): kişinin künyesindeki "Aile" alanı da bağ sayılır
+  const aileAdi = (x: Item) => String((x.metadata?.profile as Record<string, unknown> | undefined)?.aile || '').trim().toLocaleLowerCase('tr');
+  if ((item.type === 'kisi' || item.type === 'karakter') && aileAdi(item)) return false;
+  if (item.type === 'aile' && allItems.some(x => !x.archived && aileAdi(x) === item.title.trim().toLocaleLowerCase('tr'))) return false;
+
   if (item.archived || item.isProposal) return false;
 
   // 1. Explicit metadata.relations
@@ -91,6 +113,11 @@ export function getRelationLabels(
       return {
         forward: 'İlgili Olay / Vakıa',
         inverse: 'Olayla İlişkili Kişiler / Yerler'
+      };
+    case 'akrabası':
+      return {
+        forward: 'Akrabaları',
+        inverse: 'Akrabaları'
       };
     case 'tanıdığı kişi':
       return {

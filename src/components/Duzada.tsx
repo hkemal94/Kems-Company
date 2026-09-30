@@ -1374,6 +1374,8 @@ export default function Duzada({
             onSelectItem(id);
           }}
           onHaritayaGit={() => setActiveTab('harita')}
+          onUpdateItem={onUpdateItem}
+          onAddItem={onAddItem}
           onSitede={(it, acik) => {
             // Yalnız Kemal basınca yazılır. Kayıt eskisinin üstüne eklenerek
             // yazıldığı için alanı silmek işe yaramıyor; kapatınca false yazılır.

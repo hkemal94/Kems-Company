@@ -1,3 +1,4 @@
+import { takvimOlaylari, type TakvimOlayi } from '../../lib/takvim';
 import React, { useEffect, useMemo, useState } from 'react';
 import { ChevronLeft, ChevronRight, Plus, EyeOff, Eye } from 'lucide-react';
 import type { Item } from '../../types';
@@ -158,6 +159,14 @@ export const Sosyal: React.FC<Props> = ({ items, onAddItem, onUpdateItem, onDele
     </button>
   );
 
+  /** Drop çıkışları (yapisal-4, 35: tek takvim). Tarih Merch'te girilir; burada yalnız görünür. */
+  const droplar = takvimOlaylari(items, ay.y, ay.a, ['drop']);
+  const dropCip = (d: TakvimOlayi, ince = false) => (
+    <div key={d.id} title={`Drop çıkışı · ${d.baslik}`} className={`rounded-lg bg-[#F26B6F] text-white font-semibold truncate ${ince ? 'px-1.5 py-0.5 text-[10.5px]' : 'px-2.5 py-1.5 text-[12px]'}`}>
+      Drop · {d.baslik}
+    </div>
+  );
+
   const Suzgec = (
     <div className="flex gap-1.5 overflow-x-auto pb-1 -mx-1 px-1">
       <button type="button" onClick={() => setKanalSuz('')} className={cip(!kanalSuz)}>Tüm kanallar</button>
@@ -195,6 +204,7 @@ export const Sosyal: React.FC<Props> = ({ items, onAddItem, onUpdateItem, onDele
               <span className={`text-[12px] font-bold w-6 h-6 flex items-center justify-center rounded-full ${t === bugun ? 'bg-[#F26B6F] text-white' : t < bugun ? 'text-[#B3A894] dark:text-[#6F7BA0]' : YAZI}`}>{gun}</span>
               <button type="button" onClick={() => yeni({ tarih: t })} title="Bu güne gönderi" className={`w-6 h-6 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 focus:opacity-100 ${IKINCIL} hover:bg-[#F3EFE8] dark:hover:bg-[#17345A] cursor-pointer`}><Plus className="w-3.5 h-3.5" /></button>
             </div>
+            {(droplar.get(t) || []).map(d => dropCip(d, true))}
             {liste.map(g => gonderiCip(g, true))}
             {bos.map(s => bosYerCip(s, t, true))}
           </div>
@@ -209,7 +219,7 @@ export const Sosyal: React.FC<Props> = ({ items, onAddItem, onUpdateItem, onDele
     const sayi = new Date(ay.y, ay.a + 1, 0).getDate();
     for (let d = 1; d <= sayi; d++) {
       const t = tarihYaz(ay.y, ay.a, d);
-      if (t === bugun || gunde(t).length || bosYer.has(t)) g.push(t);
+      if (t === bugun || gunde(t).length || bosYer.has(t) || droplar.has(t)) g.push(t);
     }
     return g;
   })();
@@ -227,6 +237,7 @@ export const Sosyal: React.FC<Props> = ({ items, onAddItem, onUpdateItem, onDele
               <div className={`text-[10px] font-bold uppercase tracking-[0.1em] ${IKINCIL}`}>{GUN_KISA[(d.getDay() + 6) % 7]}</div>
             </div>
             <div className="flex-1 min-w-0 space-y-1.5 pb-2 border-b border-[#E4DCCD] dark:border-[#2C3C72]">
+              {(droplar.get(t) || []).map(d => dropCip(d))}
               {liste.map(g => gonderiCip(g))}
               {bos.map(s => bosYerCip(s, t))}
               {!liste.length && !bos.length && (

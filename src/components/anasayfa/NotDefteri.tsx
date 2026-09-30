@@ -1,3 +1,4 @@
+import { nottakiMaddeler } from '../../lib/notBaglari';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Plus } from 'lucide-react';
 import type { Item } from '../../types';
@@ -24,11 +25,13 @@ interface Props {
   /** "+" düğmesiyle gelinince yeni sayfa açılır; açılınca haber verilir */
   yeniSayfaBekliyor?: boolean;
   onYeniSayfaAcildi?: () => void;
+  /** #madde bağına basınca maddeyi açar */
+  onMaddeAc?: (item: Item) => void;
 }
 
 const bugunAdi = () => new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
 
-export const NotDefteri: React.FC<Props> = ({ items, onAddItem, onUpdateItem, uzun = false, yeniSayfaBekliyor = false, onYeniSayfaAcildi }) => {
+export const NotDefteri: React.FC<Props> = ({ items, onAddItem, onUpdateItem, uzun = false, yeniSayfaBekliyor = false, onYeniSayfaAcildi, onMaddeAc }) => {
   const sayfalar = useMemo(
     () => items.filter(i => !i.archived && (i.tags || []).includes(DEFTER_ETIKETI)).sort((a, b) => b.updatedAt - a.updatedAt),
     [items]
@@ -166,6 +169,20 @@ export const NotDefteri: React.FC<Props> = ({ items, onAddItem, onUpdateItem, uz
               style={cizgili}
               className={`w-full resize-y bg-transparent text-[14px] lg:text-[13px] ${YAZI} placeholder:text-[#6A5E4C]/70 dark:placeholder:text-[#A6B0C9]/70 focus:outline-hidden ${uzun ? 'min-h-[52vh]' : 'min-h-[182px]'}`}
             />
+            {/* Not → madde bağı: metinde "#Madde adı" */}
+            {(() => {
+              const bagli = nottakiMaddeler(metin, items);
+              return (
+                <div className="flex flex-wrap items-center gap-1.5 py-1">
+                  {bagli.map(m => (
+                    <button key={m.id} type="button" onClick={() => onMaddeAc?.(m)} className="px-2 py-0.5 rounded-full bg-[#F26B6F]/12 text-[11px] font-semibold text-[#D6484C] dark:text-[#F26B6F] hover:underline cursor-pointer">
+                      #{m.title}
+                    </button>
+                  ))}
+                  {!bagli.length && <span className={`text-[10px] ${IKINCIL}`}>Maddeye bağlamak için "#" ile adını yaz: #Dirlik Stadı</span>}
+                </div>
+              );
+            })()}
             <div className="flex justify-end">
               {kaldirOnay ? (
                 <span className="flex items-center gap-2 text-[11px]">

@@ -5,6 +5,7 @@ import { w4Aktarimi } from './w4Aktarimi';
 import { w5Aktarimi } from './w5Aktarimi';
 import { kanonKararlari } from './kanonKararlari';
 import { boslukDoldurma } from './boslukDoldurma';
+import { vikiDuzeni } from './vikiDuzeni';
 import { silinecekler } from './temizlik';
 import { galeridenEksikler } from '../components/GaleriYedegiKarti';
 
@@ -26,6 +27,7 @@ export function bekleyenDugmeler(items: Item[], haritaEskiKoordinatta = false): 
   if (haritaEskiKoordinatta) is.push('harita düzeni yeni koordinata');
   if (kanonKararlari(items).length) is.push('kanon kararları');
   if (boslukDoldurma(items).length) is.push('boşlukları künyeden doldur');
+  if (vikiDuzeni(items).length) is.push('viki düzeni (Karakter → Kişi)');
   const w5 = w5Aktarimi(items);
   if (w5.guncellenenler.length + w5.gorseller.length) is.push('W5 viki düzeltmeleri');
   const sc = soruCevapAktarimi(items);

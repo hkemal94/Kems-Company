@@ -17,25 +17,29 @@ const EK_TURLER: Record<string, string> = { blog_post: 'Blog yazısı', kitap_bo
 interface Props extends StudyoIslemleri {
   arac: StudyoAraci;
   hedefId?: string;
+  /** Serbest kutunun ilk yazısı */
+  serbestIlk?: string;
   /** Kota dolu ya da sunucu yoksa düğme kapalı */
   kapali?: string | null;
   onDurum?: () => void;
 }
 
-export const AracCalistirici: React.FC<Props> = ({ arac, hedefId: ilkHedef, kapali, onDurum, ...islemler }) => {
+export const AracCalistirici: React.FC<Props> = ({ arac, hedefId: ilkHedef, serbestIlk, kapali, onDurum, ...islemler }) => {
   const { items, onAddItem } = islemler;
   const adaylar = useMemo(() => items
     .filter(i => !i.archived && !i.isProposal && arac.hedefTurleri?.includes(i.type))
     .sort((a, b) => a.title.localeCompare(b.title, 'tr')), [items, arac]);
   const [hedefId, setHedefId] = useState<string>(ilkHedef && adaylar.some(a => a.id === ilkHedef) ? ilkHedef : '');
-  const [serbest, setSerbest] = useState('');
+  const [serbest, setSerbest] = useState(serbestIlk || '');
+  // Kayıt seçilmeden çalışan araçlar (fanzin): kaynak bütün kayıtlar
+  const hedefsiz = arac.hedefTurleri === null;
   const [calisiyor, setCalisiyor] = useState(false);
   const [hata, setHata] = useState<string | null>(null);
   const [bitti, setBitti] = useState(false);
   const hedef: Item | null = items.find(i => i.id === hedefId) || null;
 
   const calistir = async () => {
-    if (!hedef || calisiyor) return;
+    if ((!hedef && !hedefsiz) || calisiyor) return;
     setCalisiyor(true); setHata(null); setBitti(false);
     try {
       const sonuc = await araciCalistir(arac, hedef, serbest, items);
@@ -57,13 +61,13 @@ export const AracCalistirici: React.FC<Props> = ({ arac, hedefId: ilkHedef, kapa
         <div className={ETIKET}>{arac.ad}</div>
         <p className={`mt-1 text-[12px] leading-snug ${IKINCIL}`}>{arac.aciklama}</p>
       </div>
-      <label className="block">
+      {!hedefsiz && <label className="block">
         <span className={`block mb-1 text-[11px] ${IKINCIL}`}>Hangi kayıt?</span>
         <select value={hedefId} onChange={e => { setHedefId(e.target.value); setBitti(false); }} className={secimSinifi}>
           <option value="">Seç…</option>
           {adaylar.map(a => <option key={a.id} value={a.id}>{a.title} · {TYPE_LABELS[a.type] || EK_TURLER[a.type] || a.type}</option>)}
         </select>
-      </label>
+      </label>}
       {arac.serbest && (
         <label className="block">
           <span className={`block mb-1 text-[11px] ${IKINCIL}`}>{arac.serbest}</span>
@@ -71,7 +75,7 @@ export const AracCalistirici: React.FC<Props> = ({ arac, hedefId: ilkHedef, kapa
         </label>
       )}
       <div className="flex flex-wrap items-center gap-2">
-        <button type="button" onClick={calistir} disabled={!hedef || calisiyor || !!kapali} className={`${DUGME_LAC} inline-flex items-center gap-1.5`}>
+        <button type="button" onClick={calistir} disabled={(!hedef && !hedefsiz) || calisiyor || !!kapali} className={`${DUGME_LAC} inline-flex items-center gap-1.5`}>
           <Sparkles className="w-3.5 h-3.5" /> {calisiyor ? 'Hazırlanıyor…' : 'Çalıştır'}
         </button>
         {kapali && <span className="text-[11px] text-[#B23A40] dark:text-[#F26B6F]">{kapali}</span>}

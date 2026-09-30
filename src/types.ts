@@ -14,7 +14,7 @@ export type KitapStatus = 'taslak' | 'yazıldı' | 'düzeltildi';
 export type ItemType = 
   // Düzada types
   | 'kulüp' | 'dükkân' | 'karakter' | 'mekân' | 'ürün' | 'olay' | 'map_settings' | 'map_pin'
-  | 'marka' | 'kisi' | 'yer' | 'oda'
+  | 'marka' | 'kisi' | 'yer' | 'oda' | 'aile'
   // Merch types
   | 'drop' | 'merch_urun'
   // Blog types
@@ -34,7 +34,13 @@ export type ItemType =
   // Oyunun tanıtım künyesi (Paket 5): durum, özet, açıklama, ekran görüntüleri
   | 'oyun_tanitim'
   // Sosyal medya (29 Eylül gece): gönderi, seri, Pinterest panosu
-  | 'sosyal_gonderi' | 'sosyal_seri' | 'ilham_kaynak';
+  | 'sosyal_gonderi' | 'sosyal_seri' | 'ilham_kaynak'
+  // Site ayarları (30 Eylül): taslak + yayındaki, tek kayıt
+  | 'site_ayar'
+  // Gece hazırlığının defteri (30 Eylül): son yapılan gün, son fanzin ayı
+  | 'gece_hazirlik'
+  // KKM ayarları (30 Eylül): Durum hedefleri, yol haritasında bitenler
+  | 'kkm_ayar';
 
 export interface WikiSection {
   id: string;
@@ -97,7 +103,7 @@ export interface Item {
     editionCount?: number; // e.g. 1, 2 for Drop
 
     // Blog specific
-    categoryType?: 'lore yazısı' | 'duyuru' | 'kişisel' | 'rehber';
+    categoryType?: 'lore yazısı' | 'duyuru' | 'kişisel' | 'rehber' | 'fanzin';
     isWikiHooked?: boolean;
 
     // Kitap specific

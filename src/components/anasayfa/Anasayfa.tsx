@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Plus, RefreshCw, Search } from 'lucide-react';
+import { Plus, Search } from 'lucide-react';
 import type { Item } from '../../types';
 import { durumOranlari } from '../../lib/durumOranlari';
 import { adayKaydi, soruyuErtele, sorulacaklar } from '../../lib/adaylar';
@@ -12,6 +12,7 @@ import type { StudyoIslemleri } from '../studyo/StudyoBaglami';
 import { EksikOzeti } from './EksikOzeti';
 import { NotDefteri } from './NotDefteri';
 import { DuzadaKarti } from './DuzadaKarti';
+import { AdaKarti } from './AdaKarti';
 import { ETIKET, KART, IKINCIL, YAZI } from './stil';
 
 /**
@@ -65,17 +66,10 @@ export const Anasayfa: React.FC<Props> = ({
   onOpenSearch, onBildirimYenile, zil, yeniNotBekliyor, onYeniNot, onYeniNotAcildi, sekme, onSekme
 }) => {
   const [nabiz, setNabiz] = useState(0);
-  const [kaydirma, setKaydirma] = useState(0);
   const oranlar = useMemo(() => durumOranlari(items), [items]);
   const eksikler = useMemo(() => eksikleriCikar(items), [items]);
   const sorular = useMemo(() => sorulacaklar(items, 40), [items, nabiz]); // eslint-disable-line react-hooks/exhaustive-deps
   const gununSorusu = sorular[0];
-  const atolyeSorulari = useMemo(() => {
-    const kalan = sorular.slice(1);
-    if (!kalan.length) return [];
-    const bas = kaydirma % kalan.length;
-    return [...kalan.slice(bas), ...kalan.slice(0, bas)].slice(0, 3);
-  }, [sorular, kaydirma]);
   const adaySayisi = items.filter(i => i.type === 'aday' && !i.archived).length;
   const cevapla = (gunun: boolean) => async (b: NonNullable<typeof gununSorusu>, cevap: string, secenektenMi: boolean) => {
     await onAddItem(adayKaydi(b, cevap, secenektenMi));
@@ -92,7 +86,7 @@ export const Anasayfa: React.FC<Props> = ({
 
   const TEL_SEKMELERI: Array<{ id: TelSekmesi; ad: string; rozet?: number }> = [
     { id: 'bugun', ad: 'Bugün', rozet: adaySayisi || undefined },
-    { id: 'atolye', ad: 'Atölye' },
+    { id: 'atolye', ad: 'Ada' },
     { id: 'notlar', ad: 'Notlar' },
     { id: 'durum', ad: 'Durum' }
   ];
@@ -163,34 +157,13 @@ export const Anasayfa: React.FC<Props> = ({
         uzununun boyuna uzar, alt kenarları aynı çizgide biter.
       */}
       <div className="grid gap-3 lg:gap-4 lg:grid-cols-3 lg:items-stretch">
-        {/* Üretim atölyesi */}
-        <section className={`${gorunur('atolye')} lg:col-span-2 lg:!flex flex-col rounded-2xl bg-[#0E1C4F] dark:bg-[#13204A] dark:border dark:border-[#2C3C72] text-[#F3EFE8] p-4 lg:p-5`}>
-          <div className="text-[10px] font-mono font-bold uppercase tracking-[0.18em] text-[#A6B0C9]">Üretim atölyesi</div>
-          <h2 className="mt-1 text-[18px] font-bold">Vikideki boşluklardan sorular</h2>
-          <p className="mt-1 text-[12px] leading-relaxed text-[#C9D0E3]">
-            Cevabını yaz ya da "✨ Stüdyoda aç" ile yapay zekâdan seçenek iste. Hiçbiri sen onaylamadan vikiye girmez — önce öneri tepsisine düşer.
-          </p>
-          <div className="mt-3 flex gap-1.5 overflow-x-auto -mx-4 px-4 lg:mx-0 lg:px-0">
-            <span className="shrink-0 px-3 py-1.5 rounded-full bg-[#F26B6F] text-white text-[11px] font-semibold">Kanon sorusu</span>
-            <button type="button" onClick={() => setKaydirma(k => k + 3)} className="shrink-0 flex items-center gap-1 px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-[#F3EFE8] text-[11px] font-semibold cursor-pointer">
-              <RefreshCw className="w-3 h-3" /> Başka sorular
-            </button>
-          </div>
-          {atolyeSorulari.length ? (
-            <div className="mt-3 grid gap-2.5 md:grid-cols-3 flex-1">
-              {atolyeSorulari.map(b => (
-                <div key={b.anahtar} className="rounded-xl bg-[#FAF8F5] dark:bg-[#0F1A40] p-3 min-w-0 flex flex-col">
-                  <div className={ETIKET}>Kanon sorusu</div>
-                  <div className="mt-1.5 flex-1">
-                    <SoruKarti bosluk={b} onCevap={(c, s) => cevapla(false)(b, c, s)} onSonra={() => ertele(false, b.anahtar)} />
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="mt-3 text-[12px] text-[#C9D0E3]">Sorulacak boşluk kalmadı.</p>
-          )}
-        </section>
+        {/* Ada'dan bilgi + bugünün üretim önerileri (yapisal-4); atölyenin üç sorusu kalktı */}
+        <AdaKarti
+          items={items}
+          onMadde={onMaddeyiAc}
+          onTepsi={studyo.onStudyoSayfasi}
+          className={`${gorunur('atolye')} lg:col-span-2 lg:!flex flex-col`}
+        />
 
         <div className="flex flex-col gap-3 lg:gap-4 min-w-0">
           {/* Günün sorusu */}
@@ -221,7 +194,7 @@ export const Anasayfa: React.FC<Props> = ({
           <EksikOzeti eksikler={eksikler} dugmeler={bugunDugmeler} onAc={a => onGit('eksikler', a)} />
         </div>
         <div className={`${gorunur('notlar')} lg:[&>*]:h-full`}>
-          <NotDefteri items={items} onAddItem={onAddItem} onUpdateItem={onUpdateItem} uzun={sekme === 'notlar'} yeniSayfaBekliyor={yeniNotBekliyor} onYeniSayfaAcildi={onYeniNotAcildi} />
+          <NotDefteri items={items} onAddItem={onAddItem} onUpdateItem={onUpdateItem} onMaddeAc={onMaddeyiAc} uzun={sekme === 'notlar'} yeniSayfaBekliyor={yeniNotBekliyor} onYeniSayfaAcildi={onYeniNotAcildi} />
         </div>
         <div className={`${gorunur('durum')} lg:[&>*]:h-full`}>
           <DuzadaKarti items={items} onHarita={() => onGit('harita')} onMadde={onMaddeyiAc} />

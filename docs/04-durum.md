@@ -915,6 +915,124 @@ Bu sefer kod değişti (2.–4. set belgeydi).
 
 Görseller: `docs/gorseller/h1-*.png` (önizleme, örnek veri).
 
+## 30 Eylül akşam — büyük PR, 2. teslim: Merch 3B stüdyo (yapisal-4, 6. tur)
+
+**Uygulamada var:**
+- Merch → **3B Stüdyo** sekmesi. Tişört ve sweatshirt; regular / oversize.
+  Giysi kalıptan çiziliyor (dosya indirilmiyor), ön ve arka ayrı.
+- Renk: Kems Company paleti, künyesinde renk kodu yazan kurumların paleti
+  (örn. Dirlik "Renkler:" satırı), serbest renk seçici ve kod kutusu.
+- Katmanlar: "PNG ekle" (birden çok) ya da "Galeri'den". Giysinin üstünde
+  sürükleyerek yerleşir; boyut, açı, ön / arka, sıra, sil.
+- Sade krem stüdyo zemini, yumuşak ışık; Ön · Arka · Yan düğmeleri.
+- Çıktı: **PNG indir**, **Galeri'ye kaydet** (ürün görseli olarak),
+  **Tasarımı ürüne kaydet** (renk, kalıp, katmanlar ürünün kaydına; ürün
+  seçilince yeniden açılır). Ürün sayfasında "3B stüdyoda dene / 3B
+  tasarımı aç" düğmesi.
+- Kayda yalnız bu düğmelerle yazılır.
+
+**Henüz yok:** şapka, bez çanta, kupa, poster / sticker kalıpları (soluk
+duruyor). Kumaş gerçek fotoğraf kalitesinde değil; sade bir önizleme.
+
+Görseller: `docs/gorseller/3b-studyo-*.png` (önizleme, örnek veri).
+
+## 30 Eylül akşam — büyük PR, 3. teslim: site düzenleme (yapisal-4, 18)
+
+**Uygulamada var:**
+- KKM → Site sayfası sekmeli: **Sayfalar · Hakkında · İletişim · Maddeler**.
+- Taslak ve yayın ayrı: düzenlemeler "Taslağı kaydet" ile taslağa, "Yayınla"
+  ile siteye. "Taslağı önizle" siteyi taslakla açar (altta "Taslak · yayında
+  değil" şeridi); "Yayındakini aç" sitenin gerçek hâli.
+- Sayfalar: sıra sabit, her sayfa **gizle / göster**; gizlenen sayfa menüden
+  kalkar, adresle açılırsa anasayfa gelir. Her sayfaya Galeri'den başlık
+  görseli (Canva'dakiler önce Galeri'ye yüklenir).
+- Hakkında: metin kutusu + "Stüdyoda taslak iste" (stüdyoda "Site · Hakkında
+  taslağı" aracı; "Ekle" yalnız taslağa yazar).
+- İletişim: e-posta alanı; doluysa sitede tıklanır e-posta kartı.
+- Ayarlar tek kayıtta (`type: 'site_ayar'`); ilk kayıt Kemal'in düğmesiyle
+  oluşur.
+- Aynı teslimde küçükler: sitede **Est. 2025**, Haberler'deki **bülten kutusu
+  kalktı**, **arama** artık sitedeki viki + drop + ürün + yazıda,
+  **Projeler** kartlarında Hotel Game · Golf Game · Card Game (içerik boş).
+
+**Henüz yok:** maddelerin sitede görünmesi taslağa bağlı değil ("sitede
+göster" hemen görünür). Canva'dan doğrudan görsel çekme yok; Galeri üzerinden.
+
+Görseller: `docs/gorseller/site-duzenleme-*.png`, `site-taslak-*.png`.
+
+## 30 Eylül akşam — büyük PR, 4. teslim: fanzin ve gece önerileri (kural istisnası)
+
+**Uygulamada var:**
+- **Gece hazırlığı** (`src/lib/geceHazirligi.ts`): günde bir kez 3 üretim
+  önerisi (sosyal medya · drop / ürün · yazı / fanzin · harita / viki;
+  her gün biri dinlenir). Ayın ilk günü o ayın **fanzin taslağı**. Hepsi
+  yalnız öneri tepsisine düşer; "Ekle" demeden hiçbir kayda girmez.
+  - Uygulama gece açıksa gece yarısından sonra, değilse sabah ilk açılışta
+    hazırlanır (birkaç saniye). Yalnız Google ile girilmişken çalışır.
+  - Kota dolarsa bir saat sonra yeniden dener; limit yenilenince kaldığı
+    yerden devam eder. Son yapılan gün tek bir defter kaydında
+    (`type: 'gece_hazirlik'`), iki cihaz aynı günü iki kez hazırlamaz.
+  - Tepside "Ekle": sosyal → gönderi taslağı, yazı → blog taslağı, drop →
+    o drop'a Konsept ürün. Harita / viki önerisi yalnız okunur (kurgu
+    yazılmaz); "Kaydı aç" ile maddeye gidilir.
+- **Fanzin**: stüdyoda "Bu ayın fanzini" kartı (elle de çalışır). Tepside
+  "Fanzin olarak aç" → Yazı'da fanzin ekranı: bölümler serbest (ekle, sil,
+  sırala), adı yok ("Fanzin · Ekim 2026" yalnız etiket), her bölümde **ton**
+  seçimi ve "Bu tonda yaz · stüdyo". Temiz **dergi görünümü**.
+- Fanzin çıktıları: **Sitede göster** (Haberler; sitede yazıya tıklanınca
+  dergi görünümü), **PDF** (yazdırma penceresi → "PDF olarak kaydet"),
+  **Instagram karuseli** (kapak + her bölüm, 1080 × 1350 PNG).
+
+**Henüz yok / sınırlı:** Pinterest ve Canva kaynakları uygulamadaki kayıtlardan
+(Pinterest panoları, Galeri) okunur; Canva hesabına doğrudan bağlanmaz.
+Sunucu kapalıyken (önizleme) gece hazırlığı hiçbir şey yazmaz.
+
+Görseller: `docs/gorseller/fanzin-*.png` (önizleme; bölüm metinleri yer tutucu).
+
+## 30 Eylül gece — büyük PR, 5. teslim: küçükler
+
+**Uygulamada var:**
+- **Giriş:** atölyenin üç kanon sorusu kalktı; yerine lacivert kart —
+  **Ada'dan bilgi** (her gün başka bir viki maddesi, künyesinden ve metninden;
+  yapay zekâ yok) ve **Bugünün üretim önerileri** (gece hazırlanan üçü).
+  Günün sorusu tek soru; Neyin Eksik özeti duruyor; telefonda ilk ekran
+  yine Neyin Eksik. Telefon sekmesi "Atölye" → "Ada".
+- **Viki:** Karakter → Kişi (tek seferlik kart, künye ve metin aynen kalır);
+  yaş alanı kalktı; **Aile** türü (mahalle, uğraş, bağlı mekânlar, bağlı
+  kişiler, adaya geliş) ve aile sayfasında **üyeler + basit aile ağacı**
+  (kişinin künyesindeki "Aile" alanından); **sabit bağ türleri** (bulunduğu
+  yer, sahibi, çalışır, üyesi, akrabası, ait olduğu kurum, ilgili olay,
+  tanıdığı, genel bağ); maddede **"düzenle"** artık düzenleyici açar (künye,
+  bağlar, **esin notu** — yalnız Kemal görür, sitede yok); vikide
+  **"+ yeni madde"** (ad Kemal'in).
+- **Tek seferlik kart (Neyin Eksik):** "viki düzeni: Karakter → Kişi, yaş
+  alanı kalkar, Kems Company 2025".
+- **Merch:** ürünün Süreç sekmesinde **aşama yapılacakları** (hazır liste,
+  işaretlenir, eklenir, silinir). Drop'ta **çıkış tarihi**.
+- **Takvim:** drop çıkışları sosyal medya takviminde; Araçlar'da genel
+  **Takvim** (drop · gönderi · fanzin günü).
+- **Durum:** **sıradaki 3 iş**, **hedefler** (künye, kitap, harita, boşluk),
+  **yol haritası** (karar verilmiş, uygulamada henüz olmayan işler; "tamam"
+  ile düşer), **haftalık özet** ("Gmail'de aç": Kemal'in hesabında hazır
+  ileti; göndermek Kemal'de).
+- **Not defteri:** "#Madde adı" yazınca maddeye bağ olur; maddenin
+  sayfasında "Not defterinde geçiyor".
+- **Ortak alan kalktı:** tarayıcı Kemal'i hiç tanımıyorsa "Google ile
+  bağlan" ekranı. Tanıyorsa kendi alanı açılır.
+- **Yedek:** zilde **aylık yedek** hatırlatması (30 günü geçince); Yedekleme
+  penceresinde **"Drive'a kaydet · KKM yedekleri"** (klasör yoksa açılır).
+
+**Henüz yok / sınırlı:**
+- Haftalık özet kendiliğinden gönderilmiyor; Gmail'de hazır ileti açılır.
+  Kendiliğinden göndermek için Gmail gönderme izni gerekir (Google onayı).
+- Ortak alanda (kems_public) kalmış kayıt varsa görünmez; taşıma kartı Kemal
+  isterse (yol haritasında).
+- Yardımcı erişimi: ihtiyaç olunca.
+
+Görseller: `docs/gorseller/giris-*.png`, `viki-*.png`, `takvim.png`,
+`merch-yapilacaklar.png`, `durum-yol-haritasi.png`, `not-madde-bagi.png`,
+`zil-aylik-yedek.png` (önizleme, örnek veri).
+
 ## Sıradaki
 
 - Oyunun tasarım belgesinin doldurulması (13 başlık)

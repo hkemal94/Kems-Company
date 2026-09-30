@@ -18,7 +18,16 @@ interface WikiShellProps {
   /** Site (29 Eylül gece): maddeyi sitede göster / gizle */
   onSitede?: (item: Item, acik: boolean) => void;
   readOnly?: boolean;
+  /** Madde düzenleyici ve "Yeni madde" (yapisal-4) */
+  onUpdateItem?: (item: Item) => Promise<void>;
+  onAddItem?: (item: Omit<Item, 'id' | 'createdAt' | 'updatedAt' | 'userId'> & { id?: string }) => Promise<void>;
 }
+
+/** Yeni maddede seçilebilen türler. Karakter yok (Kişi ile birleşti). */
+const YENI_TURLER: Array<{ id: ItemType; ad: string }> = [
+  { id: 'kisi', ad: 'Kişi' }, { id: 'aile', ad: 'Aile' }, { id: 'mekân', ad: 'Mekân' }, { id: 'dükkân', ad: 'Dükkân' },
+  { id: 'yer', ad: 'Yer / mahalle' }, { id: 'kulüp', ad: 'Kurum / kulüp' }, { id: 'olay', ad: 'Olay' }, { id: 'ürün', ad: 'Eşya' }
+];
 
 /** Odalar dizinde ayrı satır işgal etmez; mekânlarının altında yaşarlar */
 const INDEX_TYPES: ItemType[] = WIKI_TYPES.filter(t => t !== 'oda');
@@ -33,8 +42,13 @@ export const WikiShell: React.FC<WikiShellProps> = ({
   onEdit,
   onHaritayaGit,
   onSitede,
-  readOnly = false
+  readOnly = false,
+  onUpdateItem,
+  onAddItem
 }) => {
+  const [yeniAcik, setYeniAcik] = useState(false);
+  const [yeniAd, setYeniAd] = useState('');
+  const [yeniTur, setYeniTur] = useState<ItemType>('kisi');
   const [internalId, setInternalId] = useState<string | null>(null);
   const [mode, setMode] = useState<'okuma' | 'yonetim'>(readOnly ? 'okuma' : 'yonetim');
   const [q, setQ] = useState('');
@@ -195,17 +209,48 @@ export const WikiShell: React.FC<WikiShellProps> = ({
             </button>
           )}
 
+          {!readOnly && onAddItem && mode === 'yonetim' && (
+            <button
+              type="button"
+              onClick={() => setYeniAcik(a => !a)}
+              className="ml-auto flex items-center gap-1.5 text-[11px] font-mono px-2.5 py-1.5 rounded border border-bej/55 dark:border-lacivert-600/55 hover:bg-bej/15 dark:hover:bg-lacivert-600/30 transition-colors"
+            >
+              + yeni madde
+            </button>
+          )}
           {!readOnly && (
             <button
               type="button"
               onClick={() => setMode(m => (m === 'okuma' ? 'yonetim' : 'okuma'))}
-              className="ml-auto flex items-center gap-1.5 text-[11px] font-mono px-2.5 py-1.5 rounded border border-bej/55 dark:border-lacivert-600/55 hover:bg-bej/15 dark:hover:bg-lacivert-600/30 transition-colors"
+              className={`${onAddItem && mode === 'yonetim' ? '' : 'ml-auto '} flex items-center gap-1.5 text-[11px] font-mono px-2.5 py-1.5 rounded border border-bej/55 dark:border-lacivert-600/55 hover:bg-bej/15 dark:hover:bg-lacivert-600/30 transition-colors`}
             >
               {admin ? <Settings2 size={12} /> : <Eye size={12} />}
               {admin ? 'yönetim yüzü' : 'okuma yüzü'}
             </button>
           )}
         </div>
+        {yeniAcik && onAddItem && (
+          <form
+            onSubmit={async e => {
+              e.preventDefault();
+              if (!yeniAd.trim()) return;
+              // Ad Kemal'in; kayıt yalnız bu düğmeyle oluşur
+              const id = `madde_${Date.now()}`;
+              await onAddItem({
+                id, title: yeniAd.trim(), area: 'duzada', type: yeniTur, status: 'Fikir', priority: 'orta',
+                tags: [], links: [], notes: '', images: [], isProposal: false, archived: false, metadata: {}
+              });
+              setYeniAd(''); setYeniAcik(false); navigate(id);
+            }}
+            className="max-w-5xl mx-auto px-4 pb-3 flex flex-wrap items-center gap-2"
+          >
+            <select value={yeniTur} onChange={e => setYeniTur(e.target.value as ItemType)} className="text-[13px] bg-white dark:bg-lacivert-800/60 border border-bej/70 rounded px-2 py-1.5">
+              {YENI_TURLER.map(t => <option key={t.id} value={t.id}>{t.ad}</option>)}
+            </select>
+            <input autoFocus value={yeniAd} onChange={e => setYeniAd(e.target.value)} placeholder="Adı (senin koyduğun ad)" className="flex-1 min-w-[180px] text-[13px] bg-white dark:bg-lacivert-800/60 border border-bej/70 rounded px-2.5 py-1.5" />
+            <button type="submit" disabled={!yeniAd.trim()} className="text-[12px] font-mono px-3 py-1.5 rounded bg-lacivert text-krem dark:bg-[#2C3C72] disabled:opacity-40">Oluştur</button>
+          </form>
+        )}
       </div>
 
       <div className="max-w-5xl mx-auto px-4 py-8">
@@ -219,6 +264,7 @@ export const WikiShell: React.FC<WikiShellProps> = ({
             onEdit={onEdit}
             onHaritayaGit={onHaritayaGit}
             onSitede={onSitede}
+            onUpdateItem={readOnly ? undefined : onUpdateItem}
           />
         ) : (
           <>

@@ -278,6 +278,62 @@ Bağlı kayıtlar: ${JSON.stringify(data.baglar || [])}`;
         systemInstruction += " Sadece saf bir JSON dizisi döndür.";
         break;
 
+      // Gece hazırlığı (kural istisnası, yapisal-4): günde 3 üretim önerisi.
+      // Yalnız öneri tepsisine düşer; Kemal "Ekle" demeden kayda girmez.
+      case "gece-onerileri":
+        prompt = `Kems Company ve kurgusal Düzada adası için bugünün ${(data.turler || []).length} üretim önerisini hazırla. Her tür için bir öneri: ${JSON.stringify(data.turler || [])}.
+Öneri bir iş fikridir: bugün ne üretilebilir (bir gönderi, bir ürün, bir yazı, vikide doldurulacak bir yer). Kısa ve uygulanabilir olsun; ada kanonundan bir bilgiye dayansın.
+Kurallar:
+- Yeni özel ad (kişi, yer, kurum, ürün, drop adı) uydurma; yalnız aşağıda geçen adları kullan.
+- Fiyat, sayı, tarih uydurma. "Hâlâ", "şu anda", "günümüzde" yazma.
+- "Harita / viki" önerisi kurgu metni yazmaz; hangi maddede neyin eksik olduğunu ve Kemal'e sorulacak soruyu söyler.
+- "bag" alanına önerinin dayandığı kaydın adını aynen yaz (yoksa boş bırak). Drop / ürün önerisinde bag bir drop adı olsun.
+Bilinenler:
+Viki: ${JSON.stringify(data.viki || [])}
+Droplar: ${JSON.stringify(data.droplar || [])}
+Ürünler: ${JSON.stringify(data.urunler || [])}
+Sosyal medya gönderileri: ${JSON.stringify(data.gonderiler || [])}
+Yazılar: ${JSON.stringify(data.yazilar || [])}
+Not defteri: ${JSON.stringify(data.notlar || [])}
+Yanıtı saf JSON dizisi olarak döndür: [{"tur": "sosyal", "baslik": "kısa başlık", "metin": "2-4 cümle", "bag": "kayıt adı"}]`;
+        systemInstruction = "Bir markanın sessiz asistanısın; sade, kısa, kanona bağlı üretim önerileri veriyorsun. Sadece saf bir JSON dizisi döndür.";
+        break;
+
+      // Aylık fanzin taslağı (yapisal-2, 31; yapisal-4, 29-32). Adı yok; bölümler serbest.
+      case "fanzin-taslak":
+        prompt = `Kems Company'nin ${data.ay || "bu ayki"} fanzini için bölüm taslakları hazırla. Temiz bir dergi gibi: 4-6 bölüm, her bölümün kısa bir başlığı ve 60-150 kelimelik metni. Fanzine ad koyma.
+Kaynaklar: viki ve künye, Merch ve droplar, not defteri, Pinterest panoları, Canva / galeri görselleri ve sosyal medya hesapları (aşağıda). Her bölüm bu kaynaklardan birine dayansın.
+Kurallar:
+- Yeni özel ad (kişi, yer, kurum, ürün, drop adı) uydurma; yalnız aşağıda geçen adları kullan.
+- Fiyat, sayı, tarih uydurma. "Hâlâ", "şu anda", "günümüzde" yazma.
+- Ton sade; Kemal her bölümün tonunu sonra kendisi seçecek.
+Viki: ${JSON.stringify(data.viki || [])}
+Droplar: ${JSON.stringify(data.droplar || [])}
+Ürünler: ${JSON.stringify(data.urunler || [])}
+Not defteri: ${JSON.stringify(data.notlar || [])}
+Pinterest: ${JSON.stringify(data.pinterest || [])}
+Galeri: ${JSON.stringify(data.galeri || [])}
+Sosyal medya: ${JSON.stringify(data.gonderiler || [])} · hesaplar: ${JSON.stringify(data.hesaplar || [])}
+Kemal'in isteği: "${data.istek || ""}"
+Yanıtı saf JSON dizisi olarak döndür: [{"title": "Bölüm başlığı", "content": "Bölüm metni"}]`;
+        systemInstruction = "Küçük, özenli bir fanzinin editörüsün. Sade Türkçe, süssüz. Sadece saf bir JSON dizisi döndür.";
+        break;
+
+      case "fanzin-bolum":
+        prompt = `Aşağıdaki fanzin bölümünü "${data.ton || "Sade"}" tonunda yeniden yaz. Anlamı ve adları koru; yeni özel ad, sayı, tarih ekleme. "Hâlâ", "şu anda", "günümüzde" yazma. Uzunluk aşağı yukarı aynı kalsın. Yalnız yeni metni döndür.
+Bölüm başlığı: "${data.baslik || ""}"
+Metin: "${data.metin || ""}"`;
+        break;
+
+      case "site-hakkinda":
+        prompt = `Kems Company'nin sitesindeki "Hakkında" sayfası için 2-3 cümlelik sade bir metin taslağı yaz. Yalnız aşağıdaki bilgileri kullan; yeni özel ad, sayı, fiyat, tarih uydurma (kuruluş yılı 2025, "Made with Culture" sözü ve Düzada adı kullanılabilir). "Hâlâ", "şu anda", "günümüzde" yazma. Süslü ve abartılı olma.
+Marka: "${data.baslik || "Kems Company"}"
+Marka notları: "${data.notlar || ""}"
+Marka kiti: ${JSON.stringify(data.kit || {})}
+Kemal'in isteği: "${data.istek || ""}"
+Yalnız metni döndür.`;
+        break;
+
       case "sosyal-metin":
         prompt = `Kems Company'nin bir sosyal medya gönderisi için kısa bir metin taslağı yaz (en fazla 4 cümle, sade, süssüz). Yeni özel ad (kişi, yer, ürün) uydurma; yalnız aşağıda geçen adları kullan. Fiyat, tarih ya da sayı uydurma. "Hâlâ", "şu anda", "günümüzde" yazma. Hashtag ekleme.
 Başlık: "${data.baslik || ""}"

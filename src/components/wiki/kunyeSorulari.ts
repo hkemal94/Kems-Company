@@ -29,10 +29,21 @@ export const DEFAULT_QUESTIONS_BY_CAT: Record<string, KunyeSorusu[]> = {
     { id: 'title', label: 'Ad', question: 'Kişinin adı.', fieldPath: 'title' },
     { id: 'notes', label: 'Hayatı', question: 'Kişinin hayatı (sayfa metni).', fieldPath: 'notes' },
     { id: 'profession', label: 'Rol', question: 'Adada ne iş yapar?', fieldPath: 'metadata.profile.profession', esAdlar: ['Meslek', 'Görev'] },
-    { id: 'age', label: 'Yaş', question: 'Kaç yaşında ya da hangi yaş aralığında?', fieldPath: 'metadata.profile.age' },
     { id: 'region', label: 'Mahalle', question: 'Hangi mahallede yaşar?', fieldPath: 'metadata.region' },
     { id: 'workplace', label: 'Çalıştığı yer', question: 'Hangi mekânda ya da kurumda çalışır?', fieldPath: 'metadata.profile.workplace' },
-    { id: 'origin', label: 'Köken', question: 'Adalı mı, sonradan mı geldi? Nereden?', fieldPath: 'metadata.profile.origin', esAdlar: ['Nereli', 'Uyruk'] }
+    { id: 'origin', label: 'Köken', question: 'Adalı mı, sonradan mı geldi? Nereden?', fieldPath: 'metadata.profile.origin', esAdlar: ['Nereli', 'Uyruk'] },
+    // Kişi ↔ Aile (yapisal-4, 26): aile sayfasında üyeler buradan listelenir
+    { id: 'aile', label: 'Aile', question: 'Hangi aileden?', fieldPath: 'metadata.profile.aile' }
+  ],
+  // Aile (yapisal-2, 19; yapisal-4, 26–27). Üyeler kişilerin "Aile" alanından gelir.
+  aile: [
+    { id: 'title', label: 'Ad', question: 'Ailenin adı.', fieldPath: 'title' },
+    { id: 'notes', label: 'Tarihçe', question: 'Ailenin tarihçesi (sayfa metni).', fieldPath: 'notes' },
+    { id: 'region', label: 'Mahalle', question: 'Hangi mahallede?', fieldPath: 'metadata.region' },
+    { id: 'ugras', label: 'Uğraş', question: 'Aile ne iş yapar? (zeytincilik, balıkçılık…)', fieldPath: 'metadata.profile.ugras' },
+    { id: 'mekanlar', label: 'Bağlı mekânlar', question: 'Hangi mekânlarla bağlı?', fieldPath: 'metadata.profile.mekanlar' },
+    { id: 'kisiler', label: 'Bağlı kişiler', question: 'Aileden olmayan ama bağlı kişiler?', fieldPath: 'metadata.profile.kisiler' },
+    { id: 'gelis', label: 'Adaya geliş', question: 'Adaya ne zaman, nereden geldi? (aralık olarak)', fieldPath: 'metadata.profile.gelis', esAdlar: ['Geliş'] }
   ],
   mekan: [
     { id: 'title', label: 'Ad', question: 'Mekânın adı.', fieldPath: 'title' },

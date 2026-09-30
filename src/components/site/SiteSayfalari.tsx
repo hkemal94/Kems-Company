@@ -5,6 +5,8 @@ import { DuzadaHarita } from '../harita/DuzadaHarita';
 import type { HaritaDuzeni } from '../harita/duzenTipi';
 import { ATMOSFER_ACIK } from '../harita/atmosfer';
 import { TYPE_LABELS, getKunyeFields, getArticleBody } from '../wiki/wikiSchema';
+import { fanzinBilgisi } from '../../lib/studyo';
+import { DergiGorunumu } from '../fanzin/Fanzin';
 
 /**
  * Site sayfaları (30 Eylül). Kemal: "Siteye ait örneklerin yapılarını
@@ -43,7 +45,9 @@ const Bos: React.FC<{ ton: SayfaTonu; etiket?: string; className?: string }> = (
 /** Bütün iç sayfaların ortak kabuğu: üst başlık bandı, içerik, alt bilgi */
 export const SayfaKabugu: React.FC<{
   ton: SayfaTonu; ust: React.ReactNode; baslik: string; alt?: string; children: React.ReactNode; genis?: boolean;
-}> = ({ ton, ust, baslik, alt, children, genis }) => {
+  /** Site düzenlemesinde seçilen sayfa görseli (Galeri'den) */
+  gorsel?: string;
+}> = ({ ton, ust, baslik, alt, children, genis, gorsel: kapak }) => {
   const t = TON[ton];
   return (
     <div className={`min-h-full flex flex-col ${t.zemin} ${t.yazi}`}>
@@ -51,7 +55,9 @@ export const SayfaKabugu: React.FC<{
         <div className={`text-[11px] font-bold uppercase tracking-[0.24em] ${t.ikincil}`}>{ust}</div>
         <h1 className="mt-2 text-[40px] sm:text-[64px] leading-[0.95] font-extrabold tracking-tight">{baslik}</h1>
         {alt && <p className={`mt-4 max-w-xl text-[15px] sm:text-[17px] ${t.ikincil}`}>{alt}</p>}
-        <div className={`mt-8 sm:mt-10 border-t ${t.cizgi}`} />
+        {kapak
+          ? <img src={kapak} alt="" className="mt-8 sm:mt-10 w-full aspect-[21/9] object-cover rounded-2xl" />
+          : <div className={`mt-8 sm:mt-10 border-t ${t.cizgi}`} />}
       </div>
       <div className={`${genis ? 'max-w-6xl' : 'max-w-5xl'} w-full flex-1 mx-auto px-4 sm:px-10 pb-28`}>{children}</div>
       <footer className={`border-t ${t.cizgi}`}>
@@ -60,7 +66,7 @@ export const SayfaKabugu: React.FC<{
             <div className="font-extrabold text-[20px] leading-none tracking-tight">KEMS</div>
             <div className="mt-1 w-max bg-[#F26B6F] text-white text-[9px] font-bold tracking-[0.3em] pl-2 pr-1.5 py-px">COMPANY</div>
           </div>
-          <div className={`text-[11px] uppercase tracking-[0.2em] ${t.ikincil}`}><span lang="en">Made with Culture · Est. 2024</span> · Düzada, TR</div>
+          <div className={`text-[11px] uppercase tracking-[0.2em] ${t.ikincil}`}><span lang="en">Made with Culture · Est. 2025</span> · Düzada, TR</div>
         </div>
       </footer>
     </div>
@@ -108,7 +114,7 @@ export const DuzadaSayfasi: React.FC<{ items: Item[]; duzen: HaritaDuzeni | null
 
 // ---- Viki: giriş ve madde ---------------------------------------------------
 
-export const VikiSayfasi: React.FC<{ items: Item[]; onMadde: (id: string) => void }> = ({ items, onMadde }) => {
+export const VikiSayfasi: React.FC<{ items: Item[]; onMadde: (id: string) => void; kapak?: string }> = ({ items, onMadde, kapak }) => {
   const son = useMemo(() => [...items].sort((a, b) => b.updatedAt - a.updatedAt).slice(0, 6), [items]);
   const gruplar = useMemo(() => {
     const m = new Map<string, Item[]>();
@@ -119,7 +125,7 @@ export const VikiSayfasi: React.FC<{ items: Item[]; onMadde: (id: string) => voi
     return [...m.entries()].sort((a, b) => a[0].localeCompare(b[0], 'tr'));
   }, [items]);
   return (
-    <SayfaKabugu ton="krem" ust={<>Düzada, TR — <span lang="en">Made with Culture</span></>} baslik="Viki" genis>
+    <SayfaKabugu ton="krem" ust={<>Düzada, TR — <span lang="en">Made with Culture</span></>} baslik="Viki" genis gorsel={kapak}>
       <Bolum ton="krem" baslik="Son eklenenler">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {son.map(i => (
@@ -195,8 +201,8 @@ export const MaddeSayfasi: React.FC<{ madde: Item; onViki: () => void }> = ({ ma
 
 // ---- Ürünler: dropların hikâyesi, satış yok ----------------------------------
 
-export const UrunlerSayfasi: React.FC<{ droplar: Item[]; urunler: Item[]; kurumAdi: (id?: string) => string | undefined }> = ({ droplar, urunler, kurumAdi }) => (
-  <SayfaKabugu ton="lacivert" ust="Kems Company · Droplar" baslik="Ürünler" genis>
+export const UrunlerSayfasi: React.FC<{ droplar: Item[]; urunler: Item[]; kurumAdi: (id?: string) => string | undefined; kapak?: string }> = ({ droplar, urunler, kurumAdi, kapak }) => (
+  <SayfaKabugu ton="lacivert" ust="Kems Company · Droplar" baslik="Ürünler" genis gorsel={kapak}>
     <div className="space-y-16">
       {(droplar.length ? droplar : [null, null]).map((d, k) => {
         const ait = d ? urunler.filter(u => u.metadata?.dropId === d.id) : [];
@@ -237,47 +243,58 @@ export const UrunlerSayfasi: React.FC<{ droplar: Item[]; urunler: Item[]; kurumA
 
 // ---- Haberler: blog ve bülten --------------------------------------------------
 
-export const HaberlerSayfasi: React.FC<{ yazilar: Item[] }> = ({ yazilar }) => {
+export const HaberlerSayfasi: React.FC<{ yazilar: Item[]; kapak?: string; onYazi?: (id: string) => void }> = ({ yazilar, kapak, onYazi }) => {
   const [ilk, ...kalan] = yazilar;
   return (
-    <SayfaKabugu ton="krem" ust="Blog · Bülten" baslik="Haberler" genis>
+    <SayfaKabugu ton="krem" ust="Blog" baslik="Haberler" gorsel={kapak} genis>
       <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
         {ilk ? (
-          <article className="rounded-2xl bg-[#FAF8F5] border border-[#CFC5B4] overflow-hidden">
+          <article onClick={() => onYazi?.(ilk.id)} className="rounded-2xl bg-[#FAF8F5] border border-[#CFC5B4] overflow-hidden cursor-pointer hover:border-[#F26B6F]">
             {gorsel(ilk) ? <img src={gorsel(ilk)} alt="" className="w-full aspect-[16/9] object-cover" /> : <div className="w-full aspect-[16/9] bg-[#E4DCCD]" />}
             <div className="p-5"><h2 className="text-[26px] font-bold">{ilk.title}</h2></div>
           </article>
         ) : <Bos ton="krem" className="aspect-[16/10]" etiket="ilk yazı yakında" />}
         <div className="grid gap-4">
           {(kalan.length ? kalan.slice(0, 3) : [null, null, null]).map((y, k) => y ? (
-            <article key={y.id} className="flex gap-3 rounded-2xl bg-[#FAF8F5] border border-[#CFC5B4] p-3">
+            <article key={y.id} onClick={() => onYazi?.(y.id)} className="flex gap-3 rounded-2xl bg-[#FAF8F5] border border-[#CFC5B4] p-3 cursor-pointer hover:border-[#F26B6F]">
               {gorsel(y) ? <img src={gorsel(y)} alt="" className="w-24 h-20 object-cover rounded-lg" /> : <span className="w-24 h-20 rounded-lg bg-[#E4DCCD] shrink-0" />}
               <h3 className="text-[16px] font-bold">{y.title}</h3>
             </article>
           ) : <Bos key={k} ton="krem" className="h-24" />)}
         </div>
       </div>
-      <Bolum ton="krem" baslik="Bülten">
-        <div className="rounded-2xl border border-[#CFC5B4] bg-[#FAF8F5] p-5 flex flex-wrap items-center gap-3">
-          <span className="flex-1 min-w-[200px] h-11 rounded-xl border border-dashed border-[#CFC5B4]" />
-          <span title="Bülten bağlanınca açılır" className="px-5 py-2.5 rounded-xl bg-[#0E1C4F] text-[#F3EFE8] text-[13px] font-semibold opacity-40">Abone ol</span>
+    </SayfaKabugu>
+  );
+};
+
+/** Tek yazı: fanzinse dergi görünümü, değilse metin */
+export const YaziSayfasi: React.FC<{ yazi: Item; onGeri: () => void }> = ({ yazi, onGeri }) => {
+  const f = fanzinBilgisi(yazi);
+  return (
+    <SayfaKabugu ton="krem" ust={<button type="button" onClick={onGeri} className="hover:text-[#D6484C] cursor-pointer">← Haberler</button>} baslik={f ? 'Fanzin' : yazi.title} genis={!!f}>
+      {f ? <DergiGorunumu baslik={yazi.title} f={f} /> : (
+        <div className="max-w-2xl space-y-4 text-[16px] leading-relaxed">
+          {(yazi.notes || '').split(/\n{2,}/).filter(Boolean).map((p, k) => <p key={k}>{p}</p>)}
         </div>
-      </Bolum>
+      )}
     </SayfaKabugu>
   );
 };
 
 // ---- Projeler: yana kayan koyu ekran ------------------------------------------
 
-export const ProjelerSayfasi: React.FC = () => (
-  <SayfaKabugu ton="lacivert" ust="Merch dışındaki işler" baslik="Projeler" genis>
+/** Canva panosundaki üç proje (yapisal-2, 32): adlar var, içerik boş */
+const PROJELER = ['Hotel Game', 'Golf Game', 'Card Game'];
+
+export const ProjelerSayfasi: React.FC<{ kapak?: string }> = ({ kapak }) => (
+  <SayfaKabugu ton="lacivert" ust="Merch dışındaki işler" baslik="Projeler" genis gorsel={kapak}>
     <div className="-mx-4 sm:mx-0 px-4 sm:px-0 flex gap-4 overflow-x-auto snap-x pb-3">
-      {[0, 1, 2].map(k => (
-        <div key={k} className="snap-start shrink-0 w-[78vw] sm:w-[340px] rounded-2xl border border-[#2C3C72] bg-[#13204A] overflow-hidden">
-          <div className="aspect-[4/5] bg-[#1B2B5C] flex items-center justify-center text-[11px] font-semibold uppercase tracking-[0.2em] text-[#6F7BA0]">proje yakında</div>
+      {PROJELER.map(ad => (
+        <div key={ad} className="snap-start shrink-0 w-[78vw] sm:w-[340px] rounded-2xl border border-[#2C3C72] bg-[#13204A] overflow-hidden">
+          <div className="aspect-[4/5] bg-[#1B2B5C] flex items-center justify-center text-[11px] font-semibold uppercase tracking-[0.2em] text-[#6F7BA0]">yakında</div>
           <div className="p-4 flex items-center justify-between">
-            <span className="h-4 w-32 rounded bg-[#1B2B5C]" />
-            <span className="inline-flex items-center gap-1 text-[12px] font-semibold text-[#6F7BA0]">Keşfet <ArrowRight className="w-3.5 h-3.5" /></span>
+            <span lang="en" className="text-[17px] font-bold">{ad}</span>
+            <span title="İçerik gelince açılır" className="inline-flex items-center gap-1 text-[12px] font-semibold text-[#6F7BA0] opacity-60">Keşfet <ArrowRight className="w-3.5 h-3.5" /></span>
           </div>
         </div>
       ))}
@@ -287,19 +304,25 @@ export const ProjelerSayfasi: React.FC = () => (
 
 // ---- Hakkında -------------------------------------------------------------------
 
-export const HakkindaSayfasi: React.FC = () => (
-  <SayfaKabugu ton="lacivert" ust="Kems Company" baslik="Hakkında">
-    <div className="max-w-2xl space-y-3">
-      <Bos ton="lacivert" className="h-8" etiket="" />
-      <Bos ton="lacivert" className="h-8 w-4/5" etiket="bir iki cümle · yakında" />
-    </div>
+export const HakkindaSayfasi: React.FC<{ metin?: string; kapak?: string }> = ({ metin, kapak }) => (
+  <SayfaKabugu ton="lacivert" ust="Kems Company" baslik="Hakkında" gorsel={kapak}>
+    {metin?.trim() ? (
+      <div className="max-w-2xl space-y-4 text-[17px] sm:text-[20px] leading-relaxed">
+        {metin.trim().split(/\n{2,}/).map((p, k) => <p key={k}>{p}</p>)}
+      </div>
+    ) : (
+      <div className="max-w-2xl space-y-3">
+        <Bos ton="lacivert" className="h-8" etiket="" />
+        <Bos ton="lacivert" className="h-8 w-4/5" etiket="bir iki cümle · yakında" />
+      </div>
+    )}
   </SayfaKabugu>
 );
 
 // ---- İletişim: hesaplar ve e-posta ---------------------------------------------
 
-export const IletisimSayfasi: React.FC<{ kanallar: Item[] }> = ({ kanallar }) => (
-  <SayfaKabugu ton="gok" ust="Kems Company" baslik="İletişim">
+export const IletisimSayfasi: React.FC<{ kanallar: Item[]; eposta?: string; kapak?: string }> = ({ kanallar, eposta, kapak }) => (
+  <SayfaKabugu ton="gok" ust="Kems Company" baslik="İletişim" gorsel={kapak}>
     <div className="grid gap-4 sm:grid-cols-2">
       {kanallar.map(k => {
         const adres = /^https?:\/\//.test((k.notes || '').trim()) ? k.notes!.trim() : undefined;
@@ -318,9 +341,19 @@ export const IletisimSayfasi: React.FC<{ kanallar: Item[] }> = ({ kanallar }) =>
           : <div key={k.id} className="flex items-center gap-3 rounded-2xl bg-white/70 backdrop-blur p-4">{icerik}</div>;
       })}
       {!kanallar.length && <Bos ton="gok" className="h-20" etiket="hesaplar yakında" />}
-      <div className="flex items-center gap-3 rounded-2xl bg-white/45 border border-dashed border-[#0E1C4F]/20 p-4 text-[#35507A]">
-        <Mail className="w-5 h-5" /><span className="text-[12px] font-semibold uppercase tracking-[0.2em]">e-posta yakında</span>
-      </div>
+      {eposta?.trim() ? (
+        <a href={`mailto:${eposta.trim()}`} className="flex items-center gap-3 rounded-2xl bg-white/70 backdrop-blur p-4 hover:bg-white">
+          <Mail className="w-5 h-5 shrink-0" />
+          <span className="flex-1 min-w-0">
+            <span className="block text-[10px] font-bold uppercase tracking-[0.2em] text-[#35507A]">e-posta</span>
+            <span className="block text-[17px] font-bold truncate">{eposta.trim()}</span>
+          </span>
+        </a>
+      ) : (
+        <div className="flex items-center gap-3 rounded-2xl bg-white/45 border border-dashed border-[#0E1C4F]/20 p-4 text-[#35507A]">
+          <Mail className="w-5 h-5" /><span className="text-[12px] font-semibold uppercase tracking-[0.2em]">e-posta yakında</span>
+        </div>
+      )}
     </div>
   </SayfaKabugu>
 );
