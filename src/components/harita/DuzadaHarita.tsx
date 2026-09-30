@@ -368,6 +368,34 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
       });
       map.addLayer({ id: 'ada-fiziki', type: 'raster', source: 'ada-fiziki', paint: { 'raster-fade-duration': 0 } });
 
+      /*
+       * Yakın doku (30 Eylül, Kemal: yakından bulanık). Zemin görseli bir
+       * pikselde birkaç metre gösteriyor; yakınlaşınca üstüne ekranla aynı
+       * ölçekte ince bir çim / toprak benekleri dokusu biner, keskinlik verir.
+       */
+      if (!map.hasImage('zemin-doku')) {
+        const N = 96, tuval = document.createElement('canvas');
+        tuval.width = N; tuval.height = N;
+        const c = tuval.getContext('2d')!;
+        let t = 7;
+        const r = () => { t = (t * 16807) % 2147483647; return t / 2147483647; };
+        for (let i = 0; i < 520; i++) {
+          const koyu = r() < 0.6;
+          c.fillStyle = koyu ? `rgba(40,52,24,${0.10 + r() * 0.16})` : `rgba(255,250,225,${0.06 + r() * 0.1})`;
+          const x = r() * N, y = r() * N, w = 1 + r() * 2.2;
+          c.fillRect(x, y, w, w * (0.6 + r() * 0.8));
+        }
+        map.addImage('zemin-doku', c.getImageData(0, 0, N, N));
+      }
+      map.addLayer({
+        id: 'zemin-doku', type: 'fill', source: src, minzoom: 14.5,
+        filter: ['==', ['get', 'katman'], 'ada'],
+        paint: {
+          'fill-pattern': 'zemin-doku',
+          'fill-opacity': ['interpolate', ['linear'], ['zoom'], 14.5, 0, 16, 0.85]
+        }
+      });
+
       // Kara katmanı görünmez: tıklama ve katman sırası için duruyor
       map.addLayer({
         id: 'ada',
