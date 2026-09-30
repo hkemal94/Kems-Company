@@ -51,20 +51,20 @@ export const SoruKarti: React.FC<Props> = ({ bosluk, onCevap, onSonra, buyuk = f
   const secenekSinifi = `block w-full text-left rounded-xl border border-[#CFC5B4] dark:border-[#2C3C72] hover:border-[#F26B6F] ${YAZI} cursor-pointer disabled:opacity-40 ${buyuk ? 'px-3.5 py-3 text-[14px] lg:py-2 lg:text-[12px]' : 'px-3 py-2 text-[12px]'}`;
 
   return (
-    <div>
+    <div className="h-full flex flex-col">
       <p className={`text-[11px] ${IKINCIL}`}>
         {TYPE_LABELS[bosluk.item.type] || bosluk.item.type} · <b className={YAZI}>{bosluk.item.title}</b> · {bosluk.etiket}
       </p>
       <h3 className={`mt-1 font-semibold leading-snug ${YAZI} ${buyuk ? 'text-[16px]' : 'text-[13px]'}`}>{bosluk.soru}</h3>
 
-      <div className="mt-3 space-y-1.5">
+      <div className="mt-auto pt-3 space-y-1.5">
         {!seceneksiz && secenekler?.map(s => (
           <button key={s} type="button" disabled={yaziliyor} onClick={() => gonder(s, true)} className={secenekSinifi}>
             {s}
           </button>
         ))}
-        {!seceneksiz && !secenekler && (
-          <StudyodaAc bosluk={bosluk} etiket="Seçenek getir · stüdyoda" />
+        {!seceneksiz && (
+          <StudyodaAc bosluk={bosluk} etiket={secenekler ? 'Başka seçenek · stüdyoda' : 'Seçenek getir · stüdyoda'} />
         )}
         {seceneksiz && (
           <p className={`text-[11px] ${IKINCIL}`}>Bu soru bir ad ya da sayı istiyor; seçenek getirmiyorum, sen yaz.</p>

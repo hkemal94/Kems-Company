@@ -1,5 +1,6 @@
 import type { Item } from '../types';
 import { bosluklariCikar, alanaYaz, type Bosluk } from '../components/Bosluklar';
+import { kunyedeCevabiVar } from './boslukDoldurma';
 
 /**
  * Adaylar ve günün sorusu (Paket 4).
@@ -132,7 +133,8 @@ export function sorulacaklar(items: Item[], adet = 4): Bosluk[] {
   const e = ertelenenler();
   const sinir = Date.now() - ERTELEME_GUNU * 86_400_000;
   const uygun = bosluklariCikar(items)
-    .filter(b => b.alanId !== 'notes' && !bekleyen.has(b.anahtar) && !((e[b.anahtar] || 0) > sinir));
+    .filter(b => b.alanId !== 'notes' && !bekleyen.has(b.anahtar) && !((e[b.anahtar] || 0) > sinir)
+      && !kunyedeCevabiVar(b));
   if (!uygun.length) return [];
   // Art arda aynı soru ("Hangi mahallede yaşar?") ya da aynı madde
   // gelmesin: sorular türüne göre gruplanır, her turda her gruptan bir

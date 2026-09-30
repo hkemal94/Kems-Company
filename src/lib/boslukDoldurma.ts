@@ -87,6 +87,16 @@ const CEVAPLAR: Array<[RegExp, Cevaplar]> = [
   }]
 ];
 
+/**
+ * Bu boşluğun cevabı künyede var mı? Varsa ana sayfa onu yeniden sormaz
+ * (Kemal, 30 Eylül: "cevapladığımız sorular hâlâ çıkıyor"). Alan, kart
+ * basılınca dolar; o zamana kadar soru da gösterilmez.
+ */
+export function kunyedeCevabiVar(b: { item: Item; alanId: string }): boolean {
+  if (b.alanId === 'notes') return false;
+  return !!CEVAPLAR.find(([re]) => re.test(b.item.title.trim()))?.[1][b.alanId];
+}
+
 export interface BoslukDoldurma {
   item: Item;
   /** Kemal'e gösterilecek satırlar: "Sezon: Yıl boyu açık" */
