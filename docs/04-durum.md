@@ -707,6 +707,74 @@ Kaynak plan: Canva "Başlık" (DAHWBjgxb_4). Kemal'in kararları:
 - Kemal: "İçime sinmeyen çok şey var ama en azından başlamış olalım."
   Eleştiriler dinlenecek, sonraki adımlar ona göre.
 
+## 29–30 Eylül gecesi — 11 maddelik liste (tek PR)
+
+Kemal akşam listeyi sıraladı, "sabaha kadar tek seferde" dedi.
+
+**Küçük işler**
+- Kanon uyarısı: tarih denetimi artık aynı cümleye bakar (künye tek parça
+  sayıldığı için "1957" ile "Stat" aynı yerde sanılıyordu). Cümlede kurala
+  uyan bir yıl da varsa uyarmaz. 7 yanlış uyarı kalkar.
+- Bildirimden ya da Neyin Eksik'ten bir maddeye basınca viki açılır (harita
+  açıkken madde seçiliyor ama görünmüyordu).
+- Boşluklar: "boş alan · hepsi" kutusu düğme; tür seçtikten sonra hepsine
+  dönülür.
+- "Sitede göster" ikinci basışta kalkar (kayıt eskisinin üstüne eklenerek
+  yazıldığı için alanı silmek işe yaramıyordu; artık "sitede değil" yazılır).
+- Site: "Est. 2024" (Kemal: kuruluş 2024).
+- KKM'de **Site** sayfası (Araçlar, küre simgesi): "Önizlemeyi aç" ve
+  **Sitede görünenler** listesi, her satırda "Siteden kaldır". Bu yönetim
+  düğmeleri yalnız KKM'de; ziyaretçinin gördüğü sitede yok.
+- Neyin Eksik satırlarında tek tuşla çözüm: yapının maddesi yok → **Madde
+  aç** (haritadaki ad ve mahalleyle boş künye) ya da aynı adla kaydı varsa
+  **Kayda bağla** (ör. Küçükçetmi Sürek Kulübü; `metadata.haritaWikiId`);
+  drop markaya bağlı değil → **Kems Company'ye bağla**. Eski "Düzada
+  Haritası" adları kalktı.
+- Kullanılmayan `DuzadaWiki.tsx` (2076 satır, eski viki ekranı) silindi.
+
+**Boşlukları künyeden doldur** — Neyin Eksik'te yeni kart. Künyede
+(docs/03) cevabı yazılı olan boş alanları doldurur: tür, mahalle, yıllar,
+sahibi, sezon, simgeler, sakinler. Dolu alana ve tarihçe metnine
+dokunmaz; önce yedek iner; ikinci basışta iş kalmaz (`lib/boslukDoldurma.ts`).
+Kemal'in bu geceki cevapları: **otel yıl boyu açık**, **Kems Company
+kuruluşu 2024**, **Deniz Feneri devletin**; Küçükçetmi'nin renklerini Kemal
+stüdyodaki "Renk paleti öner"le seçecek.
+
+**Kurucu telefonda**
+- Bütün araçlar telefonda da var (Yol, Bina, Şablon, Özel yapı, Doğa, Madde
+  bağla); ayar şeritleri yana kaydırılır.
+- Taslak kartı yalnız işlenmemiş değişiklik varken görünür; her şey
+  haritadaysa küçük "Haritada ✓". "Haritaya işlendi" yazısı 6 sn sonra
+  kalkar.
+- Yer adları üst üste binmez: çakışan etiketlerden önemsizi (mahalle →
+  deniz → zirve → diğerleri) o yakınlıkta gizlenir. Hem 2D Kurucu'da hem
+  3D haritada.
+
+**H — Yol ağları ve evler** (Kemal: "gerçeklikten çok uzak … Bozcaada ve
+Cunda gibi olsun"; "yapıları boş bile olsa ekle, dolu görünsün")
+- Eski iki doku kalktı: meydandan dışarı dağılan kollar (örümcek ağı) ve
+  tuğla gibi kaydırılmış kısa sokaklar. Yerine `gen/duzada.py` →
+  `_ege_dokusu`: omurgaya paralel sokak sıraları, onları aynı hizada kesen
+  ara sokaklar (yer yer iki ada birleşir), dik yerde merdiven, kenarda
+  seyrelen eliptik leke.
+- Adsız evler ("Ev" yalnız türün adı; maddesi yok) sokak cephesine dizilir,
+  arkada avlu kalır. İskele bitişik nizam 2–3 kat (~900), Liman karışık
+  (~1.450), Merkez müstakil bahçeli (~930; meydan boş), Stadyum aralıklı
+  (~410).
+- Çiftlik: kasaba dokusu yok. Eşyükselti boyunca bir ana toprak yol ve
+  kolları; yolların iki yanında 3–10 dönümlük araziler (35 arazi, ortalama
+  ~6 dönüm), her birinde ev + ahır + depo, bazısında ikinci ev. Arazi
+  zeytinlik zemini olarak çizilir.
+- Adlar numaralı ve geçici ("İskele 3. Sokak", "Çiftlik 2. Yolu").
+- Harita verisi büyüdü (~1,7 MB); TypeScript büyük nesneyi çözemediği için
+  veri artık metin olarak durur ve açılışta okunur.
+- Uyarı: Kurucu'da önceden **kaldırılan** ya da **türü değiştirilen**
+  üretilmiş sokaklar kimlikle tutuluyor; sokaklar yeniden üretildiği için
+  bu eski işaretler başka sokaklara denk gelebilir. Kemal'in taslağında
+  bir değişiklik vardı; neyi kapsadığını buradan göremiyorum.
+
+Görseller: `docs/gorseller/gece-*.png` (önizleme, **örnek veri**).
+
 ## Sıradaki
 
 - Oyunun tasarım belgesinin doldurulması (13 başlık)

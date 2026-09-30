@@ -97,7 +97,7 @@ export const Site: React.FC<Props> = ({ items, onKapat }) => {
             <div className="font-extrabold text-[30px] sm:text-[40px] leading-none tracking-tight">KEMS</div>
             <div className="mx-auto mt-1.5 w-max bg-[#F26B6F] text-white text-[11px] sm:text-[13px] font-bold tracking-[0.32em] pl-3.5 pr-2.5 py-0.5">COMPANY</div>
             <div className="mt-3.5 text-[14px] font-semibold">Made with Culture</div>
-            <div className="mt-1 text-[11px] tracking-[0.2em] uppercase opacity-70">Est. 2025 · Düzada, TR</div>
+            <div className="mt-1 text-[11px] tracking-[0.2em] uppercase opacity-70">Est. 2024 · Düzada, TR</div>
           </div>
         </>
       )}
@@ -196,7 +196,7 @@ export const Site: React.FC<Props> = ({ items, onKapat }) => {
             <p className="mt-auto pt-4 text-[11px] opacity-55 leading-relaxed">
               {sekme === 'dukkan'
                 ? 'Dükkân dış mağazaya gider. Mağaza henüz bağlanmadı; o zamana kadar soluk durur.'
-                : 'Kems Company · Est. 2025 · Düzada, TR'}
+                : 'Kems Company · Est. 2024 · Düzada, TR'}
             </p>
           </nav>
         </>

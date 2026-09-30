@@ -253,14 +253,20 @@ export const Bosluklar: React.FC<{
 
       <section id="bos-ozet" className="scroll-mt-24">
         <div className="flex flex-wrap gap-3">
-          <div className="px-4 py-3 rounded-xl border border-[#F26B6F]/40 bg-[#FAF8F5] dark:bg-[#13204A]">
+          {/* Hepsi: bir tür seçildikten sonra toplu görünüme dönüş (29 Eylül gece) */}
+          <button
+            type="button"
+            onClick={() => setAcikTur(null)}
+            title="Bütün boşlukları göster"
+            className={`px-4 py-3 rounded-xl border text-left cursor-pointer transition-colors bg-[#FAF8F5] dark:bg-[#13204A] ${acikTur === null ? 'border-[#F26B6F]' : 'border-[#F26B6F]/40 hover:border-[#F26B6F]'}`}
+          >
             <span className="block font-mono text-2xl font-bold text-[#F26B6F] tabular-nums leading-none">
               {bosluklar.length}
             </span>
             <span className="block mt-1 text-[10px] font-mono uppercase tracking-widest text-[#6A5E4C] dark:text-[#A6B0C9]">
-              boş alan
+              boş alan · hepsi
             </span>
-          </div>
+          </button>
           {turSayilari.map(t => (
             <button
               key={t.tur}

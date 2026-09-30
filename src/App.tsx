@@ -47,6 +47,7 @@ import Bosluklar from './components/Bosluklar';
 import Galeri from './components/Galeri';
 import Sosyal from './components/sosyal/Sosyal';
 import Site from './components/site/Site';
+import SiteYonetimi from './components/site/SiteYonetimi';
 import OyunEkrani from './components/oyun/OyunEkrani';
 import Markalar from './components/Markalar';
 import DuzadaDirectory from './components/DuzadaDirectory';
@@ -59,7 +60,7 @@ import { Zil } from './components/kabuk/Zil';
 import { useBildirimler, type Bildirim } from './lib/bildirimler';
 
 /** Uygulamanın sayfaları. 'komuta' ana sayfa; eski Komuta Merkezi 'durum'. */
-type Sayfa = 'komuta' | 'durum' | 'eksikler' | 'markalar' | 'duzada' | 'merch' | 'yazi' | 'oyun' | 'galeri' | 'studyo' | 'sosyal';
+type Sayfa = 'komuta' | 'durum' | 'eksikler' | 'markalar' | 'duzada' | 'merch' | 'yazi' | 'oyun' | 'galeri' | 'studyo' | 'sosyal' | 'site';
 
 export interface WorkspaceUser {
   uid: string;
@@ -426,8 +427,11 @@ export default function App() {
        * Fikre tıklanınca Düzada'ya düşüyor, orası evrenin ana ekranı.
        */
       setActiveTab('duzada');
+      setDuzadaIstek({ sekme: 'wiki', n: Date.now() });
     } else {
+      // Harita açıkken seçilen madde görünmüyordu (29 Eylül gece): vikiye geç
       setActiveTab('duzada');
+      setDuzadaIstek({ sekme: 'wiki', n: Date.now() });
     }
   };
 
@@ -474,7 +478,7 @@ export default function App() {
         window.setTimeout(() => document.getElementById('bos-ozet')?.scrollIntoView({ behavior: 'smooth' }), 150);
         return;
       case 'eksikler': setEksikAcik(ayrinti ?? null); setActiveTab('eksikler'); break;
-      case 'site': location.hash = 'site'; return;
+      case 'site-onizleme': location.hash = 'site'; return;
       default: setActiveTab(hedef as Sayfa);
     }
     try { window.scrollTo({ top: 0 }); } catch { /* yok */ }
@@ -496,6 +500,8 @@ export default function App() {
     if (area === 'bosluklar') { git('bosluklar'); return; }
     const sekme = area === 'blog' || area === 'kitap' ? 'yazi' : area;
     setActiveTab(sekme as any);
+    // Düzada'da bir madde seçildiyse harita değil viki açılsın (29 Eylül gece)
+    if (sekme === 'duzada' && itemId) setDuzadaIstek({ sekme: 'wiki', n: Date.now() });
     if (itemId) {
       setActiveItemId(itemId);
     } else {
@@ -590,7 +596,7 @@ export default function App() {
    * telefonda altta beş düğme — Ana sayfa · Viki · Harita · Merch · Diğer.
    * "Diğer" işe göre gruplu: Evren · Marka · Araçlar.
    */
-  const RAY: Array<{ id: Sayfa | 'site'; ad: string; simge: React.ElementType; nokta?: boolean }> = [
+  const RAY: Array<{ id: Sayfa; ad: string; simge: React.ElementType; nokta?: boolean }> = [
     { id: 'komuta', ad: 'Ana sayfa', simge: Home, nokta: bildirimVar('aday') || bildirimVar('soru') },
     { id: 'duzada', ad: 'Düzada · viki ve harita', simge: Compass, nokta: bildirimVar('kanon') },
     { id: 'markalar', ad: 'Markalar', simge: Shield },
@@ -600,7 +606,7 @@ export default function App() {
     { id: 'galeri', ad: 'Galeri', simge: ImageIcon },
     { id: 'studyo', ad: 'Yapay zekâ stüdyosu · öneri tepsisi', simge: Sparkles, nokta: bildirimVar('aday') },
     { id: 'sosyal', ad: 'Sosyal medya · takvim ve seriler', simge: Megaphone },
-    { id: 'site', ad: 'Site önizlemesi · kems.company', simge: Globe },
+    { id: 'site', ad: 'Site · kems.company önizlemesi', simge: Globe },
     { id: 'eksikler', ad: 'Neyin Eksik', simge: ListChecks, nokta: bildirimVar('dugme') },
     { id: 'durum', ad: 'Durum · yüzdeler ve boşluklar', simge: Percent }
   ];
@@ -618,7 +624,7 @@ export default function App() {
     { grup: 'Araçlar', satirlar: [
       { hedef: 'studyo', ad: 'Stüdyo', simge: Sparkles, nokta: bildirimVar('aday') },
       { hedef: 'sosyal', ad: 'Sosyal medya', simge: Megaphone },
-      { hedef: 'site', ad: 'Site önizlemesi', simge: Globe },
+      { hedef: 'site', ad: 'Site', simge: Globe },
       { hedef: 'eksikler', ad: 'Neyin Eksik', simge: ListChecks, nokta: bildirimVar('dugme') },
       { hedef: 'durum', ad: 'Durum ve boşluklar', simge: Percent }
     ] }
@@ -635,7 +641,7 @@ export default function App() {
 
   const SAYFA_ADI: Record<Sayfa, string> = {
     komuta: 'Ana sayfa', duzada: 'Düzada', markalar: 'Markalar', merch: 'Merch', yazi: 'Yazı',
-    oyun: 'Oyun', galeri: 'Galeri', eksikler: 'Neyin Eksik', durum: 'Durum', studyo: 'Yapay zekâ stüdyosu', sosyal: 'Sosyal medya'
+    oyun: 'Oyun', galeri: 'Galeri', eksikler: 'Neyin Eksik', durum: 'Durum', studyo: 'Yapay zekâ stüdyosu', sosyal: 'Sosyal medya', site: 'Site'
   };
 
   const logo = hasKemsLogo ? (
@@ -860,6 +866,10 @@ export default function App() {
 
             {activeTab === 'studyo' && (
               <Studyo {...studyoIslemleri} onTemizlik={() => git('eksikler')} />
+            )}
+
+            {activeTab === 'site' && (
+              <SiteYonetimi items={items} onUpdateItem={handleUpdateItem} onOnizleme={() => git('site-onizleme')} onMaddeyiAc={maddeyiAc} />
             )}
 
             {activeTab === 'sosyal' && (

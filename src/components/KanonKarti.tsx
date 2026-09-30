@@ -12,10 +12,25 @@ import { kanonKararlari } from '../lib/kanonKararlari';
 interface Props {
   items: Item[];
   onUpdateItem: (item: Item) => Promise<void>;
+  /**
+   * Aynı kart başka tek seferlik işler için de kullanılır (29 Eylül gece:
+   * "Boşlukları künyeden doldur"). Verilmezse kanon kararları.
+   */
+  hesapla?: (items: Item[]) => Array<{ item: Item; neler: string[] }>;
+  baslik?: string;
+  aciklama?: string;
+  /** Yedek dosyasının adı: kems-<ad>-2026-09-30.json */
+  yedekAdi?: string;
 }
 
-export const KanonKarti: React.FC<Props> = ({ items, onUpdateItem }) => {
-  const liste = useMemo(() => kanonKararlari(items), [items]);
+const KANON_ACIKLAMA = 'Eskibey Ailesi, Yağ Fabrikası, Küçükkuyu Gençlerbirliği, Eylül Hanım (yalnız ad), Kemsköy adı, antik yerleşim, kesinleşen adlar; Ekim 2003 paragrafı, Liman 54 / Peron cümleleri ve Oda Yapısı bölümü silinir. Önce yedek iner.';
+
+export const KanonKarti: React.FC<Props> = ({
+  items, onUpdateItem, hesapla = kanonKararlari,
+  baslik = 'kanon kararların ve eski otel yazıları vikiye işlenecek',
+  aciklama = KANON_ACIKLAMA, yedekAdi = 'kanon-oncesi'
+}) => {
+  const liste = useMemo(() => hesapla(items), [items, hesapla]);
   const [yedeklendi, setYedeklendi] = useState(false);
   const [calisiyor, setCalisiyor] = useState(false);
   const [rapor, setRapor] = useState<string | null>(null);
@@ -25,13 +40,13 @@ export const KanonKarti: React.FC<Props> = ({ items, onUpdateItem }) => {
     const eskiler = items.filter(i => liste.some(l => l.item.id === i.id));
     const dosya = new Blob([JSON.stringify({
       uygulama: 'Kems Komuta Merkezi',
-      tur: 'kanon-kararlari-oncesi-yedek',
+      tur: `${yedekAdi}-yedek`,
       tarih: new Date().toISOString(),
       items: eskiler
     }, null, 2)], { type: 'application/json' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(dosya);
-    a.download = `kems-kanon-oncesi-${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = `kems-${yedekAdi}-${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(a.href);
     setYedeklendi(true);
@@ -61,11 +76,8 @@ export const KanonKarti: React.FC<Props> = ({ items, onUpdateItem }) => {
       <div className="flex items-start gap-3">
         <span className="font-mono text-lg font-bold text-[#D6484C] dark:text-[#F26B6F] leading-none mt-0.5 shrink-0 tabular-nums">{liste.length}</span>
         <span className="min-w-0 flex-1">
-          <span className="block text-[13px] font-semibold text-[#0E1C4F] dark:text-[#F3EFE8]">kanon kararların ve eski otel yazıları vikiye işlenecek</span>
-          <span className="block mt-0.5 text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9] leading-snug">
-            Eskibey Ailesi, Yağ Fabrikası, Küçükkuyu Gençlerbirliği, Eylül Hanım (yalnız ad), Kemsköy adı, antik yerleşim,
-            kesinleşen adlar; Ekim 2003 paragrafı, Liman 54 / Peron cümleleri ve Oda Yapısı bölümü silinir. Önce yedek iner.
-          </span>
+          <span className="block text-[13px] font-semibold text-[#0E1C4F] dark:text-[#F3EFE8]">{baslik}</span>
+          <span className="block mt-0.5 text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9] leading-snug">{aciklama}</span>
         </span>
       </div>
 

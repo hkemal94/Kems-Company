@@ -14,6 +14,8 @@ import { markaYapisi } from '../lib/markaYapisi';
 import { TemizlikKarti } from './TemizlikKarti';
 import { GaleriYedegiKarti } from './GaleriYedegiKarti';
 import { KanonKarti } from './KanonKarti';
+import { boslukDoldurma } from '../lib/boslukDoldurma';
+import { haritadaAra, maddeTohumu } from '../lib/haritaMaddesi';
 
 /**
  * "Neyin eksik" paneli (A1).
@@ -31,6 +33,15 @@ import { KanonKarti } from './KanonKarti';
  * sayı sıfırsa satır yok.
  */
 
+/**
+ * Satırdaki tek tuşla çözüm (Kemal, 29 Eylül gece: "kısa bir tuşla madde
+ * açma veya eksik dediği şeyleri yapma butonu"). Kayda yalnız basınca yazılır.
+ */
+export type Cozum =
+  | { tur: 'madde-ac'; wikiId: string }
+  | { tur: 'kayda-bagla'; wikiId: string; hedefId: string }
+  | { tur: 'markaya-bagla'; hedefId: string; markaId: string; markaAdi: string };
+
 export interface Eksik {
   anahtar: string;
   sayi: number;
@@ -44,7 +55,7 @@ export interface Eksik {
    * Kemal: "basınca genel bir yere varıyor, direkt o başlığı öneri olarak
    * görebilmek isterim"). Satıra basınca liste yerinde açılır.
    */
-  kayitlar?: Array<{ id?: string; ad: string; not?: string }>;
+  kayitlar?: Array<{ id?: string; ad: string; not?: string; cozum?: Cozum }>;
 }
 
 /** Maddenin künyesinde boş kalan alanlar — "neyi eksik" satırı */
@@ -82,7 +93,9 @@ function rolBos(i: Item): boolean {
 
 export function eksikleriCikar(items: Item[]): Eksik[] {
   const canli = items.filter(i => !i.archived);
-  const kimlikler = new Set(canli.map(i => i.id));
+  // Haritadaki yapıya sonradan bağlanan kayıtlar da sayılır (metadata.haritaWikiId)
+  const kimlikler = new Set([...canli.map(i => i.id), ...canli.map(i => String(i.metadata?.haritaWikiId || '')).filter(Boolean)]);
+  const trKucuk = (x: string) => x.trim().toLocaleLowerCase('tr');
   const eksikler: Eksik[] = [];
 
   // --- Harita: maddesi hiç açılmamış yapılar
@@ -94,9 +107,15 @@ export function eksikleriCikar(items: Item[]): Eksik[] {
       baslik: 'yapının maddesi yok',
       aciklama: maddesiz.slice(0, 3).map(b => b.ad).join(', ')
         + (maddesiz.length > 3 ? '…' : '')
-        + ' · haritada üstüne tıkla, künyesi haritadan dolsun',
+        + ' · aç, satırdaki düğmeyle maddesini kur',
       alan: 'duzada',
-      kayitlar: maddesiz.map(b => ({ ad: b.ad || b.wikiId, not: 'Düzada Haritası\'nda yapının üstüne tıkla' }))
+      kayitlar: maddesiz.map(b => {
+        // Aynı adla kaydı zaten varsa (ör. kulüp) yeni madde açılmaz, bağlanır
+        const var_ = canli.find(i => !i.isProposal && trKucuk(i.title) === trKucuk(b.ad || ''));
+        return var_
+          ? { ad: b.ad || b.wikiId, not: `kaydı var (${var_.type}); haritadaki yapıya bağlanır`, cozum: { tur: 'kayda-bagla' as const, wikiId: b.wikiId, hedefId: var_.id } }
+          : { ad: b.ad || b.wikiId, not: 'haritadaki bilgilerle boş künye açılır', cozum: { tur: 'madde-ac' as const, wikiId: b.wikiId } };
+      })
     });
   }
 
@@ -242,7 +261,10 @@ export function eksikleriCikar(items: Item[]): Eksik[] {
       aciklama: markasizDrop.map(i => i.title).join(', '),
       alan: 'merch',
       hedefId: markasizDrop[0].id,
-      kayitlar: markasizDrop.map(i => ({ id: i.id, ad: i.title, not: 'satan marka seçilmemiş (Kems Company)' }))
+      kayitlar: markasizDrop.map(i => ({
+        id: i.id, ad: i.title, not: 'satan marka seçilmemiş',
+        cozum: yapi.anaMarka ? { tur: 'markaya-bagla' as const, hedefId: i.id, markaId: yapi.anaMarka.id, markaAdi: yapi.anaMarka.title } : undefined
+      }))
     });
   }
 
@@ -290,6 +312,33 @@ export const Eksikler: React.FC<EksiklerProps> = ({
   /** Listesi açık olan eksik başlığı */
   const [acikEksik, setAcikEksik] = useState<string | null>(baslangicAcik);
   React.useEffect(() => { if (baslangicAcik) setAcikEksik(baslangicAcik); }, [baslangicAcik]);
+  /** Satırdaki çözüm düğmesi çalışırken */
+  const [cozuluyor, setCozuluyor] = useState<string | null>(null);
+
+  /** Tek tuşla çözüm — yalnız Kemal basınca yazar */
+  const coz = async (c: Cozum, anahtar: string) => {
+    if (cozuluyor) return;
+    setCozuluyor(anahtar);
+    try {
+      if (c.tur === 'madde-ac' && onAddItem) {
+        const k = haritadaAra(c.wikiId);
+        if (!k) return;
+        const tohum = maddeTohumu(k);
+        // undefined alan bütün kaydı reddettirir: boş anahtarlar çıkarılır
+        const meta = Object.fromEntries(Object.entries(tohum.metadata || {}).filter(([, v]) => v !== undefined));
+        await onAddItem({ ...tohum, metadata: meta } as Omit<Item, 'id' | 'createdAt' | 'updatedAt' | 'userId'>);
+      } else if (c.tur === 'kayda-bagla' && onUpdateItem) {
+        const hedef = items.find(i => i.id === c.hedefId);
+        if (hedef) await onUpdateItem({ ...hedef, metadata: { ...(hedef.metadata || {}), haritaWikiId: c.wikiId }, updatedAt: Date.now() });
+      } else if (c.tur === 'markaya-bagla' && onUpdateItem) {
+        const hedef = items.find(i => i.id === c.hedefId);
+        if (hedef) await onUpdateItem({ ...hedef, metadata: { ...(hedef.metadata || {}), brandId: c.markaId }, updatedAt: Date.now() });
+      }
+    } finally {
+      setCozuluyor(null);
+    }
+  };
+  const cozumAdi = (c: Cozum) => c.tur === 'madde-ac' ? 'Madde aç' : c.tur === 'kayda-bagla' ? 'Kayda bağla' : `${c.markaAdi}'ye bağla`;
 
   /**
    * Soru-cevapların vikiye aktarılması (W2) — mahalleler, mekânlar, otel,
@@ -666,6 +715,16 @@ export const Eksikler: React.FC<EksiklerProps> = ({
 
       {/* Kanon kararları ve eski otel yazıları (29 Eylül akşamı) — tek seferlik, önce yedek */}
       {onUpdateItem && <KanonKarti items={items} onUpdateItem={onUpdateItem} />}
+      {onUpdateItem && (
+        <KanonKarti
+          items={items}
+          onUpdateItem={onUpdateItem}
+          hesapla={boslukDoldurma}
+          baslik="boşluklar künyedeki cevaplarla dolacak"
+          aciklama="Künyede cevabı yazılı olan boş alanlar dolar (tür, mahalle, yıllar, sahibi, sezon, simgeler, sakinler). Dolu alana ve tarihçe metnine dokunulmaz. Önce yedek iner."
+          yedekAdi="bosluk-oncesi"
+        />
+      )}
 
       {/* Viki düzeltmeleri + Canva görselleri (W5) — tek seferlik; önce W4 */}
       {onUpdateItem && onAddItem && w3.guncellenenler.length === 0 && w4.guncellenenler.length === 0 && w5Is > 0 && (
@@ -818,7 +877,8 @@ export const Eksikler: React.FC<EksiklerProps> = ({
                 <div className="border border-t-0 border-[#F26B6F] rounded-b-xl bg-white/70 dark:bg-[#0E1C4F]/60 max-h-80 overflow-y-auto">
                   <ul className="divide-y divide-[#CFC5B4]/50 dark:divide-[#2C3C72]/60">
                     {liste.map((k, n) => (
-                      <li key={(k.id || k.ad) + n}>
+                      <li key={(k.id || k.ad) + n} className="flex items-center">
+                        <div className="flex-1 min-w-0">
                         {k.id ? (
                           <button
                             type="button"
@@ -834,6 +894,17 @@ export const Eksikler: React.FC<EksiklerProps> = ({
                             <span className="text-[12px] font-semibold text-[#0E1C4F] dark:text-[#F3EFE8] shrink-0 max-w-[45%] truncate">{k.ad}</span>
                             <span className="text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9] min-w-0 truncate">{k.not}</span>
                           </div>
+                        )}
+                        </div>
+                        {k.cozum && (
+                          <button
+                            type="button"
+                            disabled={!!cozuluyor}
+                            onClick={() => void coz(k.cozum!, `${e.anahtar}:${n}`)}
+                            className="shrink-0 mr-3 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-[#0E1C4F] dark:bg-[#2C3C72] text-[#F3EFE8] hover:opacity-90 disabled:opacity-40 cursor-pointer"
+                          >
+                            {cozuluyor === `${e.anahtar}:${n}` ? '…' : cozumAdi(k.cozum)}
+                          </button>
                         )}
                       </li>
                     ))}
