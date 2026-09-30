@@ -32,7 +32,8 @@ import {
   Moon,
   UserRound,
   Megaphone,
-  Globe
+  Globe,
+  CalendarDays,
 } from 'lucide-react';
 import Durum from './components/Durum';
 import Duzada from './components/Duzada';
@@ -49,6 +50,7 @@ import Galeri from './components/Galeri';
 import Sosyal from './components/sosyal/Sosyal';
 import Site from './components/site/Site';
 import SiteYonetimi from './components/site/SiteYonetimi';
+import Takvim from './components/takvim/Takvim';
 import OyunEkrani from './components/oyun/OyunEkrani';
 import Markalar from './components/Markalar';
 import DuzadaDirectory from './components/DuzadaDirectory';
@@ -61,7 +63,7 @@ import { Zil } from './components/kabuk/Zil';
 import { useBildirimler, type Bildirim } from './lib/bildirimler';
 
 /** Uygulamanın sayfaları. 'komuta' ana sayfa; eski Komuta Merkezi 'durum'. */
-type Sayfa = 'komuta' | 'durum' | 'eksikler' | 'markalar' | 'duzada' | 'merch' | 'yazi' | 'oyun' | 'galeri' | 'studyo' | 'sosyal' | 'site';
+type Sayfa = 'komuta' | 'durum' | 'eksikler' | 'markalar' | 'duzada' | 'merch' | 'yazi' | 'oyun' | 'galeri' | 'studyo' | 'sosyal' | 'site' | 'takvim';
 
 export interface WorkspaceUser {
   uid: string;
@@ -663,6 +665,7 @@ export default function App() {
     { grup: 'Araçlar', satirlar: [
       { id: 'studyo', ad: 'Stüdyo', alt: 'yapay zekâ, öneri tepsisi', simge: Sparkles, nokta: bildirimVar('aday') },
       { id: 'sosyal', ad: 'Sosyal medya', alt: 'takvim ve seriler', simge: Megaphone },
+      { id: 'takvim', ad: 'Takvim', alt: 'drop, gönderi, fanzin', simge: CalendarDays },
       { id: 'site', ad: 'Site', alt: 'kems.company önizlemesi', simge: Globe },
       { id: 'eksikler', ad: 'Neyin Eksik', simge: ListChecks, nokta: bildirimVar('dugme') },
       { id: 'durum', ad: 'Durum', alt: 'yüzdeler ve boşluklar', simge: Percent }
@@ -685,6 +688,7 @@ export default function App() {
     { grup: 'Araçlar', satirlar: [
       { hedef: 'studyo', ad: 'Stüdyo', simge: Sparkles, nokta: bildirimVar('aday') },
       { hedef: 'sosyal', ad: 'Sosyal medya', simge: Megaphone },
+      { hedef: 'takvim', ad: 'Takvim', simge: CalendarDays },
       { hedef: 'site', ad: 'Site', simge: Globe },
       { hedef: 'eksikler', ad: 'Neyin Eksik', simge: ListChecks, nokta: bildirimVar('dugme') },
       { hedef: 'durum', ad: 'Durum ve boşluklar', simge: Percent }
@@ -702,7 +706,7 @@ export default function App() {
 
   const SAYFA_ADI: Record<Sayfa, string> = {
     komuta: 'Ana sayfa', duzada: 'Düzada', markalar: 'Markalar', merch: 'Merch', yazi: 'Yazı',
-    oyun: 'Oyun', galeri: 'Galeri', eksikler: 'Neyin Eksik', durum: 'Durum', studyo: 'Yapay zekâ stüdyosu', sosyal: 'Sosyal medya', site: 'Site'
+    oyun: 'Oyun', galeri: 'Galeri', eksikler: 'Neyin Eksik', durum: 'Durum', studyo: 'Yapay zekâ stüdyosu', sosyal: 'Sosyal medya', site: 'Site', takvim: 'Takvim'
   };
 
   const logo = hasKemsLogo ? (
@@ -950,6 +954,13 @@ export default function App() {
 
             {activeTab === 'site' && (
               <SiteYonetimi items={items} onUpdateItem={handleUpdateItem} onAddItem={handleAddItem} onOnizleme={() => git('site-onizleme')} onMaddeyiAc={maddeyiAc} />
+            )}
+
+            {activeTab === 'takvim' && (
+              <Takvim items={items} onAc={o => {
+                const k = items.find(i => i.id === o.id);
+                if (k) handleSelectResult(k); else git('studyo');
+              }} />
             )}
 
             {activeTab === 'sosyal' && (

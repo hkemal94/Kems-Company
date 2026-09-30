@@ -10,6 +10,8 @@ import { SayfaRayi, type RayBolumu } from './SayfaRayi';
 import { markaYapisi, KURUM_ALANI } from '../lib/markaYapisi';
 import { KurumOzeti } from './marka/KurumOzeti';
 import { MerchPano } from './merch/MerchPano';
+import { AsamaYapilacaklari } from './merch/AsamaYapilacaklari';
+import { dropTarihi } from '../lib/takvim';
 
 // three.js büyük; yalnız 3B stüdyo açılınca yüklenir
 const Studyo3B = lazy(() => import('./merch/Studyo3B'));
@@ -1522,6 +1524,19 @@ export default function Merch({
                   })}
                 </div>
               ) : null}
+              {/* Drop'un çıkış tarihi (yapisal-4, 35): Takvim ve sosyal medya takviminde görünür */}
+              {activeItem.type === 'drop' && (
+                <label className="mt-3 flex items-center gap-2 text-[11px] font-mono text-[#6A5E4C] dark:text-[#A6B0C9]">
+                  <span className="font-bold uppercase tracking-wider">Çıkış tarihi</span>
+                  <input
+                    type="date"
+                    value={dropTarihi(activeItem)}
+                    onChange={e => void onUpdateItem({ ...activeItem, metadata: { ...activeItem.metadata, cikisTarihi: e.target.value || '' }, updatedAt: Date.now() })}
+                    className="bg-white dark:bg-[#17345A] border border-[#CFC5B4] dark:border-[#2C3C72] rounded px-2 py-1 text-[#0E1C4F] dark:text-[#F3EFE8]"
+                  />
+                  {!dropTarihi(activeItem) && <span className="text-[#A99C87]">boş · takvimde görünmez</span>}
+                </label>
+              )}
               {activeItem.type === 'merch_urun' && (
                 <button
                   type="button"
@@ -1531,6 +1546,7 @@ export default function Merch({
                   {(activeItem.metadata as any)?.tasarim3b ? '3B tasarımı aç' : '3B stüdyoda dene'}
                 </button>
               )}
+              {activeItem.type === 'merch_urun' && <AsamaYapilacaklari urun={activeItem} onUpdateItem={onUpdateItem} />}
             </div>
 
             {/* Düzenle (Edit) Button Bar */}
