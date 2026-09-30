@@ -52,10 +52,15 @@ Sonda çıkan işler var.
 
 | # | Soru | Cevap |
 |---|---|---|
-| 21 | Trafik | **Düğmeyle aç / kapa** |
+| 21 | Trafik | **Düğmeyle aç / kapa** → düzeltme aşağıda |
 | 22 | Feribotun gittiği yer | **Küçükkuyu Limanı** (gerçek yer; adanın ~65 km doğusu) |
 | 23 | Günün saati | **Gerçek saate göre** (akşam ışıklar yanar) |
 | 24 | Mevsim | **Takvime göre** |
+
+**Düzeltme (Kemal, aynı gün):** "Sitede trafik ve mevsimlik, günlük
+değişimler sabit ama KKM'de aç kapalı olsun." → **Sitede** trafik, gerçek
+saat ve takvim mevsimi **her zaman açık**; **KKM'de** üçü de düğmeyle
+açılıp kapanır.
 
 ## 7. tur — Merch ve kurumlar
 
@@ -116,8 +121,9 @@ Sonda çıkan işler var.
 - Kişilerde yaş alanı kalkar.
 
 **H — harita**
-- Trafik (tekne, feribot, araç) düğmeyle; feribot Küçükkuyu Limanı'na.
-- Gerçek saate göre gündüz / akşam; takvime göre mevsim.
+- Trafik (tekne, feribot, araç), gerçek saate göre gündüz / akşam ve
+  takvime göre mevsim: **sitede her zaman açık, KKM'de düğmeyle** aç / kapa.
+- Feribot Küçükkuyu Limanı'na.
 
 **Stüdyo**
 - Fanzin: ad boş, bölüm serbest; sitede, PDF ve Instagram kaydırmalı
