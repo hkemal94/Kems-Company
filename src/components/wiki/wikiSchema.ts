@@ -282,6 +282,9 @@ export function isStub(item: Item): boolean {
   const bilgi = chars + kunyeChars;
   const { pct, total } = kunyeCompleteness(item);
 
+  // Künyesi tamamen dolu madde taslak değildir (Kemal, 30 Eylül: "bunlar
+  // %100 dolu"). Kısa değerli künyeler (Tür: Okul) harf sayısına takılıyordu.
+  if (total > 0 && pct === 100) return false;
   if (bilgi >= 800) return false;                        // uzun yazılmış madde
   if (bilgi >= 400 && kunye.length >= 4) return false;   // künyesi zengin madde
   return bilgi < 240 || (total > 0 && pct < 30 && kunye.length < 4);
