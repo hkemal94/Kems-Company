@@ -418,8 +418,21 @@ export default function App() {
       setActiveTab('merch');
     } else if (item.type === 'marka') {
       setActiveTab('markalar');
-    } else if (item.type === 'blog_post' || item.type === 'kitap_proje' || item.type === 'kitap_bolum') {
+    } else if (item.type === 'blog_post') {
+      setYaziIstek({ sekme: 'blog', n: Date.now() });
       setActiveTab('yazi');
+    } else if (item.type === 'kitap_proje' || item.type === 'kitap_bolum') {
+      setYaziIstek({ sekme: 'kitap', n: Date.now() });
+      setActiveTab('yazi');
+    } else if (item.type === 'sosyal_gonderi' || item.type === 'sosyal_seri') {
+      // "Son dokunulanlar"dan gönderiye basınca vikiye düşüyordu (30 Eylül)
+      setActiveTab('sosyal');
+    } else if (item.type === 'ilham_gorsel' || item.type === 'ilham_kaynak') {
+      setActiveTab('galeri');
+    } else if (item.type === 'oyun_is' || item.type === 'gdd_bolum' || item.type === 'oyun_tanitim') {
+      setActiveTab('oyun');
+    } else if (item.type === 'aday') {
+      setActiveTab('studyo');
     } else if (item.type === 'fikir') {
       /*
        * Brainstorm sekmesi kalktı (28 Eylül kararı). Fikirler köşedeki
@@ -873,7 +886,7 @@ export default function App() {
             )}
 
             {activeTab === 'sosyal' && (
-              <Sosyal items={items} onAddItem={handleAddItem} onUpdateItem={handleUpdateItem} onDeleteItem={handleDeleteItem} />
+              <Sosyal items={items} acilacakId={activeItemId} onAddItem={handleAddItem} onUpdateItem={handleUpdateItem} onDeleteItem={handleDeleteItem} />
             )}
 
             {activeTab === 'galeri' && (

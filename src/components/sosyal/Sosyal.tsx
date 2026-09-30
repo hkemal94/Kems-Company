@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { ChevronLeft, ChevronRight, Plus, EyeOff, Eye } from 'lucide-react';
 import type { Item } from '../../types';
 import {
@@ -27,6 +27,8 @@ interface Props {
   onAddItem: (item: YeniKayit & { id?: string }) => Promise<void>;
   onUpdateItem: (item: Item) => Promise<void>;
   onDeleteItem: (id: string) => Promise<void>;
+  /** Başka sayfadan (ör. "Son dokunulanlar") basılan gönderi ya da seri */
+  acilacakId?: string | null;
 }
 
 const IZGARA_ANAHTARI = 'kems_sosyal_izgara';
@@ -42,7 +44,7 @@ const ASAMA_RENGI: Record<string, string> = {
   Paylaşıldı: 'bg-[#0E1C4F] text-white dark:bg-[#2C3C72]'
 };
 
-export const Sosyal: React.FC<Props> = ({ items, onAddItem, onUpdateItem, onDeleteItem }) => {
+export const Sosyal: React.FC<Props> = ({ items, onAddItem, onUpdateItem, onDeleteItem, acilacakId = null }) => {
   const bugun = bugunTarih();
   const [ay, setAy] = useState(() => { const d = new Date(); return { y: d.getFullYear(), a: d.getMonth() }; });
   const [gorunum, setGorunum] = useState<Gorunum>('takvim');
@@ -52,6 +54,13 @@ export const Sosyal: React.FC<Props> = ({ items, onAddItem, onUpdateItem, onDele
   const [izgaraAcik, setIzgaraAcik] = useState(izgaraOku);
   const [surukle, setSurukle] = useState<string | null>(null);
   const [hedef, setHedef] = useState<string | null>(null);
+  useEffect(() => {
+    const k = acilacakId ? items.find(i => i.id === acilacakId) : undefined;
+    if (!k) return;
+    if (k.type === 'sosyal_seri') setGorunum('seri');
+    else if (k.type === 'sosyal_gonderi') setAcikId(k.id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [acilacakId]);
 
   const tum = useMemo(() => gonderiler(items), [items]);
   const seriListesi = useMemo(() => seriler(items).sort((a, b) => a.createdAt - b.createdAt), [items]);

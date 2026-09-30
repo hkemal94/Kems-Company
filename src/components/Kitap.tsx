@@ -26,7 +26,13 @@ export default function Kitap({
   onDeleteItem,
   onAddItem
 }: KitapProps) {
-  const [activeTab, setActiveTab] = useState<'home' | 'bölüm_editör'>('home');
+  const [activeTab, setActiveTab] = useState<'home' | 'bölüm_editör'>(
+    () => (activeItemId && items.some(i => i.id === activeItemId && i.type === 'kitap_bolum') ? 'bölüm_editör' : 'home'));
+  // Başka sayfadan bir bölüme basılınca bölümün kendisi açılsın (30 Eylül)
+  React.useEffect(() => {
+    if (activeItemId && items.some(i => i.id === activeItemId && i.type === 'kitap_bolum')) setActiveTab('bölüm_editör');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeItemId]);
   
   // Selection and editing states
   const [selectedBookId, setSelectedBookId] = useState<string>('');
