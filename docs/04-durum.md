@@ -878,6 +878,43 @@ droplar sınırlı adet; paylaşımlar Türkçe; haftalık özet Kemal'in
 Gmail'inden, yedek Drive'a da. Buffer ve kendi adrese taşıma bütçeye
 kadar ertelendi.
 
+## 30 Eylül — Yapısal soru-cevap, 4. set ve sıra
+
+40 soru: `docs/soru-cevap/yapisal-4.md`. **2. ve 3. set yalnız belgeydi;
+uygulamada yapılmadı** (Kemal haritada fark etti). Sıra: tek büyük PR,
+ilk teslim **harita düzeltmeleri + trafik / saat / mevsim**; sonra 3B
+stüdyo, site düzenleme, fanzin. Stüdyoya kural istisnası: geceleri günde
+bir kez 3 öneri ve aylık fanzin taslağı, yalnız öneri tepsisine.
+
+## 30 Eylül — Büyük PR, 1. teslim: harita (uygulamada)
+
+Bu sefer kod değişti (2.–4. set belgeydi).
+
+- **Arazideki sivri duvarlar düzeldi.** Kemal'in "mahalle sınırında bent"
+  dediği şey sınır değildi: arazi karoları büyütülürken yükseklik renkleri
+  karışıyor, 256 m / 512 m eşiklerinde sahte duvarlar çıkıyordu. Artık ara
+  değer yüksekliğin kendisinden hesaplanıyor (`duzadaArazi.ts`).
+- Mahalleler zeminde çok hafif bir tonla ayrışır (çizgi yok).
+- **Kurucu · yol:** noktaya dokunup bırakınca seçilir → "Seçili noktayı
+  sil" (ya da Delete); iki nokta arasındaki **+** yeni nokta koyar ve
+  hemen sürüklenir.
+- **Kurucu · tek parça yapılar:** otel + iki kulesi, Dirlik Stadı (+ yanına
+  konan tribün / saha), 35 Çiftlik kompleksi (ev + ahır + depo). Hangi
+  parçasına dokunulsa grup seçilir; birlikte taşınır, döner, kaldırılır.
+- **Atmosfer** (`harita/atmosfer.ts`): gerçek saate göre gündüz / gece
+  (pencere ışıkları, sokak lambaları, dönen fener, yıldızlar ve ay),
+  takvime göre kış (soluk zemin, koyu ve köpüklü deniz, yazlıklar gece
+  karanlık, trafik seyrek), trafik (araçlar en çok sahil yolunda, tekneler,
+  limanda bekleyen feribot; sefer saatinde yenisi gelir, bu kalkar — yazın
+  07–21 iki saatte bir, kışın 08–17 üç saatte bir). **Sitede hep açık;
+  KKM'de 3D görünümde sol alttaki Trafik · Saat · Mevsim düğmeleriyle.**
+- Her zaman: Biga yarımadası ve Edremit Körfezi kıyısı silueti, Liman'dan
+  adanın kuzeyini dolaşıp Babakale'yi dönen **Küçükkuyu Limanı** feribot
+  hattı.
+- Açık: yakından bakınca adanın yüzey görseli bulanık (çözünürlük); ayrı iş.
+
+Görseller: `docs/gorseller/h1-*.png` (önizleme, örnek veri).
+
 ## Sıradaki
 
 - Oyunun tasarım belgesinin doldurulması (13 başlık)

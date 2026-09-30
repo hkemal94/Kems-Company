@@ -107,6 +107,34 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
   const yollar = useMemo(() => yollariKur(zemin, taslak, egri), [zemin, taslak]);
   const binalar = useMemo(() => binalariKur(zemin, taslak, binaKoseleri), [zemin, taslak]);
 
+  /**
+   * Tek parça yapılar (30 Eylül, Kemal: "otel binasının kulelerini otele
+   * entegre et, ayrı olarak oynatmak istemiyorum"). Grubun her parçası
+   * birlikte seçilir, taşınır, döner, kaldırılır. İlk kimlik grubun başı:
+   *   - The Imperial Kemsköy + Batı ve Doğu kuleleri
+   *   - Dirlik Stadı + çevresine Kurucu'da konan tribün ve sahalar
+   *   - Çiftlik kompleksleri: ev, ahır, depo (`ciftlik_<arazi>_<parça>`)
+   */
+  const gruplar = useMemo(() => {
+    const g = new Map<string, string[]>();
+    const kur = (uyeler: string[]) => { if (uyeler.length > 1) uyeler.forEach(u => g.set(u, uyeler)); };
+    const var_ = new Set(binalar.map(b => b.id));
+    kur(['bina_imperial', 'bina_imperial_kule_bati', 'bina_imperial_kule_dogu'].filter(i => var_.has(i)));
+    const stad = binalar.find(b => b.id === 'bina_stad');
+    if (stad) kur(['bina_stad', ...binalar.filter(b => b.yeni && (b.tur === 'tribun' || b.tur === 'saha')
+      && Math.hypot(b.m[0] - stad.m[0], b.m[1] - stad.m[1]) < 180).map(b => b.id)]);
+    const ciftlik = new Map<string, string[]>();
+    for (const b of binalar) {
+      const e = /^ciftlik_(\d+)_\d+$/.exec(b.id);
+      if (e) ciftlik.set(e[1], [...(ciftlik.get(e[1]) ?? []), b.id]);
+    }
+    ciftlik.forEach(kur);
+    return g;
+  }, [binalar]);
+  /** Yapının grubu (tek başınaysa kendisi) ve grubun başı */
+  const grubu = useCallback((id: string) => gruplar.get(id) ?? [id], [gruplar]);
+  const lider = useCallback((id: string) => grubu(id)[0], [grubu]);
+
   // ---- kayıt (her değişiklikten 1 sn sonra) ----------------------------------
   const ilkTaslak = useRef(taslak);
   const sonDuzen = useRef(duzen);
@@ -220,7 +248,10 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
    * Sürüklenen yol noktası (30 Eylül, Kemal: "yapılı bir yolla ilgili
    * düzenleme yapamıyorum"). parca 'k': yeni yolun kontrol noktası.
    */
-  const [surukYol, setSurukYol] = useState<{ id: string; parca: number | 'k'; i: number; m: Nokta } | null>(null);
+  const [surukYol, setSurukYol] = useState<{ id: string; parca: number | 'k'; i: number; m: Nokta; bas?: Nokta } | null>(null);
+  /** Dokunulup bırakılan yol noktası: silinmek üzere seçili (30 Eylül) */
+  const [seciliNokta, setSeciliNokta] = useState<{ id: string; parca: number | 'k'; i: number } | null>(null);
+  useEffect(() => { setSeciliNokta(null); }, [secili]);
   /** Sürüklenen yapı (30 Eylül, Kemal: "binaları taşıyabilmek isterim") */
   const [surukBina, setSurukBina] = useState<{ id: string; bas: Nokta; m: Nokta } | null>(null);
 
@@ -398,11 +429,12 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
       else if (e.key === 'Backspace' && arac === 'ciz' && cizilen.length) { e.preventDefault(); setCizilen(c => c.slice(0, -1)); }
       else if (e.key === 'Backspace' && (arac === 'ozel' || arac === 'doga') && cokgen.length) { e.preventDefault(); setCokgen(c => c.slice(0, -1)); }
       // Seçili yol ya da yapı Delete / Backspace ile kaldırılır
+      else if ((e.key === 'Delete' || e.key === 'Backspace') && arac === 'sec' && seciliNokta) { e.preventDefault(); yolNoktasiSil(seciliNokta); }
       else if ((e.key === 'Delete' || e.key === 'Backspace') && arac === 'sec' && secili) { e.preventDefault(); kaldirGeriGetir(secili); setSecili(null); }
     };
     window.addEventListener('keydown', tus);
     return () => window.removeEventListener('keydown', tus);
-  }, [arac, bitir, cizilen.length, geriAl, yinele, secili, cokgen.length, cokgeniBitir]);
+  }, [arac, bitir, cizilen.length, geriAl, yinele, secili, seciliNokta, cokgen.length, cokgeniBitir]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ---- işaretçi: kaydır / tıkla / çimdikle ------------------------------------
   const basilanlar = useRef(new Map<number, { x: number; y: number }>());
@@ -423,13 +455,27 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
     if (yn && arac === 'sec') {
       const [id, parca, i] = String(yn.getAttribute('data-yolnokta')).split('|');
       (e.currentTarget as Element).setPointerCapture(e.pointerId);
-      setSurukYol({ id, parca: parca === 'k' ? 'k' : Number(parca), i: Number(i), m: ekrandanMetre(e.clientX, e.clientY) });
+      const m = ekrandanMetre(e.clientX, e.clientY);
+      setSurukYol({ id, parca: parca === 'k' ? 'k' : Number(parca), i: Number(i), m, bas: m });
+      return;
+    }
+    // İki nokta arasındaki "+": yeni nokta konur ve hemen sürüklenir
+    const ek = (e.target as Element).closest?.('[data-yolekle]');
+    if (ek && arac === 'sec') {
+      const [id, parcaH, iH] = String(ek.getAttribute('data-yolekle')).split('|');
+      const parca = parcaH === 'k' ? 'k' as const : Number(parcaH), i = Number(iH);
+      const m = ekrandanMetre(e.clientX, e.clientY);
+      (e.currentTarget as Element).setPointerCapture(e.pointerId);
+      yolNoktasiEkle(id, parca, i, m);
+      setSurukYol({ id, parca, i: i + 1, m });
+      setSeciliNokta(null);
       return;
     }
     // Seçili yapının üstünden tutulduysa: yapı taşınır
     if (arac === 'sec' && secili && basilanlar.current.size === 0) {
       const g = (e.target as Element).closest?.('[data-bina],[data-ozel]');
-      const id = g ? g.getAttribute('data-bina') ?? g.getAttribute('data-ozel') : null;
+      const ham = g ? g.getAttribute('data-bina') ?? g.getAttribute('data-ozel') : null;
+      const id = ham ? lider(ham) : null;
       if (id && id === secili) {
         (e.currentTarget as Element).setPointerCapture(e.pointerId);
         const m = ekrandanMetre(e.clientX, e.clientY);
@@ -494,8 +540,13 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
       return;
     }
     if (surukYol) {
-      const { id, parca, i, m } = surukYol;
+      const { id, parca, i, m, bas } = surukYol;
       setSurukYol(null);
+      // Dokunup bırakınca nokta seçilir (silmek için); sürükleyince taşınır
+      if (bas && Math.hypot(m[0] - bas[0], m[1] - bas[1]) * olcek < 3) {
+        setSeciliNokta(s => (s && s.id === id && s.parca === parca && s.i === i ? null : { id, parca, i }));
+        return;
+      }
       yolNoktasiYaz(id, parca, i, m);
       return;
     }
@@ -532,7 +583,7 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
       const bn = altta.map(el => el.closest('[data-bina]')).find(Boolean);
       const yl = altta.map(el => el.closest('[data-yol]')).find(Boolean);
       const dg = altta.map(el => el.closest('[data-doga]')).find(Boolean);
-      setSecili(oz ? oz.getAttribute('data-ozel') : bn ? bn.getAttribute('data-bina') : yl ? yl.getAttribute('data-yol') : dg ? dg.getAttribute('data-doga') : null);
+      setSecili(oz ? oz.getAttribute('data-ozel') : bn ? lider(String(bn.getAttribute('data-bina'))) : yl ? yl.getAttribute('data-yol') : dg ? dg.getAttribute('data-doga') : null);
     } else if (arac === 'sil') {
       // Kaldır aracı: dokunulan yol ya da yapı tek dokunuşta kaldırılır;
       // kaldırılmışa dokununca geri gelir (29 Eylül, Kemal: "yolların
@@ -543,7 +594,7 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
       if (oz || dg) { taslaktanSil(String((oz ?? dg)!.getAttribute(oz ? 'data-ozel' : 'data-doga'))); return; }
       const bn = altta.map(el => el.closest('[data-bina]')).find(Boolean);
       const yl = altta.map(el => el.closest('[data-yol]')).find(Boolean);
-      if (bn) kaldirGeriGetir(String(bn.getAttribute('data-bina')));
+      if (bn) grupKaldirGetir(String(bn.getAttribute('data-bina')));
       else if (yl) yolParcasiSil(String(yl.getAttribute('data-yol')), ekrandanMetre(e.clientX, e.clientY));
     } else if (arac === 'ozel' && kalipId) {
       kalibiKoy(ekrandanMetre(e.clientX, e.clientY));
@@ -586,10 +637,16 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
   const seciliBina = binalar.find(b => b.id === secili) ?? null;
   const binaDegistir = (b: KurucuBina, f: (x: KurucuTaslak['yeniBinalar'][string]) => KurucuTaslak['yeniBinalar'][string]) =>
     degistir(t => ({ ...t, yeniBinalar: { ...t.yeniBinalar, [b.id]: f(t.yeniBinalar[b.id]) } }));
-  const binaGizleGoster = (b: KurucuBina) => degistir(t => ({
-    ...t,
-    gizlenen: t.gizlenen.includes(b.id) ? t.gizlenen.filter(x => x !== b.id) : [...t.gizlenen, b.id]
-  }));
+  const binaGizleGoster = (b: KurucuBina) => grupKaldirGetir(b.id);
+  /** Grubun hepsini birlikte kaldırır ya da geri getirir (başın durumuna göre) */
+  function grupKaldirGetir(id: string) {
+    const uyeler = grubu(id);
+    degistir(t => {
+      const gizli = t.gizlenen.includes(uyeler[0]);
+      const kalan = t.gizlenen.filter(x => !uyeler.includes(x));
+      return { ...t, gizlenen: gizli ? kalan : [...kalan, ...uyeler] };
+    });
+  }
   const [dolguTur, setDolguTur] = useState<BinaTuru>('ev');
   const turDegistir = (y: KurucuYol, tur: YolTuru) => degistir(t => {
     if (y.yeni) {
@@ -615,15 +672,48 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
     return { ...t, binaDuzeni: bd };
   });
 
-  /** Yapıyı dx, dy metre kaydırır: özel yapı, Kurucu'da konan ya da haritadan gelen */
+  /** Yapıyı (grubuyla birlikte) dx, dy metre kaydırır */
   const yapiTasi = (id: string, dx: number, dy: number) => {
+    const uyeler = grubu(id);
+    if (uyeler.length > 1) {
+      const bas = binalar.find(b => b.id === uyeler[0]);
+      if (bas && !karadaMi([bas.m[0] + dx, bas.m[1] + dy], zemin.ada)) { setUyari('Yapı denize taşınamaz.'); return; }
+      uyeler.forEach(u => tekYapiTasi(u, dx, dy, false));
+      return;
+    }
+    tekYapiTasi(id, dx, dy, true);
+  };
+
+  /** Grubu, merkezinin çevresinde döndürür (tek yapıda kendi çevresinde) */
+  const yapiDondur = (id: string, a: number) => {
+    const uyeler = grubu(id).map(u => binalar.find(b => b.id === u)).filter(Boolean) as KurucuBina[];
+    const G: Nokta = [uyeler.reduce((t, b) => t + b.m[0], 0) / uyeler.length, uyeler.reduce((t, b) => t + b.m[1], 0) / uyeler.length];
+    const co = Math.cos(a), si = Math.sin(a);
+    degistir(t => {
+      const yB = { ...t.yeniBinalar }, bD = { ...t.binaDuzeni };
+      for (const b of uyeler) {
+        const yeni: Nokta = [G[0] + (b.m[0] - G[0]) * co - (b.m[1] - G[1]) * si, G[1] + (b.m[0] - G[0]) * si + (b.m[1] - G[1]) * co];
+        const ddx = yeni[0] - b.m[0], ddy = yeni[1] - b.m[1];
+        if (yB[b.id]) {
+          const m = metreye(yB[b.id].merkez);
+          yB[b.id] = { ...yB[b.id], merkez: derceye([m[0] + ddx, m[1] + ddy]), aci: yB[b.id].aci + a };
+        } else {
+          const d = bD[b.id] ?? { dx: 0, dy: 0, aci: 0 };
+          bD[b.id] = { ...d, dx: d.dx + ddx, dy: d.dy + ddy, aci: d.aci + a };
+        }
+      }
+      return { ...t, yeniBinalar: yB, binaDuzeni: bD };
+    });
+  };
+
+  const tekYapiTasi = (id: string, dx: number, dy: number, karaDenetimi: boolean) => {
     const oz = taslak.ozelYapilar[id];
     const yb = taslak.yeniBinalar[id];
     const bn = binalar.find(b => b.id === id);
     const yeniMerkez: Nokta | null = oz ? (() => { const c = cokgenMerkezi(oz.koseler.map(metreye)); return [c[0] + dx, c[1] + dy]; })()
       : bn ? [bn.m[0] + dx, bn.m[1] + dy] : null;
     if (!yeniMerkez) return;
-    if (!karadaMi(yeniMerkez, zemin.ada)) { setUyari('Yapı denize taşınamaz.'); return; }
+    if (karaDenetimi && !karadaMi(yeniMerkez, zemin.ada)) { setUyari('Yapı denize taşınamaz.'); return; }
     if (oz) {
       ozelDegistir(id, o => ({ ...o, koseler: o.koseler.map(k => { const m = metreye(k); return derceye([m[0] + dx, m[1] + dy]); }) }));
     } else if (yb) {
@@ -672,6 +762,47 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
       return { ...t, yolDuzeni: { ...t.yolDuzeni, [id]: kalan.map(k => k.map(derceye)) } };
     });
     setUyari('İki kavşak arası kaldırıldı. Geri al ile döner.');
+  };
+
+  /** Yolun i. noktasından sonra yeni nokta (metre) */
+  const yolNoktasiEkle = (id: string, parca: number | 'k', i: number, m: Nokta) => {
+    const yol = yollar.find(y => y.id === id);
+    if (!yol) return;
+    degistir(t => {
+      if (parca === 'k') {
+        const y = t.yeniYollar[id];
+        if (!y) return t;
+        const n = [...y.noktalar]; n.splice(i + 1, 0, derceye(m));
+        return { ...t, yeniYollar: { ...t.yeniYollar, [id]: { ...y, noktalar: n } } };
+      }
+      const parcalar = yol.parcalar.map((h, pi) => {
+        const k = [...h]; if (pi === parca) k.splice(i + 1, 0, m);
+        return k.map(derceye);
+      });
+      return { ...t, yolDuzeni: { ...t.yolDuzeni, [id]: parcalar } };
+    });
+  };
+
+  /** Seçili yol noktasını siler; iki noktadan az kalan parça (ya da yol) gider */
+  const yolNoktasiSil = (n: { id: string; parca: number | 'k'; i: number }) => {
+    const yol = yollar.find(y => y.id === n.id);
+    if (!yol) return;
+    setSeciliNokta(null);
+    degistir(t => {
+      if (n.parca === 'k') {
+        const y = t.yeniYollar[n.id];
+        if (!y) return t;
+        const k = y.noktalar.filter((_, j) => j !== n.i);
+        if (k.length < 2) { const yY = { ...t.yeniYollar }; delete yY[n.id]; return { ...t, yeniYollar: yY }; }
+        return { ...t, yeniYollar: { ...t.yeniYollar, [n.id]: { ...y, noktalar: k } } };
+      }
+      const parcalar = yol.parcalar
+        .map((h, pi) => (pi === n.parca ? h.filter((_, j) => j !== n.i) : h))
+        .filter(h => h.length >= 2).map(h => h.map(derceye));
+      if (!parcalar.length) return { ...t, gizlenen: [...t.gizlenen.filter(x => x !== n.id), n.id] };
+      return { ...t, yolDuzeni: { ...t.yolDuzeni, [n.id]: parcalar } };
+    });
+    setUyari('Nokta silindi. Geri al ile döner.');
   };
 
   const yolSifirla = (id: string) => degistir(t => {
@@ -937,9 +1068,9 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
           {binalar.map(bn => {
             if (bn.gizli && !gizliGoster) return null;
             const bi = bn.tur ? binaBilgisi(bn.tur) : null;
-            const sec = bn.id === secili;
+            const sec = lider(bn.id) === secili;
             const bagli = !!(taslak.baglar[bn.id] ?? bn.wikiId);
-            const kay = surukBina?.id === bn.id ? `translate(${surukBina.m[0] - surukBina.bas[0]} ${surukBina.m[1] - surukBina.bas[1]})` : undefined;
+            const kay = surukBina && lider(bn.id) === surukBina.id ? `translate(${surukBina.m[0] - surukBina.bas[0]} ${surukBina.m[1] - surukBina.bas[1]})` : undefined;
             return (
               <g key={bn.id} data-bina={bn.id} transform={kay} style={sec && arac === 'sec' ? { cursor: 'move' } : undefined}>
                 {!bn.gizli && !bi?.yuvarlak && <path d={halkaYolu([bn.kose.map(p => [p[0] + px(2), p[1] + px(2)] as Nokta)])} fill="rgba(14,28,79,0.25)" />}
@@ -996,9 +1127,15 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
             const y = yollarCizim.find(o => o.id === secili);
             if (!y || y.gizli) return null;
             const tutamaclar: Array<{ anahtar: string; p: Nokta }> = [];
+            const artilar: Array<{ anahtar: string; p: Nokta }> = [];
             const ekle = (liste: Nokta[], parca: number | 'k') => {
               let son: Nokta | null = null;
               liste.forEach((p, i) => {
+                // İki komşu nokta ekranda yeterince uzaksa aralarına "+" (yeni nokta)
+                const sonraki = liste[i + 1];
+                if (sonraki && Math.hypot(sonraki[0] - p[0], sonraki[1] - p[1]) * olcek >= 34) {
+                  artilar.push({ anahtar: `${y.id}|${parca}|${i}`, p: [(p[0] + sonraki[0]) / 2, (p[1] + sonraki[1]) / 2] });
+                }
                 const uc = i === 0 || i === liste.length - 1;
                 if (!uc && son && Math.hypot(p[0] - son[0], p[1] - son[1]) * olcek < 14) return;
                 son = p;
@@ -1007,10 +1144,21 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
             };
             if (y.yeni && y.kontrol) ekle(y.kontrol, 'k');
             else y.parcalar.forEach((h, pi) => ekle(h, pi));
-            return tutamaclar.map(t => (
-              <circle key={t.anahtar} data-yolnokta={t.anahtar} cx={t.p[0]} cy={t.p[1]} r={px(5)}
-                fill="#fff" stroke="#F26B6F" strokeWidth={px(2)} style={{ cursor: 'move' }} />
-            ));
+            const secAnahtar = seciliNokta && seciliNokta.id === y.id ? `${y.id}|${seciliNokta.parca}|${seciliNokta.i}` : '';
+            return (
+              <>
+                {artilar.map(t => (
+                  <g key={`+${t.anahtar}`} data-yolekle={t.anahtar} style={{ cursor: 'copy' }}>
+                    <circle cx={t.p[0]} cy={t.p[1]} r={px(5.5)} fill="#0E1C4F" fillOpacity={0.75} />
+                    <path d={`M${t.p[0] - px(3)},${t.p[1]}H${t.p[0] + px(3)}M${t.p[0]},${t.p[1] - px(3)}V${t.p[1] + px(3)}`} stroke="#fff" strokeWidth={px(1.4)} />
+                  </g>
+                ))}
+                {tutamaclar.map(t => (
+                  <circle key={t.anahtar} data-yolnokta={t.anahtar} cx={t.p[0]} cy={t.p[1]} r={px(t.anahtar === secAnahtar ? 7 : 5)}
+                    fill={t.anahtar === secAnahtar ? '#F26B6F' : '#fff'} stroke="#F26B6F" strokeWidth={px(2)} style={{ cursor: 'move' }} />
+                ))}
+              </>
+            );
           })()}
 
           {/* Şablon ve bina önizlemesi */}
@@ -1180,10 +1328,8 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
               if (b.yeni) binaDegistir(b, x => ({ ...x, kat: yeni }));
               else haritaBinaDuzelt(b.id, d => ({ ...d, kat: yeni }));
             };
-            const dondur = (a: number) => {
-              if (b.yeni) binaDegistir(b, x => ({ ...x, aci: x.aci + a }));
-              else haritaBinaDuzelt(b.id, d => ({ ...d, aci: d.aci + a }));
-            };
+            const dondur = (a: number) => yapiDondur(b.id, a);
+            const uyeSayisi = grubu(b.id).length;
             const turYaz = (tur: BinaTuru) => {
               if (b.yeni) binaDegistir(b, x => ({ ...x, tur, en: binaBilgisi(tur).en, boy: binaBilgisi(tur).boy }));
               else haritaBinaDuzelt(b.id, d => ({ ...d, tur }));
@@ -1193,6 +1339,7 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
               <div className="mt-1 text-[15px] font-bold">{maddeAdi(taslak.baglar[b.id] ?? b.wikiId) ?? (b.tur ? binaBilgisi(b.tur).ad : b.ad)}</div>
               <div className="text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9]">
                 {b.yeni ? 'Kurucu\'da kondu' : `Haritadan${b.haritaTur ? ` · ${b.haritaTur}` : ''}`}{b.duzeltme ? ' · düzenlendi' : ''}
+                {uyeSayisi > 1 && <> · <b>tek parça, {uyeSayisi} yapı</b></>}
               </div>
               {!b.gizli && (
                 <>
@@ -1206,14 +1353,14 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
                     <button type="button" className={`${dugmeBos} flex-1`} onClick={() => dondur(-Math.PI / 12)}><RotateCcw className="w-3.5 h-3.5" />Döndür</button>
                     <button type="button" className={`${dugmeBos} flex-1`} onClick={() => dondur(Math.PI / 12)}><RotateCw className="w-3.5 h-3.5" />Döndür</button>
                   </div>
-                  <div className="mt-2 grid grid-cols-2 gap-1">
+                  {uyeSayisi === 1 && <div className="mt-2 grid grid-cols-2 gap-1">
                     {BINA_TURLERI.filter(x => x.elle && !x.yuvarlak && !['meydan', 'saha', 'bag', 'agac', 'cesme'].includes(x.id)).map(x => (
                       <button key={x.id} type="button" onClick={() => turYaz(x.id)} className={cip(b.tur === x.id)}>{x.ad}</button>
                     ))}
-                  </div>
+                  </div>}
                   <p className="mt-1.5 text-[10px] text-[#6A5E4C] dark:text-[#A6B0C9]">Taşımak için yapıyı sürükle.</p>
-                  {b.duzeltme && (
-                    <button type="button" onClick={() => haritaBinaSifirla(b.id)} className={`${dugmeBos} mt-1.5 w-full`}>Eski hâline döndür</button>
+                  {grubu(b.id).some(u => taslak.binaDuzeni[u]) && (
+                    <button type="button" onClick={() => grubu(b.id).forEach(haritaBinaSifirla)} className={`${dugmeBos} mt-1.5 w-full`}>Eski hâline döndür</button>
                   )}
                 </>
               )}
@@ -1244,8 +1391,12 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
               )}
               {!seciliYol.gizli && (
                 <p className="mt-2 text-[10px] text-[#6A5E4C] dark:text-[#A6B0C9]">
-                  Beyaz noktaları sürükleyerek yolu düzelt. Yalnız bir parçasını (iki kavşak arası) silmek için alttan <b>Kaldır</b>'ı seçip o parçaya dokun.
+                  Beyaz noktaları sürükleyerek yolu düzelt; noktaya dokunup bırakınca seçilir, "Seçili noktayı sil"le gider. Aradaki <b>+</b> yeni nokta koyar. Bir parçayı (iki kavşak arası) silmek için alttan <b>Kaldır</b>'ı seçip o parçaya dokun.
                 </p>
+              )}
+              {seciliNokta && seciliNokta.id === seciliYol.id && (
+                <button type="button" onClick={() => yolNoktasiSil(seciliNokta)}
+                  className="mt-2 w-full py-1.5 rounded-lg bg-[#F26B6F] text-white text-[11px] font-semibold cursor-pointer">Seçili noktayı sil</button>
               )}
               {seciliYol.duzenli && (
                 <button type="button" onClick={() => yolSifirla(seciliYol.id)} className={`${dugmeBos} mt-1.5 w-full`}>Eski hâline döndür</button>

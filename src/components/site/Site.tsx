@@ -3,6 +3,7 @@ import { Menu, X, Globe, UserRound, Search, ShoppingBag, ArrowLeft, ArrowUpRight
 import type { Item } from '../../types';
 import { DuzadaHarita } from '../harita/DuzadaHarita';
 import { useHaritaDuzeni } from '../../lib/haritaDuzeni';
+import { ATMOSFER_ACIK } from '../harita/atmosfer';
 import { TYPE_LABELS } from '../wiki/wikiSchema';
 import {
   DuzadaSayfasi, VikiSayfasi, MaddeSayfasi, UrunlerSayfasi, HaberlerSayfasi, ProjelerSayfasi,
@@ -110,7 +111,7 @@ export const Site: React.FC<Props> = ({ items, onKapat }) => {
       {/* ---- anasayfa: dönen ada ---- */}
       {ana && (
         <>
-          <DuzadaHarita vitrin duzen={duzen} className="absolute inset-0 w-full h-full" />
+          <DuzadaHarita vitrin duzen={duzen} atmosfer={ATMOSFER_ACIK} className="absolute inset-0 w-full h-full" />
           <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(180deg,rgba(14,28,79,.45),rgba(14,28,79,0)_28%,rgba(14,28,79,0)_70%,rgba(14,28,79,.5))]" />
           <div className="absolute left-1/2 top-[72%] sm:top-1/2 -translate-x-1/2 -translate-y-1/2 text-center px-7 sm:px-10 pt-5 sm:pt-6 pb-4 sm:pb-5 rounded-[18px] bg-[#F3EFE8]/80 backdrop-blur-md text-[#0E1C4F] shadow-[0_30px_60px_-30px_rgba(14,28,79,.6)] max-w-[86vw]">
             <div className="font-extrabold text-[30px] sm:text-[40px] leading-none tracking-tight">KEMS</div>
