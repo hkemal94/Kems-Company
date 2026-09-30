@@ -103,6 +103,15 @@ export const OneriTepsisi: React.FC<Props> = ({
     );
   };
 
+  /** Gece önerisinin türüne göre "Ekle"nin ne açacağı; açacak bir şey yoksa düğme yok */
+  const geceTuru = (o: YapayZekaOnerisi) => (o as YapayZekaOnerisi & { gece?: { tur: string } }).gece?.tur;
+  const eklenebilir = (o: YapayZekaOnerisi) => {
+    if (o.arac !== 'gece-oneri') return true;
+    const t = geceTuru(o);
+    return t === 'sosyal' || t === 'yazi' || (t === 'drop' && items.find(i => i.id === o.hedefId)?.type === 'drop');
+  };
+  const geceDugmesi = (o: YapayZekaOnerisi) => ({ sosyal: 'Gönderi taslağı aç', yazi: 'Yazı taslağı aç', drop: "Drop'a ürün olarak ekle" } as Record<string, string>)[geceTuru(o) || ''] || 'Ekle';
+
   const hedefiAc = (id: string) => { const h = items.find(i => i.id === id); if (h) onMaddeyiAc(h); };
 
   const yapayZekaGovdesi = (a: Item, o: YapayZekaOnerisi) => {
@@ -154,9 +163,13 @@ export const OneriTepsisi: React.FC<Props> = ({
         )}
         {arac?.kurgu && <p className={`text-[10px] ${IKINCIL}`}>Bu metni yapay zekâ yazdı; eklersen senin metnin olur, istediğin gibi düzeltirsin.</p>}
         <div className="flex flex-wrap gap-2">
-          {arac?.uygulama && !['baslik-yap', 'urun-ekle'].includes(arac.uygulama) && (
+          {arac?.uygulama && !['baslik-yap', 'urun-ekle'].includes(arac.uygulama) && eklenebilir(o) && (
             <button type="button" disabled={is} onClick={() => ekle(a, o)} className={DUGME_LAC}>
-              {arac.uygulama === 'metnin-yerine' ? 'Metnin yerine koy' : arac.uygulama === 'bolum-ekle' ? 'Maddeye ekle (öneri olarak)' : arac.uygulama === 'kunye-ekle' ? 'Boş künye alanlarına yaz' : arac.uygulama === 'renk-ekle' ? 'Paletine ekle' : arac.uygulama === 'hashtag-ekle' ? 'Hashtaglere ekle' : 'Metne ekle'}
+              {arac.uygulama === 'gece-oneri-ekle' ? geceDugmesi(o)
+                : arac.uygulama === 'fanzin-olustur' ? 'Fanzin olarak aç (Yazı)'
+                : arac.uygulama === 'fanzin-bolum' ? 'Bölümün yerine koy'
+                : arac.uygulama === 'site-hakkinda' ? "Site taslağına koy (Hakkında)"
+                : arac.uygulama === 'metnin-yerine' ? 'Metnin yerine koy' : arac.uygulama === 'bolum-ekle' ? 'Maddeye ekle (öneri olarak)' : arac.uygulama === 'kunye-ekle' ? 'Boş künye alanlarına yaz' : arac.uygulama === 'renk-ekle' ? 'Paletine ekle' : arac.uygulama === 'hashtag-ekle' ? 'Hashtaglere ekle' : 'Metne ekle'}
             </button>
           )}
           {o.metin && <button type="button" onClick={() => kopyala(o.metin!)} className={`${DUGME_BOS} inline-flex items-center gap-1`}><Copy className="w-3 h-3" /> Kopyala</button>}

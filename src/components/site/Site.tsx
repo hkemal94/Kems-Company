@@ -9,7 +9,7 @@ import { SITE_SAYFALARI, sayfaGorseli, yayindakiAyar, BOS_AYAR, type SiteAyari }
 import { TASLAK_ONIZLEME_ANAHTARI } from './SiteYonetimi';
 import {
   DuzadaSayfasi, VikiSayfasi, MaddeSayfasi, UrunlerSayfasi, HaberlerSayfasi, ProjelerSayfasi,
-  HakkindaSayfasi, IletisimSayfasi, SayfaKabugu
+  HakkindaSayfasi, IletisimSayfasi, SayfaKabugu, YaziSayfasi
 } from './SiteSayfalari';
 
 /**
@@ -39,7 +39,7 @@ const hashtenSayfa = (): SiteSayfasi => {
   const p = hashParcalari()[0];
   return (['ara', ...KESFET.map(k => k.id)] as string[]).includes(p) ? p as SiteSayfasi : 'ana';
 };
-const hashtenMadde = (): string | null => (hashParcalari()[0] === 'viki' && hashParcalari()[1] ? decodeURIComponent(hashParcalari()[1]) : null);
+const hashtenMadde = (): string | null => (['viki', 'haberler'].includes(hashParcalari()[0]) && hashParcalari()[1] ? decodeURIComponent(hashParcalari()[1]) : null);
 const sayfayaGit = (s: SiteSayfasi, madde?: string) => {
   location.hash = s === 'ana' ? 'site' : `site/${s}${madde ? `/${encodeURIComponent(madde)}` : ''}`;
 };
@@ -108,7 +108,7 @@ export const Site: React.FC<Props> = ({ items, onKapat }) => {
   const aranabilir = useMemo(() => sitedekiler.filter(i => TYPE_LABELS[i.type] || ['drop', 'merch_urun', 'blog_post'].includes(i.type)), [sitedekiler]);
   const sonucaGit = (i: Item) => {
     if (i.type === 'drop' || i.type === 'merch_urun') sayfayaGit('urunler');
-    else if (i.type === 'blog_post') sayfayaGit('haberler');
+    else if (i.type === 'blog_post') sayfayaGit('haberler', i.id);
     else sayfayaGit('viki', i.id);
   };
   const sonucTuru = (i: Item) => TYPE_LABELS[i.type] || ({ drop: 'Drop', merch_urun: 'Ürün', blog_post: 'Yazı' } as Record<string, string>)[i.type] || i.type;
@@ -152,7 +152,9 @@ export const Site: React.FC<Props> = ({ items, onKapat }) => {
             <UrunlerSayfasi droplar={sitedeTur('drop')} urunler={sitedeTur('merch_urun')}
               kurumAdi={id => (id ? items.find(i => i.id === id)?.title : undefined)} kapak={kapak('urunler')} />
           )}
-          {sayfa === 'haberler' && <HaberlerSayfasi yazilar={sitedeTur('blog_post')} kapak={kapak('haberler')} />}
+          {sayfa === 'haberler' && (madde && madde.type === 'blog_post'
+            ? <YaziSayfasi yazi={madde} onGeri={() => sayfayaGit('haberler')} />
+            : <HaberlerSayfasi yazilar={sitedeTur('blog_post')} kapak={kapak('haberler')} onYazi={id => sayfayaGit('haberler', id)} />)}
           {sayfa === 'projeler' && <ProjelerSayfasi kapak={kapak('projeler')} />}
           {sayfa === 'hakkinda' && <HakkindaSayfasi metin={ayar.hakkinda} kapak={kapak('hakkinda')} />}
           {sayfa === 'iletisim' && <IletisimSayfasi kanallar={sitedeTur('channel')} eposta={ayar.eposta} kapak={kapak('iletisim')} />}

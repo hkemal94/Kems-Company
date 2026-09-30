@@ -960,6 +960,35 @@ göster" hemen görünür). Canva'dan doğrudan görsel çekme yok; Galeri üzer
 
 Görseller: `docs/gorseller/site-duzenleme-*.png`, `site-taslak-*.png`.
 
+## 30 Eylül akşam — büyük PR, 4. teslim: fanzin ve gece önerileri (kural istisnası)
+
+**Uygulamada var:**
+- **Gece hazırlığı** (`src/lib/geceHazirligi.ts`): günde bir kez 3 üretim
+  önerisi (sosyal medya · drop / ürün · yazı / fanzin · harita / viki;
+  her gün biri dinlenir). Ayın ilk günü o ayın **fanzin taslağı**. Hepsi
+  yalnız öneri tepsisine düşer; "Ekle" demeden hiçbir kayda girmez.
+  - Uygulama gece açıksa gece yarısından sonra, değilse sabah ilk açılışta
+    hazırlanır (birkaç saniye). Yalnız Google ile girilmişken çalışır.
+  - Kota dolarsa bir saat sonra yeniden dener; limit yenilenince kaldığı
+    yerden devam eder. Son yapılan gün tek bir defter kaydında
+    (`type: 'gece_hazirlik'`), iki cihaz aynı günü iki kez hazırlamaz.
+  - Tepside "Ekle": sosyal → gönderi taslağı, yazı → blog taslağı, drop →
+    o drop'a Konsept ürün. Harita / viki önerisi yalnız okunur (kurgu
+    yazılmaz); "Kaydı aç" ile maddeye gidilir.
+- **Fanzin**: stüdyoda "Bu ayın fanzini" kartı (elle de çalışır). Tepside
+  "Fanzin olarak aç" → Yazı'da fanzin ekranı: bölümler serbest (ekle, sil,
+  sırala), adı yok ("Fanzin · Ekim 2026" yalnız etiket), her bölümde **ton**
+  seçimi ve "Bu tonda yaz · stüdyo". Temiz **dergi görünümü**.
+- Fanzin çıktıları: **Sitede göster** (Haberler; sitede yazıya tıklanınca
+  dergi görünümü), **PDF** (yazdırma penceresi → "PDF olarak kaydet"),
+  **Instagram karuseli** (kapak + her bölüm, 1080 × 1350 PNG).
+
+**Henüz yok / sınırlı:** Pinterest ve Canva kaynakları uygulamadaki kayıtlardan
+(Pinterest panoları, Galeri) okunur; Canva hesabına doğrudan bağlanmaz.
+Sunucu kapalıyken (önizleme) gece hazırlığı hiçbir şey yazmaz.
+
+Görseller: `docs/gorseller/fanzin-*.png` (önizleme; bölüm metinleri yer tutucu).
+
 ## Sıradaki
 
 - Oyunun tasarım belgesinin doldurulması (13 başlık)

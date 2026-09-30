@@ -43,7 +43,7 @@ const AracKartlari: React.FC<{ secili: string | null; onSec: (id: string) => voi
       <div key={g}>
         <div className={ETIKET}>{GRUP_ADLARI[g]}</div>
         <div className="mt-2 grid gap-2 grid-cols-2 xl:grid-cols-3">
-          {[...STUDYO_ARACLARI.filter(a => a.grup === g && (!hedefTuru || !a.hedefTurleri || a.hedefTurleri.includes(hedefTuru as never))).map(a => ({ id: a.id, ad: a.ad, aciklama: a.aciklama })),
+          {[...STUDYO_ARACLARI.filter(a => a.grup === g && !a.gizli && (!hedefTuru || !a.hedefTurleri || a.hedefTurleri.includes(hedefTuru as never))).map(a => ({ id: a.id, ad: a.ad, aciklama: a.aciklama })),
             ...(g === 'kanon' ? [{ id: SORU_ARACI, ad: 'Soru seçenekleri', aciklama: 'Günün sorusu ve atölye soruları için kısa seçenekler.' }] : [])
           ].map(a => (
             <button
@@ -144,7 +144,7 @@ export const StudyoPaneli: React.FC<StudyoIslemleri> = (islemler) => {
         )}
         {arac && (
           <div className="pt-4 border-t border-[#CFC5B4] dark:border-[#2C3C72]">
-            <AracCalistirici key={`${arac.id}:${istek.hedefId || ''}`} {...islemler} arac={arac} hedefId={istek.hedefId} kapali={kapali} onDurum={() => setNabiz(n => n + 1)} />
+            <AracCalistirici key={`${arac.id}:${istek.hedefId || ''}:${istek.serbest || ''}`} {...islemler} arac={arac} hedefId={istek.hedefId} serbestIlk={istek.serbest} kapali={kapali} onDurum={() => setNabiz(n => n + 1)} />
           </div>
         )}
       </aside>

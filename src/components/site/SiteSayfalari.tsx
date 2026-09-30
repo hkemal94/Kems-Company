@@ -5,6 +5,8 @@ import { DuzadaHarita } from '../harita/DuzadaHarita';
 import type { HaritaDuzeni } from '../harita/duzenTipi';
 import { ATMOSFER_ACIK } from '../harita/atmosfer';
 import { TYPE_LABELS, getKunyeFields, getArticleBody } from '../wiki/wikiSchema';
+import { fanzinBilgisi } from '../../lib/studyo';
+import { DergiGorunumu } from '../fanzin/Fanzin';
 
 /**
  * Site sayfaları (30 Eylül). Kemal: "Siteye ait örneklerin yapılarını
@@ -241,26 +243,40 @@ export const UrunlerSayfasi: React.FC<{ droplar: Item[]; urunler: Item[]; kurumA
 
 // ---- Haberler: blog ve bülten --------------------------------------------------
 
-export const HaberlerSayfasi: React.FC<{ yazilar: Item[]; kapak?: string }> = ({ yazilar, kapak }) => {
+export const HaberlerSayfasi: React.FC<{ yazilar: Item[]; kapak?: string; onYazi?: (id: string) => void }> = ({ yazilar, kapak, onYazi }) => {
   const [ilk, ...kalan] = yazilar;
   return (
     <SayfaKabugu ton="krem" ust="Blog" baslik="Haberler" gorsel={kapak} genis>
       <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
         {ilk ? (
-          <article className="rounded-2xl bg-[#FAF8F5] border border-[#CFC5B4] overflow-hidden">
+          <article onClick={() => onYazi?.(ilk.id)} className="rounded-2xl bg-[#FAF8F5] border border-[#CFC5B4] overflow-hidden cursor-pointer hover:border-[#F26B6F]">
             {gorsel(ilk) ? <img src={gorsel(ilk)} alt="" className="w-full aspect-[16/9] object-cover" /> : <div className="w-full aspect-[16/9] bg-[#E4DCCD]" />}
             <div className="p-5"><h2 className="text-[26px] font-bold">{ilk.title}</h2></div>
           </article>
         ) : <Bos ton="krem" className="aspect-[16/10]" etiket="ilk yazı yakında" />}
         <div className="grid gap-4">
           {(kalan.length ? kalan.slice(0, 3) : [null, null, null]).map((y, k) => y ? (
-            <article key={y.id} className="flex gap-3 rounded-2xl bg-[#FAF8F5] border border-[#CFC5B4] p-3">
+            <article key={y.id} onClick={() => onYazi?.(y.id)} className="flex gap-3 rounded-2xl bg-[#FAF8F5] border border-[#CFC5B4] p-3 cursor-pointer hover:border-[#F26B6F]">
               {gorsel(y) ? <img src={gorsel(y)} alt="" className="w-24 h-20 object-cover rounded-lg" /> : <span className="w-24 h-20 rounded-lg bg-[#E4DCCD] shrink-0" />}
               <h3 className="text-[16px] font-bold">{y.title}</h3>
             </article>
           ) : <Bos key={k} ton="krem" className="h-24" />)}
         </div>
       </div>
+    </SayfaKabugu>
+  );
+};
+
+/** Tek yazı: fanzinse dergi görünümü, değilse metin */
+export const YaziSayfasi: React.FC<{ yazi: Item; onGeri: () => void }> = ({ yazi, onGeri }) => {
+  const f = fanzinBilgisi(yazi);
+  return (
+    <SayfaKabugu ton="krem" ust={<button type="button" onClick={onGeri} className="hover:text-[#D6484C] cursor-pointer">← Haberler</button>} baslik={f ? 'Fanzin' : yazi.title} genis={!!f}>
+      {f ? <DergiGorunumu baslik={yazi.title} f={f} /> : (
+        <div className="max-w-2xl space-y-4 text-[16px] leading-relaxed">
+          {(yazi.notes || '').split(/\n{2,}/).filter(Boolean).map((p, k) => <p key={k}>{p}</p>)}
+        </div>
+      )}
     </SayfaKabugu>
   );
 };

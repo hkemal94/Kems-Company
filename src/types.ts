@@ -36,7 +36,9 @@ export type ItemType =
   // Sosyal medya (29 Eylül gece): gönderi, seri, Pinterest panosu
   | 'sosyal_gonderi' | 'sosyal_seri' | 'ilham_kaynak'
   // Site ayarları (30 Eylül): taslak + yayındaki, tek kayıt
-  | 'site_ayar';
+  | 'site_ayar'
+  // Gece hazırlığının defteri (30 Eylül): son yapılan gün, son fanzin ayı
+  | 'gece_hazirlik';
 
 export interface WikiSection {
   id: string;
@@ -99,7 +101,7 @@ export interface Item {
     editionCount?: number; // e.g. 1, 2 for Drop
 
     // Blog specific
-    categoryType?: 'lore yazısı' | 'duyuru' | 'kişisel' | 'rehber';
+    categoryType?: 'lore yazısı' | 'duyuru' | 'kişisel' | 'rehber' | 'fanzin';
     isWikiHooked?: boolean;
 
     // Kitap specific

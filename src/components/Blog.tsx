@@ -1,5 +1,7 @@
 import { KanonPaneli } from './wiki/KanonPaneli';
 import { TYPE_LABELS } from './wiki/wikiSchema';
+import { Fanzin } from './fanzin/Fanzin';
+import { fanzinBilgisi } from '../lib/studyo';
 import React, { useState, useMemo } from 'react';
 import { BookOpen, Send, Tag, HelpCircle, Check, Trash2, ArrowRight, Plus, Compass, RefreshCw, FileText } from 'lucide-react';
 import { StudyodaAc } from './studyo/StudyodaAc';
@@ -455,7 +457,12 @@ export default function Blog({
       )}
 
       {/* VIEW 2: MASAÜSTÜ EDİTÖR (Section 4D) */}
-      {activeTab === 'editor' && activePost && (
+      {/* Fanzin (yapisal-4): kendi ekranı — dergi görünümü, bölüm tonları, çıktılar */}
+      {activeTab === 'editor' && activePost && fanzinBilgisi(activePost) && (
+        <Fanzin yazi={activePost} onUpdateItem={onUpdateItem} />
+      )}
+
+      {activeTab === 'editor' && activePost && !fanzinBilgisi(activePost) && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-in zoom-in-95 duration-200">
           
           {/* LEFT: Massive editorial letter on paper #F6F1E7 */}

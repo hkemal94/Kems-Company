@@ -1,6 +1,7 @@
 import type { Item, ItemType, WikiSection } from '../types';
 import { aiCagir, AiHatasi } from './aiCagir';
 import { hakkindaTaslaginaYaz } from './siteAyari';
+import { yeniGonderi } from './sosyal';
 
 /**
  * Yapay zekâ stüdyosu (29 Eylül akşamı).
@@ -33,7 +34,7 @@ export const GRUP_ADLARI: Record<StudyoGrubu, string> = {
 export type SonucTuru = 'metin' | 'liste' | 'bolumler' | 'kunye' | 'renkler' | 'urunler';
 
 /** "Ekle" düğmesinin ne yaptığı; null ise yalnız kopyalanır */
-export type Uygulama = 'notlara-ekle' | 'bolum-ekle' | 'kunye-ekle' | 'baslik-yap' | 'metnin-yerine' | 'renk-ekle' | 'urun-ekle' | 'hashtag-ekle' | 'site-hakkinda' | null;
+export type Uygulama = 'notlara-ekle' | 'bolum-ekle' | 'kunye-ekle' | 'baslik-yap' | 'metnin-yerine' | 'renk-ekle' | 'urun-ekle' | 'hashtag-ekle' | 'site-hakkinda' | 'gece-oneri-ekle' | 'fanzin-olustur' | 'fanzin-bolum' | null;
 
 export interface StudyoAraci {
   id: string;
@@ -50,7 +51,24 @@ export interface StudyoAraci {
   kurgu?: boolean;
   task: string;
   veri: (hedef: Item | null, serbest: string, items: Item[]) => unknown;
+  /** Stüdyonun kart listesinde görünmez (gece hazırlığı, fanzin ekranından açılan) */
+  gizli?: boolean;
 }
+
+/** Fanzin bölümünün tonları (yapisal-4, 32: "yazıya göre seçilir") */
+export const FANZIN_TONLARI = ['Sade', 'Sıcak ve nostaljik', 'Evren içinden', 'Marka günlüğü', 'Esprili'] as const;
+
+export interface FanzinBolumu { id: string; baslik: string; metin: string; ton: string }
+export interface FanzinBilgisi { ay: string; bolumler: FanzinBolumu[] }
+export const fanzinBilgisi = (i: Item): FanzinBilgisi | null => {
+  const f = i.metadata?.fanzin as FanzinBilgisi | undefined;
+  return f && Array.isArray(f.bolumler) ? f : null;
+};
+/** "3 · Sıcak ve nostaljik" → { sira: 3, ton } — fanzin ekranından stüdyoya giden istek */
+export const fanzinIstegi = (s = '') => {
+  const m = s.match(/^\s*(\d+)\s*·\s*(.+?)\s*$/);
+  return m ? { sira: Number(m[1]), ton: m[2] } : null;
+};
 
 const VIKI: ItemType[] = ['yer', 'mekân', 'dükkân', 'kulüp', 'marka', 'kisi', 'karakter', 'olay'];
 const YAZI: ItemType[] = ['blog_post', 'kitap_bolum'];
@@ -59,6 +77,24 @@ const vikiBaglami = (items: Item[]) => items
   .filter(i => !i.archived && !i.isProposal && VIKI.includes(i.type))
   .slice(0, 80)
   .map(e => ({ title: e.title, type: e.type, notes: (e.notes || '').slice(0, 400) }));
+
+/** Fanzin kaynakları (yapisal-4, 31) — yalnız adlar ve kısa notlar */
+function fanzinVerisi(items: Item[], istek: string) {
+  const c = items.filter(i => !i.archived && !i.isProposal);
+  const kisa = (t = '', n = 200) => (t.length > n ? t.slice(0, n) + '…' : t);
+  const son = (a: Item, b: Item) => b.updatedAt - a.updatedAt;
+  return {
+    viki: c.filter(i => VIKI.includes(i.type)).sort(son).slice(0, 40).map(i => ({ ad: i.title, tur: i.type, not: kisa(i.notes) })),
+    droplar: c.filter(i => i.type === 'drop').map(i => ({ ad: i.title, asama: i.status, not: kisa(i.notes, 160) })),
+    urunler: c.filter(i => i.type === 'merch_urun').slice(0, 20).map(i => ({ ad: i.title, asama: i.status })),
+    notlar: c.filter(i => (i.tags || []).includes('gunluk-not')).sort(son).slice(0, 10).map(i => kisa(i.notes || i.title)),
+    pinterest: c.filter(i => i.type === 'ilham_kaynak').slice(0, 10).map(i => ({ ad: i.title, not: kisa(i.notes, 120) })),
+    galeri: c.filter(i => i.type === 'ilham_gorsel').slice(0, 15).map(i => i.title),
+    gonderiler: c.filter(i => i.type === 'sosyal_gonderi').sort(son).slice(0, 10).map(i => ({ ad: i.title, asama: i.status })),
+    hesaplar: c.filter(i => i.type === 'channel').map(i => i.title),
+    istek
+  };
+}
 
 export const STUDYO_ARACLARI: StudyoAraci[] = [
   // ---- Viki
@@ -127,6 +163,31 @@ export const STUDYO_ARACLARI: StudyoAraci[] = [
     veri: (h, serbest) => ({ baslik: h?.title, notlar: (h?.notes || '').slice(0, 1500), kit: h?.metadata?.brandKit || null, istek: serbest })
   },
   {
+    // Gece hazırlığının önerileri (kural istisnası). Stüdyoda kart olarak
+    // görünmez; `geceHazirligi.ts` çalıştırır, tepside "Ekle" buradan uygulanır.
+    id: 'gece-oneri', grup: 'yazi', ad: 'Günün üretim önerisi', gizli: true,
+    aciklama: 'Gece hazırlanan üç öneriden biri.',
+    hedefTurleri: null, sonuc: 'metin', uygulama: 'gece-oneri-ekle', task: 'gece-onerileri',
+    veri: () => ({})
+  },
+  {
+    id: 'fanzin', grup: 'yazi', ad: 'Bu ayın fanzini', kurgu: true,
+    aciklama: 'Viki, Merch, not defteri, Pinterest ve hesaplardan bu ayın fanzini için bölüm taslakları. Ayın ilk günü gece kendiliğinden de hazırlanır.',
+    hedefTurleri: null, serbest: 'Bu ay neyi öne çıkarsın? (isteğe bağlı)', sonuc: 'bolumler', uygulama: 'fanzin-olustur', task: 'fanzin-taslak',
+    veri: (_h, serbest, items) => ({ ay: new Intl.DateTimeFormat('tr-TR', { month: 'long', year: 'numeric', timeZone: 'Europe/Istanbul' }).format(new Date()), ...fanzinVerisi(items, serbest) })
+  },
+  {
+    id: 'fanzin-bolum', grup: 'yazi', ad: 'Fanzin bölümünü tonla yaz', kurgu: true, gizli: true,
+    aciklama: 'Fanzindeki bir bölümü seçilen tonda yeniden yazar. "Ekle" yalnız o bölümün metnini değiştirir.',
+    hedefTurleri: ['blog_post'], serbest: 'Bölüm ve ton (fanzin ekranından gelir)', sonuc: 'metin', uygulama: 'fanzin-bolum', task: 'fanzin-bolum',
+    veri: (h, serbest) => {
+      const f = h ? fanzinBilgisi(h) : null;
+      const ist = fanzinIstegi(serbest);
+      const b = f && ist ? f.bolumler[ist.sira - 1] : undefined;
+      return { baslik: b?.baslik || '', metin: b?.metin || '', ton: ist?.ton || 'Sade' };
+    }
+  },
+  {
     id: 'merch-oner', grup: 'marka', ad: 'Ürün fikri',
     aciklama: 'Bir drop için 3 ürün fikri. Ekle deyince ürün "Konsept" olarak drop\'a girer. Fiyat önermez.',
     hedefTurleri: ['drop'], serbest: 'Tema ya da not (isteğe bağlı)', sonuc: 'urunler', uygulama: 'urun-ekle', task: 'merch-oner',
@@ -171,6 +232,8 @@ export interface StudyoSonucu {
   kunye?: Record<string, string>;
   renkler?: Array<{ hex: string; name: string }>;
   urunler?: Array<{ title: string; description: string; slogan: string }>;
+  /** Kemal'in serbest kutuya yazdığı (fanzin bölümü: "3 · ton") */
+  istek?: string;
 }
 
 export interface YapayZekaOnerisi extends StudyoSonucu {
@@ -269,9 +332,57 @@ export function oneriyiUygula(
 ): { guncel?: Item; yeni?: Omit<Item, 'id' | 'createdAt' | 'updatedAt' | 'userId'> } | null {
   const arac = aracBul(oneri.arac);
   const hedef = items.find(i => i.id === oneri.hedefId);
-  if (!arac?.uygulama || !hedef) return null;
   const simdi = Date.now();
+  // Hedefsiz olanlar: yeni kayıt açar
+  if (arac?.uygulama === 'fanzin-olustur') {
+    const ay = String((oneri as YapayZekaOnerisi & { fanzinAy?: string }).fanzinAy || oneri.tarih.slice(0, 7));
+    const ayAdi = new Intl.DateTimeFormat('tr-TR', { month: 'long', year: 'numeric' }).format(new Date(`${ay.slice(0, 7)}-15T12:00:00Z`));
+    const fanzin: FanzinBilgisi = {
+      ay: ay.slice(0, 7),
+      bolumler: (oneri.bolumler || []).map((b, n) => ({ id: `b${simdi}_${n}`, baslik: b.title, metin: b.content, ton: 'Sade' }))
+    };
+    return {
+      yeni: {
+        title: `Fanzin · ${ayAdi.charAt(0).toLocaleUpperCase('tr') + ayAdi.slice(1)}`,
+        area: 'blog', type: 'blog_post', status: 'Taslak', priority: 'orta',
+        tags: ['yazı', 'fanzin'], links: [], notes: '', images: [], isProposal: false, archived: false,
+        metadata: { categoryType: 'fanzin', fanzin }
+      }
+    };
+  }
+  if (arac?.uygulama === 'gece-oneri-ekle') {
+    const g = (oneri as YapayZekaOnerisi & { gece?: { tur: string; baslik: string } }).gece;
+    if (!g) return null;
+    if (g.tur === 'sosyal') return { yeni: { ...yeniGonderi({}, g.baslik), notes: oneri.metin || '', links: hedef ? [hedef.id] : [] } };
+    if (g.tur === 'yazi') {
+      return {
+        yeni: {
+          title: g.baslik, area: 'blog', type: 'blog_post', status: 'Taslak', priority: 'orta',
+          tags: ['yazı'], links: hedef ? [hedef.id] : [], notes: oneri.metin || '', images: [], isProposal: false, archived: false,
+          metadata: { categoryType: 'lore yazısı' }
+        }
+      };
+    }
+    if (g.tur === 'drop' && hedef?.type === 'drop') {
+      return {
+        yeni: {
+          title: g.baslik, area: 'merch', type: 'merch_urun', status: 'Konsept', priority: 'orta',
+          tags: ['merch', 'merch_urun'], links: [hedef.id], notes: oneri.metin || '', images: [], isProposal: false, archived: false,
+          metadata: { dropId: hedef.id, themeId: hedef.metadata?.themeId || '', category: 'giyim' }
+        }
+      };
+    }
+    return null;
+  }
+  if (!arac?.uygulama || !hedef) return null;
   switch (arac.uygulama) {
+    case 'fanzin-bolum': {
+      const f = fanzinBilgisi(hedef);
+      const ist = fanzinIstegi(oneri.istek);
+      if (!f || !ist || !oneri.metin || !f.bolumler[ist.sira - 1]) return null;
+      const bolumler = f.bolumler.map((b, n) => (n === ist.sira - 1 ? { ...b, metin: oneri.metin!, ton: ist.ton } : b));
+      return { guncel: { ...hedef, metadata: { ...hedef.metadata, fanzin: { ...f, bolumler } }, updatedAt: simdi } };
+    }
     case 'site-hakkinda':
       return oneri.metin ? hakkindaTaslaginaYaz(items, oneri.metin) : null;
     case 'notlara-ekle':
@@ -356,7 +467,7 @@ export async function araciCalistir(arac: StudyoAraci, hedef: Item | null, serbe
     const ham = await aiCagir<unknown>(arac.task, arac.veri(hedef, serbest, items));
     const sonuc = sonucuAyikla(arac, ham);
     kotaYaz(null);
-    return sonuc;
+    return serbest.trim() ? { ...sonuc, istek: serbest.trim() } : sonuc;
   } catch (e) {
     hatayiNotEt(e);
     throw e;
