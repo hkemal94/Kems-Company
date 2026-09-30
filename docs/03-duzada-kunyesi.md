@@ -160,8 +160,8 @@ Aralıklar kanon; kesin yıl yoksa uydurulmaz. Ayrıntı `docs/soru-cevap/w3.md`
   döndü; barlar 1970'lerden. Gece hayatı yıl boyu, kışın sakin; Sade Meze
   yıl boyu açık.
 - **Kems Company** — adını Kemsköy'den alır (kurgu içinde). Caddedeki
-  dükkânı 2024 ve sonrası, yeni yapılmış bir binada (W3 37. tur; önceki
-  "2010 sonrası" cevabı etiketteki "Est. 2024" ile çelişiyordu).
+  dükkânı yeni yapılmış bir binada; yıl yazılmaz (30 Eylül: marka
+  kuruluşu 2025, dükkân satırından yıl kalktı).
 - **Liman** — mendireğin içinde birkaç yat iskelesi (marina yok). Akşamları
   son feribota kadar canlı. Balık hali önce İskele'deydi, limana taşındı.
   İskele ile hafif bir rekabet.
