@@ -4,6 +4,10 @@ import type { Item } from '../../types';
 import { DuzadaHarita } from '../harita/DuzadaHarita';
 import { useHaritaDuzeni } from '../../lib/haritaDuzeni';
 import { TYPE_LABELS } from '../wiki/wikiSchema';
+import {
+  DuzadaSayfasi, VikiSayfasi, MaddeSayfasi, UrunlerSayfasi, HaberlerSayfasi, ProjelerSayfasi,
+  HakkindaSayfasi, IletisimSayfasi, SayfaKabugu
+} from './SiteSayfalari';
 
 /**
  * Site önizlemesi (29 Eylül gece). kems.company'nin ilk hâli; şimdilik
@@ -19,7 +23,7 @@ import { TYPE_LABELS } from '../wiki/wikiSchema';
  *   - Dükkân sekmesi Merch'teki droplardan gelir; mağaza bağlanana kadar
  *     soluk.
  *   - Sitede yalnız Kemal'in "Sitede göster" dediği maddeler görünür.
- * Keşfet sayfaları sonraki adımlarda; şimdilik "yakında".
+ * Keşfet sayfaları (30 Eylül): tema ve boş iskelet `SiteSayfalari.tsx`'te.
  */
 
 type SiteSayfasi = 'ana' | 'duzada' | 'viki' | 'urunler' | 'haberler' | 'projeler' | 'hakkinda' | 'iletisim' | 'ara';
@@ -34,12 +38,19 @@ const KESFET: Array<{ id: SiteSayfasi; ad: string; alt: string }> = [
   { id: 'iletisim', ad: 'İletişim', alt: 'hesaplar, e-posta' }
 ];
 
-/** `#site/viki` → 'viki'; tanınmayan her şey anasayfa */
+/** `#site/viki` → 'viki'; `#site/viki/<kimlik>` → madde; tanınmayan her şey anasayfa */
+const hashParcalari = () => (typeof location !== 'undefined' ? location.hash : '').replace(/^#site\/?/, '').split('/');
 const hashtenSayfa = (): SiteSayfasi => {
-  const p = (typeof location !== 'undefined' ? location.hash : '').replace(/^#site\/?/, '').split('/')[0];
+  const p = hashParcalari()[0];
   return (['ara', ...KESFET.map(k => k.id)] as string[]).includes(p) ? p as SiteSayfasi : 'ana';
 };
-const sayfayaGit = (s: SiteSayfasi) => { location.hash = s === 'ana' ? 'site' : `site/${s}`; };
+const hashtenMadde = (): string | null => (hashParcalari()[0] === 'viki' && hashParcalari()[1] ? decodeURIComponent(hashParcalari()[1]) : null);
+const sayfayaGit = (s: SiteSayfasi, madde?: string) => {
+  location.hash = s === 'ana' ? 'site' : `site/${s}${madde ? `/${encodeURIComponent(madde)}` : ''}`;
+};
+
+/** Koyu zeminli sayfalar: üst çubuk açık renk alır */
+const KOYU: SiteSayfasi[] = ['urunler', 'projeler', 'hakkinda', 'duzada'];
 
 /** Sitede gösterilen maddeler: yalnız Kemal'in işaretledikleri */
 export const sitedekiMaddeler = (items: Item[]) =>
@@ -55,13 +66,14 @@ interface Props {
 
 export const Site: React.FC<Props> = ({ items, onKapat }) => {
   const [sayfa, setSayfa] = useState<SiteSayfasi>(hashtenSayfa);
+  const [maddeId, setMaddeId] = useState<string | null>(hashtenMadde);
   const [menuAcik, setMenuAcik] = useState(false);
   const [sekme, setSekme] = useState<'kesfet' | 'dukkan'>('kesfet');
   const [aranan, setAranan] = useState('');
   const { duzen } = useHaritaDuzeni();
 
   useEffect(() => {
-    const degisti = () => { setSayfa(hashtenSayfa()); setMenuAcik(false); };
+    const degisti = () => { setSayfa(hashtenSayfa()); setMaddeId(hashtenMadde()); setMenuAcik(false); };
     window.addEventListener('hashchange', degisti);
     return () => window.removeEventListener('hashchange', degisti);
   }, []);
@@ -82,9 +94,16 @@ export const Site: React.FC<Props> = ({ items, onKapat }) => {
   }, [sitedekiler, aranan]);
 
   const ana = sayfa === 'ana';
-  const baslik = KESFET.find(k => k.id === sayfa);
+  // Harita sayfası da anasayfa gibi: üst çubuk haritanın üstünde saydam
+  const saydam = ana;
+  const koyu = KOYU.includes(sayfa);
+  const madde = maddeId ? sitedekiler.find(i => i.id === maddeId) ?? null : null;
+  const sitedeTur = (t: string) => sitedekiler.filter(i => i.type === t).sort((a, b) => b.updatedAt - a.updatedAt);
+  const vikiMaddeleri = useMemo(() => sitedekiler.filter(i => TYPE_LABELS[i.type]), [sitedekiler]);
+  const haritaMaddeleri = useMemo(() => vikiMaddeleri.filter(i => ['yer', 'mekân', 'dükkân', 'kulüp'].includes(i.type))
+    .sort((a, b) => a.title.localeCompare(b.title, 'tr')), [vikiMaddeleri]);
 
-  const simge = `w-10 h-10 sm:w-[42px] sm:h-[42px] rounded-full flex items-center justify-center border backdrop-blur-md ${ana ? 'bg-[#0E1C4F]/35 border-[#F3EFE8]/25 text-[#F3EFE8]' : 'bg-[#0E1C4F] border-transparent text-[#F3EFE8]'}`;
+  const simge = `w-10 h-10 sm:w-[42px] sm:h-[42px] rounded-full flex items-center justify-center border backdrop-blur-md ${saydam ? 'bg-[#0E1C4F]/35 border-[#F3EFE8]/25 text-[#F3EFE8]' : koyu ? 'bg-[#F3EFE8]/10 border-[#F3EFE8]/20 text-[#F3EFE8]' : 'bg-[#0E1C4F] border-transparent text-[#F3EFE8]'}`;
 
   return (
     <div className="fixed inset-0 overflow-hidden font-sans bg-[#1C4E8C] text-[#F3EFE8]">
@@ -102,19 +121,35 @@ export const Site: React.FC<Props> = ({ items, onKapat }) => {
         </>
       )}
 
+      {/* ---- Düzada: tıklanabilir harita ---- */}
+      {sayfa === 'duzada' && (
+        <DuzadaSayfasi items={haritaMaddeleri} duzen={duzen} onMadde={id => sayfayaGit('viki', id)} />
+      )}
+
       {/* ---- iç sayfalar ---- */}
-      {!ana && (
-        <main className="absolute inset-0 overflow-y-auto bg-[#F3EFE8] text-[#0E1C4F] pt-24 sm:pt-28 pb-24 px-4 sm:px-10">
-          <div className="max-w-3xl mx-auto">
-            {sayfa === 'ara' ? (
+      {!saydam && sayfa !== 'duzada' && (
+        <main className="absolute inset-0 overflow-y-auto bg-[#F3EFE8] text-[#0E1C4F]">
+          {sayfa === 'viki' && (madde
+            ? <MaddeSayfasi madde={madde} onViki={() => sayfayaGit('viki')} />
+            : <VikiSayfasi items={vikiMaddeleri} onMadde={id => sayfayaGit('viki', id)} />)}
+          {sayfa === 'urunler' && (
+            <UrunlerSayfasi droplar={sitedeTur('drop')} urunler={sitedeTur('merch_urun')}
+              kurumAdi={id => (id ? items.find(i => i.id === id)?.title : undefined)} />
+          )}
+          {sayfa === 'haberler' && <HaberlerSayfasi yazilar={sitedeTur('blog_post')} />}
+          {sayfa === 'projeler' && <ProjelerSayfasi />}
+          {sayfa === 'hakkinda' && <HakkindaSayfasi />}
+          {sayfa === 'iletisim' && <IletisimSayfasi kanallar={sitedeTur('channel')} />}
+          {sayfa === 'ara' && (
+          <SayfaKabugu ton="krem" ust="Sitede ara" baslik="Ara">
+            {(
               <>
-                <h1 className="text-[34px] sm:text-[44px] font-bold tracking-tight">Ara</h1>
                 <input
                   autoFocus
                   value={aranan}
                   onChange={e => setAranan(e.target.value)}
                   placeholder="Madde, yer, kişi…"
-                  className="mt-5 w-full text-[17px] bg-white border border-[#CFC5B4] rounded-xl px-4 py-3 focus:outline-hidden focus:border-[#F26B6F]"
+                  className="w-full text-[17px] bg-white border border-[#CFC5B4] rounded-xl px-4 py-3 focus:outline-hidden focus:border-[#F26B6F]"
                 />
                 <div className="mt-5 divide-y divide-[#E4DCCD]">
                   {sitedekiler.length === 0 && (
@@ -124,33 +159,25 @@ export const Site: React.FC<Props> = ({ items, onKapat }) => {
                   )}
                   {sitedekiler.length > 0 && sonuclar.length === 0 && <p className="py-6 text-[14px] text-[#6A5E4C]">Bulunamadı.</p>}
                   {sonuclar.map(i => (
-                    <button key={i.id} type="button" onClick={() => sayfayaGit('viki')} className="w-full text-left py-3.5 flex items-baseline justify-between gap-3 hover:text-[#D6484C] cursor-pointer">
+                    <button key={i.id} type="button" onClick={() => sayfayaGit('viki', i.id)} className="w-full text-left py-3.5 flex items-baseline justify-between gap-3 hover:text-[#D6484C] cursor-pointer">
                       <span className="text-[18px] font-semibold">{i.title}</span>
                       <span className="text-[11px] uppercase tracking-[0.14em] text-[#6A5E4C]">{TYPE_LABELS[i.type] || i.type}</span>
                     </button>
                   ))}
                 </div>
               </>
-            ) : (
-              <>
-                <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#6A5E4C]">{baslik?.alt || 'Kems Company'}</div>
-                <h1 className="mt-1 text-[34px] sm:text-[44px] font-bold tracking-tight">{baslik?.ad}</h1>
-                <p className="mt-4 text-[15px] text-[#6A5E4C]">Bu sayfa yakında.</p>
-                {sayfa === 'viki' && sitedekiler.length > 0 && (
-                  <p className="mt-2 text-[13px] text-[#6A5E4C]">Sitede gösterilmeye hazır {sitedekiler.length} madde var.</p>
-                )}
-              </>
             )}
-          </div>
+          </SayfaKabugu>
+          )}
         </main>
       )}
 
       {/* ---- üst çubuk ---- */}
-      <header className="absolute top-0 inset-x-0 z-10 flex items-center justify-between gap-3 px-3.5 sm:px-7 py-3.5 sm:py-5">
+      <header className={`absolute top-0 inset-x-0 z-10 flex items-center justify-between gap-3 px-3.5 sm:px-7 py-3.5 sm:py-5 ${saydam ? '' : sayfa === 'duzada' ? 'bg-[#0E1C4F]' : koyu ? 'bg-[#0E1C4F]/85 backdrop-blur-md' : sayfa === 'iletisim' ? 'bg-[#9CC7E6]/70 backdrop-blur-md' : 'bg-[#F3EFE8]/85 backdrop-blur-md'}`}>
         <div className="flex items-center gap-3">
           <button type="button" onClick={() => setMenuAcik(true)} title="Menü" className={`${simge} cursor-pointer`}><Menu className="w-5 h-5" /></button>
           {!ana && (
-            <button type="button" onClick={() => sayfayaGit('ana')} className="font-extrabold text-[17px] tracking-tight text-[#0E1C4F] cursor-pointer">KEMS COMPANY</button>
+            <button type="button" onClick={() => sayfayaGit('ana')} className={`font-extrabold whitespace-nowrap text-[14px] sm:text-[17px] tracking-tight cursor-pointer ${saydam || koyu ? 'text-[#F3EFE8]' : 'text-[#0E1C4F]'} ${saydam ? 'drop-shadow' : ''}`}>KEMS COMPANY</button>
           )}
         </div>
         <div className="flex gap-1.5 sm:gap-2.5">

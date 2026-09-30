@@ -826,6 +826,36 @@ açıklamaları. Telefonda değişiklik yok.
 
 Görseller: `docs/gorseller/30eylul-*.png` (önizleme, **örnek veri**).
 
+## 30 Eylül — Site, 2. adım: sayfaların teması (tek PR)
+
+Kemal: "Siteye ait örneklerin yapılarını inceledin, ona uygun boş bile olsa
+site sayfalarına ait temayı hazırla." Kaynak: Canva "Başlık" panosundaki
+sayfa notları ve örnek görseller.
+
+- Ortak kabuk: üstte küçük etiket + büyük başlık, ince çizgi, içerik, altta
+  KEMS / COMPANY imzası ve "Made with Culture · Est. 2024 · Düzada, TR".
+- Üç zemin: **krem** (Viki, Haberler), **lacivert** (Ürünler, Projeler,
+  Hakkında), **gökyüzü → çayır** (İletişim; Canva'daki Reach örneği).
+- **Düzada:** adanın 3B haritası, dokunulan yer sitedeyse viki maddesine
+  gider. Sol altta sitedeki yerlerin listesi.
+- **Viki:** "Son eklenenler" kartları ve türe göre kategoriler; madde
+  sayfası (metin + sağda görsel ve künye). Öneri durumundaki bölümler
+  sitede görünmez.
+- **Ürünler:** her drop bir hikâye bloğu (görsel, kurum, ad, durum,
+  hikâye yeri, üç ürün). Satış yok; ürün mağaza bağlanınca açılacak.
+- **Haberler:** öne çıkan yazı + üç küçük kart, altta bülten (soluk).
+- **Projeler:** yana kayan üç koyu kart. Ad konmadı.
+- **Hakkında:** iki satırlık boş yer. **İletişim:** hesaplar ve e-posta
+  (boş).
+- Boş yerler kesik çizgili çerçeve ve "yakında" yazısıyla boş görünür;
+  kurgu metni yazılmadı.
+- KKM → Site sayfasında yeni liste: **Siteye eklenebilecekler** (drop,
+  ürün, blog yazısı, hesap) ve her satırda "Sitede göster". Viki maddeleri
+  eskisi gibi vikiden eklenir.
+- Madde sayfası adresi: `#site/viki/<kimlik>`.
+
+Görseller: `docs/gorseller/site-*.png` (önizleme, **örnek veri**).
+
 ## Sıradaki
 
 - Oyunun tasarım belgesinin doldurulması (13 başlık)
