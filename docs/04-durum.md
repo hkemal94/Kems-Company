@@ -936,6 +936,30 @@ duruyor). Kumaş gerçek fotoğraf kalitesinde değil; sade bir önizleme.
 
 Görseller: `docs/gorseller/3b-studyo-*.png` (önizleme, örnek veri).
 
+## 30 Eylül akşam — büyük PR, 3. teslim: site düzenleme (yapisal-4, 18)
+
+**Uygulamada var:**
+- KKM → Site sayfası sekmeli: **Sayfalar · Hakkında · İletişim · Maddeler**.
+- Taslak ve yayın ayrı: düzenlemeler "Taslağı kaydet" ile taslağa, "Yayınla"
+  ile siteye. "Taslağı önizle" siteyi taslakla açar (altta "Taslak · yayında
+  değil" şeridi); "Yayındakini aç" sitenin gerçek hâli.
+- Sayfalar: sıra sabit, her sayfa **gizle / göster**; gizlenen sayfa menüden
+  kalkar, adresle açılırsa anasayfa gelir. Her sayfaya Galeri'den başlık
+  görseli (Canva'dakiler önce Galeri'ye yüklenir).
+- Hakkında: metin kutusu + "Stüdyoda taslak iste" (stüdyoda "Site · Hakkında
+  taslağı" aracı; "Ekle" yalnız taslağa yazar).
+- İletişim: e-posta alanı; doluysa sitede tıklanır e-posta kartı.
+- Ayarlar tek kayıtta (`type: 'site_ayar'`); ilk kayıt Kemal'in düğmesiyle
+  oluşur.
+- Aynı teslimde küçükler: sitede **Est. 2025**, Haberler'deki **bülten kutusu
+  kalktı**, **arama** artık sitedeki viki + drop + ürün + yazıda,
+  **Projeler** kartlarında Hotel Game · Golf Game · Card Game (içerik boş).
+
+**Henüz yok:** maddelerin sitede görünmesi taslağa bağlı değil ("sitede
+göster" hemen görünür). Canva'dan doğrudan görsel çekme yok; Galeri üzerinden.
+
+Görseller: `docs/gorseller/site-duzenleme-*.png`, `site-taslak-*.png`.
+
 ## Sıradaki
 
 - Oyunun tasarım belgesinin doldurulması (13 başlık)

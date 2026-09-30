@@ -916,7 +916,7 @@ export default function App() {
             )}
 
             {activeTab === 'site' && (
-              <SiteYonetimi items={items} onUpdateItem={handleUpdateItem} onOnizleme={() => git('site-onizleme')} onMaddeyiAc={maddeyiAc} />
+              <SiteYonetimi items={items} onUpdateItem={handleUpdateItem} onAddItem={handleAddItem} onOnizleme={() => git('site-onizleme')} onMaddeyiAc={maddeyiAc} />
             )}
 
             {activeTab === 'sosyal' && (

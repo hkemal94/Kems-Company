@@ -1,5 +1,6 @@
 import type { Item, ItemType, WikiSection } from '../types';
 import { aiCagir, AiHatasi } from './aiCagir';
+import { hakkindaTaslaginaYaz } from './siteAyari';
 
 /**
  * Yapay zekâ stüdyosu (29 Eylül akşamı).
@@ -32,7 +33,7 @@ export const GRUP_ADLARI: Record<StudyoGrubu, string> = {
 export type SonucTuru = 'metin' | 'liste' | 'bolumler' | 'kunye' | 'renkler' | 'urunler';
 
 /** "Ekle" düğmesinin ne yaptığı; null ise yalnız kopyalanır */
-export type Uygulama = 'notlara-ekle' | 'bolum-ekle' | 'kunye-ekle' | 'baslik-yap' | 'metnin-yerine' | 'renk-ekle' | 'urun-ekle' | 'hashtag-ekle' | null;
+export type Uygulama = 'notlara-ekle' | 'bolum-ekle' | 'kunye-ekle' | 'baslik-yap' | 'metnin-yerine' | 'renk-ekle' | 'urun-ekle' | 'hashtag-ekle' | 'site-hakkinda' | null;
 
 export interface StudyoAraci {
   id: string;
@@ -116,6 +117,14 @@ export const STUDYO_ARACLARI: StudyoAraci[] = [
     aciklama: 'Markanın ya da kurumun notlarından 4 renk önerir.',
     hedefTurleri: ['marka', 'kulüp'], sonuc: 'renkler', uygulama: 'renk-ekle', task: 'logo-renk-cikar',
     veri: h => ({ logoDescription: h?.metadata?.brandKit?.selectedLogo || h?.notes || h?.title })
+  },
+  {
+    // Site → Hakkında (yapisal-4). Marka kaydından iki üç cümle; "Ekle" yalnız
+    // sitenin taslağına yazar, Kemal "Yayınla" demeden sitede görünmez.
+    id: 'site-hakkinda', grup: 'marka', ad: 'Site · Hakkında taslağı',
+    aciklama: 'Marka kaydından sitenin Hakkında sayfası için iki üç cümle önerir. "Ekle" sitenin taslağına yazar.',
+    hedefTurleri: ['marka'], serbest: 'Neyi vurgulasın? (isteğe bağlı)', sonuc: 'metin', uygulama: 'site-hakkinda', task: 'site-hakkinda',
+    veri: (h, serbest) => ({ baslik: h?.title, notlar: (h?.notes || '').slice(0, 1500), kit: h?.metadata?.brandKit || null, istek: serbest })
   },
   {
     id: 'merch-oner', grup: 'marka', ad: 'Ürün fikri',
@@ -263,6 +272,8 @@ export function oneriyiUygula(
   if (!arac?.uygulama || !hedef) return null;
   const simdi = Date.now();
   switch (arac.uygulama) {
+    case 'site-hakkinda':
+      return oneri.metin ? hakkindaTaslaginaYaz(items, oneri.metin) : null;
     case 'notlara-ekle':
       return { guncel: { ...hedef, notes: [(hedef.notes || '').trim(), oneri.metin || ''].filter(Boolean).join('\n\n'), updatedAt: simdi } };
     case 'metnin-yerine':

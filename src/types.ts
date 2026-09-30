@@ -34,7 +34,9 @@ export type ItemType =
   // Oyunun tanıtım künyesi (Paket 5): durum, özet, açıklama, ekran görüntüleri
   | 'oyun_tanitim'
   // Sosyal medya (29 Eylül gece): gönderi, seri, Pinterest panosu
-  | 'sosyal_gonderi' | 'sosyal_seri' | 'ilham_kaynak';
+  | 'sosyal_gonderi' | 'sosyal_seri' | 'ilham_kaynak'
+  // Site ayarları (30 Eylül): taslak + yayındaki, tek kayıt
+  | 'site_ayar';
 
 export interface WikiSection {
   id: string;
