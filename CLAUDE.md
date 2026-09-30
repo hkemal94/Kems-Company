@@ -55,6 +55,9 @@ terimsiz olur. Kodu değil, **ekranda ne değiştiğini** anlat.
 - **Firestore:** iç içe dizi yasak. Bir alana `undefined` yazmak bütün
   kaydı reddettirir — alanı silmek için anahtarı nesneden çıkar.
   (`src/lib/firebase.ts` ayrıca temizliyor ama buna güvenme.)
+- Kurucu taslağına (`KurucuBelge`) yeni alan eklenirse `src/lib/haritaDuzeni.ts`
+  → `kurucuyuTemizle`'ye de eklenir; yoksa kayıtta sessizce düşer (30 Eylül'de
+  özel yapı, doğa ve madde bağları böyle kayboluyordu).
 - **Veri göçleri tek seferliktir ve düğmeyle çalışır.** Kalıp:
   `src/lib/` altında yazılacak kayıtları üreten saf bir fonksiyon + Neyin
   Eksik panelinde (`src/components/Eksikler.tsx`) yalnızca iş varken
