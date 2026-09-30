@@ -418,8 +418,21 @@ export default function App() {
       setActiveTab('merch');
     } else if (item.type === 'marka') {
       setActiveTab('markalar');
-    } else if (item.type === 'blog_post' || item.type === 'kitap_proje' || item.type === 'kitap_bolum') {
+    } else if (item.type === 'blog_post') {
+      setYaziIstek({ sekme: 'blog', n: Date.now() });
       setActiveTab('yazi');
+    } else if (item.type === 'kitap_proje' || item.type === 'kitap_bolum') {
+      setYaziIstek({ sekme: 'kitap', n: Date.now() });
+      setActiveTab('yazi');
+    } else if (item.type === 'sosyal_gonderi' || item.type === 'sosyal_seri') {
+      // "Son dokunulanlar"dan gönderiye basınca vikiye düşüyordu (30 Eylül)
+      setActiveTab('sosyal');
+    } else if (item.type === 'ilham_gorsel' || item.type === 'ilham_kaynak') {
+      setActiveTab('galeri');
+    } else if (item.type === 'oyun_is' || item.type === 'gdd_bolum' || item.type === 'oyun_tanitim') {
+      setActiveTab('oyun');
+    } else if (item.type === 'aday') {
+      setActiveTab('studyo');
     } else if (item.type === 'fikir') {
       /*
        * Brainstorm sekmesi kalktı (28 Eylül kararı). Fikirler köşedeki
@@ -595,21 +608,36 @@ export default function App() {
    * Menü (Paket 4, Kemal 29 Eylül): masaüstünde solda ince simge çubuğu,
    * telefonda altta beş düğme — Ana sayfa · Viki · Harita · Merch · Diğer.
    * "Diğer" işe göre gruplu: Evren · Marka · Araçlar.
+   *
+   * 30 Eylül (Kemal: "sol menü kalabalık, anlaşılmıyor"): masaüstünde de
+   * aynı gruplar. Kapalıyken yalnız simgeler; üstüne gelince çubuk açılır,
+   * grup başlıkları ve adlar görünür.
    */
-  const RAY: Array<{ id: Sayfa; ad: string; simge: React.ElementType; nokta?: boolean }> = [
-    { id: 'komuta', ad: 'Ana sayfa', simge: Home, nokta: bildirimVar('aday') || bildirimVar('soru') },
-    { id: 'duzada', ad: 'Düzada · viki ve harita', simge: Compass, nokta: bildirimVar('kanon') },
-    { id: 'markalar', ad: 'Markalar', simge: Shield },
-    { id: 'merch', ad: 'Merch', simge: ShoppingBag },
-    { id: 'yazi', ad: 'Yazı · kitap ve blog', simge: PenTool },
-    { id: 'oyun', ad: 'Oyun', simge: Gamepad2 },
-    { id: 'galeri', ad: 'Galeri', simge: ImageIcon },
-    { id: 'studyo', ad: 'Yapay zekâ stüdyosu · öneri tepsisi', simge: Sparkles, nokta: bildirimVar('aday') },
-    { id: 'sosyal', ad: 'Sosyal medya · takvim ve seriler', simge: Megaphone },
-    { id: 'site', ad: 'Site · kems.company önizlemesi', simge: Globe },
-    { id: 'eksikler', ad: 'Neyin Eksik', simge: ListChecks, nokta: bildirimVar('dugme') },
-    { id: 'durum', ad: 'Durum · yüzdeler ve boşluklar', simge: Percent }
+  const RAY: Array<{ grup?: string; satirlar: Array<{ id: Sayfa; ad: string; alt?: string; simge: React.ElementType; nokta?: boolean }> }> = [
+    { satirlar: [
+      { id: 'komuta', ad: 'Ana sayfa', simge: Home, nokta: bildirimVar('aday') || bildirimVar('soru') }
+    ] },
+    { grup: 'Evren', satirlar: [
+      { id: 'duzada', ad: 'Düzada', alt: 'viki ve harita', simge: Compass, nokta: bildirimVar('kanon') },
+      { id: 'yazi', ad: 'Yazı', alt: 'kitap ve blog', simge: PenTool },
+      { id: 'oyun', ad: 'Oyun', simge: Gamepad2 }
+    ] },
+    { grup: 'Marka', satirlar: [
+      { id: 'markalar', ad: 'Markalar', simge: Shield },
+      { id: 'merch', ad: 'Merch', alt: 'droplar ve ürünler', simge: ShoppingBag },
+      { id: 'galeri', ad: 'Galeri', simge: ImageIcon }
+    ] },
+    { grup: 'Araçlar', satirlar: [
+      { id: 'studyo', ad: 'Stüdyo', alt: 'yapay zekâ, öneri tepsisi', simge: Sparkles, nokta: bildirimVar('aday') },
+      { id: 'sosyal', ad: 'Sosyal medya', alt: 'takvim ve seriler', simge: Megaphone },
+      { id: 'site', ad: 'Site', alt: 'kems.company önizlemesi', simge: Globe },
+      { id: 'eksikler', ad: 'Neyin Eksik', simge: ListChecks, nokta: bildirimVar('dugme') },
+      { id: 'durum', ad: 'Durum', alt: 'yüzdeler ve boşluklar', simge: Percent }
+    ] }
   ];
+
+  /** Menü açılınca görünen yazılar (kapalıyken gizli, yer kaplamaz) */
+  const RAY_ADI = 'min-w-0 whitespace-nowrap opacity-0 group-hover/ray:opacity-100 group-has-[:focus-visible]/ray:opacity-100 transition-opacity duration-150';
 
   const DIGER: Array<{ grup: string; satirlar: Array<{ hedef: string; ad: string; simge: React.ElementType; nokta?: boolean }> }> = [
     { grup: 'Evren', satirlar: [
@@ -678,51 +706,70 @@ export default function App() {
     <StudyoPaneli {...studyoIslemleri} />
     <div className="min-h-screen bg-[#E4DCCD] dark:bg-[#0B132B] text-[#0E1C4F] dark:text-[#F3EFE8] font-sans transition-colors duration-200 paper-grain selection:bg-[#F26B6F] selection:text-white">
 
-      {/* MASAÜSTÜ: ince simge çubuğu */}
-      <nav className="hidden lg:flex fixed inset-y-0 left-0 z-40 w-16 flex-col items-center gap-1 py-3 bg-[#0E1C4F] dark:bg-[#081029]">
-        <button type="button" onClick={() => git('komuta')} title="Ana sayfa" className="mb-2 cursor-pointer">{logo}</button>
-        {RAY.map(r => {
-          const Simge = r.simge;
-          const aktif = activeTab === r.id;
-          return (
-            <button
-              key={r.id}
-              type="button"
-              onClick={() => git(r.id)}
-              title={r.ad}
-              aria-label={r.ad}
-              className={`relative w-11 h-11 rounded-xl flex items-center justify-center cursor-pointer transition-colors ${aktif ? 'bg-[#F26B6F] text-white' : 'text-[#A6B0C9] hover:text-white hover:bg-white/10'}`}
-            >
-              <Simge className="w-[18px] h-[18px]" />
-              {r.nokta && <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#F26B6F] ring-2 ring-[#0E1C4F] dark:ring-[#081029]" />}
-            </button>
-          );
-        })}
-        <div className="mt-auto flex flex-col items-center gap-1">
-          <button type="button" onClick={() => setIsSearchOpen(true)} title="Ara (⌘K)" className="w-11 h-11 rounded-xl flex items-center justify-center text-[#A6B0C9] hover:text-white hover:bg-white/10 cursor-pointer">
-            <Search className="w-[18px] h-[18px]" />
+      {/* MASAÜSTÜ: ince simge çubuğu; üstüne gelince açılır, adlar görünür */}
+      <nav className="group/ray hidden lg:flex fixed inset-y-0 left-0 z-40 w-16 hover:w-60 has-[:focus-visible]:w-60 hover:delay-150 transition-[width,box-shadow] duration-200 hover:shadow-2xl flex-col py-3 overflow-x-hidden overflow-y-auto bg-[#0E1C4F] dark:bg-[#081029]">
+        <button type="button" onClick={() => git('komuta')} aria-label="Ana sayfa" className="mx-3 mb-2 flex items-center gap-3 cursor-pointer">
+          {logo}
+          <span className={RAY_ADI}><b className="block text-[13px] text-white">Kems Komuta</b><span className="block text-[10px] text-[#A6B0C9]">Merkezi</span></span>
+        </button>
+        {RAY.map((g, gi) => (
+          <div key={gi} className={gi ? 'relative mt-2 pt-2 border-t border-white/10 mx-2.5' : 'mx-2.5'}>
+            {/* Grup adı çizginin üstünde; kapalıyken yer kaplamaz */}
+            {g.grup && <div className={`${RAY_ADI} absolute -top-[7px] left-2 px-1.5 bg-[#0E1C4F] dark:bg-[#081029] text-[9px] leading-[14px] font-bold uppercase tracking-[0.18em] text-[#6F7BA0]`}>{g.grup}</div>}
+            {g.satirlar.map(r => {
+              const Simge = r.simge;
+              const aktif = activeTab === r.id;
+              return (
+                <button
+                  key={r.id}
+                  type="button"
+                  onClick={() => git(r.id)}
+                  aria-label={r.ad}
+                  className={`relative w-full h-11 rounded-xl flex items-center gap-3 px-3 cursor-pointer transition-colors ${aktif ? 'bg-[#F26B6F] text-white' : 'text-[#A6B0C9] hover:text-white hover:bg-white/10'}`}
+                >
+                  <Simge className="w-[18px] h-[18px] shrink-0" />
+                  <span className={`${RAY_ADI} text-left leading-tight`}>
+                    <span className="block text-[13px] font-semibold">{r.ad}</span>
+                    {r.alt && <span className={`block text-[10px] ${aktif ? 'text-white/80' : 'text-[#6F7BA0]'}`}>{r.alt}</span>}
+                  </span>
+                  {r.nokta && <span className="absolute top-2 left-7 w-2 h-2 rounded-full bg-[#F26B6F] ring-2 ring-[#0E1C4F] dark:ring-[#081029]" />}
+                </button>
+              );
+            })}
+          </div>
+        ))}
+        <div className="mt-auto pt-2 mx-2.5 flex flex-col gap-1">
+          <button type="button" onClick={() => setIsSearchOpen(true)} aria-label="Ara" className="w-full h-11 rounded-xl flex items-center gap-3 px-3 text-[#A6B0C9] hover:text-white hover:bg-white/10 cursor-pointer">
+            <Search className="w-[18px] h-[18px] shrink-0" /><span className={`${RAY_ADI} text-[13px] font-semibold`}>Ara <kbd className="ml-1 text-[10px] text-[#6F7BA0]">⌘K</kbd></span>
           </button>
-          <Zil bildirimler={bildirimler} onSec={bildirimSec} yon="sag" />
+          <div className="flex items-center gap-1">
+            <Zil bildirimler={bildirimler} onSec={bildirimSec} yon="sag" />
+            <span className={`${RAY_ADI} -ml-1.5 text-[13px] font-semibold text-[#A6B0C9] pointer-events-none`}>Bildirimler</span>
+          </div>
           {user && (
-            <Yedekleme
-              items={items}
-              settings={settings}
-              onKayit={async kayit => { await saveItem(user.uid, kayit); }}
-              tetikSinifi="relative w-11 h-11 rounded-xl flex items-center justify-center text-[#A6B0C9] hover:text-white hover:bg-white/10 cursor-pointer"
-            />
+            <div className="flex items-center gap-1">
+              <Yedekleme
+                items={items}
+                settings={settings}
+                onKayit={async kayit => { await saveItem(user.uid, kayit); }}
+                tetikSinifi="relative w-11 h-11 rounded-xl flex items-center justify-center text-[#A6B0C9] hover:text-white hover:bg-white/10 cursor-pointer"
+              />
+              <span className={`${RAY_ADI} -ml-1.5 text-[13px] font-semibold text-[#A6B0C9] pointer-events-none`}>Yedek</span>
+            </div>
           )}
           <button
             type="button"
             onClick={girisli ? undefined : googleIleBaglan}
             title={girisli ? `Google hesabı: ${user?.email || ''}` : 'Ortak alandasın — Google ile bağlan'}
-            className={`relative w-11 h-11 rounded-xl flex items-center justify-center ${girisli ? 'text-[#A6B0C9]' : 'text-[#F26B6F] hover:bg-white/10 cursor-pointer'}`}
+            className={`relative w-full h-11 rounded-xl flex items-center gap-3 px-3 ${girisli ? 'text-[#A6B0C9]' : 'text-[#F26B6F] hover:bg-white/10 cursor-pointer'}`}
           >
             {girisli && user?.photoURL
-              ? <img src={user.photoURL} alt="" referrerPolicy="no-referrer" className="w-7 h-7 rounded-full" />
-              : <UserRound className="w-[18px] h-[18px]" />}
+              ? <img src={user.photoURL} alt="" referrerPolicy="no-referrer" className="w-7 h-7 -ml-[5px] rounded-full shrink-0" />
+              : <UserRound className="w-[18px] h-[18px] shrink-0" />}
+            <span className={`${RAY_ADI} text-[13px] font-semibold`}>{girisli ? 'Google hesabı' : 'Google ile bağlan'}</span>
           </button>
-          <button type="button" onClick={handleToggleTheme} title="Aydınlık / karanlık" className="w-11 h-11 rounded-xl flex items-center justify-center text-[#A6B0C9] hover:text-white hover:bg-white/10 cursor-pointer">
-            <TemaSimgesi className="w-[18px] h-[18px]" />
+          <button type="button" onClick={handleToggleTheme} aria-label="Aydınlık / karanlık" className="w-full h-11 rounded-xl flex items-center gap-3 px-3 text-[#A6B0C9] hover:text-white hover:bg-white/10 cursor-pointer">
+            <TemaSimgesi className="w-[18px] h-[18px] shrink-0" /><span className={`${RAY_ADI} text-[13px] font-semibold`}>{settings.theme === 'dark' ? 'Aydınlık' : 'Karanlık'}</span>
           </button>
         </div>
       </nav>
@@ -873,7 +920,7 @@ export default function App() {
             )}
 
             {activeTab === 'sosyal' && (
-              <Sosyal items={items} onAddItem={handleAddItem} onUpdateItem={handleUpdateItem} onDeleteItem={handleDeleteItem} />
+              <Sosyal items={items} acilacakId={activeItemId} onAddItem={handleAddItem} onUpdateItem={handleUpdateItem} onDeleteItem={handleDeleteItem} />
             )}
 
             {activeTab === 'galeri' && (

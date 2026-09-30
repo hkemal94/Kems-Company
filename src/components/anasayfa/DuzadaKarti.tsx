@@ -7,6 +7,9 @@ import { ETIKET, IKINCIL, KART, YAZI, neZaman } from './stil';
 /**
  * Düzada kartı (Paket 4): haritanın küçük resmi ve son dokunulan maddeler.
  * Harita resmine basınca harita açılır, maddeye basınca madde.
+ *
+ * Resim (public/harita-kucuk.webp) yeni adanın 3B görüntüsü, evleriyle
+ * (30 Eylül). Harita çok değişirse önizlemeden yeniden çekilir.
  */
 
 const SAYILMAZ = new Set(['map_settings', 'map_pin', 'channel', 'aday']);
@@ -25,7 +28,7 @@ export const DuzadaKarti: React.FC<Props> = ({ items, onHarita, onMadde }) => {
 
   return (
     <section className={`${KART} overflow-hidden`}>
-      <button type="button" onClick={onHarita} className="block w-full h-32 bg-[#0E1C4F] cursor-pointer" title="Haritayı aç">
+      <button type="button" onClick={onHarita} className="block w-full h-36 bg-[#1C4E8C] cursor-pointer" title="Haritayı aç">
         <img src="/harita-kucuk.webp" alt="Düzada haritası" className="w-full h-full object-cover" loading="lazy" />
       </button>
       <div className="p-4">

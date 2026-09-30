@@ -26,7 +26,13 @@ export default function Blog({
   onDeleteItem,
   onAddItem
 }: BlogProps) {
-  const [activeTab, setActiveTab] = useState<'home' | 'editor'>('home');
+  const [activeTab, setActiveTab] = useState<'home' | 'editor'>(
+    () => (activeItemId && items.some(i => i.id === activeItemId && i.type === 'blog_post') ? 'editor' : 'home'));
+  // Başka sayfadan bir yazıya basılınca yazının kendisi açılsın (30 Eylül)
+  React.useEffect(() => {
+    if (activeItemId && items.some(i => i.id === activeItemId && i.type === 'blog_post')) setActiveTab('editor');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeItemId]);
   
   // Editorial and AI help states
 

@@ -15,14 +15,24 @@ const ONBELLEK = 'kems_soru_secenekleri';
 /** Seçenek yazılınca soru kartları yeniden okusun */
 export const SECENEK_OLAYI = 'kems-soru-secenegi';
 
+/**
+ * Seçenekler üç gün geçerli. Eski biçimde (tarihsiz) saklananlar da
+ * okunmaz: Kemal, 30 Eylül: "yanındaki yapay zekâ seçenekleri eski".
+ */
+const GECERLILIK = 3 * 86_400_000;
+
 export function secenekleriOku(anahtar: string): string[] | null {
-  try { return JSON.parse(localStorage.getItem(ONBELLEK) || '{}')[anahtar] ?? null; } catch { return null; }
+  try {
+    const k = JSON.parse(localStorage.getItem(ONBELLEK) || '{}')[anahtar];
+    if (!k || Array.isArray(k) || !Array.isArray(k.s) || Date.now() - (k.t || 0) > GECERLILIK) return null;
+    return k.s;
+  } catch { return null; }
 }
 
 function secenekleriYaz(anahtar: string, s: string[]) {
   try {
     const t = JSON.parse(localStorage.getItem(ONBELLEK) || '{}');
-    t[anahtar] = s;
+    t[anahtar] = { s, t: Date.now() };
     localStorage.setItem(ONBELLEK, JSON.stringify(t));
   } catch { /* yok */ }
   try { window.dispatchEvent(new Event(SECENEK_OLAYI)); } catch { /* yok */ }

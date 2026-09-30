@@ -65,14 +65,20 @@ export interface KurucuTaslak {
   /** Taslakta kaldırılan yollar ve binalar (haritadan gelen ya da yeni). Silinmez. */
   gizlenen: string[];
   /** Kurucuda konan yeni binalar — merkez [boylam, enlem], ölçüler metre, açı radyan */
-  yeniBinalar: Record<string, { tur: BinaTuru; merkez: Nokta; en: number; boy: number; aci: number }>;
+  yeniBinalar: Record<string, { tur: BinaTuru; merkez: Nokta; en: number; boy: number; aci: number; kat?: number }>;
   /** Özel yapılar — köşeler [boylam, enlem] */
   ozelYapilar: Record<string, OzelYapi>;
   /** Doğa alanları — köşeler [boylam, enlem] */
   doga: Record<string, { tur: DogaTuru; koseler: Nokta[] }>;
   /** Yapı kimliği → viki maddesi kimliği */
   baglar: Record<string, string>;
+  /** Haritadan gelen yolun yeni hâli: parçalar, [boylam, enlem] (30 Eylül) */
+  yolDuzeni: Record<string, Nokta[][]>;
+  /** Haritadan gelen yapının düzeltmesi: dx/dy metre (doğu/güney), aci radyan */
+  binaDuzeni: Record<string, BinaDuzeltme>;
 }
+
+export interface BinaDuzeltme { dx: number; dy: number; aci: number; kat?: number; tur?: BinaTuru }
 
 export type Cati = 'duz' | 'besik';
 export interface OzelYapi { koseler: Nokta[]; kat: number; cati: Cati; kalip?: string }
@@ -83,7 +89,7 @@ export const DOGA_TURLERI: Array<{ id: DogaTuru; ad: string; renk: string; kenar
   { id: 'kumsal', ad: 'Kumsal', renk: '#EBDDB0', kenar: '#C6B27E', aciklama: 'Kıyıda kum' }
 ];
 
-export const bosTaslak = (): KurucuTaslak => ({ yeniYollar: {}, turDegisikligi: {}, gizlenen: [], yeniBinalar: {}, ozelYapilar: {}, doga: {}, baglar: {} });
+export const bosTaslak = (): KurucuTaslak => ({ yeniYollar: {}, turDegisikligi: {}, gizlenen: [], yeniBinalar: {}, ozelYapilar: {}, doga: {}, baglar: {}, yolDuzeni: {}, binaDuzeni: {} });
 
 const duz = (k: Nokta[]) => k.flatMap(p => [Math.round(p[0] * 1e6) / 1e6, Math.round(p[1] * 1e6) / 1e6]);
 const coz = (n: unknown): Nokta[] => {
@@ -111,7 +117,8 @@ export function taslaktanBelge(t: KurucuTaslak): KurucuBelge {
       Object.entries(t.yeniBinalar).map(([id, b]) => [id, {
         tur: b.tur, x: b.merkez[0], y: b.merkez[1],
         en: Math.round(b.en * 10) / 10, boy: Math.round(b.boy * 10) / 10,
-        aci: Math.round(b.aci * 1000) / 1000
+        aci: Math.round(b.aci * 1000) / 1000,
+        ...(b.kat ? { kat: b.kat } : {})
       }])
     ),
     ozelYapilar: Object.fromEntries(
@@ -120,7 +127,13 @@ export function taslaktanBelge(t: KurucuTaslak): KurucuBelge {
       }])
     ),
     doga: Object.fromEntries(Object.entries(t.doga).map(([id, d]) => [id, { tur: d.tur, n: duz(d.koseler) }])),
-    baglar: { ...t.baglar }
+    baglar: { ...t.baglar },
+    yolDuzeni: Object.fromEntries(Object.entries(t.yolDuzeni).map(([id, p]) => [id,
+      Object.fromEntries(p.map((k, i) => [String(i), duz(k)]))])),
+    binaDuzeni: Object.fromEntries(Object.entries(t.binaDuzeni).map(([id, b]) => [id, {
+      dx: Math.round(b.dx * 10) / 10, dy: Math.round(b.dy * 10) / 10, aci: Math.round(b.aci * 1000) / 1000,
+      ...(b.kat ? { kat: b.kat } : {}), ...(b.tur ? { tur: b.tur } : {})
+    }]))
   };
 }
 
@@ -147,7 +160,8 @@ export function belgedenTaslak(ham: unknown): KurucuTaslak {
     if (!bn || !binaTurleri.has(String(bn.tur))) continue;
     const say = [bn.x, bn.y, bn.en, bn.boy, bn.aci].map(Number);
     if (!say.every(Number.isFinite)) continue;
-    t.yeniBinalar[id] = { tur: bn.tur as BinaTuru, merkez: [say[0], say[1]], en: say[2], boy: say[3], aci: say[4] };
+    t.yeniBinalar[id] = { tur: bn.tur as BinaTuru, merkez: [say[0], say[1]], en: say[2], boy: say[3], aci: say[4],
+      ...(Number(bn.kat) >= 1 ? { kat: Math.round(Number(bn.kat)) } : {}) };
   }
   for (const [id, o] of Object.entries(b.ozelYapilar ?? {})) {
     const k = coz(o?.n);
@@ -161,13 +175,27 @@ export function belgedenTaslak(ham: unknown): KurucuTaslak {
     if (k.length >= 3 && dogaTurleri.has(String(d.tur))) t.doga[id] = { tur: d.tur as DogaTuru, koseler: k };
   }
   for (const [id, w] of Object.entries(b.baglar ?? {})) if (typeof w === 'string' && w) t.baglar[id] = w;
+  for (const [id, p] of Object.entries(b.yolDuzeni ?? {})) {
+    const parcalar = Object.keys(p ?? {}).sort((x, y) => Number(x) - Number(y)).map(i => coz(p[i])).filter(k => k.length >= 2);
+    if (parcalar.length) t.yolDuzeni[id] = parcalar;
+  }
+  for (const [id, bd] of Object.entries(b.binaDuzeni ?? {})) {
+    const say = [bd?.dx, bd?.dy, bd?.aci].map(Number);
+    if (!say.every(Number.isFinite)) continue;
+    t.binaDuzeni[id] = {
+      dx: say[0], dy: say[1], aci: say[2],
+      ...(Number(bd.kat) >= 1 ? { kat: Math.round(Number(bd.kat)) } : {}),
+      ...(bd.tur && binaTurleri.has(String(bd.tur)) ? { tur: bd.tur as BinaTuru } : {})
+    };
+  }
   return t;
 }
 
 export const taslakBosMu = (t: KurucuTaslak) =>
   !Object.keys(t.yeniYollar).length && !Object.keys(t.turDegisikligi).length && !t.gizlenen.length
   && !Object.keys(t.yeniBinalar).length && !Object.keys(t.ozelYapilar).length
-  && !Object.keys(t.doga).length && !Object.keys(t.baglar).length;
+  && !Object.keys(t.doga).length && !Object.keys(t.baglar).length
+  && !Object.keys(t.yolDuzeni).length && !Object.keys(t.binaDuzeni).length;
 
 // ---- izdüşüm: boylam/enlem ↔ metre (ada merkezinde düz) -------------------
 
@@ -198,16 +226,25 @@ export interface KurucuYol {
   /** Haritadaki asıl tür (bilgi için) */
   haritaTur: string;
   tur: YolTuru;
-  /** Metre, çizim için */
+  /** Metre, bütün noktalar (kavşağa yapışma için) */
   m: Nokta[];
+  /**
+   * Metre, çizilecek parçalar. Parçası silinmemiş yolda tek parça (= m).
+   * Yeni yolda eğri; haritadan gelende gerçek noktalar.
+   */
+  parcalar: Nokta[][];
+  /** Yeni yolda: kullanıcının koyduğu kontrol noktaları (metre) */
+  kontrol?: Nokta[];
   yeni: boolean;
   gizli: boolean;
+  /** Haritadan gelen yol ve noktası taşındı ya da parçası silindi */
+  duzenli?: boolean;
 }
 
 export interface Zemin {
   ada: Nokta[][];
   mahalleler: Array<{ id: string; halka: Nokta[][] }>;
-  binalar: Array<{ id: string; ad: string; halka: Nokta[]; wikiId?: string; kat?: number }>;
+  binalar: Array<{ id: string; ad: string; halka: Nokta[]; wikiId?: string; kat?: number; tur?: string }>;
   etiketler: Array<{ ad: string; m: Nokta; tur: string }>;
   yollar: Array<{ id: string; ad: string; tur: string; noktalar: Nokta[] }>;
 }
@@ -228,7 +265,8 @@ export function zeminCikar(geo: FeatureCollection): Zemin {
         id: String(p.id), ad: String(p.ad ?? ''),
         halka: (g.coordinates as Nokta[][])[0].map(metreye),
         ...(p.wikiId ? { wikiId: String(p.wikiId) } : {}),
-        ...(Number(p.kat) ? { kat: Number(p.kat) } : {})
+        ...(Number(p.kat) ? { kat: Number(p.kat) } : {}),
+        ...(p.tur ? { tur: String(p.tur) } : {})
       });
     } else if (katman === 'etiket' && g.type === 'Point' && (p.tur === 'mahalle' || p.tur === 'zirve')) {
       z.etiketler.push({ ad: String(p.ad ?? ''), m: metreye(g.coordinates as Nokta), tur: String(p.tur) });
@@ -247,17 +285,22 @@ export function yollariKur(
   zemin: Zemin, taslak: KurucuTaslak, egri: (k: Nokta[]) => Nokta[]
 ): KurucuYol[] {
   const gizli = new Set(taslak.gizlenen);
-  const cikti: KurucuYol[] = zemin.yollar.map(y => ({
-    id: y.id, ad: y.ad, haritaTur: y.tur,
-    tur: taslak.turDegisikligi[y.id] ?? haritaTuru(y.tur),
-    m: y.noktalar.map(metreye), yeni: false, gizli: gizli.has(y.id)
-  }));
+  const cikti: KurucuYol[] = zemin.yollar.map(y => {
+    const duzen = taslak.yolDuzeni[y.id];
+    const parcalar = duzen ? duzen.map(k => k.map(metreye)) : [y.noktalar.map(metreye)];
+    return {
+      id: y.id, ad: y.ad, haritaTur: y.tur,
+      tur: taslak.turDegisikligi[y.id] ?? haritaTuru(y.tur),
+      m: parcalar.flat(), parcalar, yeni: false, gizli: gizli.has(y.id), duzenli: !!duzen
+    };
+  });
   let n = 0;
   for (const [id, y] of Object.entries(taslak.yeniYollar)) {
     n++;
+    const m = egri(y.noktalar).map(metreye);
     cikti.push({
       id, ad: `Yeni yol ${n}`, haritaTur: '—', tur: y.tur,
-      m: egri(y.noktalar).map(metreye), yeni: true, gizli: gizli.has(id)
+      m, parcalar: [m], kontrol: y.noktalar.map(metreye), yeni: true, gizli: gizli.has(id)
     });
   }
   return cikti;
@@ -297,9 +340,9 @@ export function yapistir(
   enD = esik * 0.8;
   for (const y of yollar) {
     if (y.gizli) continue;
-    for (let i = 1; i < y.m.length; i++) {
-      const a = y.m[i - 1];
-      const b = y.m[i];
+    for (const hat of y.parcalar) for (let i = 1; i < hat.length; i++) {
+      const a = hat[i - 1];
+      const b = hat[i];
       const dx = b[0] - a[0];
       const dy = b[1] - a[1];
       const l2 = dx * dx + dy * dy;
@@ -353,6 +396,21 @@ export interface KurucuBina {
   /** Haritada bağlı olduğu viki maddesi */
   wikiId?: string;
   kat?: number;
+  /** Haritadan gelen yapının üreteçteki türü (ev, ahır, depo…) */
+  haritaTur?: string;
+  /** Haritadan gelen yapı taşındı / döndü / katı ya da türü değişti */
+  duzeltme?: BinaDuzeltme;
+}
+
+/** Köşeleri merkez etrafında döndürüp kaydırır (metre) */
+export function kaydirDondur(k: Nokta[], dx: number, dy: number, aci: number): Nokta[] {
+  if (!dx && !dy && !aci) return k;
+  const c = merkezi(k);
+  const co = Math.cos(aci), si = Math.sin(aci);
+  return k.map(([x, y]) => [
+    c[0] + (x - c[0]) * co - (y - c[1]) * si + dx,
+    c[1] + (x - c[0]) * si + (y - c[1]) * co + dy
+  ] as Nokta);
 }
 
 const merkezi = (k: Nokta[]): Nokta => [
@@ -367,13 +425,16 @@ export function binalariKur(
 ): KurucuBina[] {
   const gizli = new Set(taslak.gizlenen);
   const cikti: KurucuBina[] = zemin.binalar.map(b => {
-    const k = b.halka.length > 1 && b.halka[0][0] === b.halka[b.halka.length - 1][0]
+    const ham = b.halka.length > 1 && b.halka[0][0] === b.halka[b.halka.length - 1][0]
       && b.halka[0][1] === b.halka[b.halka.length - 1][1] ? b.halka.slice(0, -1) : b.halka;
+    const d = taslak.binaDuzeni[b.id];
+    const k = d ? kaydirDondur(ham, d.dx, d.dy, d.aci) : ham;
     const m = merkezi(k);
     return {
-      id: b.id, ad: b.ad || 'Yapı', tur: null, kose: k, m,
+      id: b.id, ad: b.ad || 'Yapı', tur: d?.tur ?? null, kose: k, m,
       r: Math.max(...k.map(p => Math.hypot(p[0] - m[0], p[1] - m[1]))),
-      yeni: false, gizli: gizli.has(b.id), wikiId: b.wikiId, kat: b.kat
+      yeni: false, gizli: gizli.has(b.id), wikiId: b.wikiId, kat: d?.kat ?? b.kat,
+      haritaTur: b.tur, ...(d ? { duzeltme: d } : {})
     };
   });
   for (const [id, b] of Object.entries(taslak.yeniBinalar)) {
@@ -381,7 +442,7 @@ export function binalariKur(
     cikti.push({
       id, ad: '', tur: b.tur, kose: koseler(m, b.en, b.boy, b.aci), m,
       r: Math.hypot(b.en, b.boy) / 2, yeni: true, gizli: gizli.has(id),
-      en: b.en, boy: b.boy, aci: b.aci
+      en: b.en, boy: b.boy, aci: b.aci, kat: b.kat
     });
   }
   return cikti;
@@ -423,4 +484,93 @@ export function binaKonabilirMi(
     if (hattaUzaklik(b.m, h).d < r + 1.5) return false;
   }
   return true;
+}
+
+// ---- yol parçası: iki kavşak arası (30 Eylül) ----------------------------------
+
+/** Hat üstünde yay uzunlukları (her noktaya kadar) */
+function yayUzunluklari(h: Nokta[]): number[] {
+  const u = [0];
+  for (let i = 1; i < h.length; i++) u.push(u[i - 1] + Math.hypot(h[i][0] - h[i - 1][0], h[i][1] - h[i - 1][1]));
+  return u;
+}
+
+/** Hattın [a, b] yay aralığındaki kısmı */
+export function hatKes(h: Nokta[], a: number, b: number): Nokta[] {
+  const u = yayUzunluklari(h);
+  const nokta = (s: number): Nokta => {
+    for (let i = 1; i < h.length; i++) {
+      if (s <= u[i] || i === h.length - 1) {
+        const t = u[i] === u[i - 1] ? 0 : Math.min(1, Math.max(0, (s - u[i - 1]) / (u[i] - u[i - 1])));
+        return [h[i - 1][0] + (h[i][0] - h[i - 1][0]) * t, h[i - 1][1] + (h[i][1] - h[i - 1][1]) * t];
+      }
+    }
+    return h[h.length - 1];
+  };
+  const cikti: Nokta[] = [nokta(a)];
+  for (let i = 0; i < h.length; i++) if (u[i] > a && u[i] < b) cikti.push(h[i]);
+  cikti.push(nokta(b));
+  return cikti;
+}
+
+/** Noktanın hat üstündeki yay konumu ve uzaklığı */
+function hattakiYer(m: Nokta, h: Nokta[]): { s: number; d: number } {
+  const u = yayUzunluklari(h);
+  let en = { s: 0, d: Infinity };
+  for (let i = 1; i < h.length; i++) {
+    const a = h[i - 1], b = h[i];
+    const dx = b[0] - a[0], dy = b[1] - a[1];
+    const l2 = dx * dx + dy * dy;
+    const t = l2 ? Math.max(0, Math.min(1, ((m[0] - a[0]) * dx + (m[1] - a[1]) * dy) / l2)) : 0;
+    const d = Math.hypot(a[0] + dx * t - m[0], a[1] + dy * t - m[1]);
+    if (d < en.d) en = { s: u[i - 1] + Math.sqrt(l2) * t, d };
+  }
+  return en;
+}
+
+/**
+ * Dokunulan yerin iki yanındaki kavşakları bulup o aradaki parçayı çıkarır.
+ * Kavşak: başka bir yolun noktası ya da ucu bu yolun üstüne düşüyorsa.
+ * Kalan parçaları döndürür (2 m'den kısalar atılır). Yol tek parçaysa ve
+ * hiç kavşak yoksa boş dizi döner: bütün yol gider.
+ */
+export function parcaCikar(yol: KurucuYol, dokunus: Nokta, digerleri: KurucuYol[], esik = 1.5): Nokta[][] {
+  // Dokunulan parça
+  let pi = 0, enD = Infinity, s = 0;
+  yol.parcalar.forEach((h, i) => { const y = hattakiYer(dokunus, h); if (y.d < enD) { enD = y.d; pi = i; s = y.s; } });
+  const h = yol.parcalar[pi];
+  const u = yayUzunluklari(h);
+  const toplam = u[u.length - 1] ?? 0;
+  // Bu parçadaki kavşakların yay konumları
+  const kavsak: number[] = [];
+  for (const o of digerleri) {
+    if (o.id === yol.id || o.gizli) continue;
+    for (const oh of o.parcalar) {
+      // Öbür yolun bütün noktaları (uçlar dahil) bu hatta değiyorsa kavşaktır
+      for (const k of oh) {
+        const y = hattakiYer(k, h);
+        if (y.d < esik && y.s > esik && y.s < toplam - esik) kavsak.push(y.s);
+      }
+      // Noktası olmadan üstünden geçen yol da kavşaktır
+      for (let j = 1; j < oh.length; j++) for (let i = 1; i < h.length; i++) {
+        const a = h[i - 1], b = h[i], c = oh[j - 1], e = oh[j];
+        const d = (b[0] - a[0]) * (e[1] - c[1]) - (b[1] - a[1]) * (e[0] - c[0]);
+        if (Math.abs(d) < 1e-9) continue;
+        const t = ((c[0] - a[0]) * (e[1] - c[1]) - (c[1] - a[1]) * (e[0] - c[0])) / d;
+        const r = ((c[0] - a[0]) * (b[1] - a[1]) - (c[1] - a[1]) * (b[0] - a[0])) / d;
+        if (t < 0 || t > 1 || r < 0 || r > 1) continue;
+        const s2 = u[i - 1] + (u[i] - u[i - 1]) * t;
+        if (s2 > esik && s2 < toplam - esik) kavsak.push(s2);
+      }
+    }
+  }
+  const once = Math.max(0, ...kavsak.filter(k => k < s));
+  const sonra = Math.min(toplam, ...kavsak.filter(k => k > s));
+  const kalan = [
+    ...yol.parcalar.slice(0, pi),
+    ...(once > 2 ? [hatKes(h, 0, once)] : []),
+    ...(toplam - sonra > 2 ? [hatKes(h, sonra, toplam)] : []),
+    ...yol.parcalar.slice(pi + 1)
+  ];
+  return kalan.filter(k => k.length >= 2);
 }

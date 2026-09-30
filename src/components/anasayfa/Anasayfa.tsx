@@ -157,9 +157,14 @@ export const Anasayfa: React.FC<Props> = ({
         <YuzdeSeridi oranlar={oranlar} onSec={h => onGit(h)} />
       </div>
 
-      <div className="grid gap-3 lg:gap-4 lg:grid-cols-[2fr_1fr] items-start">
+      {/*
+        Hizalama (Kemal, 30 Eylül: "kartlar hizasız"): iki sıra da aynı üç
+        sütunlu ızgarada; atölye iki sütun kaplar. Bir sıradaki kartlar en
+        uzununun boyuna uzar, alt kenarları aynı çizgide biter.
+      */}
+      <div className="grid gap-3 lg:gap-4 lg:grid-cols-3 lg:items-stretch">
         {/* Üretim atölyesi */}
-        <section className={`${gorunur('atolye')} rounded-2xl bg-[#0E1C4F] dark:bg-[#13204A] dark:border dark:border-[#2C3C72] text-[#F3EFE8] p-4 lg:p-5`}>
+        <section className={`${gorunur('atolye')} lg:col-span-2 lg:!flex flex-col rounded-2xl bg-[#0E1C4F] dark:bg-[#13204A] dark:border dark:border-[#2C3C72] text-[#F3EFE8] p-4 lg:p-5`}>
           <div className="text-[10px] font-mono font-bold uppercase tracking-[0.18em] text-[#A6B0C9]">Üretim atölyesi</div>
           <h2 className="mt-1 text-[18px] font-bold">Vikideki boşluklardan sorular</h2>
           <p className="mt-1 text-[12px] leading-relaxed text-[#C9D0E3]">
@@ -172,11 +177,11 @@ export const Anasayfa: React.FC<Props> = ({
             </button>
           </div>
           {atolyeSorulari.length ? (
-            <div className="mt-3 grid gap-2.5 md:grid-cols-3">
+            <div className="mt-3 grid gap-2.5 md:grid-cols-3 flex-1">
               {atolyeSorulari.map(b => (
-                <div key={b.anahtar} className="rounded-xl bg-[#FAF8F5] dark:bg-[#0F1A40] p-3 min-w-0">
+                <div key={b.anahtar} className="rounded-xl bg-[#FAF8F5] dark:bg-[#0F1A40] p-3 min-w-0 flex flex-col">
                   <div className={ETIKET}>Kanon sorusu</div>
-                  <div className="mt-1.5">
+                  <div className="mt-1.5 flex-1">
                     <SoruKarti bosluk={b} onCevap={(c, s) => cevapla(false)(b, c, s)} onSonra={() => ertele(false, b.anahtar)} />
                   </div>
                 </div>
@@ -187,7 +192,7 @@ export const Anasayfa: React.FC<Props> = ({
           )}
         </section>
 
-        <div className="grid gap-3 lg:gap-4 min-w-0">
+        <div className="flex flex-col gap-3 lg:gap-4 min-w-0">
           {/* Günün sorusu */}
           <section className={`${gorunur('bugun')} ${KART} p-4`}>
             <div className={ETIKET}>Günün sorusu</div>
@@ -205,20 +210,20 @@ export const Anasayfa: React.FC<Props> = ({
             </div>
           </section>
 
-          <div className={gorunur('bugun')}>
+          <div className={`${gorunur('bugun')} flex-1 [&>*]:h-full`}>
             <OneriTepsisi {...studyo} sinir={3} />
           </div>
         </div>
       </div>
 
-      <div className="grid gap-3 lg:gap-4 lg:grid-cols-[1.1fr_1.3fr_1fr] items-start">
-        <div className="hidden lg:block min-w-0">
+      <div className="grid gap-3 lg:gap-4 lg:grid-cols-3 lg:items-stretch">
+        <div className="hidden lg:block min-w-0 [&>*]:h-full">
           <EksikOzeti eksikler={eksikler} dugmeler={bugunDugmeler} onAc={a => onGit('eksikler', a)} />
         </div>
-        <div className={gorunur('notlar')}>
+        <div className={`${gorunur('notlar')} lg:[&>*]:h-full`}>
           <NotDefteri items={items} onAddItem={onAddItem} onUpdateItem={onUpdateItem} uzun={sekme === 'notlar'} yeniSayfaBekliyor={yeniNotBekliyor} onYeniSayfaAcildi={onYeniNotAcildi} />
         </div>
-        <div className={gorunur('durum')}>
+        <div className={`${gorunur('durum')} lg:[&>*]:h-full`}>
           <DuzadaKarti items={items} onHarita={() => onGit('harita')} onMadde={onMaddeyiAc} />
         </div>
       </div>

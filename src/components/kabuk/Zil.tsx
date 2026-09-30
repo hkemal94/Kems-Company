@@ -48,7 +48,7 @@ export const Zil: React.FC<Props> = ({ bildirimler, onSec, yon = 'asagi' }) => {
         )}
       </button>
       {acik && (
-        <div className={`absolute z-50 w-[min(88vw,320px)] rounded-xl border border-[#CFC5B4] dark:border-[#2C3C72] bg-[#FAF8F5] dark:bg-[#13204A] shadow-xl p-2 ${yon === 'sag' ? 'left-full bottom-0 ml-2' : 'right-0 top-full mt-2'}`}>
+        <div className={`absolute z-50 w-[min(88vw,320px)] rounded-xl border border-[#CFC5B4] dark:border-[#2C3C72] bg-[#FAF8F5] dark:bg-[#13204A] shadow-xl p-2 ${yon === 'sag' ? 'fixed left-60 bottom-4' : 'right-0 top-full mt-2'}`}>
           <div className="px-2 py-1.5 text-[10px] font-mono font-bold uppercase tracking-[0.18em] text-[#6A5E4C] dark:text-[#A6B0C9]">Bildirimler</div>
           {bildirimler.length === 0 && (
             <p className="px-2 py-2 text-[12px] text-[#6A5E4C] dark:text-[#A6B0C9]">Bekleyen bir şey yok.</p>

@@ -126,8 +126,55 @@ const belgeye = (d: HaritaDuzeni): Belge => {
   return b;
 };
 
-/** Kurucu taslağını yazılabilir hâle getirir (tanımsız / bozuk alan atılır) */
+const sayilar = (n: unknown): number[] =>
+  Array.isArray(n) ? n.map(Number).filter(Number.isFinite) : [];
+const nesne = (x: unknown): Record<string, any> => (x && typeof x === 'object' && !Array.isArray(x) ? x as Record<string, any> : {}); // eslint-disable-line @typescript-eslint/no-explicit-any
+
+/**
+ * Kurucu taslağını yazılabilir hâle getirir (tanımsız / bozuk alan atılır).
+ *
+ * 30 Eylül: özel yapı, doğa ve madde bağı alanları burada unutulmuştu;
+ * kayıtta düşüyor, sayfa yenilenince kayboluyordu. Hepsi eklendi, yeni
+ * yol ve bina düzeltmeleriyle birlikte.
+ */
 const kurucuyuTemizle = (k: KurucuBelge): KurucuBelge => ({
+  ...kurucuTemelAlanlar(k),
+  ozelYapilar: Object.fromEntries(
+    Object.entries(nesne(k.ozelYapilar))
+      .filter(([, o]) => o && sayilar(o.n).length >= 6)
+      .map(([id, o]) => [id, {
+        n: sayilar(o.n), kat: Math.min(Math.max(Math.round(Number(o.kat) || 1), 1), 30),
+        cati: o.cati === 'besik' ? 'besik' : 'duz',
+        ...(typeof o.kalip === 'string' && o.kalip ? { kalip: o.kalip } : {})
+      }])
+  ),
+  doga: Object.fromEntries(
+    Object.entries(nesne(k.doga))
+      .filter(([, d]) => d && typeof d.tur === 'string' && sayilar(d.n).length >= 6)
+      .map(([id, d]) => [id, { tur: d.tur, n: sayilar(d.n) }])
+  ),
+  baglar: Object.fromEntries(
+    Object.entries(nesne(k.baglar)).filter(([, w]) => typeof w === 'string' && w)
+  ),
+  yolDuzeni: Object.fromEntries(
+    Object.entries(nesne(k.yolDuzeni))
+      .map(([id, parcalar]) => [id, Object.fromEntries(
+        Object.entries(nesne(parcalar)).map(([i, n]) => [i, sayilar(n)]).filter(([, n]) => (n as number[]).length >= 4)
+      )] as const)
+      .filter(([, p]) => Object.keys(p).length)
+  ),
+  binaDuzeni: Object.fromEntries(
+    Object.entries(nesne(k.binaDuzeni))
+      .filter(([, b]) => b && [b.dx, b.dy, b.aci].every(v => Number.isFinite(Number(v))))
+      .map(([id, b]) => [id, {
+        dx: Number(b.dx), dy: Number(b.dy), aci: Number(b.aci),
+        ...(Number.isFinite(Number(b.kat)) && Number(b.kat) >= 1 ? { kat: Math.min(Math.round(Number(b.kat)), 30) } : {}),
+        ...(typeof b.tur === 'string' && b.tur ? { tur: b.tur } : {})
+      }])
+  )
+});
+
+const kurucuTemelAlanlar = (k: KurucuBelge): KurucuBelge => ({
   surum: Number(k.surum) || 1,
   yeniYollar: Object.fromEntries(
     Object.entries(k.yeniYollar ?? {})
@@ -143,7 +190,8 @@ const kurucuyuTemizle = (k: KurucuBelge): KurucuBelge => ({
       .filter(([, b]) => b && typeof b.tur === 'string'
         && [b.x, b.y, b.en, b.boy, b.aci].every(v => Number.isFinite(Number(v))))
       .map(([id, b]) => [id, {
-        tur: b.tur, x: Number(b.x), y: Number(b.y), en: Number(b.en), boy: Number(b.boy), aci: Number(b.aci)
+        tur: b.tur, x: Number(b.x), y: Number(b.y), en: Number(b.en), boy: Number(b.boy), aci: Number(b.aci),
+        ...(Number.isFinite(Number(b.kat)) && Number(b.kat) >= 1 ? { kat: Math.min(Math.round(Number(b.kat)), 30) } : {})
       }])
   )
 });
@@ -202,13 +250,18 @@ export type KayitDurumu =
  * alır, bağlantı gelince gönderir). Ekranın "Kaydediliyor…"da takılı
  * kalmaması için 8 sn sonra "yerelde" sayıyoruz; kuyruk yine de işler.
  */
-async function buluta(d: HaritaDuzeni) {
+async function buluta(d: HaritaDuzeni, gecUlasti?: () => void) {
   let zaman: ReturnType<typeof setTimeout> | undefined;
+  let gecikti = false;
   const bekle = new Promise<never>((_, ret) => {
-    zaman = setTimeout(() => ret({ code: 'zaman-asimi' }), 8000);
+    zaman = setTimeout(() => { gecikti = true; ret({ code: 'zaman-asimi' }); }, 8000);
   });
+  const yazi = setDoc(belgeYolu(), belgeye(d));
+  // Zaman aşımından sonra yazı yine de ulaşırsa haber ver (30 Eylül:
+  // "bağlantı yok" yazısı, kayıt aslında buluta gitmişken takılı kalıyordu)
+  yazi.then(() => { if (gecikti) gecUlasti?.(); }).catch(() => { /* aşağıda yakalanıyor */ });
   try {
-    await Promise.race([setDoc(belgeYolu(), belgeye(d)), bekle]);
+    await Promise.race([yazi, bekle]);
   } finally {
     clearTimeout(zaman);
   }
@@ -294,7 +347,10 @@ export function useHaritaDuzeni() {
     setDuzen(d);
     setDurum('kaydediliyor');
     try {
-      await buluta(d);
+      await buluta(d, () => {
+        // Arada daha yeni bir kayıt yoksa durumu düzelt
+        if (sonYazilan.current === d.guncelleme) { setDurum('kaydedildi'); setHata(null); }
+      });
       setDurum('kaydedildi');
       setHata(null);
     } catch (e) {

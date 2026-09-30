@@ -54,7 +54,7 @@ export interface KurucuBelge {
   turDegisikligi: Record<string, string>;
   gizlenen: string[];
   /** Kurucuda konan binalar (2. adım). Eski kayıtlarda yok. x/y: boylam/enlem */
-  yeniBinalar?: Record<string, { tur: string; x: number; y: number; en: number; boy: number; aci: number }>;
+  yeniBinalar?: Record<string, { tur: string; x: number; y: number; en: number; boy: number; aci: number; kat?: number }>;
   /**
    * Özel yapılar (H, 29 Eylül): köşe köşe çizilen ya da anıt kalıbından
    * konan yapı. n: düz köşe dizisi [b0, e0, b1, e1…], kat, çatı, kalıp.
@@ -64,6 +64,17 @@ export interface KurucuBelge {
   doga?: Record<string, { tur: string; n: number[] }>;
   /** Yapı → viki maddesi bağı (haritadan gelen ya da Kurucu'da konan yapı) */
   baglar?: Record<string, string>;
+  /**
+   * Haritadan gelen yolun yeni hâli (30 Eylül): noktası taşındı ya da bir
+   * parçası silindi. Parça sırası → düz nokta dizisi [b0, e0, b1, e1…].
+   * (Firestore iç içe dizi kabul etmiyor; parçalar nesne anahtarıyla.)
+   */
+  yolDuzeni?: Record<string, Record<string, number[]>>;
+  /**
+   * Haritadan gelen yapının düzeltmesi (30 Eylül): taşıma (dx, dy metre,
+   * doğuya / güneye), döndürme (aci, radyan), kat ve tür.
+   */
+  binaDuzeni?: Record<string, { dx: number; dy: number; aci: number; kat?: number; tur?: string }>;
 }
 
 export interface HaritaDuzeni {
