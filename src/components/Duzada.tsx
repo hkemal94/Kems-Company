@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect, useRef, useCallback, lazy, Suspense } from 'react';
 import type { HaritaBakisi } from './harita/DuzadaHarita';
-import { MapPin, Shield, Users, Compass, Store, ShoppingBag, Calendar, BookOpen, ChevronDown, ChevronUp, Sparkles, Plus, Check, Trash2, Edit3, Save, Eye, EyeOff, MoreVertical, Database, Trash, AlertTriangle, Link } from 'lucide-react';
+import { MapPin, Shield, Users, Compass, Store, ShoppingBag, Calendar, BookOpen, ChevronDown, ChevronUp, Sparkles, Plus, Check, Trash2, Edit3, Save, Eye, EyeOff, MoreVertical, Database, Trash, AlertTriangle, Link, Maximize2, Minimize2 } from 'lucide-react';
 import { Item, ItemType, WikiSection, BrandKit, AreaType } from '../types';
 import { compressImageBase64 } from '../lib/imageCompressor';
 import { resolveAllRelations, getRelationLabels, cleanupRelationsOnDelete } from '../utils/relations';
@@ -344,6 +344,34 @@ export default function Duzada({
   // 2D ↔ 3D geçişinde kamera aynı yere baksın
   const haritaBakisi = useRef<HaritaBakisi | null>(null);
   const bakisiTut = useCallback((b: HaritaBakisi) => { haritaBakisi.current = b; }, []);
+
+  /**
+   * Tam ekran (30 Eylül, Kemal: "tam ekrana geçiremiyorum"). Tarayıcı
+   * destekliyorsa gerçek tam ekran; desteklemiyorsa (iPhone) harita bütün
+   * pencereyi kaplar. Esc ya da düğme ile çıkılır.
+   */
+  const haritaKabi = useRef<HTMLDivElement>(null);
+  const [tamEkran, setTamEkran] = useState(false);
+  const tamEkranDegistir = useCallback(() => {
+    const el = haritaKabi.current;
+    if (!tamEkran) {
+      setTamEkran(true);
+      try { void el?.requestFullscreen?.().catch(() => { /* kaplama yeter */ }); } catch { /* yok */ }
+    } else {
+      setTamEkran(false);
+      try { if (document.fullscreenElement) void document.exitFullscreen(); } catch { /* yok */ }
+    }
+  }, [tamEkran]);
+  useEffect(() => {
+    const cikti = () => { if (!document.fullscreenElement) setTamEkran(false); };
+    const tus = (e: KeyboardEvent) => { if (e.key === 'Escape') setTamEkran(false); };
+    document.addEventListener('fullscreenchange', cikti);
+    window.addEventListener('keydown', tus);
+    return () => { document.removeEventListener('fullscreenchange', cikti); window.removeEventListener('keydown', tus); };
+  }, []);
+  // Harita kutusu büyüyünce çizim yeniden ölçülsün
+  useEffect(() => { const z = setTimeout(() => window.dispatchEvent(new Event('resize')), 60); return () => clearTimeout(z); }, [tamEkran]);
+
   const gorunumDugmesi = (
     <div className="flex items-center gap-1 p-1 rounded-xl bg-[#FAF8F5]/95 dark:bg-[#13204A]/95 border border-[#CFC5B4] dark:border-[#2C3C72] shadow-[0_8px_24px_-12px_rgba(14,28,79,0.5)]">
       <span className="hidden sm:block px-2 text-[10px] font-mono font-bold uppercase tracking-[0.16em] text-[#6A5E4C] dark:text-[#A6B0C9]">Düzada</span>
@@ -353,6 +381,11 @@ export default function Duzada({
           {ad}
         </button>
       ))}
+      <button type="button" onClick={tamEkranDegistir} title={tamEkran ? 'Tam ekrandan çık (Esc)' : 'Tam ekran'} aria-label={tamEkran ? 'Tam ekrandan çık' : 'Tam ekran'}
+        className="ml-0.5 flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[12px] font-semibold text-[#6A5E4C] dark:text-[#A6B0C9] hover:bg-[#F3EFE8] dark:hover:bg-[#17345A] cursor-pointer">
+        {tamEkran ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
+        <span className="hidden sm:inline">{tamEkran ? 'Küçült' : 'Tam ekran'}</span>
+      </button>
     </div>
   );
 
@@ -1269,11 +1302,12 @@ export default function Duzada({
       */}
       {activeTab === 'harita' && (
         haritaDuzeni.ilkYukleme ? (
+          <div ref={haritaKabi} className={tamEkran ? 'fixed inset-0 z-[80] bg-[#1C4E8C]' : ''}>
           <Suspense fallback={<div className="h-[80vh] flex items-center justify-center rounded-2xl bg-[#1C4E8C] font-mono text-xs text-[#F3EFE8]">Harita yükleniyor…</div>}>
             {haritaUc ? (
               <div className="relative">
                 <DuzadaHarita
-                  className="h-[calc(100dvh-14.5rem)] sm:h-[calc(100vh-11rem)] min-h-[460px] sm:min-h-[520px] rounded-2xl overflow-hidden border border-[#CFC5B4] dark:border-[#2C3C72]"
+                  className={tamEkran ? 'h-[100dvh] overflow-hidden' : 'h-[calc(100dvh-14.5rem)] sm:h-[calc(100vh-11rem)] min-h-[460px] sm:min-h-[520px] rounded-2xl overflow-hidden border border-[#CFC5B4] dark:border-[#2C3C72]'}
                   onSelect={haritaMaddesiniAc}
                   duzen={haritaDuzeni.duzen}
                   bakis={haritaBakisi.current}
@@ -1283,7 +1317,7 @@ export default function Duzada({
               </div>
             ) : (
               <Kurucu
-                className="h-[calc(100dvh-14.5rem)] sm:h-[calc(100vh-11rem)] min-h-[460px] sm:min-h-[520px]"
+                className={tamEkran ? 'h-[100dvh] !rounded-none !border-0' : 'h-[calc(100dvh-14.5rem)] sm:h-[calc(100vh-11rem)] min-h-[460px] sm:min-h-[520px]'}
                 duzen={haritaDuzeni.duzen}
                 kaydet={haritaDuzeni.kaydet}
                 durum={haritaDuzeni.durum}
@@ -1295,6 +1329,7 @@ export default function Duzada({
               />
             )}
           </Suspense>
+          </div>
         ) : (
           <div className="h-[80vh] flex items-center justify-center rounded-2xl bg-[#1C4E8C] font-mono text-xs text-[#F3EFE8]">Kayıtlı düzen okunuyor…</div>
         )

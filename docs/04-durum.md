@@ -1,6 +1,6 @@
 # Durum
 
-**Son güncelleme: 28 Eylül 2026 (W1: viki baştan kuruluyor)**
+**Son güncelleme: 30 Eylül 2026 (sabah listesi: ana sayfa, menü, Kurucu düzenleme)**
 
 Bu belge sık değişir. Brief "bu proje nedir"i anlatır ve aylarca durur;
 burası "şu an neredeyiz"i söyler. Kısa tutulur.
@@ -774,6 +774,57 @@ Cunda gibi olsun"; "yapıları boş bile olsa ekle, dolu görünsün")
   bir değişiklik vardı; neyi kapsadığını buradan göremiyorum.
 
 Görseller: `docs/gorseller/gece-*.png` (önizleme, **örnek veri**).
+
+## 30 Eylül — sabah listesi (10 madde, tek PR)
+
+Kemal sabah notlarını sıraladı, "PR için başla" dedi.
+
+**Yedek isteğe bağlı** (Kemal: "sürekli veriyi indirmek istemiyorum")
+- Tek seferlik kartlarda (kanon, boşluk doldurma, temizlik) asıl düğme
+  artık yedeği beklemiyor. "Yedek indir · isteğe bağlı" düğmesi kartın
+  sonunda duruyor. Temizlikte silmeden önceki "geri gelmez" onayı duruyor.
+
+**Son dokunulanlar** — her kayıt kendi yerinde açılır: viki maddesi vikide,
+drop ve ürün Merch'te, blog yazısı ve kitap bölümü düzenleyicide, sosyal
+medya gönderisi takvimde (yan kartı açık), seri Seriler'de, galeri ve oyun
+kayıtları kendi sayfalarında. (Sosyal gönderi ve yazılar vikinin ana
+sayfasına düşüyordu.)
+
+**Ana sayfa**
+- Kartlar hizalı: iki sıra aynı üç sütunlu ızgarada; bir sıradaki kartlar
+  aynı boyda biter. Soru kartlarında düğmeler kartın dibinde, aynı hizada.
+- Sağ alttaki harita resmi yeni adanın 3B görüntüsü (evleriyle).
+  Harita çok değişirse resim yeniden çekilir (`public/harita-kucuk.webp`).
+- Cevabı künyede olan sorular (otel sahibi, fener, Sade Meze faaliyet…)
+  artık sorulmuyor; boşluk kartına basılınca alanlar da dolar.
+- Yapay zekâ seçenekleri 3 gün geçerli; eskiler görünmez. Seçenek varken
+  "Başka seçenek · stüdyoda" düğmesi de var.
+
+**Sol menü** — kapalıyken yalnız simgeler, gruplar arasında çizgi. Üstüne
+gelince açılır: grup adları (Evren · Marka · Araçlar), sayfa adları ve kısa
+açıklamaları. Telefonda değişiklik yok.
+
+**Kurucu**
+- **Kayıt hatası düzeltildi:** özel yapılar, doğa alanları ve madde bağları
+  kayda yazılırken düşüyordu; sayfa yenilenince kayboluyor, taslak kartı
+  da hep "işlenmemiş değişiklik var" diyordu. Artık kayıtta duruyorlar.
+  **Önceden konup kaybolanlar geri gelmez**; yeniden konması gerekir.
+- "Bağlantı yok" yazısı: buluta 8 sn'de ulaşılamayınca çıkıyordu ama kayıt
+  sonradan ulaşsa bile yazı kalıyordu. Artık ulaşınca "kaydedildi"ye döner.
+  Yazı da açıldı: "Buluta ulaşılamadı; bu tarayıcıda duruyor, bağlantı
+  gelince gönderilir."
+- **Hazır yol:** Seç → yola dokun → beyaz noktaları sürükle. **Kaldır**
+  aracıyla yola dokununca yalnız iki kavşak arası kalkar (kavşak yoksa
+  bütün yol). Kartta "Eski hâline döndür" ve "Bütün yolu kaldır".
+- **Yapılar:** Seç → yapıya dokun → sürükleyerek taşı. Kartta kat (+/−),
+  döndür (15°), tür (müstakil, dükkânlı, yazlık, taş çiftlik evi, kamu,
+  depo) ve "Eski hâline döndür". Haritadan gelen evlerde de çalışır.
+- **Tam ekran:** harita üstündeki "Tam ekran" düğmesi (2D ve 3D). Esc ya
+  da "Küçült" ile çıkılır.
+- Hepsi "Haritaya işle"den sonra 3B haritaya ve siteye geçer.
+- Ölçek çubuğu araç çubuğuyla çakışıyordu; sol üste taşındı.
+
+Görseller: `docs/gorseller/30eylul-*.png` (önizleme, **örnek veri**).
 
 ## Sıradaki
 

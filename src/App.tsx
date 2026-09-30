@@ -637,7 +637,7 @@ export default function App() {
   ];
 
   /** Menü açılınca görünen yazılar (kapalıyken gizli, yer kaplamaz) */
-  const RAY_ADI = 'min-w-0 whitespace-nowrap opacity-0 group-hover/ray:opacity-100 group-focus-within/ray:opacity-100 transition-opacity duration-150';
+  const RAY_ADI = 'min-w-0 whitespace-nowrap opacity-0 group-hover/ray:opacity-100 group-has-[:focus-visible]/ray:opacity-100 transition-opacity duration-150';
 
   const DIGER: Array<{ grup: string; satirlar: Array<{ hedef: string; ad: string; simge: React.ElementType; nokta?: boolean }> }> = [
     { grup: 'Evren', satirlar: [
@@ -707,7 +707,7 @@ export default function App() {
     <div className="min-h-screen bg-[#E4DCCD] dark:bg-[#0B132B] text-[#0E1C4F] dark:text-[#F3EFE8] font-sans transition-colors duration-200 paper-grain selection:bg-[#F26B6F] selection:text-white">
 
       {/* MASAÜSTÜ: ince simge çubuğu; üstüne gelince açılır, adlar görünür */}
-      <nav className="group/ray hidden lg:flex fixed inset-y-0 left-0 z-40 w-16 hover:w-60 focus-within:w-60 hover:delay-150 transition-[width,box-shadow] duration-200 hover:shadow-2xl flex-col py-3 overflow-x-hidden overflow-y-auto bg-[#0E1C4F] dark:bg-[#081029]">
+      <nav className="group/ray hidden lg:flex fixed inset-y-0 left-0 z-40 w-16 hover:w-60 has-[:focus-visible]:w-60 hover:delay-150 transition-[width,box-shadow] duration-200 hover:shadow-2xl flex-col py-3 overflow-x-hidden overflow-y-auto bg-[#0E1C4F] dark:bg-[#081029]">
         <button type="button" onClick={() => git('komuta')} aria-label="Ana sayfa" className="mx-3 mb-2 flex items-center gap-3 cursor-pointer">
           {logo}
           <span className={RAY_ADI}><b className="block text-[13px] text-white">Kems Komuta</b><span className="block text-[10px] text-[#A6B0C9]">Merkezi</span></span>
