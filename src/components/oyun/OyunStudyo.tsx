@@ -15,6 +15,7 @@ import NpcSihirbazi from './NpcSihirbazi';
 import { OyunVitrini } from './OyunVitrini';
 import { GddBolumu } from './GddBolumu';
 import { SayfaRayi } from '../SayfaRayi';
+import { ayrilmayaIzinVar } from '../../lib/kaydedilmemis';
 import { DUGME_BOS, DUGME_LAC, IKINCIL, KART, YAZI } from '../anasayfa/stil';
 
 /**
@@ -104,7 +105,7 @@ export const OyunStudyo: React.FC<OyunStudyoProps> = (p) => {
   const [yeniAd, setYeniAd] = useState<string | null>(null);
   const secili = oyunId ? liste.find(o => o.id === oyunId) : undefined;
 
-  if (secili) return <OyunEkrani key={secili.id} {...p} oyunId={secili.id} onGeri={() => { setOyunId(null); window.scrollTo({ top: 0 }); }} />;
+  if (secili) return <OyunEkrani key={secili.id} {...p} oyunId={secili.id} onGeri={() => { if (!ayrilmayaIzinVar()) return; setOyunId(null); window.scrollTo({ top: 0 }); }} />;
 
   const yeniOyun = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -374,8 +375,8 @@ const OyunEkrani: React.FC<OyunStudyoProps & { oyunId: string; onGeri: () => voi
       <section className="space-y-2">
         <BolumBasligi baslik="Yapım aşaması ve işler" sayi={isler.length} renk="lacivert" />
         <p className={`text-[13px] ${IKINCIL}`}>
-          Sektörün zinciri: her aşamanın bir çıktısı var, çıktı olmadan sonrakine geçilmez. Proje, işi en geride kalan aşamadadır
-          {suAn ? <> — şu an <b className={YAZI}>{suAn.ad}</b>.</> : '. Henüz iş yok.'}
+          Sektörün zinciri: her aşamanın bir çıktısı var, çıktı olmadan sonrakine geçilmez. İlk iki aşama tasarım belgesindeki adımlardan, sonrakiler buradaki işlerden hesaplanır
+          {suAn ? <> — şu an <b className={YAZI}>{suAn.ad}</b>.</> : '. Henüz başlamadı.'}
         </p>
         <div className="space-y-2">
           {ASAMALAR.map((a, i) => {
@@ -485,7 +486,7 @@ const OyunEkrani: React.FC<OyunStudyoProps & { oyunId: string; onGeri: () => voi
           { id: 'mekanik', label: `Mekanikler ve notlar${fikirler.length ? ` · ${fikirler.length}` : ''}` }
         ]}
         aktifId={sekme}
-        onSec={id => { setSekme(id as Sekme); window.scrollTo({ top: 0 }); }}
+        onSec={id => { if (!ayrilmayaIzinVar()) return; setSekme(id as Sekme); window.scrollTo({ top: 0 }); }}
       />
 
       {sekme === 'kunye' && Kunye}

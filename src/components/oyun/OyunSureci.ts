@@ -111,18 +111,26 @@ export function gddBolumleri(items: Item[], oyunId?: string): Item[] {
 }
 
 /**
- * Projenin şu anki aşaması: iş kartı bulunan en geri aşama.
+ * Projenin şu anki aşaması (1 Ekim, Kemal: "adımlardan hesaplansın").
  *
- * Sebebi: bir stüdyo "beta"da değildir, en geride kalan işi neredeyse
- * oradadır. Tek bir kart konseptte duruyorsa proje konsepttedir.
+ *   - Tasarım belgesinde dolu adım yoksa ve iş de yoksa: başlamadı (null).
+ *   - Adımlar dolmaya başladıysa Konsept; hepsi dolunca Tasarım belgesi.
+ *   - İleri aşamalar (Dikey dilim ve sonrası) işlerden gelir: iş kartı
+ *     bulunan en geri aşama. Bir stüdyo "beta"da değildir, en geride kalan
+ *     işi neredeyse oradadır.
  */
 export function projeAsamasi(items: Item[], oyunId?: string): Asama | null {
   const isler = oyunIsleri(items, oyunId);
-  if (!isler.length) return null;
+  let isAsamasi: Asama | null = null;
   for (const a of ASAMALAR) {
-    if (isler.some(i => String((i.metadata as any)?.asama || 'konsept') === a.id)) return a;
+    if (isler.some(i => String((i.metadata as any)?.asama || 'konsept') === a.id)) { isAsamasi = a; break; }
   }
-  return null;
+  if (isAsamasi && ASAMALAR.indexOf(isAsamasi) >= 2) return isAsamasi;
+  const belgeler = gddBolumleri(items, oyunId);
+  const dolu = ADIM_SIRASI.filter(id => bolumYapildi(belgeler.find(b => (b.metadata as any)?.bolumId === id))).length;
+  if (dolu === ADIM_SIRASI.length) return ASAMALAR[1];
+  if (dolu > 0) return ASAMALAR[0];
+  return isAsamasi;
 }
 
 /**
@@ -186,10 +194,25 @@ export const GDD_SECIMLERI: Record<string, GddSecimi[]> = {
 const satirRe = (etiket: string) =>
   new RegExp(`^\\* ${etiket.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}:\\s*(.*)$`, 'm');
 
-/** Bölüm metnindeki seçili değerler ("* Tür: A, B" → ['A','B']) */
+/**
+ * Bölüm metnindeki seçili değerler ("* Tür: A, B" → ['A','B']).
+ * Seçeneğin kendi adında virgül olabilir ("Adsız, oyuncunun kendisi");
+ * virgülden bölmek onu ikiye ayırıp seçimi görünmez yapıyordu (1 Ekim,
+ * Karakterler kartı). Bu yüzden önce bilinen seçenekler aranır, kalan
+ * parçalar (elle yazılmış değerler) virgülden ayrılır.
+ */
 export function secilenler(notlar: string, s: GddSecimi): string[] {
   const m = (notlar || '').match(satirRe(s.etiket));
-  return m ? m[1].split(',').map(x => x.trim()).filter(Boolean) : [];
+  if (!m) return [];
+  let kalan = `, ${m[1].trim()}, `;
+  const bulunan: string[] = [];
+  for (const o of [...s.secenekler].sort((a, b) => b.length - a.length)) {
+    if (kalan.includes(`, ${o}, `)) { bulunan.push(o); kalan = kalan.replace(`, ${o}, `, ', '); }
+  }
+  const diger = kalan.split(',').map(x => x.trim()).filter(Boolean);
+  // Satırdaki sırayı koru
+  const sira = m[1];
+  return [...bulunan, ...diger].sort((a, b) => sira.indexOf(a) - sira.indexOf(b));
 }
 
 /** Bir seçeneğe basılınca metnin yeni hâli */

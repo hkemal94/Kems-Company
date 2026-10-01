@@ -11,20 +11,21 @@ import type { Item } from '../types';
 export interface YolIsi { id: string; ad: string; nereden: string; kimde: 'claude' | 'kemal'; not?: string }
 
 export const YOL_HARITASI: YolIsi[] = [
-  { id: 'ortak-alan-tasima', ad: 'Ortak alanda kalmış kayıt varsa Google alanına taşıma', nereden: 'yapisal-2, 26', kimde: 'kemal', not: 'Ortak alan kalktı; eski kayıt varsa Kemal söyleyince tek seferlik kart.' },
-  { id: 'kalip-3b', ad: '3B stüdyo: gerçekçi kalıplar (tişört, sweatshirt, şapka, bez çanta, kupa, poster)', nereden: 'yapisal-5', kimde: 'kemal', not: 'Şimdilik duruyor; model ya da mockup kararı senin.' },
-  { id: 'tasarim-3b', ad: '3B stüdyo: parça renk, baskı yerleri, baskı / nakış görünümü, desen, deneme atölyesi', nereden: 'yapisal-5', kimde: 'claude' },
-  { id: 'atolyeler', ad: '"Atölyeler" bölümü (3B stüdyo, Kurucu vb. tek yerde)', nereden: 'yapisal-5', kimde: 'kemal', not: 'Henüz karar yok.' },
+  { id: 'kalip-3b', ad: '3B stüdyo: ölçülerden kodla kurulan, tutarlı ve düzenlenebilir ürün görselleri (tişört, sweatshirt, kapüşonlu, şapka, bez çanta, kupa, poster)', nereden: '1 Ekim', kimde: 'claude', not: 'Sıradaki PR. Ölçüler Kemal\'in PDF\'lerinden; tek referans beden. Sunum için mockup sonra.' },
+  { id: 'tasarim-3b', ad: '3B stüdyo: parça renk, baskı yerleri, baskı / nakış görünümü, desen ve deneme atölyesi, PNG çıktısı', nereden: '1 Ekim', kimde: 'claude', not: 'Kalıplarla aynı PR.' },
+  { id: 'atolyeler', ad: '"Atölyeler" bölümü (3B stüdyo, Kurucu vb. tek yerde)', nereden: 'yapisal-5', kimde: 'kemal', not: 'Sonra karar (1 Ekim).' },
   { id: 'yardimci', ad: 'Yardımcı erişimi: düzenler ama silemez', nereden: 'yapisal-2, 26', kimde: 'claude', not: 'İhtiyaç olunca.' },
-  { id: 'buffer', ad: 'Sosyal medyada Buffer bağlantısı (2. adım)', nereden: '29 Eylül', kimde: 'kemal', not: 'Bütçe kararı.' },
+  { id: 'buffer', ad: 'Sosyal medyada Buffer bağlantısı (ücretli plan)', nereden: '1 Ekim', kimde: 'kemal', not: 'Kemal planı alınca bağlantı kurulur.' },
   { id: 'site-ingilizce', ad: 'Sitenin İngilizcesi', nereden: 'yapisal-4, 19', kimde: 'claude', not: 'Yayından sonra.' },
-  { id: 'site-adres', ad: 'Kendi adrese taşıma (kems.company)', nereden: 'yapisal-2, 1', kimde: 'kemal' },
-  { id: 'magaza', ad: 'Mağaza altyapısı (Dükkân soluk)', nereden: 'yapisal-2, 5', kimde: 'kemal' },
-  { id: 'ikinci-drop', ad: 'İkinci drop', nereden: 'yapisal-2, 9', kimde: 'kemal' },
+  { id: 'site-adres', ad: 'Kendi adrese taşıma (kems.company)', nereden: 'yapisal-2, 1', kimde: 'kemal', not: 'Şimdilik Google\'da (1 Ekim).' },
+  { id: 'magaza', ad: 'Mağaza: Shopify (sitedeki Dükkân bağlanır)', nereden: '1 Ekim', kimde: 'claude', not: 'Karar verildi; sırası gelince.' },
+  { id: 'ikinci-drop', ad: 'İkinci drop', nereden: 'yapisal-2, 9', kimde: 'kemal', not: 'Henüz erken (1 Ekim).' },
   { id: 'sokak-adlari', ad: 'Sokak adları (şimdilik numara)', nereden: 'yapisal-2, 21', kimde: 'kemal' },
-  { id: 'kitap', ad: 'Kitap', nereden: 'yapisal-2, 29', kimde: 'kemal' },
-  { id: 'tek-k', ad: 'Tek "K" işareti (Canva)', nereden: 'yapisal-2, 13', kimde: 'kemal', not: 'Birlikte bakılacak.' },
-  { id: 'ibareler', ad: 'İngilizce / Türkçe ibareler', nereden: 'yapisal-2, 14', kimde: 'kemal', not: 'Birlikte çalışılacak.' }
+  { id: 'kitap', ad: 'Kitap', nereden: 'yapisal-2, 29', kimde: 'kemal', not: 'Bekliyor (1 Ekim).' },
+  { id: 'metin-soru-turu', ad: 'Mahalle Tarihçeleri, Merkez Çarşı, Liman Deniz Feneri, Stadyum Dirlik Stadı: soru turu, cevaplardan stüdyo taslağı', nereden: '1 Ekim', kimde: 'claude', not: 'Taslak öneri tepsisine; Kemal düzeltip ekler.' },
+  { id: 'dirlik-forma', ad: 'Dirlik forması: Merch\'te Dirlik kurumu altında Konsept ürün, tasarım 3B stüdyoda', nereden: '1 Ekim', kimde: 'kemal' },
+  { id: 'ciftlik-yeri', ad: 'Küçükçetmi Çiftliği\'ni Kurucuda yerleştirmek (yol temizliğinden sonra)', nereden: '1 Ekim', kimde: 'kemal' },
+  { id: 'ibareler', ad: 'İngilizce / Türkçe ibareler', nereden: 'yapisal-2, 14', kimde: 'kemal', not: 'Sonra (1 Ekim).' },
 ];
 
 /** Kemal'in "yapıldı" dediği işler (KKM ayarında) düşer */

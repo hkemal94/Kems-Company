@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Shield,
   Plus,
@@ -148,6 +148,10 @@ export default function Markalar({
    * bağlama, seçme ve künye mantığı olduğu gibi çalışsın diye.
    */
   const yapi = useMemo(() => markaYapisi(items), [items]);
+  /** Logo galerisi (1 Ekim): üstte büyük görünen logo ve denemelerin açıklığı */
+  const [buyukLogo, setBuyukLogo] = useState<string | null>(null);
+  const [denemelerAcik, setDenemelerAcik] = useState(false);
+  useEffect(() => { setBuyukLogo(null); setDenemelerAcik(false); }, [selectedBrandId]);
   const brands = yapi.hepsi;
 
   // If no selectedBrandId, default to first brand, or null
@@ -835,70 +839,69 @@ export default function Markalar({
                           
                           {!isEditingBrand ? (
                             <div className="space-y-4">
-                              {/* Main Logo Card */}
-                              <div className="p-4 bg-stone-50 dark:bg-[#112440]/30 border border-stone-200/60 dark:border-[#2C3C72]/40 rounded-xl flex flex-col items-center justify-center min-h-[160px] relative group overflow-hidden">
-                                {maddeGorseli(activeBrand, items) ? (
-                                  <div className="max-w-[120px] max-h-[120px] flex items-center justify-center">
-                                    <img
-                                      src={maddeGorseli(activeBrand, items)}
-                                      alt="Seçilen Logo"
-                                      className="max-w-full max-h-full object-contain pointer-events-none select-none"
-                                      referrerPolicy="no-referrer"
-                                    />
-                                  </div>
-                                ) : (
-                                  <div className="text-center space-y-1.5 text-stone-500 dark:text-stone-400">
-                                    <Upload className="w-8 h-8 mx-auto stroke-1" />
-                                    <span className="text-[11px] block font-sans">Henüz seçilen logo bulunmuyor.</span>
-                                  </div>
-                                )}
-                                <span className="absolute bottom-2 left-2 text-[8px] font-mono text-stone-500 dark:text-stone-400 uppercase tracking-widest bg-white dark:bg-stone-900 px-1.5 py-0.5 rounded">
-                                  Resmi Amblem
-                                </span>
-                              </div>
-
-                              {/* Idea Logos strip */}
-                              <div className="space-y-1.5">
-                                <span className="block text-[9px] font-mono uppercase tracking-widest text-stone-500 dark:text-stone-400">
-                                  Alternatif Fikir Logoları
-                                </span>
-                                <div className="flex gap-2.5 overflow-x-auto pb-1">
-                                  {(bk.ideaLogos || [])
-                                    .filter(l => typeof l === 'string'
-                                      && (l.startsWith('data:') || l.startsWith('http')))
-                                    .map((idea, idx) => (
-                                    <div 
-                                      key={idx} 
-                                      className="w-14 h-14 bg-stone-50 border border-stone-200 rounded flex items-center justify-center shrink-0 relative group/idea cursor-pointer overflow-hidden hover:border-[#F26B6F]"
-                                      title="Ana logo olarak kullan"
-                                      onClick={async () => {
-                                        const proceed = window.confirm('Bu alternatif tasarımı resmi marka amblemi olarak atamak istiyor musunuz?');
-                                        if (proceed) {
-                                          await onUpdateItem({
-                                            ...activeBrand,
-                                            metadata: {
-                                              ...activeBrand.metadata,
-                                              brandKit: {
-                                                ...bk,
-                                                logoBase64: idea
-                                              }
-                                            }
-                                          });
-                                        }
-                                      }}
-                                    >
-                                      <img src={idea} alt={`Fikir ${idx+1}`} className="max-w-full max-h-full object-contain" referrerPolicy="no-referrer" />
-                                      <div className="absolute inset-0 bg-stone-900/60 opacity-0 group-hover/idea:opacity-100 flex items-center justify-center transition-opacity text-[8px] text-white font-mono uppercase text-center font-bold">
-                                        Seç
-                                      </div>
+                              {/*
+                                Logo galerisi (1 Ekim, Kemal: "diğer logolara basınca yukarıdaki
+                                logo tıkladığım logoya dönsün; birincil ve ikincil belli, kalanlar
+                                denemeydi"). Basmak yalnız gösterir; "Birincil yap" / "İkincil yap"
+                                düğmeleri kayda yazar.
+                              */}
+                              {(() => {
+                                const gecerli = (l: unknown): l is string => typeof l === 'string' && (l.startsWith('data:') || l.startsWith('http'));
+                                const fikirler = (bk.ideaLogos || []) as string[];
+                                const birincil = maddeGorseli(activeBrand, items) || '';
+                                const ikincilSira = typeof bk.ikincilLogoSira === 'number' && gecerli(fikirler[bk.ikincilLogoSira]) ? bk.ikincilLogoSira : -1;
+                                const ikincil = ikincilSira >= 0 ? fikirler[ikincilSira] : '';
+                                const denemeler = fikirler.map((l, i) => ({ l, i })).filter(x => gecerli(x.l) && x.i !== ikincilSira && x.l !== birincil);
+                                const gosterilen = buyukLogo && (buyukLogo === birincil || fikirler.includes(buyukLogo)) ? buyukLogo : birincil;
+                                const rol = gosterilen === birincil ? 'Birincil' : gosterilen === ikincil ? 'İkincil' : 'Deneme';
+                                const kucuk = (src: string, etiket: string, anahtar: string) => (
+                                  <button key={anahtar} type="button" onClick={() => setBuyukLogo(src)} title={`${etiket} · büyük göster`}
+                                    className={`w-16 shrink-0 text-center cursor-pointer group/kucuk`}>
+                                    <span className={`w-16 h-16 rounded-lg bg-white dark:bg-[#0B132B] flex items-center justify-center overflow-hidden border-2 ${gosterilen === src ? 'border-[#0E1C4F] dark:border-[#F3EFE8]' : 'border-transparent group-hover/kucuk:border-[#F26B6F]'}`}>
+                                      <img src={src} alt={etiket} className="max-w-full max-h-full object-contain" referrerPolicy="no-referrer" />
+                                    </span>
+                                    <span className="block mt-1 text-[11px] text-stone-500 dark:text-stone-400">{etiket}</span>
+                                  </button>
+                                );
+                                const yaz = async (degisen: Record<string, unknown>) => onUpdateItem({ ...activeBrand, metadata: { ...activeBrand.metadata, brandKit: { ...bk, ...degisen } }, updatedAt: Date.now() });
+                                return (
+                                  <>
+                                    <div className="p-4 bg-stone-50 dark:bg-[#112440]/30 rounded-xl flex flex-col items-center justify-center min-h-[180px] relative">
+                                      {gosterilen ? (
+                                        <div className="max-w-[160px] max-h-[160px] flex items-center justify-center">
+                                          <img src={gosterilen} alt={`${rol} logo`} className="max-w-full max-h-full object-contain pointer-events-none select-none" referrerPolicy="no-referrer" />
+                                        </div>
+                                      ) : (
+                                        <div className="text-center space-y-1.5 text-stone-500 dark:text-stone-400">
+                                          <Upload className="w-8 h-8 mx-auto stroke-1" />
+                                          <span className="text-[12px] block font-sans">Henüz logo yok.</span>
+                                        </div>
+                                      )}
+                                      <span className="absolute bottom-2 left-2 text-[11px] font-mono text-stone-500 dark:text-stone-400 uppercase tracking-widest bg-white dark:bg-stone-900 px-1.5 py-0.5 rounded">{rol}</span>
+                                      {rol === 'Deneme' && (
+                                        <span className="absolute bottom-2 right-2 flex gap-1.5">
+                                          <button type="button" onClick={() => { if (window.confirm('Bu logo birincil logo olsun mu?')) void yaz({ logoBase64: gosterilen }); }} className="text-[12px] px-2.5 py-1.5 rounded bg-[#0E1C4F] dark:bg-[#2C3C72] text-[#F3EFE8] cursor-pointer">Birincil yap</button>
+                                          <button type="button" onClick={() => void yaz({ ikincilLogoSira: fikirler.indexOf(gosterilen) })} className="text-[12px] px-2.5 py-1.5 rounded border border-stone-300 dark:border-[#2C3C72] bg-white dark:bg-stone-900 cursor-pointer">İkincil yap</button>
+                                        </span>
+                                      )}
                                     </div>
-                                  ))}
-                                  {(bk.ideaLogos || []).filter(l => typeof l === 'string'
-                                    && (l.startsWith('data:') || l.startsWith('http'))).length === 0 && (
-                                    <span className="text-[10px] text-stone-500 dark:text-stone-400 italic font-sans py-1">Alternatif tasarım taslağı bulunmuyor.</span>
-                                  )}
-                                </div>
+                                    <div className="flex gap-2.5 overflow-x-auto pb-1">
+                                      {birincil && kucuk(birincil, 'Birincil', 'birincil')}
+                                      {ikincil ? kucuk(ikincil, 'İkincil', 'ikincil') : (
+                                        <span className="w-16 shrink-0 text-center text-[11px] text-stone-500 dark:text-stone-400 pt-4">İkincil seçilmedi</span>
+                                      )}
+                                      {denemelerAcik && denemeler.map(x => kucuk(x.l, 'Deneme', `d${x.i}`))}
+                                    </div>
+                                    {denemeler.length > 0 && (
+                                      <button type="button" onClick={() => setDenemelerAcik(a => !a)} className="text-[12px] font-mono text-stone-500 dark:text-stone-400 hover:text-[#F26B6F] cursor-pointer">
+                                        {denemelerAcik ? 'Denemeleri gizle' : `Denemeleri göster (${denemeler.length})`}
+                                      </button>
+                                    )}
+                                  </>
+                                );
+                              })()}
 
+                              <div className="space-y-1.5">
                                 {/*
                                   Armanın sözle tarifi. Görsel alanına metin
                                   yazınca kırık görsel çıkıyordu; tarif artık

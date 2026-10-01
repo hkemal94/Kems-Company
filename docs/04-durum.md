@@ -1194,3 +1194,41 @@ vermesi açısından çok iyi"; "yapı değil, iskelet ve renk"). Alınanlar:
   boş satır "boş · seç" der ve o adıma götürür. Oyunun adını Kemal künyede
   yazar (önizlemede "The Imperial Kemsköy" görünür; uygulamaya kendiliğinden
   yazılmadı). Oyun deposuna bakılmadı, oraya bir şey yazılmadı.
+
+## 1 Ekim akşam — soru turu ve 3. PR
+
+**3. PR'da (uygulamada):**
+- Oyun → Karakterler kartı: adında virgül olan seçenek ("Adsız, oyuncunun
+  kendisi") ikiye bölünüp görünmez oluyordu; düzeldi.
+- Oyun tanıtımı (ad, özet, açıklama) yalnız **Kaydet** ile kaydolur;
+  kaydetmeden başka sayfaya geçerken / sekmeyi kapatırken sorulur.
+- Oyun durumu adımlardan: tasarım belgesi adımları dolmaya başlayınca
+  Konsept, hepsi dolunca Tasarım belgesi; Dikey dilim ve sonrası işlerden.
+- **Oyunun adı "The Imperial Kemskoy"** (ö'süz) — Kemal'in kararı, yalnız
+  oyunun adı için istisna. Evrende yazım Kemsköy (CLAUDE.md'ye yazıldı).
+- Sol menüde Bildirimler ve Yedek satırlarının tamamı basılabilir.
+- Madde düzenleyicide **Metin**: giriş metni ve bölümler (başlık + metin;
+  ekle, sil, sırala). Künye satırları yerinde kalır. Metni Kemal yazar.
+- Drive izni eksikse "Drive iznini yenile" (Google izin ekranı yeniden
+  açılır). Google izinlerinin hepsi kalıyor (Kemal: "hepsi kalsın").
+- **Çıkış yap**: sol menüde hesap satırı (Drive iznini yenile · Çıkış yap),
+  telefonda Diğer'in altında; onay sorar. Çıkınca tarayıcı hesabı unutur,
+  "Google ile bağlan" ekranı gelir; kayıtlar silinmez.
+- Markalar'da **logo galerisi**: üstte büyük logo; altta Birincil, İkincil
+  ve gizli Denemeler ("Denemeleri göster"). Denemede "Birincil yap" /
+  "İkincil yap". Marka / kurumda birincil logo her yerde önce gelir.
+- Durum → Eksikler'de **ortak alan kartı**: eski ortak alanda (kems_public)
+  senin alanında olmayan kayıt varsa görünür, "Taşı" ile tek seferde.
+
+**Soru turu kararları (yol haritasında):**
+- 3B stüdyo sıradaki PR: modeller Kemal'in gönderdiği ölçülerden kodla,
+  tek referans beden; tutarlı ışık / kamera; parça renk, baskı yerleri,
+  baskı / nakış, desen, PNG çıktı. Beden çeşitleri ve teknik föy sonra.
+- Tek "K" işareti kalktı: birincil ve ikincil logo yeterli.
+- Mağaza: Shopify. Buffer: ücretli plan (Kemal alınca). Site adresi:
+  şimdilik Google. İngilizce: yayından sonra. İkinci drop: erken. Kitap:
+  bekliyor. İbareler: sonra. Atölyeler: sonra karar. Yardımcı: ihtiyaç olunca.
+- Metinler (mahalle Tarihçeleri vb.): soru turu → cevaplardan stüdyo
+  taslağı → öneri tepsisi; Kemal düzeltip ekler.
+- Dirlik forması Merch'te konsept; Küçükçetmi Çiftliği'ni Kemal yol
+  temizliğinden sonra Kurucuda yerleştirir.

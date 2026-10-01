@@ -29,6 +29,10 @@ export interface ParsedKunye {
   body: string;
   /** Tek satırlık tanıtım — listelerde kullanılır */
   ozet: string;
+  /** Kemal'in kendi metni (künye satırları ve künyeden gelen biyografi hariç) */
+  kendiMetni: string;
+  /** Notlarda kendi metne ait satırların sırası (madde düzenleyici için) */
+  govdeSatirlari: number[];
 }
 
 /** '* Fizik: ...' veya '- Fizik: ...' satırlarını yakalar */
@@ -55,6 +59,7 @@ export function parseKunye(item: Item): ParsedKunye {
 
   const fields: Array<{ label: string; value: string }> = [];
   const bodyLines: string[] = [];
+  const govdeSatirlari: number[] = [];
   const narrative: string[] = [];
   let yas: string | undefined;
   let rol: string | undefined;
@@ -89,6 +94,7 @@ export function parseKunye(item: Item): ParsedKunye {
     }
 
     bodyLines.push(line);
+    govdeSatirlari.push(idx);
   });
 
   const ownProse = bodyLines
@@ -117,7 +123,19 @@ export function parseKunye(item: Item): ParsedKunye {
   }
   if (ozet.length > 120) ozet = ozet.slice(0, 117).trimEnd() + '…';
 
-  return { yas, rol, fields, body, ozet };
+  return { yas, rol, fields, body, ozet, kendiMetni: ownProse, govdeSatirlari };
+}
+
+/**
+ * Notlardaki kendi metni yenisiyle değiştirir (1 Ekim, madde düzenleyicide
+ * giriş metni). Künye satırları ve başlık yerinde kalır; eski metin
+ * satırları çıkar, yeni metin sona eklenir.
+ */
+export function kendiMetniYaz(item: Item, yeni: string): string {
+  const p = parseKunye(item);
+  const govde = new Set(p.govdeSatirlari);
+  const kalan = (item.notes || '').split('\n').filter((_, i) => !govde.has(i)).join('\n').trim();
+  return [kalan, yeni.trim()].filter(Boolean).join('\n\n');
 }
 
 /** Bu maddede ayrıştırılabilir bir künye bloğu var mı */

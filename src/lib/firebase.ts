@@ -90,6 +90,24 @@ export const signInWithGoogle = async () => {
   }
 };
 
+/**
+ * Drive iznini yeniden ister (1 Ekim, "insufficient authentication scopes").
+ * Google izin ekranını zorla yeniden gösterir; Kemal Drive kutusunu
+ * işaretleyince yeni anahtar alınır. Kayıtlara dokunmaz.
+ */
+export const driveIzniniYenile = async () => {
+  const saglayici = new GoogleAuthProvider();
+  for (const k of googleProvider.getScopes()) saglayici.addScope(k);
+  saglayici.setCustomParameters({ prompt: 'consent' });
+  const result = await signInWithPopup(auth, saglayici);
+  const credential = GoogleAuthProvider.credentialFromResult(result);
+  if (credential?.accessToken) cachedAccessToken = credential.accessToken;
+  return result.user;
+};
+
+/** Drive / Google hatası izin eksikliğinden mi */
+export const izinEksikMi = (e: unknown) => /insufficient.*scope|insufficientPermissions|PERMISSION_DENIED|\b403\b/i.test(e instanceof Error ? e.message : String(e));
+
 export const logoutUser = async () => {
   try {
     await signOut(auth);
