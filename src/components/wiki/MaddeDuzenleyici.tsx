@@ -1,7 +1,9 @@
 import React, { useMemo, useState } from 'react';
 import { KURUM_TIKI } from '../../lib/markaYapisi';
-import { Plus, Save, Trash2, X } from 'lucide-react';
-import type { Item } from '../../types';
+import { ArrowDown, ArrowUp, Plus, Save, Trash2, X } from 'lucide-react';
+import type { Item, WikiSection } from '../../types';
+import { parseKunye, kendiMetniYaz } from './kunyeParser';
+import { useKaydedilmemis } from '../../lib/kaydedilmemis';
 import { DEFAULT_QUESTIONS_BY_CAT } from './kunyeSorulari';
 import { TYPE_LABELS, WIKI_TYPES, schemaKeyFor } from './wikiSchema';
 import { BAG_TURLERI, type BagTuru } from '../../utils/relations';
@@ -13,8 +15,10 @@ import { BAG_TURLERI, type BagTuru } from '../../utils/relations';
  *     uğraş, bağlı mekânlar / kişiler, adaya geliş)
  *   - Bağlar: hedef madde + sabit listeden bağ türü
  *   - Esin notu: yalnız Kemal görür; sitede ve okuma yüzünde yok
- * Kayda yalnız "Kaydet" ile yazılır. Metin (tarihçe) burada değil; kurgu
- * metni Kemal'in, ayrı yazılır.
+ *   - Metin (1 Ekim, Kemal: "künye harici düzenleme yapamıyorum"): giriş
+ *     metni ve vikide görünen bölümler (başlık + metin; ekle, sil, sırala).
+ *     Metni Kemal yazar; burada hiçbir şey kendiliğinden doldurulmaz.
+ * Kayda yalnız "Kaydet" ile yazılır.
  */
 
 interface Props {
@@ -36,6 +40,21 @@ export const MaddeDuzenleyici: React.FC<Props> = ({ item, allItems, onKaydet, on
   const [alanlar, setAlanlar] = useState<Record<string, string>>(() => Object.fromEntries(sema.map(f => [f.fieldPath, yolOku(item, f.fieldPath)])));
   const [baglar, setBaglar] = useState<Bag[]>(() => ((item.metadata?.relations as Bag[]) || []).filter(b => b && b.targetId));
   const [esin, setEsin] = useState<string>(String(item.metadata?.esin || ''));
+  /** Giriş metni: notlardaki kendi metin (künye satırları hariç) */
+  const ilkGiris = useMemo(() => parseKunye(item).kendiMetni, [item]);
+  const [giris, setGiris] = useState<string>(ilkGiris);
+  const [bolumler, setBolumler] = useState<WikiSection[]>(() => ((item.metadata?.wikiSections as WikiSection[]) || []).map(b => ({ ...b })));
+  // Metin değiştiyse kaydetmeden çıkarken sorulur
+  const metinDegisti = giris.trim() !== ilkGiris.trim() || JSON.stringify(bolumler) !== JSON.stringify((item.metadata?.wikiSections as WikiSection[]) || []);
+  useKaydedilmemis(metinDegisti);
+  const bolumYaz = (n: number, d: Partial<WikiSection>) => setBolumler(bs => bs.map((b, k) => (k === n ? { ...b, ...d } : b)));
+  const bolumTasi = (n: number, yon: -1 | 1) => setBolumler(bs => {
+    const j = n + yon;
+    if (j < 0 || j >= bs.length) return bs;
+    const y = bs.slice();
+    [y[n], y[j]] = [y[j], y[n]];
+    return y;
+  });
   /** Markalar'da kurum olarak görünsün mü (1 Ekim, Kemal: "ben tikle seçerim") */
   const kurumTikiVar = item.type !== 'marka' && item.type !== 'kulüp';
   const [kurum, setKurum] = useState<boolean>(item.metadata?.[KURUM_TIKI] === true);
@@ -67,9 +86,14 @@ export const MaddeDuzenleyici: React.FC<Props> = ({ item, allItems, onKaydet, on
         return o;
       });
       metadata.esin = esin.trim();
+      // Bölümler: boş başlık ve boş metinli olanlar atılır; undefined yazılmaz
+      metadata.wikiSections = bolumler
+        .map(b => ({ id: b.id, title: b.title.trim(), content: b.content.trim(), status: b.status || 'resmi' }))
+        .filter(b => b.title || b.content);
       // Tik kalkınca false yazılır: kayıt birleşerek yazıldığı için anahtarı silmek yetmez
       if (kurumTikiVar && (kurum || metadata[KURUM_TIKI] !== undefined)) metadata[KURUM_TIKI] = kurum;
-      await onKaydet({ ...item, metadata: metadata as Item['metadata'], updatedAt: Date.now() });
+      const notes = giris.trim() === ilkGiris.trim() ? item.notes : kendiMetniYaz(item, giris);
+      await onKaydet({ ...item, notes, metadata: metadata as Item['metadata'], updatedAt: Date.now() });
       onKapat();
     } finally {
       setYaziliyor(false);
@@ -107,6 +131,30 @@ export const MaddeDuzenleyici: React.FC<Props> = ({ item, allItems, onKaydet, on
           <p className="mt-1.5 text-[11px] text-gri dark:text-bej/70">Boş bırakılan alan, metindeki künye satırında yazıyorsa oradan okunur.</p>
         </div>
       )}
+
+      <div>
+        <div className="postmark-label text-gri dark:text-bej/85 mb-1">Metin</div>
+        <span className="block text-[11px] text-gri dark:text-bej/85 mb-0.5">Giriş metni</span>
+        <textarea value={giris} onChange={e => setGiris(e.target.value)} rows={6} placeholder="Maddenin giriş metni — sen yazıyorsun." className={`${girdi} leading-relaxed`} />
+        <div className="mt-3 space-y-3">
+          {bolumler.map((b, n) => (
+            <div key={b.id} className="rounded border border-bej/60 dark:border-lacivert-600/60 p-2.5 space-y-1.5">
+              <div className="flex items-center gap-1.5">
+                <input value={b.title} onChange={e => bolumYaz(n, { title: e.target.value })} placeholder="Bölüm başlığı (ör. Tarihçe)" className={`${girdi} font-semibold`} />
+                {b.status === 'öneri' && <span className="shrink-0 text-[11px] px-1.5 py-0.5 rounded bg-kiremit/15 text-kiremit">öneri</span>}
+                <button type="button" aria-label="Yukarı" onClick={() => bolumTasi(n, -1)} disabled={n === 0} className="p-2 text-gri hover:text-kiremit disabled:opacity-30"><ArrowUp size={14} /></button>
+                <button type="button" aria-label="Aşağı" onClick={() => bolumTasi(n, 1)} disabled={n === bolumler.length - 1} className="p-2 text-gri hover:text-kiremit disabled:opacity-30"><ArrowDown size={14} /></button>
+                <button type="button" aria-label="Bölümü sil" onClick={() => setBolumler(bs => bs.filter((_, k) => k !== n))} className="p-2 text-gri hover:text-kiremit"><Trash2 size={14} /></button>
+              </div>
+              <textarea value={b.content} onChange={e => bolumYaz(n, { content: e.target.value })} rows={4} placeholder="Bölümün metni…" className={`${girdi} leading-relaxed`} />
+            </div>
+          ))}
+        </div>
+        <button type="button" onClick={() => setBolumler(bs => [...bs, { id: `b${Date.now()}`, title: '', content: '', status: 'resmi' }])}
+          className="mt-2 inline-flex items-center gap-1 text-[12px] font-mono px-2.5 py-1.5 rounded border border-bej/70 hover:border-kiremit">
+          <Plus size={13} /> Bölüm ekle
+        </button>
+      </div>
 
       <div>
         <div className="postmark-label text-gri dark:text-bej/85 mb-2">Bağlar</div>
