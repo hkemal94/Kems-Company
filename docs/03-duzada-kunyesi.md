@@ -262,6 +262,24 @@ Aralıklar kanon; kesin yıl yoksa uydurulmaz. Ayrıntı `docs/soru-cevap/w3.md`
   tutar.
 - **Okul** — öğretmenler karışık: bir iki adalı, gerisi anakaradan atanan.
 
+## Mahalle metinleri (1 Ekim 2026, metin soru turu)
+
+Ayrıntı ve bölüm iskeletleri: `docs/soru-cevap/metin-1.md`.
+
+- **Mübadele ve Merkez** — 1923'te Merkez'deki Rum aileler de ayrıldı
+  (yalnız İskele değil).
+- **Merkez çarşısı** — kahvehane, bakkal, fırın, eczanenin yanında terzi,
+  kasap, berber (adsız, tarihsiz).
+- **Taş çeşme** — sözlü anlatı: antik bir kaynağın üstüne yapıldığı
+  anlatılır (kanıtlanmış bilgi değil).
+- **Liman** — devlet yaptı.
+- **Fener** — yalnız "19. yüzyıl"; yapanı yazılmaz. Otomatiğe geçişten
+  (1970'ler) sonra bekçi evi sahil güvenliğin kullanımına geçti. Fener
+  ziyarete açık; içine çıkılır, limana bakar.
+- **Dirlik Stadı** — devlet yaptı; eski toprak sahanın yerine.
+- **Toprak saha** — sözlü anlatı: 1950'lerdeki ilk maç (konusu Kemal'in).
+- **Bağcılık** — adada 2000 sonrası başladı; öncesinde şarap yok.
+
 ## The Imperial Kemsköy
 
 Bütün projenin başlangıç noktası. Haydarpaşa Gar binasının küçüğü gibi

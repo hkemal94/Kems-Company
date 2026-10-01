@@ -21,7 +21,7 @@ export const YOL_HARITASI: YolIsi[] = [
   { id: 'ikinci-drop', ad: 'İkinci drop', nereden: 'yapisal-2, 9', kimde: 'kemal', not: 'Henüz erken (1 Ekim).' },
   { id: 'sokak-adlari', ad: 'Sokak adları (şimdilik numara)', nereden: 'yapisal-2, 21', kimde: 'kemal' },
   { id: 'kitap', ad: 'Kitap', nereden: 'yapisal-2, 29', kimde: 'kemal', not: 'Bekliyor (1 Ekim).' },
-  { id: 'metin-soru-turu', ad: 'Mahalle Tarihçeleri, Merkez Çarşı, Liman Deniz Feneri, Stadyum Dirlik Stadı: soru turu, cevaplardan stüdyo taslağı', nereden: '1 Ekim', kimde: 'claude', not: 'Taslak öneri tepsisine; Kemal düzeltip ekler.' },
+  { id: 'metin-soru-turu', ad: 'Mahalle Tarihçeleri, Merkez Çarşı, Liman Deniz Feneri, Stadyum Dirlik Stadı: iskeletten stüdyo taslağı', nereden: '1 Ekim', kimde: 'kemal', not: 'Soru turu bitti, iskelet docs/soru-cevap/metin-1.md\'de. Taslak stüdyoda; Kemal düzeltip ekler.' },
   { id: 'dirlik-forma', ad: 'Dirlik forması: Merch\'te Dirlik kurumu altında Konsept ürün', nereden: '1 Ekim', kimde: 'kemal' },
   { id: 'ciftlik-yeri', ad: 'Küçükçetmi Çiftliği\'ni Kurucuda yerleştirmek (yol temizliğinden sonra)', nereden: '1 Ekim', kimde: 'kemal' },
   { id: 'ibareler', ad: 'İngilizce / Türkçe ibareler', nereden: 'yapisal-2, 14', kimde: 'kemal', not: 'Sonra (1 Ekim).' },
