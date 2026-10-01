@@ -51,12 +51,6 @@ export const ASAMALAR: Asama[] = [
   }
 ];
 
-export const ASAMA_KIMLIKLERI = ASAMALAR.map(a => a.id);
-
-export function asamaBul(id: unknown): Asama {
-  return ASAMALAR.find(a => a.id === id) || ASAMALAR[0];
-}
-
 /**
  * Tasarım belgesinin bölümleri.
  *
@@ -88,20 +82,6 @@ export function oyunIsleri(items: Item[]): Item[] {
 /** Tasarım belgesi bölümleri — açılmış olanlar */
 export function gddBolumleri(items: Item[]): Item[] {
   return items.filter(i => i.type === 'gdd_bolum' && !i.archived);
-}
-
-/**
- * Aşama başına iş sayısı. Şemanın altındaki rakamlar buradan geliyor;
- * sıfırsa sıfır yazıyor, doldurulmuş gibi gösterilmiyor.
- */
-export function asamaSayilari(items: Item[]): Record<string, number> {
-  const sayim: Record<string, number> = {};
-  for (const a of ASAMALAR) sayim[a.id] = 0;
-  for (const is of oyunIsleri(items)) {
-    const a = String((is.metadata as any)?.asama || 'konsept');
-    if (a in sayim) sayim[a]++;
-  }
-  return sayim;
 }
 
 /**
@@ -211,3 +191,86 @@ export const serbestYazi = (notlar: string) =>
   (notlar || '').split('\n').filter(l => !l.startsWith('* ')).join('\n').trim();
 export const secimSatirlari = (notlar: string) =>
   (notlar || '').split('\n').filter(l => l.startsWith('* ')).join('\n');
+
+/**
+ * Adım adım süreç (1 Ekim, Kemal: "sektörü bilmediğim için bana ne
+ * istediğimi anlatabilen basit bir otomasyon"). Tasarım belgesinin her
+ * bölümü bir adım; her adımın yanında sektör dilinin sade açıklaması var.
+ * Açıklamalar kurgu değil, yol gösterici; adları ve hikâyeyi Kemal yazar.
+ */
+export const BOLUM_ACIKLAMASI: Record<string, string> = {
+  kunye: 'Oyunun kimlik kartı. Türünü, nerede oynanacağını ve kimin için olduğunu seç; sonraki her karar buna göre şekillenir.',
+  ozet: 'Sektörde "elevator pitch" denir: oyunu bilmeyen birine tek cümlede anlatış. Yazamıyorsan oyun henüz netleşmemiştir; sorun değil, sonra dön.',
+  dongu: '"Core loop": oyuncunun bir oturumda tekrar tekrar yaptığı küçük döngü (ör. hazırlan → karşıla → kazan → geliştir). Oyunun kalbi budur.',
+  mekanik: 'Oyuncunun yapabildiği eylemler ve kurallar. Az ama iyi işleyen mekanik, çok ama dağınık mekanikten iyidir.',
+  kontrol: 'Oyuncunun oyunla nasıl konuştuğu: fare, dokunma, kol. Seçtiğin platformla uyumlu olmalı.',
+  ilerleme: 'Oyuncuyu geri getiren şey: açılan yerler, kazanılan ödüller, ilerleyen hikâye.',
+  dunya: 'Oyunun Düzada\'da nerede ve hangi zaman aralığında geçtiği. Yer seç; hikâyeyi sen yazarsın.',
+  karakter: 'Oyuncunun kim olduğu ve kimlerle karşılaştığı. Adları sen koyarsın; vikideki kişiler buraya bağlanabilir.',
+  arayuz: 'Ekranda oyuncunun gördüğü her şey: kamera açısı, menüler, göstergeler.',
+  gorsel: 'Oyunun neye benzediği. Küçük ekip için sade bir stil hem hızlı hem tutarlı olur.',
+  ses: 'Müzik ve sesler oyunun havasını taşır. Seslendirme pahalıdır; çoğu küçük oyun onsuz ya da kısmi yapar.',
+  kapsam: 'Ne kadar içerik, ne kadar sürede, kaç kişiyle. Küçük ve bitmiş oyun, büyük ve bitmemiş oyundan iyidir.',
+  risk: 'Projeyi durdurabilecek şeyler. Önceden adını koymak önlem almayı kolaylaştırır.'
+};
+
+/** Sekmelere dağılım: künye/konsept ve mekanik/notlar */
+export const KONSEPT_BOLUMLERI = ['kunye', 'ozet', 'dunya', 'karakter'];
+export const MEKANIK_BOLUMLERI = ['dongu', 'mekanik', 'kontrol', 'ilerleme', 'arayuz', 'gorsel', 'ses'];
+/** Adım sırası: önce kimlik, sonra oynanış, sonra görünüş, en son plan */
+export const ADIM_SIRASI = ['kunye', 'ozet', 'dongu', 'mekanik', 'kontrol', 'ilerleme', 'dunya', 'karakter', 'arayuz', 'gorsel', 'ses', 'kapsam', 'risk'];
+
+/** Bir bölüm "yapıldı" sayılır: en az bir seçim ya da yazı varsa */
+export function bolumYapildi(kayit: Item | undefined): boolean {
+  return !!kayit && !!(kayit.notes || '').trim();
+}
+
+/** Fikir notu kategorileri (oyun dosyasında durur) */
+export const FIKIR_KATEGORILERI = ['Mekanik', 'Hikâye', 'Karakter', 'Görsel', 'Ses', 'Teknik', 'Diğer'] as const;
+
+export function oyunFikirleri(items: Item[]): Item[] {
+  return items.filter(i => i.type === 'oyun_fikir' && !i.archived).sort((a, b) => b.createdAt - a.createdAt);
+}
+
+/**
+ * Oyun dosyası: künye, tasarım belgesi, fikir notları ve işler tek
+ * belgede (Markdown). Yalnız Kemal'in kayıtları; boş bölüm "boş" yazar.
+ */
+export function oyunBelgesi(items: Item[]): string {
+  const tanitim = items.find(i => i.type === 'oyun_tanitim' && !i.archived);
+  const meta = (tanitim?.metadata || {}) as { ozet?: string; aciklama?: string };
+  const bolumler = gddBolumleri(items);
+  const asama = projeAsamasi(items);
+  const s: string[] = [];
+  const tarih = new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+  s.push('# Oyun dosyası', '', `Kems Komuta Merkezi · ${tarih}`, '');
+  s.push('## Künye', '');
+  s.push(`- Durum: ${asama ? `${asama.ad} (${asama.terim})` : 'başlamadı'}`);
+  s.push(`- Özet: ${meta.ozet?.trim() || 'boş'}`);
+  s.push('', '### Açıklama', '', meta.aciklama?.trim() || 'boş', '');
+  s.push('## Tasarım belgesi', '');
+  for (const id of ADIM_SIRASI) {
+    const b = GDD_BOLUMLERI.find(x => x.id === id)!;
+    const k = bolumler.find(x => (x.metadata as any)?.bolumId === id);
+    s.push(`### ${b.ad}`, '', (k?.notes || '').trim() || 'boş', '');
+  }
+  s.push('## Fikir notları', '');
+  const fikirler = oyunFikirleri(items);
+  if (!fikirler.length) s.push('boş', '');
+  for (const kat of FIKIR_KATEGORILERI) {
+    const bunlar = fikirler.filter(f => (f.metadata as any)?.kategori === kat || (kat === 'Diğer' && !FIKIR_KATEGORILERI.includes((f.metadata as any)?.kategori)));
+    if (!bunlar.length) continue;
+    s.push(`### ${kat}`, '');
+    for (const f of bunlar) s.push(`- **${f.title}**${f.notes?.trim() ? ` — ${f.notes.trim().replace(/\n+/g, ' ')}` : ''}`);
+    s.push('');
+  }
+  s.push('## İşler', '');
+  const isler = oyunIsleri(items);
+  if (!isler.length) s.push('boş', '');
+  for (const a of ASAMALAR) {
+    const bunlar = isler.filter(i => String((i.metadata as any)?.asama || 'konsept') === a.id);
+    if (!bunlar.length) continue;
+    s.push(`### ${a.ad}`, '', ...bunlar.map(i => `- ${i.title}`), '');
+  }
+  return s.join('\n');
+}

@@ -501,7 +501,7 @@ export default function App() {
       setActiveTab('sosyal');
     } else if (item.type === 'ilham_gorsel' || item.type === 'ilham_kaynak') {
       setActiveTab('galeri');
-    } else if (item.type === 'oyun_is' || item.type === 'gdd_bolum' || item.type === 'oyun_tanitim') {
+    } else if (item.type === 'oyun_is' || item.type === 'gdd_bolum' || item.type === 'oyun_tanitim' || item.type === 'oyun_fikir') {
       setActiveTab('oyun');
     } else if (item.type === 'aday') {
       setActiveTab('studyo');
