@@ -36,14 +36,27 @@ export const AracCalistirici: React.FC<Props> = ({ arac, hedefId: ilkHedef, serb
   const [calisiyor, setCalisiyor] = useState(false);
   const [hata, setHata] = useState<string | null>(null);
   const [bitti, setBitti] = useState(false);
+  /** Çok maddeye dağılan araçlarda: kaç öneri düştü, hangi mahalle bulunamadı */
+  const [dagilim, setDagilim] = useState<{ sayi: number; eksik: string[] } | null>(null);
   const hedef: Item | null = items.find(i => i.id === hedefId) || null;
 
   const calistir = async () => {
     if ((!hedef && !hedefsiz) || calisiyor) return;
-    setCalisiyor(true); setHata(null); setBitti(false);
+    setCalisiyor(true); setHata(null); setBitti(false); setDagilim(null);
     try {
       const sonuc = await araciCalistir(arac, hedef, serbest, items);
-      await onAddItem(oneriKaydi(arac, hedef, sonuc));
+      if (arac.dagit) {
+        const { oneriler, eksik } = arac.dagit(sonuc, items);
+        // Başlıkta bölüm de yazar: aynı maddenin iki önerisi karışmasın
+        for (const o of oneriler) {
+          const kayit = oneriKaydi(arac, o.hedef, o.sonuc);
+          const bolum = o.sonuc.bolumler?.[0]?.title;
+          await onAddItem(bolum ? { ...kayit, title: `${kayit.title} · ${bolum}` } : kayit);
+        }
+        setDagilim({ sayi: oneriler.length, eksik });
+      } else {
+        await onAddItem(oneriKaydi(arac, hedef, sonuc));
+      }
       setBitti(true);
     } catch (e) {
       setHata(e instanceof Error ? e.message : 'Bilinmeyen hata.');
@@ -81,7 +94,13 @@ export const AracCalistirici: React.FC<Props> = ({ arac, hedefId: ilkHedef, serb
         {kapali && <span className="text-[11px] text-[#B23A40] dark:text-[#F26B6F]">{kapali}</span>}
       </div>
       {hata && <p className="text-[12px] text-[#B23A40] dark:text-[#F26B6F]">{hata}</p>}
-      {bitti && <p className={`text-[12px] ${IKINCIL}`}>Öneri tepsiye düştü. Ekle demeden hiçbir kayda yazılmaz.</p>}
+      {bitti && !dagilim && <p className={`text-[12px] ${IKINCIL}`}>Öneri tepsiye düştü. Ekle demeden hiçbir kayda yazılmaz.</p>}
+      {bitti && dagilim && (
+        <p className={`text-[12px] ${IKINCIL}`}>
+          {dagilim.sayi} öneri tepsiye düştü; her biri kendi maddesinin adıyla. Ekle demeden hiçbir kayda yazılmaz.
+          {dagilim.eksik.length > 0 && <> Maddesi bulunamadığı için atlananlar: <b>{dagilim.eksik.join(', ')}</b>.</>}
+        </p>
+      )}
       {hedef && (
         <OneriTepsisi {...islemler} hedefId={hedef.id} baslik={`${hedef.title} için öneriler`} />
       )}

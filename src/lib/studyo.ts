@@ -2,6 +2,7 @@ import type { Item, ItemType, WikiSection } from '../types';
 import { aiCagir, AiHatasi } from './aiCagir';
 import { hakkindaTaslaginaYaz } from './siteAyari';
 import { yeniGonderi } from './sosyal';
+import { MAHALLE_ISKELETI, mahalleMaddesi, mahalleMetniVerisi } from './mahalleMetinleri';
 
 /**
  * Yapay zekâ stüdyosu (29 Eylül akşamı).
@@ -53,6 +54,13 @@ export interface StudyoAraci {
   veri: (hedef: Item | null, serbest: string, items: Item[]) => unknown;
   /** Stüdyonun kart listesinde görünmez (gece hazırlığı, fanzin ekranından açılan) */
   gizli?: boolean;
+  /** En fazla kaç bölüm (varsayılan 6) */
+  enCokBolum?: number;
+  /**
+   * Tek çağrının sonucunu birden çok maddeye öneri olarak dağıtır
+   * (mahalle metinleri). Maddesi bulunamayanlar `eksik`te döner.
+   */
+  dagit?: (sonuc: StudyoSonucu, items: Item[]) => { oneriler: Array<{ hedef: Item; sonuc: StudyoSonucu }>; eksik: string[] };
 }
 
 /** Fanzin bölümünün tonları (yapisal-4, 32: "yazıya göre seçilir") */
@@ -115,6 +123,30 @@ export const STUDYO_ARACLARI: StudyoAraci[] = [
     aciklama: 'Madde metnine bir paragraf ekler.',
     hedefTurleri: VIKI, sonuc: 'metin', uygulama: 'notlara-ekle', task: 'devam-et',
     veri: h => ({ text: h?.notes || '', notes: `Varlık: ${h?.title}, türü: ${h?.type}` })
+  },
+  {
+    // Metin soru turu (1 Ekim gece): 8 bölüm tek basışta; her biri kendi
+    // mahallesinin maddesine ayrı öneri. İskelet `mahalleMetinleri.ts`.
+    id: 'viki-mahalle', grup: 'viki', ad: 'Mahalle metinleri', kurgu: true,
+    aciklama: 'Soru turundaki cevaplarından 8 bölümün taslağı tek seferde (5 Tarihçe, Çarşı, Deniz Feneri, Dirlik Stadı). Her biri kendi mahallesine ayrı öneri olarak düşer.',
+    hedefTurleri: null, sonuc: 'bolumler', uygulama: 'bolum-ekle', task: 'mahalle-metinleri', enCokBolum: MAHALLE_ISKELETI.length,
+    veri: () => mahalleMetniVerisi(),
+    dagit: (sonuc, items) => {
+      const oneriler: Array<{ hedef: Item; sonuc: StudyoSonucu }> = [];
+      const eksik: string[] = [];
+      const gelenler = sonuc.bolumler || [];
+      // Model anahtarları düşürdüyse sıraya güvenilir
+      const anahtarsiz = !gelenler.some(x => x.anahtar);
+      MAHALLE_ISKELETI.forEach((b, n) => {
+        const gelen = anahtarsiz ? gelenler[n] : gelenler.find(x => x.anahtar === b.anahtar);
+        if (!gelen?.content.trim()) return;
+        const hedef = mahalleMaddesi(items, b.mahalleAdlari);
+        if (!hedef) { if (!eksik.includes(b.mahalle)) eksik.push(b.mahalle); return; }
+        oneriler.push({ hedef, sonuc: { bolumler: [{ title: b.bolum, content: gelen.content }] } });
+      });
+      if (!oneriler.length && !eksik.length) throw new AiHatasi('Yapay zekâ bölümleri tanınmayan bir biçimde döndü; bir daha dene.');
+      return { oneriler, eksik };
+    }
   },
   // ---- Yazı
   {
@@ -228,7 +260,7 @@ export const aracBul = (id?: string | null) => STUDYO_ARACLARI.find(a => a.id ==
 export interface StudyoSonucu {
   metin?: string;
   liste?: string[];
-  bolumler?: Array<{ title: string; content: string }>;
+  bolumler?: Array<{ title: string; content: string; anahtar?: string }>;
   kunye?: Record<string, string>;
   renkler?: Array<{ hex: string; name: string }>;
   urunler?: Array<{ title: string; description: string; slogan: string }>;
@@ -269,8 +301,9 @@ export function sonucuAyikla(arac: StudyoAraci, ham: unknown): StudyoSonucu {
     }
     case 'bolumler': {
       const v = jsonAyikla(ham);
-      const b = Array.isArray(v) ? v.filter(x => x && metinMi(x.title)).map(x => ({ title: String(x.title), content: String(x.content || '') })) : [];
-      return b.length ? { bolumler: b.slice(0, 6) } : bozuk();
+      // anahtar yalnız varsa yazılır (Firestore undefined kabul etmez)
+      const b = Array.isArray(v) ? v.filter(x => x && metinMi(x.title)).map(x => ({ title: String(x.title), content: String(x.content || ''), ...(metinMi(x.anahtar) ? { anahtar: x.anahtar } : {}) })) : [];
+      return b.length ? { bolumler: b.slice(0, arac.enCokBolum || 6) } : bozuk();
     }
     case 'kunye': {
       const v = jsonAyikla(ham) as { profile?: Record<string, unknown> } | null;
@@ -392,8 +425,14 @@ export function oneriyiUygula(
     case 'baslik-yap':
       return typeof s.secim === 'string' && s.secim.trim() ? { guncel: { ...hedef, title: s.secim.trim(), updatedAt: simdi } } : null;
     case 'bolum-ekle': {
-      const eski = (hedef.metadata?.wikiSections as WikiSection[]) || [];
-      const yeni: WikiSection[] = (oneri.bolumler || []).map((b, n) => ({ id: `studyo_${simdi}_${n}`, title: b.title, content: b.content, status: 'öneri' }));
+      // Aynı başlıkta boş bir bölüm varsa yenisi açılmaz, o dolar
+      const eski = [...((hedef.metadata?.wikiSections as WikiSection[]) || [])];
+      const yeni: WikiSection[] = [];
+      (oneri.bolumler || []).forEach((b, n) => {
+        const bos = eski.findIndex(e => e.title.trim().toLocaleLowerCase('tr') === b.title.trim().toLocaleLowerCase('tr') && !String(e.content || '').trim());
+        if (bos >= 0) eski[bos] = { ...eski[bos], content: b.content, status: 'öneri' };
+        else yeni.push({ id: `studyo_${simdi}_${n}`, title: b.title, content: b.content, status: 'öneri' });
+      });
       return { guncel: { ...hedef, metadata: { ...hedef.metadata, wikiSections: [...eski, ...yeni] }, updatedAt: simdi } };
     }
     case 'kunye-ekle': {

@@ -319,6 +319,22 @@ Yanıtı saf JSON dizisi olarak döndür: [{"title": "Bölüm başlığı", "con
         systemInstruction = "Küçük, özenli bir fanzinin editörüsün. Sade Türkçe, süssüz. Sadece saf bir JSON dizisi döndür.";
         break;
 
+      // Mahalle metinleri (1 Ekim gece, metin soru turu). İskelet Kemal'in
+      // cevaplarından; model yalnız onu ansiklopedik metne çevirir.
+      case "mahalle-metinleri":
+        prompt = `Düzada adasının vikisi için aşağıdaki bölümlerin her birine ansiklopedik bir metin taslağı yaz.
+Kurallar:
+- Yalnız her bölümün "iskelet" maddelerindeki bilgileri kullan. Yeni bilgi, olay, özel ad (kişi, yer, kurum, işletme), sayı ya da tarih ekleme; iskelette adı yazılmayanın adını koyma.
+- Ton ansiklopedik: sade, nesnel, süssüz; edebi benzetme ve abartı yok. Türkçe; "Kemsköy" yazımını koru.
+- Vikinin bir "şimdi"si yok: "hâlâ", "şu anda", "günümüzde", "bugün", "artık" yazma. Tarihleri aralık olarak yaz.
+- Her bölüm, "paragraf" alanındaki sayıda paragraf olsun; paragrafları boş satırla ayır. İskeletin sırasını izle.
+- "soylenti" doluysa o bölümde yalnız bir kez, tek cümleyle ve "Sözlü anlatıya göre" diye başlayarak yer ver; boşsa hiçbir söylenti, efsane ya da rivayet yazma.
+- Başlık yazma; yalnız bölüm metni.
+Bölümler: ${JSON.stringify(data.bolumler || [])}
+Yanıtı saf JSON dizisi olarak döndür, her bölüm için bir nesne ve "anahtar" aynen korunsun: [{"anahtar": "merkez-tarihce", "title": "Tarihçe", "content": "Bölüm metni"}]`;
+        systemInstruction = "Bir ada vikisinin titiz editörüsün. Yalnız verilen bilgilerle, ansiklopedik ve sade Türkçe yazıyorsun. Sadece saf bir JSON dizisi döndür.";
+        break;
+
       case "fanzin-bolum":
         prompt = `Aşağıdaki fanzin bölümünü "${data.ton || "Sade"}" tonunda yeniden yaz. Anlamı ve adları koru; yeni özel ad, sayı, tarih ekleme. "Hâlâ", "şu anda", "günümüzde" yazma. Uzunluk aşağı yukarı aynı kalsın. Yalnız yeni metni döndür.
 Bölüm başlığı: "${data.baslik || ""}"

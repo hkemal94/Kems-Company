@@ -1286,3 +1286,22 @@ metinleri").
 - Taslağı Kemal stüdyoda üretir; sonuç öneri tepsisine düşer, vikiye Kemal
   ekler. **Uygulamada değişen bir şey yok**; yalnız belgeler.
 
+## 1 Ekim gece — Stüdyoda "Mahalle metinleri" kartı
+
+Kemal: "Taksit taksit mi gelecek?" → tek düğme. Yapay zekâ stüdyosunda
+(Viki grubu) **Mahalle metinleri** kartı: bir kez "Çalıştır" → 8 bölümün
+taslağı tek çağrıda gelir, her biri kendi mahallesinin maddesine ayrı
+öneri olarak tepsiye düşer ("Mahalle metinleri · Merkez Mahallesi ·
+Tarihçe" gibi). Ekle → o maddeye bölüm olarak girer.
+
+- İskelet `src/lib/mahalleMetinleri.ts` (= `docs/soru-cevap/metin-1.md`).
+  Yapay zekâya yalnız iskelet gider; yeni ad, sayı, tarih yasak; söylenti
+  yalnız Merkez (çeşme) ve Stadyum'da (ilk maç), "Sözlü anlatıya göre"
+  diye.
+- Madde adla bulunur ("Merkez Mahallesi" ya da "Merkez" vb.). Bulunamayan
+  mahalle atlanır ve kartın altında adı yazılır.
+- Ekle: maddede aynı adlı **boş** bir bölüm varsa (ör. boş "Tarihçe")
+  yenisi açılmaz, o dolar. Bu bütün "Bölüm öner" eklemeleri için geçerli.
+- Kart Eksikler'e değil stüdyoya kondu: yapay zekâ yalnız stüdyodan
+  çağrılır kuralı.
+
