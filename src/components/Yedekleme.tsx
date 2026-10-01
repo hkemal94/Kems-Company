@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import { Download, Upload, Archive, X } from 'lucide-react';
 import type { Item, UserSettings } from '../types';
 import { driveYedekYukle, YEDEK_KLASORU } from '../lib/googleApi';
-import { getCachedAccessToken, signInWithGoogle } from '../lib/firebase';
+import { driveIzniniYenile, getCachedAccessToken, izinEksikMi, signInWithGoogle } from '../lib/firebase';
 import {
   haritaDuzeniniYedekIcinOku, haritaDuzeniniYedektenYaz
 } from '../lib/haritaDuzeni';
@@ -31,7 +31,7 @@ export interface YedeklemeProps {
   /** Düğmenin görünüşü: raydaki simge ya da "Diğer" listesindeki satır */
   tetikSinifi?: string;
   /** Verilirse simgenin yanında yazı çıkar */
-  etiket?: string;
+  etiket?: React.ReactNode;
 }
 
 interface YedekDosyasi {
@@ -59,6 +59,8 @@ export const Yedekleme: React.FC<YedeklemeProps> = ({ items, settings, onKayit, 
   const [acik, setAcik] = useState(false);
   const [durum, setDurum] = useState<string | null>(null);
   const [calisiyor, setCalisiyor] = useState(false);
+  /** Drive izni eksik çıktıysa "Drive iznini yenile" düğmesi görünür */
+  const [izinEksik, setIzinEksik] = useState(false);
   const [sonYedek, setSonYedek] = useState<number | null>(() => sonYedekZamani());
   const dosyaGirdisi = useRef<HTMLInputElement | null>(null);
 
@@ -105,10 +107,28 @@ export const Yedekleme: React.FC<YedeklemeProps> = ({ items, settings, onKayit, 
       try { localStorage.setItem(SON_YEDEK_ANAHTARI, String(simdi)); } catch { /* yok */ }
       setSonYedek(simdi);
       setDurum(`${items.length} madde Drive'da "${YEDEK_KLASORU}" klasörüne kaydedildi.`);
+      setIzinEksik(false);
     } catch (e) {
-      setDurum(`Drive'a kaydedilemedi: ${e instanceof Error ? e.message : 'bilinmeyen hata'}`);
+      // İzin eksikse açıklama + "Drive iznini yenile" düğmesi (1 Ekim)
+      if (izinEksikMi(e)) {
+        setIzinEksik(true);
+        setDurum("Google, uygulamaya Drive'a yazma izni vermemiş. Aşağıdaki düğmeye bas; açılan Google ekranında Drive kutusunu işaretle.");
+      } else {
+        setDurum(`Drive'a kaydedilemedi: ${e instanceof Error ? e.message : 'bilinmeyen hata'}`);
+      }
     } finally {
       setCalisiyor(false);
+    }
+  };
+
+  const izniYenile = async () => {
+    setDurum(null);
+    try {
+      await driveIzniniYenile();
+      setIzinEksik(false);
+      await driveaKaydet();
+    } catch (e) {
+      setDurum(`İzin alınamadı: ${e instanceof Error ? e.message : 'bilinmeyen hata'}`);
     }
   };
 
@@ -188,7 +208,7 @@ export const Yedekleme: React.FC<YedeklemeProps> = ({ items, settings, onKayit, 
                    rounded-lg hover:text-[#F26B6F] transition-colors cursor-pointer`}
       >
         <Archive className="w-4 h-4 shrink-0" />
-        {etiket && <span>{etiket}</span>}
+        {etiket && (typeof etiket === 'string' ? <span>{etiket}</span> : etiket)}
         {eski && (
           <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full
                            bg-[#F26B6F]" />
@@ -303,6 +323,12 @@ export const Yedekleme: React.FC<YedeklemeProps> = ({ items, settings, onKayit, 
                             text-xs text-[#6A5E4C] dark:text-[#A6B0C9]">
                 {durum}
               </p>
+            )}
+            {izinEksik && (
+              <button type="button" onClick={() => void izniYenile()} disabled={calisiyor}
+                className="mt-2 w-full min-h-11 rounded-lg bg-[#0E1C4F] dark:bg-[#2C3C72] text-[#F3EFE8] text-[13px] font-semibold hover:opacity-90 disabled:opacity-40 cursor-pointer">
+                Drive iznini yenile
+              </button>
             )}
 
             {/* Üstteki çarpı kırpılsa bile buradan çıkılır */}

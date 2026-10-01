@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef, useMemo, useCallback, lazy, Suspens
 import { 
   auth, 
   signInWithGoogle,
+  logoutUser,
+  driveIzniniYenile,
   fetchAllItemsDirect,
   subscribeToAllItemsWithArchived, 
   subscribeToSettings, 
@@ -30,6 +32,8 @@ import {
   Sun,
   Moon,
   UserRound,
+  KeyRound,
+  LogOut,
   Megaphone,
   Globe,
   CalendarDays,
@@ -43,6 +47,7 @@ import { Studyo, StudyoPaneli } from './components/studyo/Studyo';
 import { StudyoSaglayici, type StudyoIslemleri } from './components/studyo/StudyoBaglami';
 import HizliFikir from './components/HizliFikir';
 import ArtiMenu from './components/kabuk/ArtiMenu';
+import HesapMenusu from './components/kabuk/HesapMenusu';
 import { ayrilmayaIzinVar } from './lib/kaydedilmemis';
 
 /*
@@ -143,6 +148,21 @@ export default function App() {
           ? 'Bu adres Firebase girişinde izinli değil (yetkili alan adları listesine eklenmeli).'
           : `Bağlanılamadı: ${e?.code || e?.message || 'bilinmeyen'}`);
     }
+  };
+  /**
+   * Çıkış (1 Ekim, Kemal: "çıkış butonu yok"). Bir kez sorar. Tarayıcının
+   * hatırladığı hesap da unutulur; yeniden "Google ile bağlan" ekranı
+   * çıkar. Kayıtlar Google hesabının alanında durur, silinmez.
+   */
+  const cikisYap = async () => {
+    if (!window.confirm("Google hesabından çıkılsın mı? Kayıtların silinmez; yeniden bağlanınca hepsi yerinde olur.")) return;
+    try { localStorage.removeItem('kems_last_uid'); } catch { /* yok */ }
+    await logoutUser();
+    setDigerAcik(false);
+  };
+  const driveIzni = async () => {
+    setBaglanmaHatasi(null);
+    try { await driveIzniniYenile(); } catch (e: any) { setBaglanmaHatasi(`İzin alınamadı: ${e?.code || e?.message || 'bilinmeyen'}`); }
   };
   const [activeItemId, setActiveItemId] = useState<string | null>(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -862,32 +882,26 @@ export default function App() {
           <button type="button" onClick={() => setIsSearchOpen(true)} aria-label="Ara" className="w-full h-11 rounded-xl flex items-center gap-3 px-3 text-[#A6B0C9] hover:text-white hover:bg-white/10 cursor-pointer">
             <Search className="w-[18px] h-[18px] shrink-0" /><span className={`${RAY_ADI} text-[13px] font-semibold`}>Ara <kbd className="ml-1 text-[10px] text-[#6F7BA0]">⌘K</kbd></span>
           </button>
-          <div className="flex items-center gap-1">
-            <Zil bildirimler={bildirimler} onSec={bildirimSec} yon="sag" />
-            <span className={`${RAY_ADI} -ml-1.5 text-[13px] font-semibold text-[#A6B0C9] pointer-events-none`}>Bildirimler</span>
-          </div>
+          {/* Bütün satır düğme: yazıya basınca da açılır (1 Ekim) */}
+          <Zil bildirimler={bildirimler} onSec={bildirimSec} yon="sag" etiket={<span className={`${RAY_ADI} text-[13px] font-semibold`}>Bildirimler</span>} />
           {user && (
-            <div className="flex items-center gap-1">
-              <Yedekleme
-                items={items}
-                settings={settings}
-                onKayit={async kayit => { await saveItem(user.uid, kayit); }}
-                tetikSinifi="relative w-11 h-11 rounded-xl flex items-center justify-center text-[#A6B0C9] hover:text-white hover:bg-white/10 cursor-pointer"
-              />
-              <span className={`${RAY_ADI} -ml-1.5 text-[13px] font-semibold text-[#A6B0C9] pointer-events-none`}>Yedek</span>
-            </div>
+            <Yedekleme
+              items={items}
+              settings={settings}
+              onKayit={async kayit => { await saveItem(user.uid, kayit); }}
+              etiket={<span className={`${RAY_ADI} text-[13px] font-semibold`}>Yedek</span>}
+              tetikSinifi="relative w-full h-11 rounded-xl flex items-center gap-3 px-3 text-[#A6B0C9] hover:text-white hover:bg-white/10 cursor-pointer"
+            />
           )}
-          <button
-            type="button"
-            onClick={girisli ? undefined : googleIleBaglan}
-            title={girisli ? `Google hesabı: ${user?.email || ''}` : 'Google ile bağlan'}
-            className={`relative w-full h-11 rounded-xl flex items-center gap-3 px-3 ${girisli ? 'text-[#A6B0C9]' : 'text-[#F26B6F] hover:bg-white/10 cursor-pointer'}`}
-          >
-            {girisli && user?.photoURL
-              ? <img src={user.photoURL} alt="" referrerPolicy="no-referrer" className="w-7 h-7 -ml-[5px] rounded-full shrink-0" />
-              : <UserRound className="w-[18px] h-[18px] shrink-0" />}
-            <span className={`${RAY_ADI} text-[13px] font-semibold`}>{girisli ? 'Google hesabı' : 'Google ile bağlan'}</span>
-          </button>
+          <HesapMenusu
+            girisli={girisli}
+            eposta={user?.email}
+            foto={user?.photoURL}
+            yaziSinifi={RAY_ADI}
+            onBaglan={googleIleBaglan}
+            onCikis={() => void cikisYap()}
+            onDriveIzni={() => void driveIzni()}
+          />
           <button type="button" onClick={handleToggleTheme} aria-label="Aydınlık / karanlık" className="w-full h-11 rounded-xl flex items-center gap-3 px-3 text-[#A6B0C9] hover:text-white hover:bg-white/10 cursor-pointer">
             <TemaSimgesi className="w-[18px] h-[18px] shrink-0" /><span className={`${RAY_ADI} text-[13px] font-semibold`}>{settings.theme === 'dark' ? 'Aydınlık' : 'Karanlık'}</span>
           </button>
@@ -1172,6 +1186,19 @@ export default function App() {
                 />
               )}
             </div>
+            {/* Hesap (1 Ekim): çıkış ve Drive izni telefonda da */}
+            {girisli ? (
+              <div className="flex gap-2">
+                <button type="button" onClick={() => void driveIzni()} className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border border-[#CFC5B4] dark:border-[#2C3C72] text-[12px] text-[#0E1C4F] dark:text-[#F3EFE8] cursor-pointer">
+                  <KeyRound className="w-4 h-4" /> Drive iznini yenile
+                </button>
+                <button type="button" onClick={() => void cikisYap()} className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border border-[#CFC5B4] dark:border-[#2C3C72] text-[12px] text-[#B23A40] dark:text-[#F26B6F] cursor-pointer">
+                  <LogOut className="w-4 h-4" /> Çıkış yap
+                </button>
+              </div>
+            ) : (
+              <button type="button" onClick={googleIleBaglan} className="w-full py-3 rounded-xl bg-[#0E1C4F] dark:bg-[#2C3C72] text-[#F3EFE8] text-[13px] font-semibold cursor-pointer">Google ile bağlan</button>
+            )}
             <p className="text-center text-[10px] font-mono text-[#6A5E4C] dark:text-[#A6B0C9]">
               {varlikSayisi} kayıtlı varlık · {girisli ? `Google: ${user?.email || ''}` : 'tarayıcı hatırlıyor'}
             </p>

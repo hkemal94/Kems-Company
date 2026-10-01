@@ -376,7 +376,7 @@ const OyunEkrani: React.FC<OyunStudyoProps & { oyunId: string; onGeri: () => voi
         <BolumBasligi baslik="Yapım aşaması ve işler" sayi={isler.length} renk="lacivert" />
         <p className={`text-[13px] ${IKINCIL}`}>
           Sektörün zinciri: her aşamanın bir çıktısı var, çıktı olmadan sonrakine geçilmez. İlk iki aşama tasarım belgesindeki adımlardan, sonrakiler buradaki işlerden hesaplanır
-          {suAn ? <> — şu an <b className={YAZI}>{suAn.ad}</b>.</> : '. Henüz iş yok.'}
+          {suAn ? <> — şu an <b className={YAZI}>{suAn.ad}</b>.</> : '. Henüz başlamadı.'}
         </p>
         <div className="space-y-2">
           {ASAMALAR.map((a, i) => {

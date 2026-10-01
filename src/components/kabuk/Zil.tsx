@@ -13,9 +13,11 @@ interface Props {
   onSec: (b: Bildirim, madde?: Item) => void;
   /** Masaüstü rayında yukarı değil sağa açılır */
   yon?: 'asagi' | 'sag';
+  /** Masaüstü rayında simgenin yanındaki yazı; verilirse bütün satır düğme olur */
+  etiket?: React.ReactNode;
 }
 
-export const Zil: React.FC<Props> = ({ bildirimler, onSec, yon = 'asagi' }) => {
+export const Zil: React.FC<Props> = ({ bildirimler, onSec, yon = 'asagi', etiket }) => {
   const [acik, setAcik] = useState(false);
   const kutu = useRef<HTMLDivElement | null>(null);
 
@@ -36,13 +38,16 @@ export const Zil: React.FC<Props> = ({ bildirimler, onSec, yon = 'asagi' }) => {
         type="button"
         onClick={() => setAcik(a => !a)}
         title={bildirimler.length ? `${bildirimler.length} bildirim` : 'Bildirim yok'}
-        className={`relative flex items-center justify-center cursor-pointer ${yon === 'sag'
-          ? 'w-11 h-11 rounded-xl text-[#A6B0C9] hover:text-white hover:bg-white/10'
-          : 'w-11 h-11 rounded-full border border-[#CFC5B4] dark:border-[#2C3C72] bg-[#FAF8F5] dark:bg-[#13204A] text-[#6A5E4C] dark:text-[#A6B0C9]'}`}
+        className={`relative flex items-center cursor-pointer ${etiket
+          ? 'w-full h-11 gap-3 px-3 rounded-xl text-[#A6B0C9] hover:text-white hover:bg-white/10'
+          : yon === 'sag'
+          ? 'justify-center w-11 h-11 rounded-xl text-[#A6B0C9] hover:text-white hover:bg-white/10'
+          : 'justify-center w-11 h-11 rounded-full border border-[#CFC5B4] dark:border-[#2C3C72] bg-[#FAF8F5] dark:bg-[#13204A] text-[#6A5E4C] dark:text-[#A6B0C9]'}`}
       >
-        <Bell className="w-[18px] h-[18px]" />
+        <Bell className="w-[18px] h-[18px] shrink-0" />
+        {etiket}
         {bildirimler.length > 0 && (
-          <span className="absolute top-1.5 right-1.5 min-w-4 h-4 px-1 rounded-full bg-[#F26B6F] text-white text-[9px] font-bold leading-4 text-center">
+          <span className={`absolute top-1.5 ${etiket ? 'left-6' : 'right-1.5'} min-w-4 h-4 px-1 rounded-full bg-[#F26B6F] text-white text-[9px] font-bold leading-4 text-center`}>
             {bildirimler.length}
           </span>
         )}
