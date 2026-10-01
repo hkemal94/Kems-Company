@@ -1183,3 +1183,14 @@ vermesi açısından çok iyi"; "yapı değil, iskelet ve renk"). Alınanlar:
 - **Fanzin** (Stitch iskeleti): son sayı kartı (kapak — görsel yoksa
   lacivert blok —, durum rozeti, yazılmış bölüm halkası, üç kutucuk), bu
   sayının yazıları durum simgesiyle, önceki sayılar, Stüdyoda aç kartı.
+- **Oyunlar listesi ve oyun künyesi** (Kemal, 1 Ekim: "The Imperial
+  Kemsköy oyunu için bir künye sayfası … oyunlar listesi + künye; yalnız
+  benim seçimlerim"). Oyun sayfası bir listeyle açılır; her oyun bir
+  `oyun_tanitim` kaydı, iş / belge / fikir notları `metadata.oyunId` ile
+  oyununa bağlı (alan yoksa ilk oyunun: eski kayıtlar yerinde kalır, göç
+  yok). Künye viki künyesi gibi: ad, durum, tür, platform, hedef oyuncu,
+  oyuncu sayısı, Düzada'da nerede, zaman aralığı, kamera, görsel stil, oyun
+  süresi, takvim, ekip. Değerler yalnız tasarım belgesindeki seçimlerden;
+  boş satır "boş · seç" der ve o adıma götürür. Oyunun adını Kemal künyede
+  yazar (önizlemede "The Imperial Kemsköy" görünür; uygulamaya kendiliğinden
+  yazılmadı). Oyun deposuna bakılmadı, oraya bir şey yazılmadı.
