@@ -28,6 +28,9 @@ export function maddeGorseli(item: Item, items: Item[] = []): string | undefined
     typeof x === 'string' && x.startsWith('data:image/') && !x.startsWith('data:image/svg');
   const kit = item.metadata?.brandKit;
 
+  // Marka / kurumda birincil logo önce gelir (1 Ekim: Markalar'da "Birincil yap")
+  if ((item.type === 'marka' || item.type === 'kulüp') && veriMi(kit?.logoBase64)) return kit!.logoBase64;
+
   // 1–2. Uygulamaya yüklenmiş görseller (dosyanın kendisi kayıtta)
   const yuklenen = (item.images || []).find(veriMi);
   if (yuklenen) return yuklenen;

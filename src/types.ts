@@ -55,6 +55,8 @@ export interface BrandKit {
   selectedLogo: string; // URL or base64 or description
   logoBase64?: string;  // Custom uploaded logo base64 image data
   ideaLogos: string[];  // variants
+  /** İkincil logo: ideaLogos içindeki sırası (1 Ekim; Kemal seçer, denemeler gizli) */
+  ikincilLogoSira?: number;
   colorPalette: string[]; // hex codes
   exemplaryWorks: string[]; // references
   selectedFont?: string;
