@@ -75,6 +75,8 @@ terimsiz olur. Kodu değil, **ekranda ne değiştiğini** anlat.
   önerebilirsin, karar onun. Numaralı adlar ("İskele 3. Sokak") geçicidir.
 - **Uydurma sayı yok.** Takipçi, erişim, fiyat: veri yoksa alan boş.
 - Yazım her yerde **Kemsköy** (Türkçe ö). Norveç ø'sü yok.
+  **Tek istisna:** oyunun adı **The Imperial Kemskoy** (ö'süz; Kemal, 1 Ekim).
+  Yalnız oyunun adı; evrende ve vikide yazım yine Kemsköy.
 - Kod içindeki değişken adları ve yorumlar Türkçe.
 
 **Kanon**

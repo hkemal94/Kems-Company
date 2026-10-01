@@ -7,6 +7,7 @@ import { w4Aktarimi } from '../lib/w4Aktarimi';
 import { w5Aktarimi, w5GorselAdresi, W5_ETIKETI } from '../lib/w5Aktarimi';
 import { useHaritaDuzeni } from '../lib/haritaDuzeni';
 import { TemizlikKarti } from './TemizlikKarti';
+import { OrtakAlanKarti } from './OrtakAlanKarti';
 import { GaleriYedegiKarti } from './GaleriYedegiKarti';
 import { KanonKarti } from './KanonKarti';
 import { vikiDuzeni } from '../lib/vikiDuzeni';
@@ -284,6 +285,9 @@ export const Eksikler: React.FC<EksiklerProps> = ({
 
   return (
     <div className="mb-8">
+      {/* Ortak alan (1 Ekim): eski ortak alanda kayıt kaldıysa tek seferlik taşıma */}
+      {onUpdateItem && <OrtakAlanKarti items={items} onUpdateItem={onUpdateItem} />}
+
       {/* Temizlik (29 Eylül): kullanılmayan kayıtlar silinir, önce yedek */}
       {onDeleteItem && <TemizlikKarti items={items} onDeleteItem={onDeleteItem} />}
 
