@@ -10,14 +10,79 @@
  * x sağa, y aşağı büyür. Sonra sahnede 1 cm = 0,01 birim.
  */
 
-export type Kalip = 'tisort' | 'sweatshirt';
+/**
+ * Ürün türleri. Kalıptan çizilenler (giysi ve bez çanta) yastık gibi
+ * kabarır; kupa, poster ve şapka kendi geometrisiyle kurulur (Studyo3B).
+ */
+export type Kalip = 'tisort' | 'sweatshirt' | 'kapusonlu' | 'canta' | 'sapka' | 'kupa' | 'poster';
 export type Kesim = 'regular' | 'oversize';
 export type Yuz = 'on' | 'arka';
+
+/** Kalıptan çizilen (yastık) ürünler */
+export const KALIPLI: Kalip[] = ['tisort', 'sweatshirt', 'kapusonlu', 'canta'];
+/** Kesimi (regular / oversize) olan ürünler */
+export const KESIMLI: Kalip[] = ['tisort', 'sweatshirt', 'kapusonlu'];
+
+export const URUN_ADI: Record<Kalip, string> = {
+  tisort: 'Tişört', sweatshirt: 'Sweatshirt', kapusonlu: 'Kapüşonlu', canta: 'Bez çanta',
+  sapka: 'Şapka', kupa: 'Kupa', poster: 'Poster'
+};
 
 export const ALAN_CM = 120;
 const UST = 10; // yaka çizgisinin alanın tepesinden uzaklığı
 
 type Nokta = [number, number];
+
+/**
+ * Ölçü tablosu (1 Ekim, Kemal: "ölçüleri ilettim, onlarla oluştur").
+ *
+ * Ölçü noktaları Kemal'in gönderdiği tech pack şablonundaki gibi
+ * (Collective Studio): göğüs genişliği koltuk altının 1 cm altından düz
+ * ölçülür, boy omuz başından (HPS) etek ucuna. Referans beden M; vücut
+ * ölçüleri Kemal'in beden tablosundan (erkek, göğüs çevresi ~100 cm, kol
+ * ~64 cm, boy ~74–76 cm). Giysi ölçüsü vücuda bolluk eklenerek bulunur.
+ * Bez çanta, kupa, poster ve şapka PDF'lerde yok: piyasadaki standart
+ * ölçüler (11 oz kupa, 50×70 poster, 38×42 çanta, 58 cm şapka). Kemal
+ * hepsini ekrandaki Ölçüler kutusundan değiştirebilir; değişiklik ürünün
+ * tasarımıyla kaydedilir.
+ */
+export interface OlcuNoktasi { id: string; ad: string; cm: number; min: number; max: number }
+
+const N = (id: string, ad: string, cm: number, min: number, max: number): OlcuNoktasi => ({ id, ad, cm, min, max });
+
+export const OLCU_TABLOSU: Record<Kalip, OlcuNoktasi[]> = {
+  tisort: [
+    N('gogus', 'Göğüs genişliği', 54, 44, 70), N('boy', 'Boy (omuzdan etek ucuna)', 72, 60, 86),
+    N('omuz', 'Omuz genişliği', 47, 38, 62), N('kol', 'Kol boyu', 21, 12, 30),
+    N('kolAgzi', 'Kol ağzı', 18, 13, 25), N('yaka', 'Yaka genişliği', 18, 14, 24)
+  ],
+  sweatshirt: [
+    N('gogus', 'Göğüs genişliği', 57, 46, 72), N('boy', 'Boy (omuzdan etek ucuna)', 70, 58, 84),
+    N('omuz', 'Omuz genişliği', 49, 40, 64), N('kol', 'Kol boyu', 63, 52, 72),
+    N('kolAgzi', 'Kol ağzı (ribana)', 10, 8, 14), N('yaka', 'Yaka genişliği', 19, 15, 24),
+    N('ribana', 'Ribana yüksekliği', 6, 3, 9)
+  ],
+  kapusonlu: [
+    N('gogus', 'Göğüs genişliği', 58, 46, 72), N('boy', 'Boy (omuzdan etek ucuna)', 71, 58, 84),
+    N('omuz', 'Omuz genişliği', 50, 40, 64), N('kol', 'Kol boyu', 63, 52, 72),
+    N('kolAgzi', 'Kol ağzı (ribana)', 10, 8, 14), N('yaka', 'Yaka genişliği', 20, 15, 26),
+    N('ribana', 'Ribana yüksekliği', 6, 3, 9), N('kapusonBoy', 'Kapüşon boyu', 35, 28, 42),
+    N('kapusonEn', 'Kapüşon eni', 25, 20, 30)
+  ],
+  canta: [
+    N('en', 'En', 38, 25, 50), N('boy', 'Boy', 42, 28, 55), N('sap', 'Sap uzunluğu', 60, 30, 75), N('sapEn', 'Sap eni', 2.5, 1.5, 4)
+  ],
+  sapka: [N('cevre', 'Baş çevresi', 58, 54, 62), N('siper', 'Siper derinliği', 7, 5, 9), N('tepe', 'Tepe yüksekliği', 12, 9, 15)],
+  kupa: [N('cap', 'Çap', 8.2, 7, 10), N('boy', 'Yükseklik', 9.5, 8, 12)],
+  poster: [N('en', 'En', 50, 21, 70), N('boy', 'Boy', 70, 29.7, 100)]
+};
+
+/** Tablo + Kemal'in düzeltmeleri → ölçü değerleri */
+export function olcuDegerleri(kalip: Kalip, duzeltme: Record<string, number> = {}): Record<string, number> {
+  const d: Record<string, number> = {};
+  for (const n of OLCU_TABLOSU[kalip]) d[n.id] = typeof duzeltme[n.id] === 'number' ? duzeltme[n.id] : n.cm;
+  return d;
+}
 
 interface Olcu {
   /** yakadan omuz ucuna yarım genişlik */
@@ -44,25 +109,31 @@ interface Olcu {
   kolBant: number;
 }
 
-export function olculer(kalip: Kalip, kesim: Kesim): Olcu {
+/**
+ * Ölçü noktalarından kalıp ölçüleri. Oversize: göğüs +6, boy +4, omuz
+ * düşük (+8), kol daha açık.
+ */
+export function olculer(kalip: Kalip, kesim: Kesim, duzeltme: Record<string, number> = {}): Olcu {
+  const v = olcuDegerleri(kalip === 'canta' || kalip === 'sapka' || kalip === 'kupa' || kalip === 'poster' ? 'tisort' : kalip, duzeltme);
   const bol = kesim === 'oversize';
+  const gogus = (v.gogus + (bol ? 6 : 0)) / 2;
+  const omuz = (v.omuz + (bol ? 8 : 0)) / 2;
+  const boy = v.boy + (bol ? 4 : 0);
+  const yaka = v.yaka / 2;
   if (kalip === 'tisort') {
     return {
-      omuz: bol ? 29 : 23, omuzDusu: bol ? 5 : 4,
-      gogus: bol ? 31 : 26, koltuk: bol ? 30 : 24,
-      boy: bol ? 76 : 71,
-      yaka: 9, onYaka: 9, arkaYaka: 2.5,
-      kolAci: bol ? 42 : 34, kolBoy: bol ? 24 : 19, kolAgiz: bol ? 20 : 16,
+      omuz, omuzDusu: bol ? 5 : 4, gogus, koltuk: gogus * 0.9 + (bol ? 6 : 0),
+      boy, yaka, onYaka: 9, arkaYaka: 2.5,
+      kolAci: bol ? 42 : 34, kolBoy: v.kol + (bol ? 3 : 0), kolAgiz: v.kolAgzi + (bol ? 2 : 0),
       etekBant: 0, kolBant: 0
     };
   }
+  const ribana = v.ribana ?? 6;
   return {
-    omuz: bol ? 30 : 24, omuzDusu: bol ? 6 : 4.5,
-    gogus: bol ? 32 : 27, koltuk: bol ? 31 : 25,
-    boy: bol ? 74 : 68,
-    yaka: 9.5, onYaka: 8, arkaYaka: 2.5,
-    kolAci: bol ? 66 : 64, kolBoy: bol ? 60 : 58, kolAgiz: bol ? 13 : 12,
-    etekBant: 6, kolBant: 6
+    omuz, omuzDusu: bol ? 6 : 4.5, gogus, koltuk: gogus * 0.9 + (bol ? 6 : 0),
+    boy, yaka, onYaka: kalip === 'kapusonlu' ? 7 : 8, arkaYaka: 2.5,
+    kolAci: bol ? 66 : 64, kolBoy: v.kol - (bol ? 2 : 0), kolAgiz: v.kolAgzi + (bol ? 1 : 0),
+    etekBant: ribana, kolBant: ribana
   };
 }
 
@@ -74,11 +145,30 @@ export interface KalipCizgisi {
   /** yaka ribanası: iç ve dış yay */
   yakaDis: Nokta[];
   yakaIc: Nokta[];
+  /** kol bölgeleri (parça rengi için); çantada boş */
+  kollar: Nokta[][];
+  /** bez çantanın sapları (sahnede tüp olarak kurulur), cm */
+  saplar?: Nokta[][];
 }
 
 /** Kalıbın dış çizgisi. `yuz` yalnız yaka derinliğini değiştirir. */
-export function kalipCizgisi(kalip: Kalip, kesim: Kesim, yuz: Yuz): KalipCizgisi {
-  const o = olculer(kalip, kesim);
+export function kalipCizgisi(kalip: Kalip, kesim: Kesim, yuz: Yuz, duzeltme: Record<string, number> = {}): KalipCizgisi {
+  const kaydir = (p: Nokta[]): Nokta[] => p.map(([x, y]) => [x + ALAN_CM / 2, y + UST]);
+  if (kalip === 'canta') {
+    // Bez çanta: düz dikdörtgen; ağzı yaka çizgisi hizasında. Saplar ayrıca.
+    const v = olcuDegerleri('canta', duzeltme);
+    const w = v.en / 2, h = v.boy, ust = 22;
+    const dis: Nokta[] = [[-w, ust], [w, ust], [w, ust + h], [-w, ust + h]];
+    const sapX = w * 0.42, sapY = Math.min(v.sap * 0.42, ust + 6);
+    // sap: çantanın ağzından yukarı kavis (yarım elips)
+    const sap: Nokta[] = [];
+    for (let i = 0; i <= 16; i++) {
+      const a = Math.PI * (i / 16);
+      sap.push([Math.cos(a) * sapX, ust - Math.sin(a) * sapY]);
+    }
+    return { dis: kaydir(dis), bantlar: [], yakaIc: [], yakaDis: [], kollar: [], saplar: [kaydir(sap)] };
+  }
+  const o = olculer(kalip, kesim, duzeltme);
   const yakaDerin = yuz === 'on' ? o.onYaka : o.arkaYaka;
   const r = (rad: number) => (rad * Math.PI) / 180;
 
@@ -116,8 +206,6 @@ export function kalipCizgisi(kalip: Kalip, kesim: Kesim, yuz: Yuz): KalipCizgisi
   const yay = yakaYayi(yakaDerin, o.yaka).reverse(); // soldan sağa (üst → yay)
   const dis: Nokta[] = [...sag, ...sol, ...yay.slice(1, -1)];
 
-  const kaydir = (p: Nokta[]): Nokta[] => p.map(([x, y]) => [x + ALAN_CM / 2, y + UST]);
-
   const bantlar: Nokta[][] = [];
   if (o.etekBant > 0) {
     bantlar.push([
@@ -133,9 +221,13 @@ export function kalipCizgisi(kalip: Kalip, kesim: Kesim, yuz: Yuz): KalipCizgisi
     }
   }
   const yakaGen = 2.2;
+  // kol bölgesi: omuz ucu → kol dışı → kol içi → koltuk altı
+  const kolSag: Nokta[] = [omuzU, kolDis, kolIc, koltuk];
+  const kollar = [kolSag, kolSag.map(([x, y]) => [-x, y] as Nokta)];
   return {
     dis: kaydir(dis),
     bantlar: bantlar.map(kaydir),
+    kollar: kollar.map(kaydir),
     yakaIc: kaydir(yakaYayi(yakaDerin, o.yaka)),
     yakaDis: kaydir(yakaYayi(yakaDerin + yakaGen, o.yaka + yakaGen * 0.6))
   };
