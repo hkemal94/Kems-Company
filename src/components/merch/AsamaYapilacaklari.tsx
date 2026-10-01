@@ -14,7 +14,7 @@ export const ASAMALAR = ['Konsept', 'Tasarım', 'Üretim', 'Satışta'] as const
 /** Süreç adımları; ad ya da kurgu değil */
 export const HAZIR_LISTE: Record<string, string[]> = {
   Konsept: ['Fikir notu', 'Pinterest / ilham panosu', 'Canva taslağı', 'Hangi drop / kurum'],
-  Tasarım: ['3B stüdyoda dene', 'Renk ve baskı yeri', 'Son tasarım dosyası', 'Etiket (Kems Company)'],
+  Tasarım: ['Mockup / ürün görseli', 'Renk ve baskı yeri', 'Son tasarım dosyası', 'Etiket (Kems Company)'],
   Üretim: ['Üretici / baskıcı seç', 'Numune iste', 'Numune onayı', 'Sipariş'],
   Satışta: ['Ürün çekimi', 'Mağaza sayfası', 'Sosyal medya duyurusu', 'Sitede göster']
 };

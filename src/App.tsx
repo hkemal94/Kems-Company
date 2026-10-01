@@ -37,7 +37,6 @@ import {
   Megaphone,
   Globe,
   CalendarDays,
-  Box,
   Newspaper,
   Milestone,
   LayoutGrid,
@@ -66,7 +65,6 @@ const Site = lazy(() => import('./components/site/Site'));
 const SiteYonetimi = lazy(() => import('./components/site/SiteYonetimi'));
 const Takvim = lazy(() => import('./components/takvim/Takvim'));
 const Araclar = lazy(() => import('./components/araclar/Araclar'));
-const Studyo3BSayfasi = lazy(() => import('./components/merch/Studyo3BSayfasi'));
 const FanzinSayfasi = lazy(() => import('./components/fanzin/FanzinSayfasi'));
 const YolHaritasiSayfasi = lazy(() => import('./components/anasayfa/YolHaritasiSayfasi'));
 const OyunEkrani = lazy(() => import('./components/oyun/OyunEkrani'));
@@ -86,7 +84,7 @@ import { Zil } from './components/kabuk/Zil';
 import { useBildirimler, type Bildirim } from './lib/bildirimler';
 
 /** Uygulamanın sayfaları. 'komuta' ana sayfa; eski Komuta Merkezi 'durum'. */
-type Sayfa = 'komuta' | 'durum' | 'markalar' | 'duzada' | 'merch' | 'yazi' | 'oyun' | 'galeri' | 'studyo' | 'sosyal' | 'site' | 'takvim' | 'studyo3b' | 'fanzin' | 'yolharitasi' | 'araclar';
+type Sayfa = 'komuta' | 'durum' | 'markalar' | 'duzada' | 'merch' | 'yazi' | 'oyun' | 'galeri' | 'studyo' | 'sosyal' | 'site' | 'takvim' | 'fanzin' | 'yolharitasi' | 'araclar';
 
 export interface WorkspaceUser {
   uid: string;
@@ -743,7 +741,6 @@ export default function App() {
     { grup: 'Marka', satirlar: [
       { id: 'markalar', ad: 'Markalar', simge: Shield },
       { id: 'merch', ad: 'Merch', alt: 'droplar ve ürünler', simge: ShoppingBag },
-      { id: 'studyo3b', ad: '3B stüdyo', alt: 'renk ve baskı denemesi', simge: Box },
       { id: 'galeri', ad: 'Galeri', simge: ImageIcon }
     ] },
     { grup: 'Araçlar', satirlar: [
@@ -763,7 +760,7 @@ export default function App() {
 
   /**
    * Telefonda "Diğer" (30 Eylül, Kemal: "büyük şeyler çok derine saklanmış"):
-   * en çok kullanılan araçlar en üstte; 3B stüdyo, Fanzin, Takvim, Yol
+   * en çok kullanılan araçlar en üstte; Fanzin, Takvim, Yol
    * haritası kendi satırlarında.
    */
   const DIGER: Array<{ grup: string; satirlar: Array<{ hedef: string; ad: string; simge: React.ElementType; nokta?: boolean }> }> = [
@@ -784,7 +781,6 @@ export default function App() {
     ] },
     { grup: 'Marka', satirlar: [
       { hedef: 'markalar', ad: 'Markalar', simge: Shield },
-      { hedef: 'studyo3b', ad: '3B stüdyo', simge: Box },
       { hedef: 'galeri', ad: 'Galeri', simge: ImageIcon }
     ] }
   ];
@@ -804,7 +800,7 @@ export default function App() {
 
   const SAYFA_ADI: Record<Sayfa, string> = {
     komuta: 'Ana sayfa', duzada: 'Düzada', markalar: 'Markalar', merch: 'Merch', yazi: 'Yazı',
-    oyun: 'Oyun', galeri: 'Galeri', durum: 'Durum', studyo: 'Yapay zekâ', sosyal: 'Sosyal medya', site: 'Site', takvim: 'Takvim', studyo3b: '3B stüdyo', fanzin: 'Fanzin', yolharitasi: 'Yol haritası', araclar: 'Araçlar'
+    oyun: 'Oyun', galeri: 'Galeri', durum: 'Durum', studyo: 'Yapay zekâ', sosyal: 'Sosyal medya', site: 'Site', takvim: 'Takvim', fanzin: 'Fanzin', yolharitasi: 'Yol haritası', araclar: 'Araçlar'
   };
 
   const logo = hasKemsLogo ? (
@@ -1059,7 +1055,6 @@ export default function App() {
             )}
 
             {activeTab === 'araclar' && <Araclar onGit={id => git(id)} />}
-            {activeTab === 'studyo3b' && <Studyo3BSayfasi items={items} onUpdateItem={handleUpdateItem} onAddItem={handleAddItem} />}
             {activeTab === 'fanzin' && <FanzinSayfasi items={items} onUpdateItem={handleUpdateItem} onStudyo={() => git('studyo')} />}
             {activeTab === 'yolharitasi' && <YolHaritasiSayfasi items={items} eposta={girisli ? user?.email : null} onUpdateItem={handleUpdateItem} onAddItem={handleAddItem} />}
 
