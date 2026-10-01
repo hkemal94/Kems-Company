@@ -1,10 +1,10 @@
 import React, { useState, useMemo, Suspense, lazy } from 'react';
-import { ShoppingBag, Sparkles, FolderDot, Bookmark, ChevronRight, ChevronLeft, ChevronDown, ChevronUp, RotateCcw, Palette, Image, Plus, Layers, Check, Trash2, Archive, Edit3 } from 'lucide-react';
+import { ShoppingBag, Sparkles, FolderDot, ChevronRight, ChevronLeft, ChevronDown, Image, Plus, Layers, Check, Trash2, Archive, Edit3 } from 'lucide-react';
 import { StudyodaAc } from './studyo/StudyodaAc';
 import { Item, ItemType, AreaType } from '../types';
 import { hazirFotosuz, merchYedekGorseli } from '../lib/gorselSecimi';
 import { compressImageBase64 } from '../lib/imageCompressor';
-import ConsistencyChecker from './ConsistencyChecker';
+import { SayfaBasi } from './kabuk/SayfaBasi';
 import { DropKunyesi } from './DropKunyesi';
 import { SayfaRayi, type RayBolumu } from './SayfaRayi';
 import { markaYapisi, KURUM_ALANI } from '../lib/markaYapisi';
@@ -17,6 +17,8 @@ import { dropTarihi } from '../lib/takvim';
 const Studyo3B = lazy(() => import('./merch/Studyo3B'));
 
 /** Merch ekranının bölümleri — bunlar sekme, kaydırma değil */
+// Arşiv kalır (Kemal, 1 Ekim): işi biten droplar arşive geçer, bir gün
+// devamı gelebilir. Temizlik kartı arşivdeki drop / ürünü silmez.
 const RAY_BOLUMLERI: RayBolumu[] = [
   { id: 'home', label: 'Genel bakış' },
   { id: 'pano', label: 'Pano' },
@@ -505,33 +507,16 @@ export default function Merch({
     <div className="space-y-6">
       
       <SayfaRayi
-        baslik="Merch Atölyesi"
+        baslik="Merch"
         bolumler={RAY_BOLUMLERI}
         aktifId={activeTab}
         onSec={id => { setActiveTab(id as typeof activeTab); onSelectItem(null); }}
       />
 
-      {/* Header breadcrumb & view switches */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#CFC5B4]">
-        <div>
-          <span className="text-xs font-mono uppercase text-[#6A5E4C] dark:text-[#A6B0C9]">
-            Kems Company • Merch Atölyesi
-          </span>
-          <h1 className="font-sans font-bold text-2xl text-[#0E1C4F] dark:text-[#F3EFE8] mt-1 tracking-tight">
-            Tema, Drop & Ürünler
-          </h1>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-1.5 font-mono text-xs">
-          <ConsistencyChecker 
-            module="merch" 
-            items={items} 
-            onUpdateItem={onUpdateItem} 
-            onAddItem={onAddItem} 
-            buttonClassName="px-4 py-2 bg-[#FAF8F5] hover:bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] text-[#6A5E4C] dark:text-[#A6B0C9] rounded-lg cursor-pointer transition-all flex items-center gap-1"
-          />
+      {/* Sade başlık (1 Ekim, K-2) */}
+      <SayfaBasi baslik="Merch">
           {/* Brand select filter (Rule 4) */}
-          <div className="flex items-center bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] rounded-lg p-1.5 mr-1.5">
+          <div className="flex items-center bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] rounded-lg p-1.5">
             <span className="text-[9px] font-mono font-bold uppercase text-[#6A5E4C] dark:text-[#A6B0C9] px-2">Kurum:</span>
             <select
               value={seciliKurum}
@@ -548,8 +533,7 @@ export default function Merch({
           </div>
 
           {/* Sekmeler sayfa rayında (masaüstünde solda, telefonda üstte) — burada tekrar edilmez */}
-        </div>
-      </div>
+      </SayfaBasi>
 
       {/* 3B STÜDYO (yapisal-4, 6. tur) */}
       {activeTab === 'studyo3b' && !activeItem && (

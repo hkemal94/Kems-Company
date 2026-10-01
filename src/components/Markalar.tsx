@@ -1,29 +1,25 @@
 import React, { useState, useMemo } from 'react';
-import { 
-  Shield, 
-  Plus, 
-  Trash2, 
-  Edit3, 
-  PlusCircle, 
-  Palette, 
-  Type, 
-  Briefcase, 
-  Users, 
-  MapPin, 
-  Calendar, 
-  ShoppingBag, 
-  Check, 
+import {
+  Shield,
+  Plus,
+  Trash2,
+  Edit3,
+  PlusCircle,
+  Palette,
+  Users,
+  MapPin,
+  ShoppingBag,
   X,
   Upload,
   Layers,
-  ArrowRight,
-  Search
+  Search,
 } from 'lucide-react';
 import { StudyodaAc } from './studyo/StudyodaAc';
 import { Item, ItemType, BrandKit, AreaType, WikiSection } from '../types';
 import { compressImageBase64 } from '../lib/imageCompressor';
 import { resolveAllRelations, cleanupRelationsOnDelete } from '../utils/relations';
-import ConsistencyChecker from './ConsistencyChecker';
+import { SayfaBasi } from './kabuk/SayfaBasi';
+import { KatlanirBolum } from './kabuk/KatlanirBolum';
 import {
   MARKA_KUNYELERI, markayiBul, kunyeyiBirlestir, kunyedenYeni
 } from '../data/markaKunyeleri';
@@ -180,6 +176,26 @@ export default function Markalar({
     if (!activeBrandId) return null;
     return brands.find(b => b.id === activeBrandId) || null;
   }, [activeBrandId, brands]);
+
+  /** Marka kılavuzunu düzenlemeye aç; alanlar kayıttan doldurulur */
+  const kitiDuzenle = () => {
+    if (!activeBrand) return;
+    setIsEditingBrand(true);
+    setEditBrandTitle(activeBrand.title);
+    setEditBrandNotes(activeBrand.notes || '');
+    const bk = activeBrand.metadata?.brandKit || {};
+    setEditSlogan(bk.slogan || '');
+    setEditVoiceTone(bk.voiceTone || '');
+    setEditSelectedFont(bk.selectedFont || 'Inter');
+    setEditLogoBase64(bk.logoBase64 || '');
+    setEditSelectedLogo(bk.selectedLogo || '');
+    setEditIdeaLogos(bk.ideaLogos || []);
+    setEditColorPalette(bk.colorPalette || []);
+    setEditExexemplaryWorks(bk.exemplaryWorks || []);
+    setEditAtmosphereMoodboard(bk.atmosphereMoodboard || []);
+    setEditUsageRulesDo(bk.usageRulesDo || []);
+    setEditUsageRulesDont(bk.usageRulesDont || []);
+  };
 
   // Get existing entities of the chosen type that are not currently linked to this brand
   const existingEntitiesToLink = useMemo(() => {
@@ -442,25 +458,8 @@ export default function Markalar({
   return (
     <div className="space-y-6">
       
-      {/* Upper header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#CFC5B4]">
-        <div>
-          <span className="text-xs font-mono uppercase text-[#6A5E4C] dark:text-[#A6B0C9]">
-            Kems Company · markalar ve kurumlar
-          </span>
-          <h1 className="font-sans font-bold text-2xl text-[#0E1C4F] dark:text-[#F3EFE8] mt-1 tracking-tight">
-            Yaratıcı Markalar & Kimlikler
-          </h1>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <ConsistencyChecker 
-            module="marka" 
-            items={items} 
-            onUpdateItem={onUpdateItem} 
-            onAddItem={onAddItem}
-            buttonClassName="flex items-center gap-1.5 text-xs font-mono px-3.5 py-2 bg-[#FAF8F5] hover:bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] text-[#6A5E4C] dark:text-[#A6B0C9] rounded-lg cursor-pointer transition-all"
-          />
+      {/* Sade başlık (1 Ekim, K-2); tutarlılık denetimi stüdyoda */}
+      <SayfaBasi baslik="Markalar">
           {/* M1 · Canva'daki gerçek künyeleri uygulamaya birleştir */}
           <button
             onClick={kunyeleriUygula}
@@ -480,8 +479,7 @@ export default function Markalar({
             <Plus className="w-4 h-4" />
             <span>Yeni Marka Oluştur</span>
           </button>
-        </div>
-      </div>
+      </SayfaBasi>
 
       {/*
         Sayfa rayı: burada "bölüm" markanın kendisi. Markalar ekranında
@@ -520,12 +518,13 @@ export default function Markalar({
 
         {/* LEFT BAR: BRAND NAVIGATION */}
         <div className="lg:col-span-1 space-y-4">
+          {/* Telefonda bu iki liste gizli: aynı seçim üstteki çiplerde (1 Ekim, K-4) */}
           {/*
             7. madde · adım 1: tek liste yerine iki liste.
             Üstte marka (Kems Company), altta kurgu içi kurumlar. Kurum
             drop serisi açabilir; satan yine de her zaman marka.
           */}
-          <div className="bg-[#FAF8F5] dark:bg-[#13204A] border border-[#CFC5B4] dark:border-[#2C3C72] rounded-xl p-4 archive-shadow paper-grain space-y-3">
+          <div className="hidden lg:block bg-[#FAF8F5] dark:bg-[#13204A] border border-[#CFC5B4] dark:border-[#2C3C72] rounded-xl p-4 archive-shadow paper-grain space-y-3">
             <h3 className="text-[10px] font-mono uppercase text-[#6A5E4C] dark:text-[#A6B0C9] font-bold">
               Marka
             </h3>
@@ -549,7 +548,7 @@ export default function Markalar({
             )}
           </div>
 
-          <div className="bg-[#FAF8F5] dark:bg-[#13204A] border border-[#CFC5B4] dark:border-[#2C3C72] rounded-xl p-4 archive-shadow paper-grain space-y-3">
+          <div className="hidden lg:block bg-[#FAF8F5] dark:bg-[#13204A] border border-[#CFC5B4] dark:border-[#2C3C72] rounded-xl p-4 archive-shadow paper-grain space-y-3">
             <h3 className="text-[10px] font-mono uppercase text-[#6A5E4C] dark:text-[#A6B0C9] font-bold">
               Kurumlar · kurgu içi ({yapi.kurumlar.length})
             </h3>
@@ -679,25 +678,7 @@ export default function Markalar({
                       </div>
                     ) : (
                       <button
-                        onClick={() => {
-                          setIsEditingBrand(true);
-                          setEditBrandTitle(activeBrand.title);
-                          setEditBrandNotes(activeBrand.notes || '');
-                          
-                          // Populate deep brand kit fields
-                          const bk = activeBrand.metadata?.brandKit || {};
-                          setEditSlogan(bk.slogan || '');
-                          setEditVoiceTone(bk.voiceTone || '');
-                          setEditSelectedFont(bk.selectedFont || 'Inter');
-                          setEditLogoBase64(bk.logoBase64 || '');
-                          setEditSelectedLogo(bk.selectedLogo || '');
-                          setEditIdeaLogos(bk.ideaLogos || []);
-                          setEditColorPalette(bk.colorPalette || []);
-                          setEditExexemplaryWorks(bk.exemplaryWorks || []);
-                          setEditAtmosphereMoodboard(bk.atmosphereMoodboard || []);
-                          setEditUsageRulesDo(bk.usageRulesDo || []);
-                          setEditUsageRulesDont(bk.usageRulesDont || []);
-                        }}
+                        onClick={kitiDuzenle}
                         className="p-2 bg-white dark:bg-[#17345A] border border-[#CFC5B4] rounded-lg hover:text-[#F26B6F] transition-all cursor-pointer"
                         title="Tüm Marka Kılavuzunu Düzenle"
                       >
@@ -850,10 +831,7 @@ export default function Markalar({
                       <div className="space-y-6">
                         
                         {/* 1. LOGO & EMBLEM GUIDE */}
-                        <div className="space-y-3">
-                          <h4 className="text-[10px] font-mono uppercase text-[#6A5E4C] dark:text-[#A6B0C9] tracking-wider font-bold">
-                            1. Logolar ve Amblemler
-                          </h4>
+                        <KatlanirBolum baslik="1. Logolar ve Amblemler" bos={false} duzenleniyor={isEditingBrand} onEkle={kitiDuzenle}>
                           
                           {!isEditingBrand ? (
                             <div className="space-y-4">
@@ -1036,21 +1014,15 @@ export default function Markalar({
                               </div>
                             </div>
                           )}
-                        </div>
+                        </KatlanirBolum>
 
                         {/* 2. COLOR PALETTE WITH CLICK-TO-COPY */}
-                        <div className="space-y-3">
-                          <div className="flex justify-between items-center">
-                            <h4 className="text-[10px] font-mono uppercase text-[#6A5E4C] dark:text-[#A6B0C9] tracking-wider font-bold">
-                              2. Kurumsal Renk Paleti
-                            </h4>
-                            <StudyodaAc
+                        <KatlanirBolum baslik="2. Kurumsal Renk Paleti" ek={<><StudyodaAc
                               arac="marka-renk"
                               hedefId={activeBrand.id}
                               etiket="Renk önerisi · stüdyoda"
                               className="text-[9px] font-mono text-[#F26B6F] hover:underline flex items-center gap-1 cursor-pointer font-bold"
-                            />
-                          </div>
+                            /></>} bos={!(bk.colorPalette || []).length} duzenleniyor={isEditingBrand} onEkle={kitiDuzenle}>
 
                           {!isEditingBrand ? (
                             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
@@ -1126,7 +1098,7 @@ export default function Markalar({
                               </div>
                             </div>
                           )}
-                        </div>
+                        </KatlanirBolum>
 
                       </div>
 
@@ -1134,10 +1106,7 @@ export default function Markalar({
                       <div className="space-y-6">
                         
                         {/* 3. TYPOGRAPHY PREVIEW */}
-                        <div className="space-y-3">
-                          <h4 className="text-[10px] font-mono uppercase text-[#6A5E4C] dark:text-[#A6B0C9] tracking-wider font-bold">
-                            3. Tipografi ve Karakter Yüzü
-                          </h4>
+                        <KatlanirBolum baslik="3. Tipografi ve Karakter Yüzü" bos={!bk.selectedFont} duzenleniyor={isEditingBrand} onEkle={kitiDuzenle}>
                           
                           {!isEditingBrand ? (
                             <div className="p-4 bg-stone-50 dark:bg-[#112440]/30 border border-stone-200 rounded-xl space-y-3">
@@ -1178,13 +1147,10 @@ export default function Markalar({
                               </select>
                             </div>
                           )}
-                        </div>
+                        </KatlanirBolum>
 
                         {/* 4. VOICE AND TONE */}
-                        <div className="space-y-3">
-                          <h4 className="text-[10px] font-mono uppercase text-[#6A5E4C] dark:text-[#A6B0C9] tracking-wider font-bold">
-                            4. Ton ve Ses Kılavuzu (Voice & Tone)
-                          </h4>
+                        <KatlanirBolum baslik="4. Ton ve Ses Kılavuzu (Voice & Tone)" bos={!bk.voiceTone} duzenleniyor={isEditingBrand} onEkle={kitiDuzenle}>
                           
                           {!isEditingBrand ? (
                             <div className="p-4 bg-stone-50 dark:bg-[#112440]/30 border border-stone-200 rounded-xl leading-relaxed">
@@ -1215,13 +1181,10 @@ export default function Markalar({
                               />
                             </div>
                           )}
-                        </div>
+                        </KatlanirBolum>
 
                         {/* 5. USAGE RULES (DO & DONT) */}
-                        <div className="space-y-3">
-                          <h4 className="text-[10px] font-mono uppercase text-[#6A5E4C] dark:text-[#A6B0C9] tracking-wider font-bold">
-                            5. Marka Kullanım Kuralları
-                          </h4>
+                        <KatlanirBolum baslik="5. Marka Kullanım Kuralları" bos={!(bk.usageRulesDo || []).length && !(bk.usageRulesDont || []).length} duzenleniyor={isEditingBrand} onEkle={kitiDuzenle}>
                           
                           {!isEditingBrand ? (
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1346,7 +1309,7 @@ export default function Markalar({
 
                             </div>
                           )}
-                        </div>
+                        </KatlanirBolum>
 
                       </div>
 
@@ -1356,10 +1319,7 @@ export default function Markalar({
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4 border-t border-stone-100 dark:border-stone-800">
                       
                       {/* Exemplary Works Archive */}
-                      <div className="space-y-3">
-                        <h4 className="text-[10px] font-mono uppercase text-[#6A5E4C] dark:text-[#A6B0C9] tracking-wider font-bold">
-                          6. Tasarım Örnekleri & İlham Arşivi
-                        </h4>
+                      <KatlanirBolum baslik="6. Tasarım Örnekleri & İlham Arşivi" bos={!(bk.exemplaryWorks || []).length} duzenleniyor={isEditingBrand} onEkle={kitiDuzenle}>
                         
                         {!isEditingBrand ? (
                           <div className="grid grid-cols-3 gap-2.5">
@@ -1451,13 +1411,10 @@ export default function Markalar({
                             </div>
                           </div>
                         )}
-                      </div>
+                      </KatlanirBolum>
 
                       {/* Atmosphere & Moodboard */}
-                      <div className="space-y-3">
-                        <h4 className="text-[10px] font-mono uppercase text-[#6A5E4C] dark:text-[#A6B0C9] tracking-wider font-bold">
-                          7. Moodboard & Atmosfer Kataloğu
-                        </h4>
+                      <KatlanirBolum baslik="7. Moodboard & Atmosfer Kataloğu" bos={!(bk.atmosphereMoodboard || []).length} duzenleniyor={isEditingBrand} onEkle={kitiDuzenle}>
                         
                         {!isEditingBrand ? (
                           <div className="grid grid-cols-3 gap-2.5">
@@ -1516,7 +1473,7 @@ export default function Markalar({
                             <span className="text-[9px] font-mono text-stone-500 dark:text-stone-400 block leading-tight">İlham verici atmosfer paneli için Base64 görseller ekleyin.</span>
                           </div>
                         )}
-                      </div>
+                      </KatlanirBolum>
 
                     </div>
 

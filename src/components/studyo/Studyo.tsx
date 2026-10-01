@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { SayfaBasi } from '../kabuk/SayfaBasi';
 import { Sparkles, X, ArrowRight } from 'lucide-react';
 import { GRUP_ADLARI, STUDYO_ARACLARI, aracBul, kotaHali, type KotaHali, type StudyoGrubu } from '../../lib/studyo';
 import { ETIKET, IKINCIL, KART, YAZI } from '../anasayfa/stil';
@@ -6,6 +7,21 @@ import { AracCalistirici } from './AracCalistirici';
 import { OneriTepsisi } from './OneriTepsisi';
 import { SoruSecenekleri } from './SoruSecenekleri';
 import { useStudyo, type StudyoIslemleri } from './StudyoBaglami';
+import ConsistencyChecker from '../ConsistencyChecker';
+import { KatlanirBolum } from '../kabuk/KatlanirBolum';
+
+/**
+ * Tutarlılık denetimi (1 Ekim, K-1): eskiden Düzada, Merch, Markalar, Kitap,
+ * Blog'un başında ayrı ayrı düğmeydi; artık yalnız burada. Yapay zekâ değil,
+ * kurallı tarama; düzeltmeyi Kemal "kabul" deyince yazar.
+ */
+const DENETIMLER = [
+  { modul: 'duzada', ad: 'Düzada' },
+  { modul: 'marka', ad: 'Markalar' },
+  { modul: 'merch', ad: 'Merch' },
+  { modul: 'kitap', ad: 'Kitap' },
+  { modul: 'blog', ad: 'Blog' }
+] as const;
 
 /**
  * Yapay zekâ stüdyosu (Araçlar, 29 Eylül akşamı). Kemal'in seçimleri:
@@ -37,30 +53,35 @@ const KotaSatiri: React.FC<{ hal: KotaHali }> = ({ hal }) => {
   );
 };
 
-const AracKartlari: React.FC<{ secili: string | null; onSec: (id: string) => void; grup?: StudyoGrubu; hedefTuru?: string }> = ({ secili, onSec, grup, hedefTuru }) => (
-  <div className="space-y-4">
-    {(grup ? [grup] : GRUPLAR).map(g => (
-      <div key={g}>
-        <div className={ETIKET}>{GRUP_ADLARI[g]}</div>
-        <div className="mt-2 grid gap-2 grid-cols-2 xl:grid-cols-3 [&>*]:min-w-0 [&>*]:break-words">
-          {[...STUDYO_ARACLARI.filter(a => a.grup === g && !a.gizli && (!hedefTuru || !a.hedefTurleri || a.hedefTurleri.includes(hedefTuru as never))).map(a => ({ id: a.id, ad: a.ad, aciklama: a.aciklama })),
-            ...(g === 'kanon' ? [{ id: SORU_ARACI, ad: 'Soru seçenekleri', aciklama: 'Günün sorusu ve atölye soruları için kısa seçenekler.' }] : [])
-          ].map(a => (
-            <button
-              key={a.id}
-              type="button"
-              onClick={() => onSec(a.id)}
-              className={`text-left rounded-xl border p-3 cursor-pointer transition-colors ${secili === a.id ? 'border-[#F26B6F] bg-[#F26B6F]/8' : 'border-[#CFC5B4] dark:border-[#2C3C72] hover:border-[#F26B6F]'}`}
-            >
-              <span className={`flex items-center gap-1.5 text-[13px] font-semibold ${YAZI}`}><Sparkles className="w-3.5 h-3.5 text-[#F26B6F]" />{a.ad}</span>
-              <span className={`block mt-1 text-[11px] leading-snug ${IKINCIL}`}>{a.aciklama}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-    ))}
-  </div>
-);
+const AracKartlari: React.FC<{ secili: string | null; onSec: (id: string) => void; grup?: StudyoGrubu; hedefTuru?: string }> = ({ secili, onSec, grup, hedefTuru }) => {
+  const liste = (g: StudyoGrubu) => (
+    <div className="mt-2 grid gap-2 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 [&>*]:min-w-0 [&>*]:break-words">
+      {[...STUDYO_ARACLARI.filter(a => a.grup === g && !a.gizli && (!hedefTuru || !a.hedefTurleri || a.hedefTurleri.includes(hedefTuru as never))).map(a => ({ id: a.id, ad: a.ad, aciklama: a.aciklama })),
+        ...(g === 'kanon' ? [{ id: SORU_ARACI, ad: 'Soru seçenekleri', aciklama: 'Günün sorusu ve atölye soruları için kısa seçenekler.' }] : [])
+      ].map(a => (
+        <button
+          key={a.id}
+          type="button"
+          onClick={() => onSec(a.id)}
+          className={`text-left rounded-xl border p-3 cursor-pointer transition-colors ${secili === a.id ? 'border-[#F26B6F] bg-[#F26B6F]/8' : 'border-[#CFC5B4] dark:border-[#2C3C72] hover:border-[#F26B6F]'}`}
+        >
+          <span className={`flex items-center gap-1.5 text-[13px] font-semibold ${YAZI}`}><Sparkles className="w-3.5 h-3.5 text-[#F26B6F]" />{a.ad}</span>
+          {/* Telefonda açıklama yalnız seçilince (1 Ekim, K-4) */}
+          <span className={`${secili === a.id ? 'block' : 'hidden sm:block'} mt-1 text-[12px] leading-snug ${IKINCIL}`}>{a.aciklama}</span>
+        </button>
+      ))}
+    </div>
+  );
+  // Yan panelde tek grup açık gelir; sayfada gruplar telefonda katlı (K-4)
+  if (grup) return <div><div className={ETIKET}>{GRUP_ADLARI[grup]}</div>{liste(grup)}</div>;
+  return (
+    <div className="space-y-4">
+      {GRUPLAR.map(g => (
+        <KatlanirBolum key={g} baslik={GRUP_ADLARI[g]}>{liste(g)}</KatlanirBolum>
+      ))}
+    </div>
+  );
+};
 
 /** Stüdyo sayfası (Araçlar) */
 export const Studyo: React.FC<StudyoIslemleri & { onTemizlik?: () => void }> = ({ onTemizlik, ...islemler }) => {
@@ -70,11 +91,7 @@ export const Studyo: React.FC<StudyoIslemleri & { onTemizlik?: () => void }> = (
   const arac = aracBul(secili);
   return (
     <div className="space-y-4 animate-in fade-in duration-300">
-      <div>
-        <div className={ETIKET}>Araçlar</div>
-        <h1 className={`mt-1 text-[22px] lg:text-[28px] font-bold tracking-tight ${YAZI}`}>Yapay zekâ stüdyosu</h1>
-        <p className={`mt-1 text-[13px] ${IKINCIL}`}>Bütün yapay zekâ işleri burada. Ürettiği her şey önce tepsiye düşer; sen eklemeden hiçbir kayda yazılmaz.</p>
-      </div>
+      <SayfaBasi baslik="Yapay zekâ stüdyosu" />
       <KotaSatiri hal={hal} />
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.1fr_1fr] items-start [&>*]:min-w-0">
         <section className={`${KART} p-4 space-y-4`}>
@@ -92,6 +109,16 @@ export const Studyo: React.FC<StudyoIslemleri & { onTemizlik?: () => void }> = (
         </section>
         <OneriTepsisi {...islemler} onTemizlik={onTemizlik} />
       </div>
+      <section className={`${KART} p-4`}>
+        <div className={ETIKET}>Tutarlılık denetimi</div>
+        <p className={`mt-1 text-[12px] ${IKINCIL}`}>Kurallı tarama, yapay zekâ değil. Bulduğu düzeltmeler sen kabul edince yazılır.</p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {DENETIMLER.map(d => (
+            <span key={d.modul}><ConsistencyChecker module={d.modul} etiket={d.ad} items={islemler.items} onUpdateItem={islemler.onUpdateItem} onAddItem={islemler.onAddItem}
+              buttonClassName={`px-3 py-2 rounded-lg border border-[#CFC5B4] dark:border-[#2C3C72] ${YAZI} hover:border-[#F26B6F] cursor-pointer`} /></span>
+          ))}
+        </div>
+      </section>
     </div>
   );
 };

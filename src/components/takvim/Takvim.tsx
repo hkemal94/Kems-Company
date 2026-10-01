@@ -1,9 +1,10 @@
 import React, { useMemo, useState } from 'react';
+import { SayfaBasi } from '../kabuk/SayfaBasi';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { Item } from '../../types';
 import { AY_ADLARI, GUN_KISA, ayIzgarasi, bugunTarih, tarihYaz } from '../../lib/sosyal';
 import { takvimOlaylari, type TakvimOlayi, type TakvimTuru } from '../../lib/takvim';
-import { DUGME_BOS, ETIKET, IKINCIL, YAZI } from '../anasayfa/stil';
+import { DUGME_BOS, IKINCIL, YAZI } from '../anasayfa/stil';
 
 /**
  * Genel Takvim (Araçlar; yapisal-4, 36). Droplar, sosyal medya gönderileri
@@ -43,11 +44,7 @@ export const Takvim: React.FC<Props> = ({ items, onAc }) => {
 
   return (
     <div className="space-y-4 animate-in fade-in duration-300">
-      <div>
-        <div className={ETIKET}>Araçlar</div>
-        <h1 className={`mt-1 text-[22px] lg:text-[28px] font-bold tracking-tight ${YAZI}`}>Takvim</h1>
-        <p className={`mt-1 text-[13px] ${IKINCIL}`}>Drop çıkışları, sosyal medya gönderileri ve fanzin günü tek yerde. Drop tarihi Merch'te drop sayfasından girilir.</p>
-      </div>
+      <SayfaBasi baslik="Takvim" />
 
       <div className="flex flex-wrap items-center gap-2">
         <button type="button" onClick={() => ayDegis(-1)} title="Önceki ay" className={`w-9 h-9 rounded-full border border-[#CFC5B4] dark:border-[#2C3C72] flex items-center justify-center ${IKINCIL} cursor-pointer hover:border-[#F26B6F]`}><ChevronLeft className="w-4 h-4" /></button>

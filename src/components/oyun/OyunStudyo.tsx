@@ -1,6 +1,12 @@
 import React, { useMemo, useState } from 'react';
+import { SayfaBasi } from '../kabuk/SayfaBasi';
 import {
-  Plus, ChevronLeft, ChevronRight, UserPlus, FileText, Trash2, X
+  Plus,
+  ChevronLeft,
+  ChevronRight,
+  UserPlus,
+  Trash2,
+  X,
 } from 'lucide-react';
 import type { Item, AreaType } from '../../types';
 import {
@@ -135,17 +141,7 @@ export const OyunStudyo: React.FC<OyunStudyoProps> = ({
 
   return (
     <div className="space-y-7 animate-in fade-in duration-300">
-      <div className="pb-4 border-b border-[#CFC5B4] dark:border-[#2C3C72] flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="font-sans font-bold text-xl text-[#0E1C4F] dark:text-[#F3EFE8] tracking-tight">
-            Oyun Stüdyosu
-          </h1>
-          <p className="mt-1 text-[12px] text-[#6A5E4C] dark:text-[#A6B0C9]">
-            {suAn
-              ? <>Proje şu an <b>{suAn.ad}</b> aşamasında — en geride kalan iş oradan.</>
-              : 'Henüz iş kartı yok. Süreç aşağıda; ilk kartı Konsept\'e ekleyerek başla.'}
-          </p>
-        </div>
+      <SayfaBasi baslik="Oyun">
         <button
           onClick={() => setNpcAcik(true)}
           className="flex items-center gap-1.5 px-3 py-2 text-[11px] font-mono rounded-lg
@@ -154,7 +150,7 @@ export const OyunStudyo: React.FC<OyunStudyoProps> = ({
         >
           <UserPlus className="w-3.5 h-3.5" /> NPC yarat
         </button>
-      </div>
+      </SayfaBasi>
 
       <SayfaRayi baslik="Oyun" bolumler={RAY_BOLUMLERI} />
 
