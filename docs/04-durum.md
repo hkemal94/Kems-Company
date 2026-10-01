@@ -1271,3 +1271,18 @@ edebiliriz" → **tamamen kaldır**. Sebep: görünüm gerçekçi değil, ürün
 - Ders: gerçekçi ürün görseli kodla çizilerek olmuyor. İleride istenirse
   hazır mockup (Canva / fotoğraf) yoluyla yeniden düşünülecek; şimdilik
   yol haritasında değil.
+
+## 1 Ekim gece — Metin soru turu (belge PR'ı)
+
+Mahalle Tarihçeleri (Merkez, Liman, İskele / Kemsköy, Stadyum, Çiftlik),
+Merkez · Çarşı ve işletmeler, Liman · Deniz Feneri, Stadyum · Dirlik Stadı
+için soru turu yapıldı. Cevaplar ve bölüm bölüm iskelet:
+`docs/soru-cevap/metin-1.md`. Yeni kanon kararları künyede ("Mahalle
+metinleri").
+
+- Biçim: ansiklopedik, orta (2–3 paragraf), söylenti bölüm başına en fazla
+  bir ve "sözlü anlatı" diye işaretli (yalnız Merkez'de çeşme, Stadyum'da
+  ilk maç).
+- Taslağı Kemal stüdyoda üretir; sonuç öneri tepsisine düşer, vikiye Kemal
+  ekler. **Uygulamada değişen bir şey yok**; yalnız belgeler.
+
