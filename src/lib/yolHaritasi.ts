@@ -11,8 +11,7 @@ import type { Item } from '../types';
 export interface YolIsi { id: string; ad: string; nereden: string; kimde: 'claude' | 'kemal'; not?: string }
 
 export const YOL_HARITASI: YolIsi[] = [
-  { id: 'kalip-3b', ad: '3B stüdyo: ölçülerden kodla kurulan, tutarlı ve düzenlenebilir ürün görselleri (tişört, sweatshirt, kapüşonlu, şapka, bez çanta, kupa, poster)', nereden: '1 Ekim', kimde: 'claude', not: 'Sıradaki PR. Ölçüler Kemal\'in PDF\'lerinden; tek referans beden. Sunum için mockup sonra.' },
-  { id: 'tasarim-3b', ad: '3B stüdyo: parça renk, baskı yerleri, baskı / nakış görünümü, desen ve deneme atölyesi, PNG çıktısı', nereden: '1 Ekim', kimde: 'claude', not: 'Kalıplarla aynı PR.' },
+  { id: 'teknik-foy', ad: 'Ürünlere teknik föy (tech pack) ve beden çeşitleri; sunum için mockup', nereden: '1 Ekim', kimde: 'claude', not: '3B stüdyo ilk etabından sonra.' },
   { id: 'atolyeler', ad: '"Atölyeler" bölümü (3B stüdyo, Kurucu vb. tek yerde)', nereden: 'yapisal-5', kimde: 'kemal', not: 'Sonra karar (1 Ekim).' },
   { id: 'yardimci', ad: 'Yardımcı erişimi: düzenler ama silemez', nereden: 'yapisal-2, 26', kimde: 'claude', not: 'İhtiyaç olunca.' },
   { id: 'buffer', ad: 'Sosyal medyada Buffer bağlantısı (ücretli plan)', nereden: '1 Ekim', kimde: 'kemal', not: 'Kemal planı alınca bağlantı kurulur.' },
