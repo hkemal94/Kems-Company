@@ -210,8 +210,7 @@ export const Yedekleme: React.FC<YedeklemeProps> = ({ items, settings, onKayit, 
         <Archive className="w-4 h-4 shrink-0" />
         {etiket && (typeof etiket === 'string' ? <span>{etiket}</span> : etiket)}
         {eski && (
-          <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full
-                           bg-[#F26B6F]" />
+          <span className={`absolute w-2 h-2 rounded-full bg-[#F26B6F] ${etiket && typeof etiket !== 'string' ? 'top-2 left-7' : '-top-0.5 -right-0.5'}`} />
         )}
       </button>
 
