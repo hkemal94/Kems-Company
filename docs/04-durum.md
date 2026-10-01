@@ -1232,3 +1232,23 @@ vermesi açısından çok iyi"; "yapı değil, iskelet ve renk"). Alınanlar:
   taslağı → öneri tepsisi; Kemal düzeltip ekler.
 - Dirlik forması Merch'te konsept; Küçükçetmi Çiftliği'ni Kemal yol
   temizliğinden sonra Kurucuda yerleştirir.
+
+## 1 Ekim gece — 3B stüdyo (4. PR)
+
+- **Ürünler:** tişört, sweatshirt, kapüşonlu, bez çanta, şapka, kupa,
+  poster. Giysiler ve çanta kalıptan (yastık gibi kabaran yüzey), şapka /
+  kupa / poster kendi geometrisiyle; hepsi kodla, dosya indirmeden.
+- **Ölçü tablosu** (`src/components/merch/kaliplar.ts` → `OLCU_TABLOSU`):
+  referans beden M. Ölçü noktaları Kemal'in gönderdiği tech pack şablonuna
+  göre (göğüs genişliği koltuk altının 1 cm altından, boy omuz başından);
+  vücut ölçüleri Kemal'in beden tablosundan. Çanta 38×42, kupa 11 oz
+  (8,2 × 9,5 cm), poster 50×70, şapka 58 cm: piyasadaki standart, PDF'lerde
+  yok. Stüdyodaki "Ölçüler" kutusundan değişir, tasarımla kaydolur.
+- **Parça renkleri:** gövde, kollar, ribana / yaka, kapüşon, kordon, saplar,
+  siper, tepe düğmesi, kupanın içi ve kulpu, poster çerçevesi.
+- **Baskı / nakış:** her katman için; nakışta iplik dokusu ve kabarıklık.
+- **Tutarlı çıktı:** "Bütün açıları indir" → ön, ¾, yan, arka; 1600×1600
+  PNG, aynı ışık / zemin / kadraj (kadraj ürünün boyuna göre).
+- Tasarım ürüne yalnız "Tasarımı ürüne kaydet" ile yazılır
+  (`metadata.tasarim3b`: ürün, kesim, renkler, ölçüler, katmanlar).
+- Sonraya kalan: beden çeşitleri, teknik föy (tech pack), sunum mockup'ı.
