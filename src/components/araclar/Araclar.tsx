@@ -1,6 +1,6 @@
 import React from 'react';
 import { SayfaBasi } from '../kabuk/SayfaBasi';
-import { Box, CalendarDays, Globe, Megaphone, Milestone, Newspaper, Percent, Sparkles } from 'lucide-react';
+import { CalendarDays, Globe, Megaphone, Milestone, Newspaper, Percent, Sparkles } from 'lucide-react';
 import { IKINCIL, KART, YAZI } from '../anasayfa/stil';
 
 /**
@@ -10,7 +10,6 @@ import { IKINCIL, KART, YAZI } from '../anasayfa/stil';
  */
 
 export const ARACLAR: Array<{ id: string; ad: string; alt: string; simge: React.ElementType }> = [
-  { id: 'studyo3b', ad: '3B stüdyo', alt: 'Tişört ve sweatshirt üzerinde renk ve baskı denemesi', simge: Box },
   { id: 'fanzin', ad: 'Fanzin', alt: 'Aylık fanzin: taslak, dergi görünümü, PDF, karusel', simge: Newspaper },
   { id: 'takvim', ad: 'Takvim', alt: 'Tek takvim: drop çıkışları, gönderiler, fanzin günü', simge: CalendarDays },
   { id: 'yolharitasi', ad: 'Yol haritası', alt: 'Sıradaki işler, hedefler, haftalık özet', simge: Milestone },

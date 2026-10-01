@@ -3,7 +3,7 @@ import { LayoutGrid, Plus, Search } from 'lucide-react';
 import { ARACLAR } from '../araclar/Araclar';
 
 /** Ana sayfadaki kısayollar (sıra ARACLAR'daki gibi) */
-const KISAYOLLAR = ['studyo3b', 'fanzin', 'takvim', 'yolharitasi', 'studyo', 'site'];
+const KISAYOLLAR = ['fanzin', 'takvim', 'yolharitasi', 'studyo', 'site'];
 import type { Item } from '../../types';
 import { durumOranlari } from '../../lib/durumOranlari';
 import { adayKaydi, soruyuErtele, sorulacaklar } from '../../lib/adaylar';
@@ -33,7 +33,7 @@ import { ETIKET, KART, IKINCIL, YAZI } from './stil';
 
 export type TelSekmesi = 'bugun' | 'atolye' | 'notlar' | 'durum';
 
-type Hedef = SeritHedefi | 'eksikler' | 'harita' | 'studyo3b' | 'fanzin' | 'takvim' | 'yolharitasi' | 'studyo' | 'site' | 'araclar';
+type Hedef = SeritHedefi | 'eksikler' | 'harita' | 'fanzin' | 'takvim' | 'yolharitasi' | 'studyo' | 'site' | 'araclar';
 
 interface Props {
   items: Item[];

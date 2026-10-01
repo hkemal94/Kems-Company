@@ -11,8 +11,8 @@ import type { Item } from '../types';
 export interface YolIsi { id: string; ad: string; nereden: string; kimde: 'claude' | 'kemal'; not?: string }
 
 export const YOL_HARITASI: YolIsi[] = [
-  { id: 'teknik-foy', ad: 'Ürünlere teknik föy (tech pack) ve beden çeşitleri; sunum için mockup', nereden: '1 Ekim', kimde: 'claude', not: '3B stüdyo ilk etabından sonra.' },
-  { id: 'atolyeler', ad: '"Atölyeler" bölümü (3B stüdyo, Kurucu vb. tek yerde)', nereden: 'yapisal-5', kimde: 'kemal', not: 'Sonra karar (1 Ekim).' },
+  { id: 'teknik-foy', ad: 'Ürünlere teknik föy (tech pack): ölçü tablosu, malzeme, renk, etiket', nereden: '1 Ekim', kimde: 'kemal', not: 'Kemal isterse; 3B stüdyo kaldırıldı (1 Ekim gece).' },
+  { id: 'atolyeler', ad: '"Atölyeler" bölümü (Kurucu vb. tek yerde)', nereden: 'yapisal-5', kimde: 'kemal', not: 'Sonra karar (1 Ekim).' },
   { id: 'yardimci', ad: 'Yardımcı erişimi: düzenler ama silemez', nereden: 'yapisal-2, 26', kimde: 'claude', not: 'İhtiyaç olunca.' },
   { id: 'buffer', ad: 'Sosyal medyada Buffer bağlantısı (ücretli plan)', nereden: '1 Ekim', kimde: 'kemal', not: 'Kemal planı alınca bağlantı kurulur.' },
   { id: 'site-ingilizce', ad: 'Sitenin İngilizcesi', nereden: 'yapisal-4, 19', kimde: 'claude', not: 'Yayından sonra.' },
@@ -22,7 +22,7 @@ export const YOL_HARITASI: YolIsi[] = [
   { id: 'sokak-adlari', ad: 'Sokak adları (şimdilik numara)', nereden: 'yapisal-2, 21', kimde: 'kemal' },
   { id: 'kitap', ad: 'Kitap', nereden: 'yapisal-2, 29', kimde: 'kemal', not: 'Bekliyor (1 Ekim).' },
   { id: 'metin-soru-turu', ad: 'Mahalle Tarihçeleri, Merkez Çarşı, Liman Deniz Feneri, Stadyum Dirlik Stadı: soru turu, cevaplardan stüdyo taslağı', nereden: '1 Ekim', kimde: 'claude', not: 'Taslak öneri tepsisine; Kemal düzeltip ekler.' },
-  { id: 'dirlik-forma', ad: 'Dirlik forması: Merch\'te Dirlik kurumu altında Konsept ürün, tasarım 3B stüdyoda', nereden: '1 Ekim', kimde: 'kemal' },
+  { id: 'dirlik-forma', ad: 'Dirlik forması: Merch\'te Dirlik kurumu altında Konsept ürün', nereden: '1 Ekim', kimde: 'kemal' },
   { id: 'ciftlik-yeri', ad: 'Küçükçetmi Çiftliği\'ni Kurucuda yerleştirmek (yol temizliğinden sonra)', nereden: '1 Ekim', kimde: 'kemal' },
   { id: 'ibareler', ad: 'İngilizce / Türkçe ibareler', nereden: 'yapisal-2, 14', kimde: 'kemal', not: 'Sonra (1 Ekim).' },
 ];

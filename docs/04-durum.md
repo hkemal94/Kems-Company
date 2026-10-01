@@ -1252,3 +1252,22 @@ vermesi açısından çok iyi"; "yapı değil, iskelet ve renk"). Alınanlar:
 - Tasarım ürüne yalnız "Tasarımı ürüne kaydet" ile yazılır
   (`metadata.tasarim3b`: ürün, kesim, renkler, ölçüler, katmanlar).
 - Sonraya kalan: beden çeşitleri, teknik föy (tech pack), sunum mockup'ı.
+
+## 1 Ekim gece — 3B stüdyo kaldırıldı (5. PR)
+
+Kemal, 4. PR birleştikten sonra: "3B stüdyo istediğim gibi olmadı, iptal
+edebiliriz" → **tamamen kaldır**. Sebep: görünüm gerçekçi değil, ürünler
+(kalıplar) yanlış.
+
+- Menüden (sol çubuk, Diğer), Bütün araçlar ekranından, ana sayfa
+  kısayolundan, Merch'teki "3B Stüdyo" sekmesinden ve ürün sayfasındaki
+  "3B stüdyoda dene" düğmesinden kalktı. Kod (`Studyo3B.tsx`,
+  `Studyo3BSayfasi.tsx`, `kaliplar.ts`) ve 3B kütüphanesi (three.js) silindi.
+- Ürünlere daha önce kaydedilmiş 3B tasarımlar (`metadata.tasarim3b`)
+  kayıtta duruyor ama hiçbir yerde görünmüyor.
+- Ürün aşama listesinde (Tasarım) "3B stüdyoda dene" yerine "Mockup / ürün
+  görseli" (yalnız henüz listesi kaydedilmemiş ürünlerde; kaydedilmiş
+  listeler olduğu gibi).
+- Ders: gerçekçi ürün görseli kodla çizilerek olmuyor. İleride istenirse
+  hazır mockup (Canva / fotoğraf) yoluyla yeniden düşünülecek; şimdilik
+  yol haritasında değil.
