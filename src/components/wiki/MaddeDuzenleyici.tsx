@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { KURUM_TIKI } from '../../lib/markaYapisi';
 import { Plus, Save, Trash2, X } from 'lucide-react';
 import type { Item } from '../../types';
 import { DEFAULT_QUESTIONS_BY_CAT } from './kunyeSorulari';
@@ -35,6 +36,9 @@ export const MaddeDuzenleyici: React.FC<Props> = ({ item, allItems, onKaydet, on
   const [alanlar, setAlanlar] = useState<Record<string, string>>(() => Object.fromEntries(sema.map(f => [f.fieldPath, yolOku(item, f.fieldPath)])));
   const [baglar, setBaglar] = useState<Bag[]>(() => ((item.metadata?.relations as Bag[]) || []).filter(b => b && b.targetId));
   const [esin, setEsin] = useState<string>(String(item.metadata?.esin || ''));
+  /** Markalar'da kurum olarak görünsün mü (1 Ekim, Kemal: "ben tikle seçerim") */
+  const kurumTikiVar = item.type !== 'marka' && item.type !== 'kulüp';
+  const [kurum, setKurum] = useState<boolean>(item.metadata?.[KURUM_TIKI] === true);
   const [yeniHedef, setYeniHedef] = useState('');
   const [yeniTur, setYeniTur] = useState<BagTuru>('genel bağlantı');
   const [yaziliyor, setYaziliyor] = useState(false);
@@ -63,6 +67,8 @@ export const MaddeDuzenleyici: React.FC<Props> = ({ item, allItems, onKaydet, on
         return o;
       });
       metadata.esin = esin.trim();
+      // Tik kalkınca false yazılır: kayıt birleşerek yazıldığı için anahtarı silmek yetmez
+      if (kurumTikiVar && (kurum || metadata[KURUM_TIKI] !== undefined)) metadata[KURUM_TIKI] = kurum;
       await onKaydet({ ...item, metadata: metadata as Item['metadata'], updatedAt: Date.now() });
       onKapat();
     } finally {
@@ -138,6 +144,16 @@ export const MaddeDuzenleyici: React.FC<Props> = ({ item, allItems, onKaydet, on
         <div className="postmark-label text-gri dark:text-bej/85 mb-1">Esin notu · yalnız sen görürsün</div>
         <textarea value={esin} onChange={e => setEsin(e.target.value)} rows={3} placeholder="Bu madde neyden esinlendi? Sitede ve okuma yüzünde görünmez." className={girdi} />
       </div>
+
+      {kurumTikiVar && (
+        <label className="flex items-start gap-3 min-h-11 cursor-pointer">
+          <input type="checkbox" checked={kurum} onChange={e => setKurum(e.target.checked)} className="mt-1 w-5 h-5 accent-[#0E1C4F] dark:accent-[#F26B6F] shrink-0" />
+          <span>
+            <span className="block text-[14px] font-semibold">Markalar'da kurum olarak göster</span>
+            <span className="block text-[12px] text-gri dark:text-bej/70">Tiklersen bu madde Markalar sayfasında kurgu içi kurumlar arasına gelir; madde vikide olduğu gibi kalır. Tiki kaldırınca oradan çıkar.</span>
+          </span>
+        </label>
+      )}
 
       <div className="flex justify-end gap-2">
         <button type="button" onClick={onKapat} className="text-[12px] font-mono px-3 py-1.5 rounded border border-bej/70">Vazgeç</button>

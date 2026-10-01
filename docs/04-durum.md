@@ -1131,3 +1131,66 @@ Görseller: `docs/gorseller/h2-*.png`, `yerlesim-*.png` (önizleme, örnek veri)
   açıklama yalnız seçilince.
 - Kullanılmayan `DuzadaDirectory.tsx` (1000 satır) silindi.
 - Oyun sayfası bu PR'da yalnız başlığı sadeleşti; asıl değişiklik 2. PR'da.
+
+### Tasarım dili kararları (1 Ekim, Stitch denemesinden sonra)
+
+Kemal Stitch'te bir deneme yaptı ("bire bir olsun istemiyorum ama fikir
+vermesi açısından çok iyi"; "yapı değil, iskelet ve renk"). Alınanlar:
+
+- **Renk A:** sayfa zemini krem `#F3EFE8` (eskiden `#E4DCCD`), kartlar
+  kâğıt `#FAF8F5`, kart çizgisi yok, yerine hafif gölge. Durum renkleri
+  markadan: çam `#336659` = bitti, bej `#BBA591` = bekliyor, kiremit = dikkat.
+- **Ortak iskelet** (`src/components/kabuk/Parcalar.tsx`): bölüm başlığı
+  (nokta + etiket, sağda sayı), rozet, ilerleme çubuğu / halkası, bilgi
+  kutucuğu ("kuyu"), "boş · ekle" satırı, sayfa sonunda lacivert
+  "Stüdyoda aç" kartı.
+- Telefonda en küçük yazı 12 px; sayfa çipleri ve düğmeler 44 px; seçili
+  çip dolu lacivert.
+- Alt menünün seçili hâli **bugünkü gibi** (kiremit kutu).
+- Stitch'in içeriği alınmadı: uydurma metin, sayı, stok fotoğraf, olmayan
+  özellik yok. Simgeler lucide.
+
+### 2. PR (uygulamada)
+
+- **Üst çubuk** (telefon): "Komuta Merkezi" etiketi + sayfa adı, arama,
+  zil ve kiremit **"+"** (Not / Fikir). Köşedeki yüzen fikir ampulü
+  kalktı; fikir kutusu "+"dan açılır. Masaüstünde "+" sol çubukta.
+- **Durum** (`src/components/Durum.tsx`): Yüzdeler · Eksikler · Boşluklar
+  sekmeleri. Neyin Eksik sayfası ve menü satırı kalktı; tek seferlik
+  kartlar (Temizlik vb.) Eksikler sekmesinde. Ana sayfadaki eksik özeti ve
+  zil buraya götürür.
+- **Menü:** "Stüdyo" → **"Yapay zekâ"**. 3B stüdyo telefonda da Marka
+  grubunda. Diğer'de arama kutusu ve gruplu başlıklar. Araçlar ekranı
+  duruyor.
+- **Birleşik Takvim** (`src/components/takvim/Takvim.tsx`): drop çıkışı,
+  gönderi, seri boş yerleri, fanzin günü tek yerde. Telefonda hafta şeridi →
+  seçili gün → yaklaşanlar (30 gün); masaüstünde ay ızgarası + yan sütun.
+  Süzgeç çipleri renkli noktalı. Gönderi burada açılır, sürüklenip başka
+  güne bırakılır; tarihsiz fikirler yan sütundan takvime sürüklenir.
+  **Sosyal medyanın kendi takvimi kalktı**; orada Fikirler · Seriler ·
+  Izgara ve "Takvimde aç" kaldı.
+- **Oyun: fikir ve süreç** (`src/components/oyun/OyunStudyo.tsx`). Üç
+  sekme: Künye ve konsept · Adım adım süreç · Mekanikler ve notlar.
+  Süreçte "Şimdi odaklan": sıradaki boş adım, sektör terimlerinin sade
+  açıklamasıyla (açıklamalar yol gösterici; ad ve hikâye Kemal'in).
+  Kategorili **fikir notu** (yeni kayıt türü `oyun_fikir`). **"Oyun
+  dosyasını indir"**: künye, tasarım belgesi, fikir notları ve işler tek
+  Markdown belgede. Oyunun deposuna hiçbir şey yazılmaz.
+- **Kurum tiki:** madde düzenleyicide "Markalar'da kurum olarak göster"
+  kutusu (`metadata.kurumOlarakGoster`). Tiklenen madde Markalar'da
+  kurumlar arasına gelir, vikide olduğu gibi kalır. Tik kalkınca çıkar.
+  Kendiliğinden hiçbir madde kurum olmaz.
+- **Fanzin** (Stitch iskeleti): son sayı kartı (kapak — görsel yoksa
+  lacivert blok —, durum rozeti, yazılmış bölüm halkası, üç kutucuk), bu
+  sayının yazıları durum simgesiyle, önceki sayılar, Stüdyoda aç kartı.
+- **Oyunlar listesi ve oyun künyesi** (Kemal, 1 Ekim: "The Imperial
+  Kemsköy oyunu için bir künye sayfası … oyunlar listesi + künye; yalnız
+  benim seçimlerim"). Oyun sayfası bir listeyle açılır; her oyun bir
+  `oyun_tanitim` kaydı, iş / belge / fikir notları `metadata.oyunId` ile
+  oyununa bağlı (alan yoksa ilk oyunun: eski kayıtlar yerinde kalır, göç
+  yok). Künye viki künyesi gibi: ad, durum, tür, platform, hedef oyuncu,
+  oyuncu sayısı, Düzada'da nerede, zaman aralığı, kamera, görsel stil, oyun
+  süresi, takvim, ekip. Değerler yalnız tasarım belgesindeki seçimlerden;
+  boş satır "boş · seç" der ve o adıma götürür. Oyunun adını Kemal künyede
+  yazar (önizlemede "The Imperial Kemsköy" görünür; uygulamaya kendiliğinden
+  yazılmadı). Oyun deposuna bakılmadı, oraya bir şey yazılmadı.

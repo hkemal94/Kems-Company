@@ -91,7 +91,7 @@ export const Studyo: React.FC<StudyoIslemleri & { onTemizlik?: () => void }> = (
   const arac = aracBul(secili);
   return (
     <div className="space-y-4 animate-in fade-in duration-300">
-      <SayfaBasi baslik="Yapay zekâ stüdyosu" />
+      <SayfaBasi baslik="Yapay zekâ" />
       <KotaSatiri hal={hal} />
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.1fr_1fr] items-start [&>*]:min-w-0">
         <section className={`${KART} p-4 space-y-4`}>

@@ -256,3 +256,26 @@
   letter-spacing: 0.05em;
   color: #8a7a60;
 }
+
+/* --- Aydınlık tema, renk A (1 Ekim; Kemal: "daha incelikli, aydınlık") ----
+ *
+ * Zemin krem (#F3EFE8), kartlar kâğıt (#FAF8F5). Kartların bej çizgisi
+ * kalkar, yerine çok hafif bir gölge gelir. Bileşenlerin çoğu kart sınıfını
+ * elle yazıyor (rounded-2xl/xl + border-[#CFC5B4]); hepsini tek tek
+ * değiştirmek yerine burada tek kural. Yalnız kutular (div, section…):
+ * düğme ve kutucuklar (input) çizgisini korur. Karanlık mod değişmez.
+ */
+html:not(.dark) :is(div, section, article, aside, details, li, form)[class~="border-[#CFC5B4]"]:is([class~="rounded-2xl"], [class~="rounded-xl"]) {
+  border-color: transparent;
+  box-shadow: 0 1px 2px rgba(14, 28, 79, 0.05), 0 4px 14px rgba(14, 28, 79, 0.06);
+}
+
+/* --- Telefonda en küçük yazı 12 px (1 Ekim, K-6) ----------------------------
+ * 10–11 px'lik etiket ve küçük yazılar telefonda 12 px'e çıkar. Bilgisayarda
+ * olduğu gibi kalır. 9 px'lik rozet rakamları (zil sayısı gibi) dokunulmaz.
+ */
+@media (max-width: 1023px) {
+  [class~="text-[10px]"], [class~="text-[11px]"], [class~="text-[10.5px]"], [class~="text-[11.5px]"] {
+    font-size: 12px;
+  }
+}

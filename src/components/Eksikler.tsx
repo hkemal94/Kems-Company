@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { ArrowRight, ChevronDown, CircleCheck, Compass } from 'lucide-react';
+import { ArrowRight, ChevronDown, CircleCheck } from 'lucide-react';
 import type { AreaType, Item } from '../types';
 import { soruCevapAktarimi } from '../lib/soruCevapAktarimi';
 import { w3Aktarimi } from '../lib/w3Aktarimi';
@@ -284,11 +284,6 @@ export const Eksikler: React.FC<EksiklerProps> = ({
 
   return (
     <div className="mb-8">
-      <h2 className="text-[12px] font-bold text-[#6A5E4C] dark:text-[#A6B0C9] uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-        <Compass className="w-4 h-4 text-[#F26B6F]" />
-        Neyin Eksik
-      </h2>
-
       {/* Temizlik (29 Eylül): kullanılmayan kayıtlar silinir, önce yedek */}
       {onDeleteItem && <TemizlikKarti items={items} onDeleteItem={onDeleteItem} />}
 

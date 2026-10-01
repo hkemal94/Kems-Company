@@ -25,6 +25,8 @@ export type ItemType =
   | 'fikir'
   // Oyun stüdyosu: süreçteki iş kartı ve tasarım belgesi bölümü
   | 'oyun_is' | 'gdd_bolum'
+  // Oyun fikir notu (1 Ekim): kategorili not, oyunun dosyasında durur
+  | 'oyun_fikir'
   // Inspiration
   | 'ilham_gorsel'
   // Komuta types

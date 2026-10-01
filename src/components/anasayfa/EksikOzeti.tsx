@@ -20,7 +20,7 @@ export const EksikOzeti: React.FC<Props> = ({ eksikler, dugmeler, onAc }) => {
   return (
     <section className={`${KART} p-4`}>
       <div className="flex items-center justify-between">
-        <div className={ETIKET}>Neyin eksik</div>
+        <div className={ETIKET}>Eksikler</div>
         <button type="button" onClick={() => onAc(null)} className="text-[11px] font-mono text-[#D6484C] dark:text-[#F26B6F] hover:underline cursor-pointer">
           tümü
         </button>

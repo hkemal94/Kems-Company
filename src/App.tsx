@@ -24,7 +24,6 @@ import {
   Menu,
   Gamepad2,
   Home,
-  ListChecks,
   Percent,
   Sparkles,
   Map as MapIcon,
@@ -43,6 +42,7 @@ import { SAYFA_RAYI_YUVASI } from './components/SayfaRayi';
 import { Studyo, StudyoPaneli } from './components/studyo/Studyo';
 import { StudyoSaglayici, type StudyoIslemleri } from './components/studyo/StudyoBaglami';
 import HizliFikir from './components/HizliFikir';
+import ArtiMenu from './components/kabuk/ArtiMenu';
 
 /*
  * Sayfalar açılınca yüklenir (1 Ekim, K-3 Hız). Uygulama açılırken yalnız
@@ -50,6 +50,7 @@ import HizliFikir from './components/HizliFikir';
  * bir an "yükleniyor" der, sonra hep hazırdır.
  */
 const Durum = lazy(() => import('./components/Durum'));
+import type { DurumSekmesi } from './components/Durum';
 const Duzada = lazy(() => import('./components/Duzada'));
 const Merch = lazy(() => import('./components/Merch'));
 const YaziAtolyesi = lazy(() => import('./components/YaziAtolyesi'));
@@ -64,7 +65,6 @@ const FanzinSayfasi = lazy(() => import('./components/fanzin/FanzinSayfasi'));
 const YolHaritasiSayfasi = lazy(() => import('./components/anasayfa/YolHaritasiSayfasi'));
 const OyunEkrani = lazy(() => import('./components/oyun/OyunEkrani'));
 const Markalar = lazy(() => import('./components/Markalar'));
-const Eksikler = lazy(() => import('./components/Eksikler'));
 
 /** Sayfa ilk kez yüklenirken */
 const SayfaYukleniyor = () => (
@@ -80,7 +80,7 @@ import { Zil } from './components/kabuk/Zil';
 import { useBildirimler, type Bildirim } from './lib/bildirimler';
 
 /** Uygulamanın sayfaları. 'komuta' ana sayfa; eski Komuta Merkezi 'durum'. */
-type Sayfa = 'komuta' | 'durum' | 'eksikler' | 'markalar' | 'duzada' | 'merch' | 'yazi' | 'oyun' | 'galeri' | 'studyo' | 'sosyal' | 'site' | 'takvim' | 'studyo3b' | 'fanzin' | 'yolharitasi' | 'araclar';
+type Sayfa = 'komuta' | 'durum' | 'markalar' | 'duzada' | 'merch' | 'yazi' | 'oyun' | 'galeri' | 'studyo' | 'sosyal' | 'site' | 'takvim' | 'studyo3b' | 'fanzin' | 'yolharitasi' | 'araclar';
 
 export interface WorkspaceUser {
   uid: string;
@@ -106,6 +106,8 @@ export default function App() {
   const [yaziIstek, setYaziIstek] = useState<{ sekme: 'blog' | 'kitap'; n: number } | null>(null);
   /** Neyin Eksik sayfası açılırken açık gelecek başlık */
   const [eksikAcik, setEksikAcik] = useState<string | null>(null);
+  /** Durum'un sekmesi (1 Ekim: Neyin Eksik Durum'a katıldı) */
+  const [durumSekme, setDurumSekme] = useState<DurumSekmesi>('yuzdeler');
   /** Telefonda ana sayfa sekmesi; açılışta Bugün */
   const [telSekme, setTelSekme] = useState<TelSekmesi>('bugun');
   /** Telefonda "Diğer" listesi */
@@ -144,6 +146,10 @@ export default function App() {
   const [activeItemId, setActiveItemId] = useState<string | null>(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isHizliNotOpen, setIsHizliNotOpen] = useState(false);
+  const [fikirAcik, setFikirAcik] = useState(false);
+  const [digerAra, setDigerAra] = useState('');
+  /** Sosyal medya → Seriler → "Takvimde gör" */
+  const [takvimSeri, setTakvimSeri] = useState<{ id: string; n: number } | null>(null);
   /** Üst köşedeki logo yüklenemediyse o adres (tekrar denenmez) */
   const [logoHatasi, setLogoHatasi] = useState<string | null>(null);
 
@@ -495,7 +501,7 @@ export default function App() {
       setActiveTab('sosyal');
     } else if (item.type === 'ilham_gorsel' || item.type === 'ilham_kaynak') {
       setActiveTab('galeri');
-    } else if (item.type === 'oyun_is' || item.type === 'gdd_bolum' || item.type === 'oyun_tanitim') {
+    } else if (item.type === 'oyun_is' || item.type === 'gdd_bolum' || item.type === 'oyun_tanitim' || item.type === 'oyun_fikir') {
       setActiveTab('oyun');
     } else if (item.type === 'aday') {
       setActiveTab('studyo');
@@ -552,11 +558,9 @@ export default function App() {
       case 'viki': case 'kunye': case 'duzada': setDuzadaIstek({ sekme: 'wiki', n }); setActiveTab('duzada'); break;
       case 'kitap': setYaziIstek({ sekme: 'kitap', n }); setActiveTab('yazi'); break;
       case 'blog': setYaziIstek({ sekme: 'blog', n }); setActiveTab('yazi'); break;
-      case 'bosluk': case 'bosluklar':
-        setActiveTab('durum');
-        window.setTimeout(() => document.getElementById('bos-ozet')?.scrollIntoView({ behavior: 'smooth' }), 150);
-        return;
-      case 'eksikler': setEksikAcik(ayrinti ?? null); setActiveTab('eksikler'); break;
+      case 'bosluk': case 'bosluklar': setDurumSekme('bosluklar'); setActiveTab('durum'); break;
+      case 'eksikler': setEksikAcik(ayrinti ?? null); setDurumSekme('eksikler'); setActiveTab('durum'); break;
+      case 'durum': setDurumSekme('yuzdeler'); setActiveTab('durum'); break;
       case 'site-onizleme': location.hash = 'site'; return;
       default: setActiveTab(hedef as Sayfa);
     }
@@ -646,7 +650,7 @@ export default function App() {
 
   if (girisGerekli && !user) {
     return (
-      <div className="min-h-screen bg-[#E4DCCD] dark:bg-[#0B132B] flex items-center justify-center p-6">
+      <div className="min-h-screen bg-[#F3EFE8] dark:bg-[#0B132B] flex items-center justify-center p-6">
         <div className="max-w-sm w-full rounded-2xl bg-[#FAF8F5] dark:bg-[#13204A] border border-[#CFC5B4] dark:border-[#2C3C72] p-6 text-center space-y-4">
           <div className="font-extrabold text-[28px] leading-none tracking-tight text-[#0E1C4F] dark:text-[#F3EFE8]">KEMS</div>
           <div className="mx-auto -mt-2 w-max bg-[#F26B6F] text-white text-[10px] font-bold tracking-[0.3em] pl-2.5 pr-2 py-0.5">COMPANY</div>
@@ -662,7 +666,7 @@ export default function App() {
 
   if (loading || !user) {
     return (
-      <div className="min-h-screen bg-[#E4DCCD] flex items-center justify-center font-mono text-xs text-[#6A5E4C]">
+      <div className="min-h-screen bg-[#F3EFE8] flex items-center justify-center font-mono text-xs text-[#6A5E4C]">
         <div className="text-center space-y-2">
           <div className="w-6 h-6 border-2 border-[#F26B6F] border-t-transparent rounded-full animate-spin mx-auto" />
           <p>Kems Komuta Merkezi Yükleniyor...</p>
@@ -698,6 +702,13 @@ export default function App() {
    * aynı gruplar. Kapalıyken yalnız simgeler; üstüne gelince çubuk açılır,
    * grup başlıkları ve adlar görünür.
    */
+  /** "+" menüsünün iki yolu (1 Ekim): Not → not defterinde yeni sayfa; Fikir → fikir kutusu */
+  const yeniNot = () => { setTelSekme('notlar'); setYeniNotBekliyor(true); git('komuta'); };
+  const bekleyenFikir = items.filter(i => i.type === 'fikir' && !i.archived && !(i.metadata as any)?.donusenId && !(i.tags || []).includes('gunluk-not')).length;
+  const arti = (ek?: Partial<React.ComponentProps<typeof ArtiMenu>>) => (
+    <ArtiMenu onNot={yeniNot} onFikir={() => setFikirAcik(true)} fikirSayisi={bekleyenFikir} {...ek} />
+  );
+
   const RAY: Array<{ grup?: string; satirlar: Array<{ id: Sayfa; ad: string; alt?: string; simge: React.ElementType; nokta?: boolean }> }> = [
     { satirlar: [
       { id: 'komuta', ad: 'Ana sayfa', simge: Home, nokta: bildirimVar('aday') || bildirimVar('soru') }
@@ -715,14 +726,13 @@ export default function App() {
     ] },
     { grup: 'Araçlar', satirlar: [
       { id: 'araclar', ad: 'Bütün araçlar', alt: 'hepsi tek ekranda', simge: LayoutGrid },
-      { id: 'studyo', ad: 'Stüdyo', alt: 'yapay zekâ, öneri tepsisi', simge: Sparkles, nokta: bildirimVar('aday') },
+      { id: 'studyo', ad: 'Yapay zekâ', alt: 'stüdyo ve öneri tepsisi', simge: Sparkles, nokta: bildirimVar('aday') },
       { id: 'fanzin', ad: 'Fanzin', alt: 'aylık dergi', simge: Newspaper },
       { id: 'takvim', ad: 'Takvim', alt: 'drop, gönderi, fanzin', simge: CalendarDays },
       { id: 'yolharitasi', ad: 'Yol haritası', alt: 'sıradaki işler, hedefler', simge: Milestone },
-      { id: 'sosyal', ad: 'Sosyal medya', alt: 'takvim ve seriler', simge: Megaphone },
+      { id: 'sosyal', ad: 'Sosyal medya', alt: 'fikirler, seriler, ızgara', simge: Megaphone },
       { id: 'site', ad: 'Site', alt: 'kems.company önizlemesi', simge: Globe },
-      { id: 'eksikler', ad: 'Neyin Eksik', simge: ListChecks, nokta: bildirimVar('dugme') },
-      { id: 'durum', ad: 'Durum', alt: 'yüzdeler ve boşluklar', simge: Percent }
+      { id: 'durum', ad: 'Durum', alt: 'yüzdeler, eksikler, boşluklar', simge: Percent, nokta: bildirimVar('dugme') }
     ] }
   ];
 
@@ -736,15 +746,13 @@ export default function App() {
    */
   const DIGER: Array<{ grup: string; satirlar: Array<{ hedef: string; ad: string; simge: React.ElementType; nokta?: boolean }> }> = [
     { grup: 'Araçlar', satirlar: [
-      { hedef: 'studyo', ad: 'Stüdyo', simge: Sparkles, nokta: bildirimVar('aday') },
-      { hedef: 'studyo3b', ad: '3B stüdyo', simge: Box },
+      { hedef: 'studyo', ad: 'Yapay zekâ', simge: Sparkles, nokta: bildirimVar('aday') },
       { hedef: 'fanzin', ad: 'Fanzin', simge: Newspaper },
       { hedef: 'takvim', ad: 'Takvim', simge: CalendarDays },
       { hedef: 'yolharitasi', ad: 'Yol haritası', simge: Milestone },
       { hedef: 'sosyal', ad: 'Sosyal medya', simge: Megaphone },
       { hedef: 'site', ad: 'Site', simge: Globe },
-      { hedef: 'eksikler', ad: 'Neyin Eksik', simge: ListChecks, nokta: bildirimVar('dugme') },
-      { hedef: 'durum', ad: 'Durum ve boşluklar', simge: Percent },
+      { hedef: 'durum', ad: 'Durum', simge: Percent, nokta: bildirimVar('dugme') },
       { hedef: 'araclar', ad: 'Bütün araçlar', simge: LayoutGrid }
     ] },
     { grup: 'Evren', satirlar: [
@@ -754,9 +762,14 @@ export default function App() {
     ] },
     { grup: 'Marka', satirlar: [
       { hedef: 'markalar', ad: 'Markalar', simge: Shield },
+      { hedef: 'studyo3b', ad: '3B stüdyo', simge: Box },
       { hedef: 'galeri', ad: 'Galeri', simge: ImageIcon }
     ] }
   ];
+  /** Diğer'deki arama kutusu (1 Ekim): yazınca gruplar süzülür */
+  const digerSuzulmus = DIGER
+    .map(g => ({ ...g, satirlar: g.satirlar.filter(r => !digerAra.trim() || r.ad.toLocaleLowerCase('tr').includes(digerAra.trim().toLocaleLowerCase('tr'))) }))
+    .filter(g => g.satirlar.length > 0);
 
   const haritada = activeTab === 'duzada' && duzadaIstek?.sekme === 'harita';
   const ALT: Array<{ id: string; ad: string; simge: React.ElementType; aktif: boolean; nokta?: boolean }> = [
@@ -769,7 +782,7 @@ export default function App() {
 
   const SAYFA_ADI: Record<Sayfa, string> = {
     komuta: 'Ana sayfa', duzada: 'Düzada', markalar: 'Markalar', merch: 'Merch', yazi: 'Yazı',
-    oyun: 'Oyun', galeri: 'Galeri', eksikler: 'Neyin Eksik', durum: 'Durum', studyo: 'Yapay zekâ stüdyosu', sosyal: 'Sosyal medya', site: 'Site', takvim: 'Takvim', studyo3b: '3B stüdyo', fanzin: 'Fanzin', yolharitasi: 'Yol haritası', araclar: 'Araçlar'
+    oyun: 'Oyun', galeri: 'Galeri', durum: 'Durum', studyo: 'Yapay zekâ', sosyal: 'Sosyal medya', site: 'Site', takvim: 'Takvim', studyo3b: '3B stüdyo', fanzin: 'Fanzin', yolharitasi: 'Yol haritası', araclar: 'Araçlar'
   };
 
   const logo = hasKemsLogo ? (
@@ -804,7 +817,7 @@ export default function App() {
   return (
     <StudyoSaglayici>
     <StudyoPaneli {...studyoIslemleri} />
-    <div className="min-h-screen bg-[#E4DCCD] dark:bg-[#0B132B] text-[#0E1C4F] dark:text-[#F3EFE8] font-sans transition-colors duration-200 paper-grain selection:bg-[#F26B6F] selection:text-white">
+    <div className="min-h-screen bg-[#F3EFE8] dark:bg-[#0B132B] text-[#0E1C4F] dark:text-[#F3EFE8] font-sans transition-colors duration-200 paper-grain selection:bg-[#F26B6F] selection:text-white">
 
       {/* MASAÜSTÜ: ince simge çubuğu; üstüne gelince açılır, adlar görünür */}
       <nav className="group/ray hidden lg:flex fixed inset-y-0 left-0 z-40 w-16 hover:w-60 has-[:focus-visible]:w-60 hover:delay-150 transition-[width,box-shadow] duration-200 hover:shadow-2xl flex-col py-3 overflow-x-hidden overflow-y-auto [scrollbar-width:none] bg-[#0E1C4F] dark:bg-[#081029]">
@@ -839,6 +852,11 @@ export default function App() {
           </div>
         ))}
         <div className="mt-auto pt-2 mx-2.5 flex flex-col gap-1">
+          {arti({
+            yon: 'sag',
+            tetikSinifi: 'w-full h-11 rounded-xl flex items-center gap-3 px-3 bg-[#F26B6F] text-white hover:opacity-90 cursor-pointer',
+            etiket: <span className={`${RAY_ADI} text-[13px] font-semibold`}>Yeni not / fikir</span>
+          })}
           <button type="button" onClick={() => setIsSearchOpen(true)} aria-label="Ara" className="w-full h-11 rounded-xl flex items-center gap-3 px-3 text-[#A6B0C9] hover:text-white hover:bg-white/10 cursor-pointer">
             <Search className="w-[18px] h-[18px] shrink-0" /><span className={`${RAY_ADI} text-[13px] font-semibold`}>Ara <kbd className="ml-1 text-[10px] text-[#6F7BA0]">⌘K</kbd></span>
           </button>
@@ -877,13 +895,17 @@ export default function App() {
       <div className="lg:pl-16">
         {/* TELEFON: ana sayfa dışında ince üst çubuk */}
         {activeTab !== 'komuta' && (
-          <header className="lg:hidden sticky top-0 z-30 flex items-center gap-3 px-4 py-2.5 bg-[#F3EFE8]/95 dark:bg-[#13204A]/95 backdrop-blur-xs border-b border-[#CFC5B4] dark:border-[#2C3C72]">
-            <button type="button" onClick={() => git('komuta')} className="cursor-pointer">{logo}</button>
-            <span className="flex-1 min-w-0 truncate font-bold text-[15px]">{SAYFA_ADI[activeTab]}</span>
+          <header className="lg:hidden sticky top-0 z-30 flex items-center gap-2 px-4 py-2 bg-[#F3EFE8]/95 dark:bg-[#13204A]/95 backdrop-blur-xs border-b border-[#CFC5B4] dark:border-[#2C3C72]">
+            <button type="button" onClick={() => git('komuta')} aria-label="Ana sayfa" className="mr-1 cursor-pointer">{logo}</button>
+            <span className="flex-1 min-w-0 leading-tight">
+              <span className="block text-[12px] font-bold uppercase tracking-[0.1em] text-[#6A5E4C] dark:text-[#A6B0C9] truncate">Komuta Merkezi</span>
+              <span className="block truncate font-bold text-[16px]">{SAYFA_ADI[activeTab]}</span>
+            </span>
             <button type="button" onClick={() => setIsSearchOpen(true)} title="Ara" className="w-11 h-11 rounded-full flex items-center justify-center text-[#6A5E4C] dark:text-[#A6B0C9] cursor-pointer">
               <Search className="w-[18px] h-[18px]" />
             </button>
             <Zil bildirimler={bildirimler} onSec={bildirimSec} />
+            {arti()}
           </header>
         )}
 
@@ -923,7 +945,7 @@ export default function App() {
                 onBildirimYenile={() => setBildirimNabzi(n => n + 1)}
                 zil={<Zil bildirimler={bildirimler} onSec={bildirimSec} />}
                 yeniNotBekliyor={yeniNotBekliyor}
-                onYeniNot={() => { setTelSekme('notlar'); setYeniNotBekliyor(true); }}
+                arti={arti()}
                 onYeniNotAcildi={() => setYeniNotBekliyor(false)}
                 sekme={telSekme}
                 onSekme={setTelSekme}
@@ -932,17 +954,17 @@ export default function App() {
 
             <Suspense fallback={<SayfaYukleniyor />}>
             {activeTab === 'durum' && (
-              <Durum items={items} onSec={h => git(h)} onUpdateItem={handleUpdateItem} onAddItem={handleAddItem} eposta={girisli ? user?.email : null} />
-            )}
-
-            {activeTab === 'eksikler' && (
-              <Eksikler
+              <Durum
                 items={items}
+                sekme={durumSekme}
+                onSekme={setDurumSekme}
+                onSec={h => git(h)}
                 onSelectArea={handleSelectArea}
                 onUpdateItem={handleUpdateItem}
                 onAddItem={handleAddItem}
-                baslangicAcik={eksikAcik}
                 onDeleteItem={handleDeleteItem}
+                eksikAcik={eksikAcik}
+                eposta={girisli ? user?.email : null}
               />
             )}
 
@@ -1026,14 +1048,29 @@ export default function App() {
             {activeTab === 'yolharitasi' && <YolHaritasiSayfasi items={items} eposta={girisli ? user?.email : null} onUpdateItem={handleUpdateItem} onAddItem={handleAddItem} />}
 
             {activeTab === 'takvim' && (
-              <Takvim items={items} onAc={o => {
-                const k = items.find(i => i.id === o.id);
-                if (k) handleSelectResult(k); else git('studyo');
-              }} />
+              <Takvim
+                items={items}
+                onAc={o => {
+                  if (o.tur === 'fanzin') { git('fanzin'); return; }
+                  const k = items.find(i => i.id === o.id);
+                  if (k) handleSelectResult(k);
+                }}
+                onAddItem={handleAddItem}
+                onUpdateItem={handleUpdateItem}
+                onDeleteItem={handleDeleteItem}
+                seriIstegi={takvimSeri}
+              />
             )}
 
             {activeTab === 'sosyal' && (
-              <Sosyal items={items} acilacakId={activeItemId} onAddItem={handleAddItem} onUpdateItem={handleUpdateItem} onDeleteItem={handleDeleteItem} />
+              <Sosyal
+                items={items}
+                acilacakId={activeItemId}
+                onAddItem={handleAddItem}
+                onUpdateItem={handleUpdateItem}
+                onDeleteItem={handleDeleteItem}
+                onTakvim={seriId => { git('takvim'); if (seriId) setTakvimSeri({ id: seriId, n: Date.now() }); }}
+              />
             )}
 
             {activeTab === 'galeri' && (
@@ -1062,7 +1099,7 @@ export default function App() {
             <button
               key={a.id}
               type="button"
-              onClick={() => (a.id === 'diger' ? setDigerAcik(d => !d) : git(a.id))}
+              onClick={() => (a.id === 'diger' ? (setDigerAra(''), setDigerAcik(d => !d)) : git(a.id))}
               className={`relative flex-1 my-1.5 mx-0.5 rounded-xl flex flex-col items-center justify-center gap-0.5 text-[10px] cursor-pointer ${a.aktif ? 'bg-[#F26B6F] text-white' : 'text-[#A6B0C9]'}`}
             >
               <Simge className="w-5 h-5" />
@@ -1080,9 +1117,26 @@ export default function App() {
             className="absolute inset-x-0 bottom-16 max-h-[75vh] overflow-y-auto rounded-t-2xl bg-[#FAF8F5] dark:bg-[#13204A] p-4 pb-5 space-y-4"
             onClick={e => e.stopPropagation()}
           >
-            {DIGER.map(g => (
+            {/* Arama kutusu (1 Ekim): yazınca düğmeler süzülür */}
+            <label className="flex items-center gap-2 h-11 px-3 rounded-xl bg-[#F3EFE8] dark:bg-[#0B132B] text-[#6A5E4C] dark:text-[#A6B0C9]">
+              <Search className="w-4 h-4 shrink-0" />
+              <input
+                value={digerAra}
+                onChange={e => setDigerAra(e.target.value)}
+                placeholder="Sayfa ara…"
+                className="flex-1 min-w-0 bg-transparent text-[14px] text-[#0E1C4F] dark:text-[#F3EFE8] focus:outline-hidden"
+              />
+            </label>
+            {digerSuzulmus.length === 0 && (
+              <p className="text-[13px] text-[#6A5E4C] dark:text-[#A6B0C9]">Bu adla sayfa yok. Bütün kayıtlarda aramak için üstteki büyüteç.</p>
+            )}
+            {digerSuzulmus.map(g => (
               <div key={g.grup}>
-                <div className="text-[10px] font-mono font-bold uppercase tracking-[0.18em] text-[#6A5E4C] dark:text-[#A6B0C9] mb-2">{g.grup}</div>
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="w-2 h-2 rounded-full bg-[#F26B6F]" />
+                  <span className="flex-1 text-[12px] font-bold uppercase tracking-[0.16em] text-[#6A5E4C] dark:text-[#A6B0C9]">{g.grup}</span>
+                  <span className="text-[12px] tabular-nums text-[#6A5E4C] dark:text-[#A6B0C9]">{g.satirlar.length}</span>
+                </div>
                 <div className="grid grid-cols-3 gap-2">
                   {g.satirlar.map(r => {
                     const Simge = r.simge;
@@ -1091,7 +1145,7 @@ export default function App() {
                         key={r.hedef}
                         type="button"
                         onClick={() => git(r.hedef)}
-                        className="relative flex flex-col items-center gap-1.5 py-3 rounded-xl border border-[#CFC5B4] dark:border-[#2C3C72] text-[12px] text-[#0E1C4F] dark:text-[#F3EFE8] cursor-pointer active:bg-[#F3EFE8] dark:active:bg-[#17345A]"
+                        className="relative flex flex-col items-center gap-1.5 py-3 rounded-xl bg-[#F3EFE8] dark:bg-[#0B132B] text-[12px] font-semibold text-[#0E1C4F] dark:text-[#F3EFE8] cursor-pointer active:bg-[#E4DCCD] dark:active:bg-[#17345A]"
                       >
                         <Simge className="w-5 h-5 text-[#D6484C] dark:text-[#F26B6F]" />
                         {r.ad}
@@ -1126,8 +1180,10 @@ export default function App() {
         </div>
       )}
 
-      {/* Her sayfanın köşesinde duran hızlı fikir kutusu */}
+      {/* Fikir kutusu: "+" menüsünden açılır */}
       <HizliFikir
+        acik={fikirAcik}
+        onAcikDegis={setFikirAcik}
         items={items}
         onAddItem={handleAddItem}
         onUpdateItem={handleUpdateItem}

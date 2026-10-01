@@ -11,11 +11,12 @@ import type { Asama } from './OyunSureci';
  * Kemal'in. Boş alan boş görünür.
  */
 
-export const TANITIM_ID = 'oyun_tanitim';
 const EN_FAZLA_GORSEL = 4;
 
 interface Props {
   items: Item[];
+  /** Hangi oyunun tanıtımı (her oyun bir oyun_tanitim kaydı) */
+  oyunId: string;
   asama: Asama | null;
   gddDolu: number;
   gddToplam: number;
@@ -23,10 +24,11 @@ interface Props {
   onUpdateItem: (item: Item) => Promise<void>;
 }
 
-export const OyunVitrini: React.FC<Props> = ({ items, asama, gddDolu, gddToplam, onAddItem, onUpdateItem }) => {
-  const kayit = items.find(i => i.id === TANITIM_ID && !i.archived);
-  const meta = (kayit?.metadata || {}) as { ozet?: string; aciklama?: string };
+export const OyunVitrini: React.FC<Props> = ({ items, oyunId, asama, gddDolu, gddToplam, onAddItem, onUpdateItem }) => {
+  const kayit = items.find(i => i.id === oyunId && !i.archived);
+  const meta = (kayit?.metadata || {}) as { ozet?: string; aciklama?: string; ad?: string };
   const gorseller = kayit?.images || [];
+  const [ad, setAd] = useState(meta.ad || '');
   const [ozet, setOzet] = useState(meta.ozet || '');
   const [aciklama, setAciklama] = useState(meta.aciklama || '');
   const [buyuk, setBuyuk] = useState<string | null>(null);
@@ -37,7 +39,7 @@ export const OyunVitrini: React.FC<Props> = ({ items, asama, gddDolu, gddToplam,
       await onUpdateItem({ ...kayit, ...degisen, metadata: { ...kayit.metadata, ...(degisen.metadata || {}) }, updatedAt: Date.now() });
     } else {
       await onAddItem({
-        id: TANITIM_ID,
+        id: oyunId,
         title: 'Oyun tanıtımı',
         area: 'oyun',
         type: 'oyun_tanitim',
@@ -55,9 +57,10 @@ export const OyunVitrini: React.FC<Props> = ({ items, asama, gddDolu, gddToplam,
     }
   };
 
-  const metinKaydet = (alan: 'ozet' | 'aciklama', deger: string) => {
+  const metinKaydet = (alan: 'ozet' | 'aciklama' | 'ad', deger: string) => {
     if ((meta[alan] || '') === deger) return;
-    void yaz({ metadata: { ...meta, [alan]: deger } });
+    // Ad kaydın başlığı da olur (aramada ve listede görünsün)
+    void yaz({ ...(alan === 'ad' ? { title: deger || 'Oyun tanıtımı' } : {}), metadata: { ...meta, [alan]: deger } });
   };
 
   const gorselEkle = async (liste: FileList | null) => {
@@ -77,7 +80,7 @@ export const OyunVitrini: React.FC<Props> = ({ items, asama, gddDolu, gddToplam,
   return (
     <section id="oy-vitrin" className="scroll-mt-24 rounded-2xl bg-[#0E1C4F] dark:bg-[#13204A] dark:border dark:border-[#2C3C72] text-[#F3EFE8] p-4 lg:p-5">
       <div className="text-[10px] font-mono font-bold uppercase tracking-[0.18em] text-[#A6B0C9]">Oyun · tanıtım</div>
-      <div className="mt-2 grid gap-4 lg:grid-cols-[1.3fr_1fr]">
+      <div className="mt-2 grid gap-4 xl:grid-cols-[1.3fr_1fr]">
         <div className="space-y-3 min-w-0">
           <div className="flex flex-wrap gap-2">
             <span className="px-3 py-1.5 rounded-full bg-[#F26B6F] text-white text-[11px] font-semibold">
@@ -86,6 +89,10 @@ export const OyunVitrini: React.FC<Props> = ({ items, asama, gddDolu, gddToplam,
             <span className="px-3 py-1.5 rounded-full bg-white/10 text-[11px] font-semibold">
               Tasarım belgesi: {gddDolu}/{gddToplam} seçim
             </span>
+          </div>
+          <div>
+            <div className="text-[10px] font-mono uppercase tracking-wider text-[#A6B0C9] mb-1">Oyunun adı</div>
+            <input value={ad} onChange={e => setAd(e.target.value)} onBlur={() => metinKaydet('ad', ad.trim())} placeholder="Adı sen koyarsın…" className={`${kutu} font-semibold`} />
           </div>
           <div>
             <div className="text-[10px] font-mono uppercase tracking-wider text-[#A6B0C9] mb-1">Özet · tek cümle</div>

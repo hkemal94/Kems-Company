@@ -41,10 +41,13 @@ export interface HizliFikirProps {
   items: Item[];
   onAddItem: (item: Omit<Item, 'id' | 'createdAt' | 'updatedAt' | 'userId'>) => Promise<void>;
   onUpdateItem: (item: Item) => Promise<void>;
+  /** Pano açık mı (1 Ekim: ampul köşeden kalktı, üst çubuktaki "+" açar) */
+  acik: boolean;
+  onAcikDegis: (acik: boolean) => void;
 }
 
-export const HizliFikir: React.FC<HizliFikirProps> = ({ items, onAddItem, onUpdateItem }) => {
-  const [acik, setAcik] = useState(false);
+export const HizliFikir: React.FC<HizliFikirProps> = ({ items, onAddItem, onUpdateItem, acik, onAcikDegis }) => {
+  const setAcik = onAcikDegis;
   const [metin, setMetin] = useState('');
   const [yaziliyor, setYaziliyor] = useState(false);
   const [donusturulen, setDonusturulen] = useState<string | null>(null);
@@ -129,36 +132,8 @@ export const HizliFikir: React.FC<HizliFikirProps> = ({ items, onAddItem, onUpda
   const arsivle = async (f: Item) =>
     onUpdateItem({ ...f, archived: true, updatedAt: Date.now() });
 
-  /* --- kapalı hâl: köşedeki düğme --- */
-  if (!acik) {
-    return (
-      <button
-        onClick={() => { setAcik(true); setTimeout(() => girdi.current?.focus(), 60); }}
-        title="Hızlı fikir (Ctrl/⌘ + I)"
-        className="fixed bottom-20 right-4 lg:bottom-5 lg:right-5 z-40 flex items-center gap-2 p-3 lg:px-4 lg:py-2.5
-                   rounded-full shadow-lg cursor-pointer transition-transform
-                   hover:-translate-y-0.5"
-        style={{ background: '#0E1C4F', color: '#F3EFE8' }}
-      >
-        <Lightbulb className="w-4 h-4" />
-        {/* Telefonda yalnız simge: alt menünün üstünde yazıyı örtmesin */}
-        <span className="font-mono hidden lg:inline" style={{ fontSize: 11, letterSpacing: '0.08em' }}>
-          Fikir
-        </span>
-        {fikirler.length > 0 && (
-          <span
-            className="font-mono tabular-nums"
-            style={{
-              fontSize: 10, padding: '1px 6px', borderRadius: 999,
-              background: bayatSayisi ? '#F26B6F' : 'rgba(243,239,232,0.22)'
-            }}
-          >
-            {fikirler.length}
-          </span>
-        )}
-      </button>
-    );
-  }
+  // Kapalıyken köşede düğme durmaz (1 Ekim, Kemal: "ampul + düğmesine")
+  if (!acik) return null;
 
   /* --- açık hâl: köşedeki pano --- */
   return (
@@ -185,6 +160,7 @@ export const HizliFikir: React.FC<HizliFikirProps> = ({ items, onAddItem, onUpda
             style={{ borderColor: 'rgba(207,197,180,0.6)' }}>
         <input
           ref={girdi}
+          autoFocus
           value={metin}
           onChange={e => setMetin(e.target.value)}
           placeholder="Aklına geleni yaz, Enter'a bas…"
