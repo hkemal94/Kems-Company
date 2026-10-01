@@ -11,11 +11,6 @@ import type { Item } from '../types';
 export interface YolIsi { id: string; ad: string; nereden: string; kimde: 'claude' | 'kemal'; not?: string }
 
 export const YOL_HARITASI: YolIsi[] = [
-  { id: 'k5-menu', ad: 'Menü: Durum + Neyin Eksik tek sayfa, "Yapay zekâ" adı, 3B stüdyo iki ekranda aynı grupta, fikir ampulü "+"ya', nereden: '1 Ekim, K-5', kimde: 'claude', not: '2. PR.' },
-  { id: 'tek-takvim', ad: 'Tek ve birleşik takvim (Sosyal medyanın ayrı takvimi kalkar)', nereden: '1 Ekim, K-5', kimde: 'claude', not: '2. PR.' },
-  { id: 'k6-okunaklilik', ad: 'Telefonda en küçük yazı 12 px, düğmeler büyür', nereden: '1 Ekim, K-6', kimde: 'claude', not: '2. PR. Kiremit düğme rengi olduğu gibi.' },
-  { id: 'oyun-fikir-surec', ad: 'Oyun: fikir ve süreç ekranı (adım adım anlattıran akış, fikirler ve yapılanlar künye gibi)', nereden: '1 Ekim', kimde: 'claude', not: '2. PR.' },
-  { id: 'kurum-tiki', ad: 'Vikideki kurumlar Markalar\'a: madde düzenleyicide "kurum" kutusu', nereden: '1 Ekim', kimde: 'claude', not: '2. PR. Kemal tikle seçer.' },
   { id: 'ortak-alan-tasima', ad: 'Ortak alanda kalmış kayıt varsa Google alanına taşıma', nereden: 'yapisal-2, 26', kimde: 'kemal', not: 'Ortak alan kalktı; eski kayıt varsa Kemal söyleyince tek seferlik kart.' },
   { id: 'kalip-3b', ad: '3B stüdyo: gerçekçi kalıplar (tişört, sweatshirt, şapka, bez çanta, kupa, poster)', nereden: 'yapisal-5', kimde: 'kemal', not: 'Şimdilik duruyor; model ya da mockup kararı senin.' },
   { id: 'tasarim-3b', ad: '3B stüdyo: parça renk, baskı yerleri, baskı / nakış görünümü, desen, deneme atölyesi', nereden: 'yapisal-5', kimde: 'claude' },

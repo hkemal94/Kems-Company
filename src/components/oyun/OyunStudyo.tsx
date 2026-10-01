@@ -2,13 +2,14 @@ import React, { useMemo, useState } from 'react';
 import { SayfaBasi } from '../kabuk/SayfaBasi';
 import { BolumBasligi, BosSatir, IlerlemeHalkasi, Rozet } from '../kabuk/Parcalar';
 import {
-  Plus, ChevronLeft, ChevronRight, UserPlus, Trash2, X, Check, Download, Lightbulb, Target
+  Plus, ChevronLeft, ChevronRight, UserPlus, Trash2, X, Check, Download, Lightbulb, Target, ArrowLeft, Gamepad2, ArrowRight
 } from 'lucide-react';
 import type { Item, AreaType } from '../../types';
 import {
   ASAMALAR, oyunIsleri, gddBolumleri, GDD_BOLUMLERI, projeAsamasi, BOLUM_ACIKLAMASI,
   KONSEPT_BOLUMLERI, MEKANIK_BOLUMLERI, ADIM_SIRASI, bolumYapildi, FIKIR_KATEGORILERI,
-  oyunFikirleri, oyunBelgesi, GDD_SECIMLERI, secilenler
+  oyunFikirleri, oyunBelgesi, GDD_SECIMLERI, secilenler, oyunlar, oyunAdi, oyunKimligi, ILK_OYUN_ID,
+  KUNYE_SATIRLARI, kunyeDegeri
 } from './OyunSureci';
 import NpcSihirbazi from './NpcSihirbazi';
 import { OyunVitrini } from './OyunVitrini';
@@ -91,11 +92,92 @@ const FikirNotu: React.FC<{
   );
 };
 
-export const OyunStudyo: React.FC<OyunStudyoProps> = ({ items, onAddItem, onUpdateItem, onDeleteItem }) => {
-  const isler = useMemo(() => oyunIsleri(items), [items]);
-  const suAn = useMemo(() => projeAsamasi(items), [items]);
-  const belgeler = useMemo(() => gddBolumleri(items), [items]);
-  const fikirler = useMemo(() => oyunFikirleri(items), [items]);
+/**
+ * Oyunlar listesi (1 Ekim, Kemal: "Oyunlar listesi + künye"). Her oyunun
+ * kartı: kapak, ad, durum, tasarım belgesi ilerlemesi. Yeni oyun yalnız
+ * Kemal adını yazıp "Ekle" deyince açılır.
+ */
+export const OyunStudyo: React.FC<OyunStudyoProps> = (p) => {
+  const { items, onAddItem } = p;
+  const liste = useMemo(() => oyunlar(items), [items]);
+  const [oyunId, setOyunId] = useState<string | null>(null);
+  const [yeniAd, setYeniAd] = useState<string | null>(null);
+  const secili = oyunId ? liste.find(o => o.id === oyunId) : undefined;
+
+  if (secili) return <OyunEkrani key={secili.id} {...p} oyunId={secili.id} onGeri={() => { setOyunId(null); window.scrollTo({ top: 0 }); }} />;
+
+  const yeniOyun = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const ad = (yeniAd || '').trim();
+    if (!ad) return;
+    // İlk oyunun kaydı hiç açılmamış ve verisi de yoksa yeni oyun o olur
+    const ilkBos = liste.length === 1 && !liste[0].kayit
+      && !items.some(i => ['oyun_is', 'gdd_bolum', 'oyun_fikir'].includes(i.type) && !i.archived && oyunKimligi(i) === ILK_OYUN_ID);
+    const id = ilkBos ? ILK_OYUN_ID : `oyun_tanitim_${Date.now()}`;
+    await onAddItem({
+      id, title: ad, area: 'oyun', type: 'oyun_tanitim', status: 'Fikir', priority: 'orta',
+      tags: ['oyun', 'tanitim'], links: [], notes: '', images: [], isProposal: false, archived: false,
+      metadata: { ad }
+    });
+    setYeniAd(null);
+    setOyunId(id);
+  };
+
+  return (
+    <div className="space-y-5 animate-in fade-in duration-300">
+      <SayfaBasi baslik="Oyun">
+        <button type="button" onClick={() => setYeniAd('')} className={DUGME_LAC}><Plus className="w-3.5 h-3.5" /> Yeni oyun</button>
+      </SayfaBasi>
+      <BolumBasligi baslik="Oyunlar" sayi={liste.length} />
+      {yeniAd !== null && (
+        <form onSubmit={yeniOyun} className={`${KART} p-3 flex items-center gap-2`}>
+          <input autoFocus value={yeniAd} onChange={e => setYeniAd(e.target.value)} placeholder="Oyunun adı…"
+            className="flex-1 min-w-0 text-[14px] bg-[#F3EFE8] dark:bg-[#0B132B] text-[#0E1C4F] dark:text-[#F3EFE8] rounded-lg p-2.5 focus:outline-hidden" />
+          <button type="submit" disabled={!yeniAd.trim()} className={DUGME_LAC}>Ekle</button>
+          <button type="button" onClick={() => setYeniAd(null)} aria-label="Vazgeç" className={`w-11 h-11 flex items-center justify-center ${IKINCIL} cursor-pointer`}><X className="w-4 h-4" /></button>
+        </form>
+      )}
+      <div className="grid gap-3 lg:grid-cols-2">
+        {liste.map(o => {
+          const ad = oyunAdi(o.kayit);
+          const asama = projeAsamasi(items, o.id);
+          const belge = gddBolumleri(items, o.id);
+          const dolu = ADIM_SIRASI.filter(id => bolumYapildi(belge.find(k => (k.metadata as any)?.bolumId === id))).length;
+          const kapak = o.kayit?.images?.[0];
+          const ozet = String((o.kayit?.metadata as any)?.ozet || '').trim();
+          return (
+            <button key={o.id} type="button" onClick={() => { setOyunId(o.id); window.scrollTo({ top: 0 }); }}
+              className={`${KART} p-4 flex gap-4 text-left cursor-pointer hover:ring-2 hover:ring-[#F26B6F]/40`}>
+              {kapak
+                ? <img src={kapak} alt="" className="w-24 h-24 rounded-xl object-cover shrink-0" />
+                : <span className="w-24 h-24 rounded-xl bg-[#0E1C4F] dark:bg-[#2C3C72] flex items-center justify-center shrink-0"><Gamepad2 className="w-8 h-8 text-[#F26B6F]" /></span>}
+              <span className="flex-1 min-w-0 space-y-1.5">
+                <span className="flex flex-wrap gap-1.5">
+                  {asama ? <Rozet renk="dikkat">{asama.ad}</Rozet> : <Rozet renk="bekliyor">başlamadı</Rozet>}
+                </span>
+                <span className={`block text-[18px] font-bold leading-tight ${ad ? YAZI : IKINCIL}`}>{ad || 'Adsız oyun · adı künyede yazılır'}</span>
+                <span className={`block text-[13px] line-clamp-2 ${IKINCIL}`}>{ozet || 'Özet boş'}</span>
+                <span className="flex items-center gap-2">
+                  <span className="flex-1 h-1.5 rounded-full bg-[#E4DCCD] dark:bg-[#2C3C72] overflow-hidden"><span className="block h-full bg-[#336659]" style={{ width: `${(dolu / ADIM_SIRASI.length) * 100}%` }} /></span>
+                  <span className={`text-[12px] tabular-nums ${IKINCIL}`}>{dolu}/{ADIM_SIRASI.length} adım</span>
+                </span>
+              </span>
+              <ArrowRight className={`w-5 h-5 self-center shrink-0 ${IKINCIL}`} />
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+/** Tek oyunun ekranı: künye, süreç, mekanikler */
+const OyunEkrani: React.FC<OyunStudyoProps & { oyunId: string; onGeri: () => void }> = ({ items, onAddItem, onUpdateItem, onDeleteItem, oyunId, onGeri }) => {
+  const isler = useMemo(() => oyunIsleri(items, oyunId), [items, oyunId]);
+  const suAn = useMemo(() => projeAsamasi(items, oyunId), [items, oyunId]);
+  const belgeler = useMemo(() => gddBolumleri(items, oyunId), [items, oyunId]);
+  const fikirler = useMemo(() => oyunFikirleri(items, oyunId), [items, oyunId]);
+  const oyunKaydi = items.find(i => i.id === oyunId && !i.archived);
   const gddSayim = useMemo(() => {
     let dolu = 0, toplam = 0;
     for (const [bolumId, secimler] of Object.entries(GDD_SECIMLERI)) {
@@ -126,7 +208,7 @@ export const OyunStudyo: React.FC<OyunStudyoProps> = ({ items, onAddItem, onUpda
     await onAddItem({
       title: baslik, area: 'oyun', type: 'oyun_is', status: 'Fikir', priority: 'orta',
       tags: ['oyun', 'is'], links: [], notes: '', images: [], isProposal: false, archived: false,
-      metadata: { asama: asamaId }
+      metadata: { asama: asamaId, oyunId }
     });
     setYeniBaslik(''); setYeniIs(null);
   };
@@ -147,7 +229,7 @@ export const OyunStudyo: React.FC<OyunStudyoProps> = ({ items, onAddItem, onUpda
       await onAddItem({
         title: bolum.ad, area: 'oyun', type: 'gdd_bolum', status: 'Fikir', priority: 'orta',
         tags: ['oyun', 'gdd'], links: [], notes: notlar, images: [], isProposal: false, archived: false,
-        metadata: { bolumId: bolum.id, soru: bolum.soru }
+        metadata: { bolumId: bolum.id, soru: bolum.soru, oyunId }
       });
     } finally { setBelgeYaziliyor(null); }
   };
@@ -161,16 +243,17 @@ export const OyunStudyo: React.FC<OyunStudyoProps> = ({ items, onAddItem, onUpda
       await onAddItem({
         title: v.baslik, area: 'oyun', type: 'oyun_fikir', status: 'Fikir', priority: 'orta',
         tags: ['oyun', 'fikir-notu'], links: [], notes: v.not, images: [], isProposal: false, archived: false,
-        metadata: { kategori: v.kategori }
+        metadata: { kategori: v.kategori, oyunId }
       });
     }
   };
 
   const belgeIndir = () => {
-    const blob = new Blob([oyunBelgesi(items)], { type: 'text/markdown;charset=utf-8' });
+    const blob = new Blob([oyunBelgesi(items, oyunId)], { type: 'text/markdown;charset=utf-8' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = `oyun-dosyasi-${new Date().toISOString().slice(0, 10)}.md`;
+    const dosyaAdi = (oyunAdi(oyunKaydi) || 'oyun').toLocaleLowerCase('tr').replace(/[^a-z0-9çğıöşü]+/g, '-').replace(/^-|-$/g, '');
+    a.download = `${dosyaAdi}-dosyasi-${new Date().toISOString().slice(0, 10)}.md`;
     a.click();
     window.setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   };
@@ -182,9 +265,44 @@ export const OyunStudyo: React.FC<OyunStudyoProps> = ({ items, onAddItem, onUpda
 
   // ------------------------------------------------------------ sekmeler
 
+  /** Künye: viki künyesi gibi; değerler yalnız Kemal'in seçimlerinden */
+  const KunyeKarti = (
+    <section className={`${KART} overflow-hidden`}>
+      <div className="px-4 py-3 bg-[#0E1C4F] dark:bg-[#2C3C72] text-[#F3EFE8]">
+        <div className="text-[12px] font-bold uppercase tracking-[0.16em] text-[#A6B0C9]">Oyun künyesi</div>
+        <div className="text-[18px] font-bold leading-tight">{oyunAdi(oyunKaydi) || 'Adsız oyun'}</div>
+      </div>
+      <dl className="divide-y divide-[#E4DCCD] dark:divide-[#2C3C72]">
+        <div className="flex gap-3 px-4 py-2.5">
+          <dt className={`w-32 shrink-0 text-[13px] ${IKINCIL}`}>Durum</dt>
+          <dd className={`flex-1 text-[14px] font-semibold ${YAZI}`}>{suAn ? `${suAn.ad} (${suAn.terim})` : 'başlamadı'}</dd>
+        </div>
+        {KUNYE_SATIRLARI.map(k => {
+          const v = kunyeDegeri(belgeler, k);
+          return (
+            <div key={k.etiket} className="flex items-center gap-3 px-4 py-2.5 min-h-11">
+              <dt className={`w-32 shrink-0 text-[13px] ${IKINCIL}`}>{k.etiket}</dt>
+              <dd className="flex-1 min-w-0">
+                {v
+                  ? <span className={`text-[14px] font-semibold ${YAZI}`}>{v}</span>
+                  : <button type="button" onClick={() => { setSeciliAdim(k.bolumId); setSekme('surec'); window.scrollTo({ top: 0 }); }} className={`text-[13px] ${IKINCIL} hover:text-[#F26B6F] cursor-pointer`}>boş · seç</button>}
+              </dd>
+            </div>
+          );
+        })}
+      </dl>
+    </section>
+  );
+
   const Kunye = (
     <div className="space-y-5">
-      <OyunVitrini items={items} asama={suAn} gddDolu={gddSayim.dolu} gddToplam={gddSayim.toplam} onAddItem={onAddItem} onUpdateItem={onUpdateItem} />
+      {/* Viki gibi: masaüstünde künye sağda dar kutu, tanıtım solda */}
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_360px] items-start">
+        <div className="min-w-0 order-2 lg:order-1">
+          <OyunVitrini key={oyunId} items={items} oyunId={oyunId} asama={suAn} gddDolu={gddSayim.dolu} gddToplam={gddSayim.toplam} onAddItem={onAddItem} onUpdateItem={onUpdateItem} />
+        </div>
+        <div className="order-1 lg:order-2">{KunyeKarti}</div>
+      </div>
       <section className="space-y-3">
         <BolumBasligi baslik="Konsept" sayi={`${KONSEPT_BOLUMLERI.filter(id => bolumYapildi(kayitBul(id))).length}/${KONSEPT_BOLUMLERI.length}`} />
         <div className="grid gap-3 lg:grid-cols-2 items-start">{KONSEPT_BOLUMLERI.map(bolum)}</div>
@@ -351,7 +469,8 @@ export const OyunStudyo: React.FC<OyunStudyoProps> = ({ items, onAddItem, onUpda
 
   return (
     <div className="space-y-5 animate-in fade-in duration-300">
-      <SayfaBasi baslik="Oyun">
+      <button type="button" onClick={onGeri} className={DUGME_BOS}><ArrowLeft className="w-3.5 h-3.5" /> Oyunlar</button>
+      <SayfaBasi baslik={oyunAdi(oyunKaydi) || 'Adsız oyun'}>
         <button type="button" onClick={belgeIndir} className={DUGME_BOS} title="Künye, tasarım belgesi, fikir notları ve işler tek dosyada">
           <Download className="w-3.5 h-3.5" /> Oyun dosyasını indir
         </button>
@@ -359,7 +478,7 @@ export const OyunStudyo: React.FC<OyunStudyoProps> = ({ items, onAddItem, onUpda
       </SayfaBasi>
 
       <SayfaRayi
-        baslik="Oyun"
+        baslik={oyunAdi(oyunKaydi) || 'Oyun'}
         bolumler={[
           { id: 'kunye', label: 'Künye ve konsept' },
           { id: 'surec', label: `Adım adım süreç · ${yapilan}/${ADIM_SIRASI.length}` },

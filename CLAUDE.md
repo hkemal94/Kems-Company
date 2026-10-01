@@ -45,7 +45,7 @@ terimsiz olur. Kodu değil, **ekranda ne değiştiğini** anlat.
 **Veri**
 - **Kullanılmayan kayıt ve kod silinir** (Kemal, 29 Eylül: "arka tarafta
   kullanmadığımız ne varsa sil, arşiv işi beni sinirlendirdi"). Eski
-  "arşive kalkar" kuralı kalktı. Toplu silme Neyin Eksik'teki Temizlik
+  "arşive kalkar" kuralı kalktı. Toplu silme Durum → Eksikler'deki Temizlik
   kartıyla yapılır; önce bütün kayıtların yedeği iner (`src/lib/temizlik.ts`).
   Kişi bilgileri için `src/lib/adaSakini.ts` duruyor.
 - **İstisna: Merch arşivi kalır** (Kemal, 1 Ekim: "hazırlanmış ve satılmış
@@ -63,8 +63,8 @@ terimsiz olur. Kodu değil, **ekranda ne değiştiğini** anlat.
   → `kurucuyuTemizle`'ye de eklenir; yoksa kayıtta sessizce düşer (30 Eylül'de
   özel yapı, doğa ve madde bağları böyle kayboluyordu).
 - **Veri göçleri tek seferliktir ve düğmeyle çalışır.** Kalıp:
-  `src/lib/` altında yazılacak kayıtları üreten saf bir fonksiyon + Neyin
-  Eksik panelinde (`src/components/Eksikler.tsx`) yalnızca iş varken
+  `src/lib/` altında yazılacak kayıtları üreten saf bir fonksiyon + Durum → Eksikler
+  sekmesinde (`src/components/Eksikler.tsx`) yalnızca iş varken
   görünen bir kart. İkinci basışta hiçbir şey yapmamalı. Örnekler:
   `kanonKararlari.ts`, `markaYapisi.ts`, `otelTemizligi.ts`.
 

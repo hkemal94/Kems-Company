@@ -32,8 +32,16 @@ export const KURUM_TURU = 'kulüp markası';
 /** Çatı markanın kimlikleri: veride biri, künye dosyasında öteki */
 export const ANA_MARKA_KIMLIKLERI = ['kems_company', 'marka_kems'];
 
+/**
+ * Vikideki herhangi bir madde (otel, şirket, dernek…) Kemal madde
+ * düzenleyicide tiklerse Markalar'da kurum olarak görünür (1 Ekim, Kemal:
+ * "ben tikle seçerim"). Kendiliğinden hiçbir madde kurum olmaz.
+ */
+export const KURUM_TIKI = 'kurumOlarakGoster';
+
 export function kurumMu(i: Item): boolean {
   if (i.type === 'kulüp') return true;
+  if ((i.metadata as any)?.[KURUM_TIKI] === true) return true;
   if ((i.tags || []).includes(KURUM_ETIKETI)) return true;
   return (i.metadata as any)?.markaTuru === KURUM_TURU;
 }
@@ -57,7 +65,7 @@ export function markaYapisi(items: Item[]): MarkaYapisi {
   const canli = items.filter(i => !i.archived);
 
   const kurumlar = canli.filter(
-    i => (i.type === 'marka' || i.type === 'kulüp') && kurumMu(i)
+    i => ((i.type === 'marka' || i.type === 'kulüp') && kurumMu(i)) || (i.metadata as any)?.[KURUM_TIKI] === true
   );
   const markalar = canli.filter(i => i.type === 'marka' && !kurumMu(i));
 

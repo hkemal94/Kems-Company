@@ -74,14 +74,40 @@ export const GDD_BOLUMLERI: Array<{ id: string; ad: string; soru: string }> = [
   { id: 'risk',      ad: 'Riskler',              soru: 'Bu projeyi ne batırır?' }
 ];
 
+/**
+ * Birden çok oyun (1 Ekim, Kemal: "Oyunlar listesi + künye"). Her oyun bir
+ * `oyun_tanitim` kaydıdır. İş, tasarım belgesi ve fikir notları
+ * `metadata.oyunId` ile oyununa bağlanır. Bu alan yoksa kayıt ilk oyunundur
+ * (`oyun_tanitim`); eski kayıtlar böylece taşınmadan yerinde kalır.
+ */
+export const ILK_OYUN_ID = 'oyun_tanitim';
+export const oyunKimligi = (i: Item): string => String((i.metadata as any)?.oyunId || ILK_OYUN_ID);
+const buOyunun = (i: Item, oyunId?: string) => !oyunId || oyunKimligi(i) === oyunId;
+
+/**
+ * Oyunlar listesi. Hiç tanıtım kaydı yokken ilk oyunun işi ya da belgesi
+ * varsa, o oyun kaydı açılmamış hâliyle (adsız) listede görünür.
+ */
+export function oyunlar(items: Item[]): Array<{ id: string; kayit?: Item }> {
+  const kayitlar = items.filter(i => i.type === 'oyun_tanitim' && !i.archived).sort((a, b) => a.createdAt - b.createdAt);
+  const liste: Array<{ id: string; kayit?: Item }> = kayitlar.map(k => ({ id: k.id, kayit: k }));
+  const ilkVar = kayitlar.some(k => k.id === ILK_OYUN_ID);
+  const ilkinVerisi = items.some(i => ['oyun_is', 'gdd_bolum', 'oyun_fikir'].includes(i.type) && !i.archived && oyunKimligi(i) === ILK_OYUN_ID);
+  if (!ilkVar && (ilkinVerisi || !kayitlar.length)) liste.unshift({ id: ILK_OYUN_ID });
+  return liste;
+}
+
+/** Oyunun adı: Kemal'in künyede yazdığı; yoksa boş */
+export const oyunAdi = (kayit?: Item): string => String((kayit?.metadata as any)?.ad || '').trim();
+
 /** Süreçteki iş kartları */
-export function oyunIsleri(items: Item[]): Item[] {
-  return items.filter(i => i.type === 'oyun_is' && !i.archived && !i.isProposal);
+export function oyunIsleri(items: Item[], oyunId?: string): Item[] {
+  return items.filter(i => i.type === 'oyun_is' && !i.archived && !i.isProposal && buOyunun(i, oyunId));
 }
 
 /** Tasarım belgesi bölümleri — açılmış olanlar */
-export function gddBolumleri(items: Item[]): Item[] {
-  return items.filter(i => i.type === 'gdd_bolum' && !i.archived);
+export function gddBolumleri(items: Item[], oyunId?: string): Item[] {
+  return items.filter(i => i.type === 'gdd_bolum' && !i.archived && buOyunun(i, oyunId));
 }
 
 /**
@@ -90,8 +116,8 @@ export function gddBolumleri(items: Item[]): Item[] {
  * Sebebi: bir stüdyo "beta"da değildir, en geride kalan işi neredeyse
  * oradadır. Tek bir kart konseptte duruyorsa proje konsepttedir.
  */
-export function projeAsamasi(items: Item[]): Asama | null {
-  const isler = oyunIsleri(items);
+export function projeAsamasi(items: Item[], oyunId?: string): Asama | null {
+  const isler = oyunIsleri(items, oyunId);
   if (!isler.length) return null;
   for (const a of ASAMALAR) {
     if (isler.some(i => String((i.metadata as any)?.asama || 'konsept') === a.id)) return a;
@@ -228,24 +254,51 @@ export function bolumYapildi(kayit: Item | undefined): boolean {
 /** Fikir notu kategorileri (oyun dosyasında durur) */
 export const FIKIR_KATEGORILERI = ['Mekanik', 'Hikâye', 'Karakter', 'Görsel', 'Ses', 'Teknik', 'Diğer'] as const;
 
-export function oyunFikirleri(items: Item[]): Item[] {
-  return items.filter(i => i.type === 'oyun_fikir' && !i.archived).sort((a, b) => b.createdAt - a.createdAt);
+export function oyunFikirleri(items: Item[], oyunId?: string): Item[] {
+  return items.filter(i => i.type === 'oyun_fikir' && !i.archived && buOyunun(i, oyunId)).sort((a, b) => b.createdAt - a.createdAt);
+}
+
+/**
+ * Oyun künyesi satırları (viki künyesi gibi). Değerler yalnız Kemal'in
+ * tasarım belgesindeki seçimlerinden gelir; seçilmemişse boş. Her satır,
+ * dolduğu adımı bilir (boşsa oraya götürülür).
+ */
+export const KUNYE_SATIRLARI: Array<{ etiket: string; bolumId: string; secimId: string }> = [
+  { etiket: 'Tür', bolumId: 'kunye', secimId: 'tur' },
+  { etiket: 'Platform', bolumId: 'kunye', secimId: 'platform' },
+  { etiket: 'Hedef oyuncu', bolumId: 'kunye', secimId: 'oyuncu' },
+  { etiket: 'Oyuncu sayısı', bolumId: 'kunye', secimId: 'kip' },
+  { etiket: 'Düzada\'da nerede', bolumId: 'dunya', secimId: 'yer' },
+  { etiket: 'Zaman aralığı', bolumId: 'dunya', secimId: 'donem' },
+  { etiket: 'Kamera', bolumId: 'arayuz', secimId: 'kamera' },
+  { etiket: 'Görsel stil', bolumId: 'gorsel', secimId: 'stil' },
+  { etiket: 'Oyun süresi', bolumId: 'kapsam', secimId: 'sure' },
+  { etiket: 'Takvim', bolumId: 'kapsam', secimId: 'takvim' },
+  { etiket: 'Ekip', bolumId: 'kapsam', secimId: 'ekip' }
+];
+
+export function kunyeDegeri(belgeler: Item[], satir: { bolumId: string; secimId: string }): string {
+  const k = belgeler.find(b => (b.metadata as any)?.bolumId === satir.bolumId);
+  const s = (GDD_SECIMLERI[satir.bolumId] || []).find(x => x.id === satir.secimId);
+  return k && s ? secilenler(k.notes || '', s).join(', ') : '';
 }
 
 /**
  * Oyun dosyası: künye, tasarım belgesi, fikir notları ve işler tek
  * belgede (Markdown). Yalnız Kemal'in kayıtları; boş bölüm "boş" yazar.
  */
-export function oyunBelgesi(items: Item[]): string {
-  const tanitim = items.find(i => i.type === 'oyun_tanitim' && !i.archived);
+export function oyunBelgesi(items: Item[], oyunId: string = ILK_OYUN_ID): string {
+  const tanitim = items.find(i => i.id === oyunId && !i.archived);
   const meta = (tanitim?.metadata || {}) as { ozet?: string; aciklama?: string };
-  const bolumler = gddBolumleri(items);
-  const asama = projeAsamasi(items);
+  const bolumler = gddBolumleri(items, oyunId);
+  const asama = projeAsamasi(items, oyunId);
   const s: string[] = [];
   const tarih = new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
-  s.push('# Oyun dosyası', '', `Kems Komuta Merkezi · ${tarih}`, '');
+  s.push(`# ${oyunAdi(tanitim) || 'Adsız oyun'} · oyun dosyası`, '', `Kems Komuta Merkezi · ${tarih}`, '');
   s.push('## Künye', '');
+  s.push(`- Ad: ${oyunAdi(tanitim) || 'boş'}`);
   s.push(`- Durum: ${asama ? `${asama.ad} (${asama.terim})` : 'başlamadı'}`);
+  for (const k of KUNYE_SATIRLARI) s.push(`- ${k.etiket}: ${kunyeDegeri(bolumler, k) || 'boş'}`);
   s.push(`- Özet: ${meta.ozet?.trim() || 'boş'}`);
   s.push('', '### Açıklama', '', meta.aciklama?.trim() || 'boş', '');
   s.push('## Tasarım belgesi', '');
@@ -255,7 +308,7 @@ export function oyunBelgesi(items: Item[]): string {
     s.push(`### ${b.ad}`, '', (k?.notes || '').trim() || 'boş', '');
   }
   s.push('## Fikir notları', '');
-  const fikirler = oyunFikirleri(items);
+  const fikirler = oyunFikirleri(items, oyunId);
   if (!fikirler.length) s.push('boş', '');
   for (const kat of FIKIR_KATEGORILERI) {
     const bunlar = fikirler.filter(f => (f.metadata as any)?.kategori === kat || (kat === 'Diğer' && !FIKIR_KATEGORILERI.includes((f.metadata as any)?.kategori)));
@@ -265,7 +318,7 @@ export function oyunBelgesi(items: Item[]): string {
     s.push('');
   }
   s.push('## İşler', '');
-  const isler = oyunIsleri(items);
+  const isler = oyunIsleri(items, oyunId);
   if (!isler.length) s.push('boş', '');
   for (const a of ASAMALAR) {
     const bunlar = isler.filter(i => String((i.metadata as any)?.asama || 'konsept') === a.id);
