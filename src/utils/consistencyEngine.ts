@@ -1,5 +1,5 @@
 import { Item, WikiSection } from '../types';
-import { getCharacterKunye } from '../components/Duzada';
+import { getCharacterKunye } from '../lib/karakterKunyesi';
 import { tarihUyarilari } from '../lib/kanonTarihleri';
 
 /**

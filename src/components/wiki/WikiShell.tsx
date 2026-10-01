@@ -182,18 +182,21 @@ export const WikiShell: React.FC<WikiShellProps> = ({
     <div className="paper-grain min-h-full bg-krem dark:bg-lacivert text-lacivert dark:text-krem">
       <div className="sticky top-0 z-10 backdrop-blur bg-krem/90 dark:bg-lacivert/90 border-b border-bej/45 dark:border-lacivert-600/45">
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center gap-3 flex-wrap">
-          <button
-            type="button"
-            onClick={() => {
-              navigate(null);
-              setQ('');
-              setTypeFilter(null);
-            }}
-            className="flex items-center gap-2 font-serif text-lg hover:opacity-70 transition-opacity"
-          >
-            <BookOpen size={17} />
-            Düzada Viki
-          </button>
+          {/* KKM'de sayfa adı zaten üstte; viki başlığı yalnız sitede (1 Ekim, K-2) */}
+          {readOnly && (
+            <button
+              type="button"
+              onClick={() => {
+                navigate(null);
+                setQ('');
+                setTypeFilter(null);
+              }}
+              className="flex items-center gap-2 font-serif text-lg hover:opacity-70 transition-opacity"
+            >
+              <BookOpen size={17} />
+              Düzada Viki
+            </button>
+          )}
 
           {(selected || listeGorunumu) && (
             <button

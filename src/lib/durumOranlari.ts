@@ -1,6 +1,6 @@
 import type { Item, ItemType } from '../types';
 import { WIKI_TYPES, getKunyeFields } from '../components/wiki/wikiSchema';
-import { haritaBeklentisi } from '../components/Eksikler';
+import { haritaBeklentisi } from './eksikler';
 import { boslukOrani } from '../components/Bosluklar';
 import { ADA_KIMLIGI } from './vikiSifirlama';
 

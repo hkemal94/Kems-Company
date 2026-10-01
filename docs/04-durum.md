@@ -1082,3 +1082,51 @@ bölümü (karar yok). Yol haritasında.
 
 Görseller: `docs/gorseller/h2-*.png`, `yerlesim-*.png` (önizleme, örnek veri).
 
+
+## 1 Ekim — sadeleştirme incelemesi ve kararlar (iki PR)
+
+30 Eylül gecesi uygulamanın 17 ekranı telefonda ve bilgisayarda gezildi
+(rapor: "KKM sadeleştirme incelemesi"). Kemal'in 1 Ekim cevapları:
+
+- K-1 … K-6 paketlerinin hepsi: **olur**.
+- Durum ile Neyin Eksik **birleşir**; adı **Durum** (sekmeler: Yüzdeler ·
+  Eksikler · Boşluklar).
+- Sayfa başlıkları menüdeki adlarla aynı.
+- Menüde "Stüdyo" yerine **"Yapay zekâ"**.
+- Kiremit düğmelerde yazı rengi **olduğu gibi** kalır (jetona dokunulmaz).
+- Fikir ampulü üst çubuktaki "+"ya taşınır.
+- Takvim: **tek ve birleşik** (Sosyal medyanın ayrı takvimi kalkar).
+- Oyun: 7 ekranlık süreç sayfası işe yaramıyor; **"fikir ve süreç"**
+  ekranına dönecek — sektörü bilmeyen birine ne istediğini adım adım
+  anlattıran basit bir akış. Fikirler ve yapılanlar dosya / künye gibi
+  tutulur.
+- Vikideki diğer kurumlar Markalar'a: **Kemal tikle seçer** (madde
+  düzenleyicide kutu); kendiliğinden hiçbir madde taşınmaz.
+- Sıra: **iki PR.** 1. PR: K-1 Temizlik, K-2 Sade başlık, K-3 Hız, K-4
+  Katlama. 2. PR: K-5 Menü + birleşik takvim, K-6 Okunaklılık, Oyun, Kurumlar.
+
+### 1. PR (uygulamada)
+
+- **Merch'te arşiv kalktı:** "Arşiv" sekmesi ve "Arşivle" düğmesi yok.
+  Satışı biten droplar eskiden kendiliğinden arşive kalkıyordu; artık
+  yalnız "Satışta" olur. Eskiden arşive kalkmış drop ve ürünler Merch'te
+  yine görünür; Temizlik kartı onları "arşivde" diye silmez.
+- **Tutarlılık Kontrolü** Düzada, Merch, Markalar, Kitap, Blog'un başından
+  kalktı; Yapay zekâ stüdyosunun altında "Tutarlılık denetimi" bölümünde
+  beş düğme (kurallı tarama, yapay zekâ değil).
+- **Sade sayfa başı** (`src/components/kabuk/SayfaBasi.tsx`): bütün
+  sayfalarda tek satır, menüdeki ad; telefonda ad yalnız üst çubukta.
+  Tekrar eden sekme düğmeleri kalktı (yalnız sayfa rayı). Site sayfasının
+  telefonda sıkışan açıklaması kalktı.
+- **Hız:** sayfalar açılınca yüklenir. Ana paket ~1 MB'tan ~314 KB'a indi
+  (sıkıştırılmış). Harita verisi ve harita çizici yalnız Viki / Harita
+  açılınca iner. Bunun için: Neyin Eksik'in sayma kısmı `src/lib/eksikler.ts`,
+  kişi künyesi `src/lib/karakterKunyesi.ts`, haritadaki maddeli yapılar
+  `src/data/haritaYapilari.ts` (gen/duzada.py üretir).
+- **Katlama** (`src/components/kabuk/KatlanirBolum.tsx`): Markalar'da marka
+  kılavuzunun yedi bölümü telefonda kapalı başlar, boşsa tek satır
+  "boş · ekle". Telefonda Marka / Kurumlar listeleri gizli (aynı seçim
+  üstteki çiplerde). Yapay zekâ stüdyosunda gruplar telefonda katlı,
+  açıklama yalnız seçilince.
+- Kullanılmayan `DuzadaDirectory.tsx` (1000 satır) silindi.
+- Oyun sayfası bu PR'da yalnız başlığı sadeleşti; asıl değişiklik 2. PR'da.

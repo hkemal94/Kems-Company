@@ -19,6 +19,8 @@ interface ConsistencyCheckerProps {
   onUpdateItem: (item: any) => Promise<void>;
   onAddItem: (item: any) => Promise<void>;
   buttonClassName?: string;
+  /** Düğme yazısı; stüdyoda bölüm adı yazar (1 Ekim) */
+  etiket?: string;
 }
 
 export default function ConsistencyChecker({
@@ -26,7 +28,8 @@ export default function ConsistencyChecker({
   items,
   onUpdateItem,
   onAddItem,
-  buttonClassName = ''
+  buttonClassName = '',
+  etiket = 'Tutarlılık Kontrolü'
 }: ConsistencyCheckerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -123,7 +126,7 @@ export default function ConsistencyChecker({
         ) : (
           <ShieldCheck className="w-3.5 h-3.5" />
         )}
-        <span>Tutarlılık Kontrolü</span>
+        <span>{etiket}</span>
       </button>
 
       {/* OVERLAY PANEL / DRAWER */}

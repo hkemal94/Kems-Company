@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { SayfaBasi } from './kabuk/SayfaBasi';
 import { Upload, X, Link2, Check, Image as ImageIcon, Trash2 } from 'lucide-react';
 import type { Item } from '../types';
 import {
@@ -197,16 +198,7 @@ export const Galeri: React.FC<GaleriProps> = ({
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
-      <div className="pb-4 border-b border-[#CFC5B4] dark:border-[#2C3C72]">
-        <h1 className="font-sans font-bold text-xl text-[#0E1C4F] dark:text-[#F3EFE8] tracking-tight">
-          Galeri
-        </h1>
-        <p className="mt-1 text-[12px] text-[#6A5E4C] dark:text-[#A6B0C9] max-w-2xl leading-relaxed">
-          Logolar, ürün fotoğrafları, mekân görselleri. Yüklediğin her görsel
-          uygulamanın verisine giriyor — yedeğe düşüyor, kayıtlara bağlanabiliyor
-          ve ben buradan okuyabiliyorum. Logo seçersen saydam zemin korunur.
-        </p>
-      </div>
+      <SayfaBasi baslik="Galeri" />
 
       <SayfaRayi baslik="Galeri" bolumler={RAY_BOLUMLERI} />
 

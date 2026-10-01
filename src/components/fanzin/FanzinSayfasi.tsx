@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
+import { SayfaBasi } from '../kabuk/SayfaBasi';
 import { ArrowLeft } from 'lucide-react';
 import type { Item } from '../../types';
 import { fanzinBilgisi } from '../../lib/studyo';
 import { StudyodaAc } from '../studyo/StudyodaAc';
 import { Fanzin } from './Fanzin';
-import { DUGME_BOS, ETIKET, IKINCIL, KART, YAZI, neZaman } from '../anasayfa/stil';
+import { DUGME_BOS, IKINCIL, KART, YAZI, neZaman } from '../anasayfa/stil';
 
 /**
  * Fanzin kendi sayfasında (30 Eylül: menüde kendi satırı). Fanzinler yine
@@ -30,14 +31,9 @@ export const FanzinSayfasi: React.FC<{
   }
   return (
     <div className="space-y-4 animate-in fade-in duration-300">
-      <div className="flex flex-wrap items-end gap-3">
-        <div className="flex-1 min-w-0">
-          <div className={ETIKET}>Araçlar</div>
-          <h1 className={`mt-1 text-[22px] lg:text-[28px] font-bold tracking-tight ${YAZI}`}>Fanzin</h1>
-          <p className={`mt-1 text-[13px] ${IKINCIL}`}>Her ayın ilk günü stüdyo taslak hazırlar, öneri tepsisine düşer; "Fanzin olarak aç" deyince burada görünür.</p>
-        </div>
+      <SayfaBasi baslik="Fanzin">
         <StudyodaAc arac="fanzin" etiket="Bu ayın fanzini · stüdyo" />
-      </div>
+      </SayfaBasi>
       {bekleyen.length > 0 && (
         <button type="button" onClick={onStudyo} className={`${KART} w-full p-3 text-left text-[13px] ${YAZI} hover:border-[#F26B6F] cursor-pointer`}>
           Öneri tepsisinde {bekleyen.length} fanzin taslağı bekliyor · aç

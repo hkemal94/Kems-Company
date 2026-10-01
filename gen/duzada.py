@@ -2563,5 +2563,46 @@ export const DUZADA_GEO: FeatureCollection = JSON.parse({json.dumps(json.dumps(g
 
 yol = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'src', 'data', 'duzadaGeo.ts')
 open(yol, 'w').write(ts)
+
+# Maddesi olması gereken yapılar (1 Ekim, K-3): Neyin Eksik ve Durum bu kısa
+# listeyle sayar; ana sayfa açılırken bütün harita verisi inmesin diye ayrı dosya.
+yapilar = []
+for f_ in features:
+    p_ = f_["properties"]
+    if p_.get("katman") != "bina" or not p_.get("wikiId"):
+        continue
+    if any(y["wikiId"] == p_["wikiId"] for y in yapilar):
+        continue  # otelin kuleleri
+    g_ = f_["geometry"]
+    if g_["type"] == "Point":
+        merkez = {"x": g_["coordinates"][0], "y": g_["coordinates"][1]}
+    else:
+        # haritaMaddesi.ts'teki poligonMerkezi ile aynı: ilk halkanın köşe ortalaması
+        halka = g_["coordinates"][0] if g_["type"] == "Polygon" else g_["coordinates"][0][0]
+        sx = sy = 0.0
+        for k_ in halka:
+            sx += k_[0]; sy += k_[1]
+        merkez = {"x": sx / len(halka), "y": sy / len(halka)} if halka else None
+    yapilar.append({
+        "id": p_.get("id"), "wikiId": p_["wikiId"], "ad": str(p_.get("ad") or ""),
+        "tur": p_.get("tur"), "mahalle": p_.get("mahalle"), "kat": p_.get("kat"),
+        "yukseklik": p_.get("yukseklik"), "taban": p_.get("taban"), "merkez": merkez
+    })
+ts_yapi = f'''/**
+ * Haritada maddesi olması gereken yapılar: `duzadaGeo.ts`'teki binalardan
+ * wikiId'si olanlar (künye için gereken özellikleriyle). Bu dosya
+ * `gen/duzada.py` ile üretilir; elle düzenlenmez.
+ */
+export interface HaritaYapisi {{
+  id: string; wikiId: string; ad: string; tur: string | null; mahalle: string | null;
+  kat: number | null; yukseklik: number | null; taban: number | null;
+  merkez: {{ x: number; y: number }} | null;
+}}
+
+export const HARITA_YAPILARI: HaritaYapisi[] =
+  {json.dumps(yapilar, ensure_ascii=False, indent=2)};
+'''
+yol_yapi = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'src', 'data', 'haritaYapilari.ts')
+open(yol_yapi, 'w').write(ts_yapi)
 print(f"Toplam öğe     : {len(features)}")
 print(f"Yazıldı        : {yol}")

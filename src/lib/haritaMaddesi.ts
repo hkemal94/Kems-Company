@@ -1,5 +1,4 @@
-import type { Feature, FeatureCollection } from 'geojson';
-import { DUZADA_GEO } from '../data/duzadaGeo';
+import { HARITA_YAPILARI } from '../data/haritaYapilari';
 import type { Item, WikiSection } from '../types';
 
 /**
@@ -55,41 +54,20 @@ export interface HaritaKunyesi {
   konum: { x: number; y: number } | null;
 }
 
-function poligonMerkezi(f: Feature): { x: number; y: number } | null {
-  const g = f.geometry;
-  let halka: number[][] | null = null;
-  if (g.type === 'Polygon') halka = g.coordinates[0] as number[][];
-  else if (g.type === 'MultiPolygon') halka = g.coordinates[0][0] as number[][];
-  else if (g.type === 'Point') {
-    const k = g.coordinates as number[];
-    return { x: k[0], y: k[1] };
-  }
-  if (!halka || halka.length === 0) return null;
-  let x = 0, y = 0;
-  for (const k of halka) { x += k[0]; y += k[1]; }
-  return { x: x / halka.length, y: y / halka.length };
-}
-
 /**
  * Verilen wikiId'ye karşılık gelen yapıyı haritada arar.
  * Bulamazsa null döner — o zaman madde kurulmaz, uydurma yapılmaz.
+ *
+ * 1 Ekim (K-3): bütün harita verisi yerine `haritaYapilari.ts` okunur
+ * (gen/duzada.py binalardan çıkarır, merkez de orada hesaplanır). Ana sayfa
+ * açılırken harita verisi inmesin diye.
  */
-export function haritadaAra(
-  wikiId: string,
-  geo: FeatureCollection = DUZADA_GEO
-): HaritaKunyesi | null {
+export function haritadaAra(wikiId: string): HaritaKunyesi | null {
   if (!wikiId) return null;
-
-  const bina = geo.features.find(f => {
-    const p = f.properties as Record<string, unknown> | null;
-    return !!p && p.katman === 'bina' && p.wikiId === wikiId;
-  });
-  if (!bina) return null;
-
-  const p = bina.properties as Record<string, unknown>;
+  const p = HARITA_YAPILARI.find(y => y.wikiId === wikiId);
+  if (!p) return null;
   const mahalleId = typeof p.mahalle === 'string' ? p.mahalle : null;
   const tur = String(p.tur || 'yapı');
-
   return {
     binaId: String(p.id),
     wikiId,
@@ -101,7 +79,7 @@ export function haritadaAra(
     kat: typeof p.kat === 'number' ? p.kat : null,
     yukseklik: typeof p.yukseklik === 'number' ? p.yukseklik : null,
     rakim: typeof p.taban === 'number' && p.taban >= 1 ? Math.round(p.taban) : null,
-    konum: poligonMerkezi(bina)
+    konum: p.merkez
   };
 }
 

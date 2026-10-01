@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { SayfaBasi } from './kabuk/SayfaBasi';
 import type { Item } from '../types';
 import { durumOranlari } from '../lib/durumOranlari';
 import { YuzdeSeridi, type SeritHedefi } from './anasayfa/YuzdeSeridi';
@@ -27,14 +28,9 @@ export const Durum: React.FC<{
   eposta?: string | null;
 }> = ({ items, onSec, onUpdateItem, onAddItem, eposta }) => {
   const oranlar = useMemo(() => durumOranlari(items), [items]);
-  const tarih = new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', weekday: 'long' });
   return (
     <div className="space-y-5 animate-in fade-in duration-300">
-      <div>
-        <div className="text-[10px] font-mono uppercase tracking-[0.2em] text-[#6A5E4C] dark:text-[#A6B0C9]">{tarih}</div>
-        <h1 className="mt-1 font-bold text-[24px] tracking-tight text-[#0E1C4F] dark:text-[#F3EFE8]">Durum</h1>
-        <p className="mt-1 text-[12px] text-[#6A5E4C] dark:text-[#A6B0C9]">Her kart kendi sayfasına götürür. Sayılar kayıtlardan sayılır; kayıt yoksa "–".</p>
-      </div>
+      <SayfaBasi baslik="Durum" />
       <SayfaRayi baslik="Durum" bolumler={RAY} />
       <section id="durum-yuzdeler" className="scroll-mt-24">
         <YuzdeSeridi oranlar={oranlar} onSec={onSec} ayrintili />

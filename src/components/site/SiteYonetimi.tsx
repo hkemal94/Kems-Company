@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { SayfaBasi } from '../kabuk/SayfaBasi';
 import { Globe, ExternalLink, X, Eye, EyeOff, Send, Save, Image as ImageIcon } from 'lucide-react';
 import type { Item } from '../../types';
 import { sitedekiMaddeler } from './Site';
@@ -111,21 +112,15 @@ export const SiteYonetimi: React.FC<Props> = ({ items, onUpdateItem, onAddItem, 
 
   return (
     <div className="space-y-4 animate-in fade-in duration-300">
-      <div className="flex flex-wrap items-end gap-3">
-        <div className="flex-1 min-w-0">
-          <div className={ETIKET}>Araçlar</div>
-          <h1 className={`mt-1 text-[22px] lg:text-[28px] font-bold tracking-tight ${YAZI}`}>Site</h1>
-          <p className={`mt-1 text-[13px] ${IKINCIL}`}>kems.company'nin düzenlemesi. Değişiklikler önce taslakta durur; "Yayınla" deyince sitede görünür.</p>
-        </div>
-        <div className="flex flex-wrap gap-1.5">
-          <button type="button" onClick={() => onizle(true)} className={`${DUGME_BOS} inline-flex items-center gap-1.5`}>
-            <Eye className="w-3.5 h-3.5" /> Taslağı önizle
-          </button>
-          <button type="button" onClick={() => onizle(false)} className={`${DUGME_BOS} inline-flex items-center gap-1.5`}>
-            <ExternalLink className="w-3.5 h-3.5" /> Yayındakini aç
-          </button>
-        </div>
-      </div>
+      {/* Sade başlık (1 Ekim, K-1/K-2): telefonda açıklama sıkışıyordu, kalktı */}
+      <SayfaBasi baslik="Site">
+        <button type="button" onClick={() => onizle(true)} className={`${DUGME_BOS} inline-flex items-center gap-1.5`}>
+          <Eye className="w-3.5 h-3.5" /> Taslağı önizle
+        </button>
+        <button type="button" onClick={() => onizle(false)} className={`${DUGME_BOS} inline-flex items-center gap-1.5`}>
+          <ExternalLink className="w-3.5 h-3.5" /> Yayındakini aç
+        </button>
+      </SayfaBasi>
 
       {/* taslak / yayın şeridi */}
       <div className={`${KART} p-3 flex flex-wrap items-center gap-2`}>

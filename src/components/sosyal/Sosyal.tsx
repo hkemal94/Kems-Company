@@ -1,10 +1,11 @@
 import { takvimOlaylari, type TakvimOlayi } from '../../lib/takvim';
+import { SayfaBasi } from '../kabuk/SayfaBasi';
 import React, { useEffect, useMemo, useState } from 'react';
 import { ChevronLeft, ChevronRight, Plus, EyeOff, Eye } from 'lucide-react';
 import type { Item } from '../../types';
 import {
   AY_ADLARI, GUN_KISA, KANALLAR, TURLER, asamasi, ayIzgarasi, bosYerler, bugunTarih, gonderiBilgisi,
-  gonderiGuncelle, gonderiler, kanalHesabi, seriBilgisi, seriler, tarihYaz, turBul, turStili, TUR_SINIFI, yeniGonderi,
+  gonderiGuncelle, gonderiler, seriBilgisi, seriler, tarihYaz, turBul, turStili, TUR_SINIFI, yeniGonderi,
   type GonderiBilgisi
 } from '../../lib/sosyal';
 import { GonderiKarti } from './GonderiKarti';
@@ -108,7 +109,6 @@ export const Sosyal: React.FC<Props> = ({ items, onAddItem, onUpdateItem, onDele
   const buAy = ay.y === new Date().getFullYear() && ay.a === new Date().getMonth();
   const yeniTarih = buAy ? bugun : tarihYaz(ay.y, ay.a, 1);
   const acik = acikId ? tum.find(g => g.id === acikId) : undefined;
-  const hesaplar = KANALLAR.map(k => ({ k, h: kanalHesabi(k, items) })).filter(x => x.h);
 
   // ---------------------------------------------------------------- parçalar
 
@@ -327,20 +327,11 @@ export const Sosyal: React.FC<Props> = ({ items, onAddItem, onUpdateItem, onDele
 
   return (
     <div className="space-y-4 animate-in fade-in duration-300 pb-20 lg:pb-0">
-      <div className="flex flex-wrap items-end gap-3">
-        <div className="flex-1 min-w-0">
-          <div className={ETIKET}>Araçlar</div>
-          <h1 className={`mt-1 text-[22px] lg:text-[28px] font-bold tracking-tight ${YAZI}`}>Sosyal medya</h1>
-          <p className={`mt-1 text-[13px] ${IKINCIL}`}>Planlama burada; paylaşımı sen yaparsın, sonra her kanalı "paylaşıldı" diye işaretlersin.</p>
-          {hesaplar.length > 0 && (
-            <p className={`mt-1 text-[11px] ${IKINCIL}`}>Hesaplar: {hesaplar.map(x => `${x.k.ad.split(' ')[0]} ${x.h}`).join(' · ')}</p>
-          )}
-        </div>
-        <div className="hidden lg:flex gap-2">
-          <button type="button" onClick={() => yeni({})} className={`${DUGME_BOS} inline-flex items-center gap-1`}><Plus className="w-3 h-3" /> Fikir</button>
-          <button type="button" onClick={() => yeni({ tarih: yeniTarih })} className={`${DUGME_LAC} inline-flex items-center gap-1`}><Plus className="w-3 h-3" /> Gönderi</button>
-        </div>
-      </div>
+      {/* Telefonda yeni gönderi sağ alttaki düğmeden */}
+      <SayfaBasi baslik="Sosyal medya" yalnizMasada>
+        <button type="button" onClick={() => yeni({})} className={`${DUGME_BOS} inline-flex items-center gap-1`}><Plus className="w-3 h-3" /> Fikir</button>
+        <button type="button" onClick={() => yeni({ tarih: yeniTarih })} className={`${DUGME_LAC} inline-flex items-center gap-1`}><Plus className="w-3 h-3" /> Gönderi</button>
+      </SayfaBasi>
 
       <div className="flex gap-1.5">
         {SEKMELER.map(s => (

@@ -1,6 +1,6 @@
 import React from 'react';
 import { ChevronRight } from 'lucide-react';
-import type { Eksik } from '../Eksikler';
+import type { Eksik } from '../../lib/eksikler';
 import { ETIKET, IKINCIL, KART, YAZI } from './stil';
 
 /**

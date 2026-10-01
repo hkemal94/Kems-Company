@@ -1,10 +1,10 @@
 import React, { useState, useMemo, Suspense, lazy } from 'react';
-import { ShoppingBag, Sparkles, FolderDot, Bookmark, ChevronRight, ChevronLeft, ChevronDown, ChevronUp, RotateCcw, Palette, Image, Plus, Layers, Check, Trash2, Archive, Edit3 } from 'lucide-react';
+import { ShoppingBag, Sparkles, FolderDot, ChevronRight, ChevronLeft, ChevronDown, Image, Plus, Layers, Check, Trash2, Edit3 } from 'lucide-react';
 import { StudyodaAc } from './studyo/StudyodaAc';
 import { Item, ItemType, AreaType } from '../types';
 import { hazirFotosuz, merchYedekGorseli } from '../lib/gorselSecimi';
 import { compressImageBase64 } from '../lib/imageCompressor';
-import ConsistencyChecker from './ConsistencyChecker';
+import { SayfaBasi } from './kabuk/SayfaBasi';
 import { DropKunyesi } from './DropKunyesi';
 import { SayfaRayi, type RayBolumu } from './SayfaRayi';
 import { markaYapisi, KURUM_ALANI } from '../lib/markaYapisi';
@@ -22,8 +22,7 @@ const RAY_BOLUMLERI: RayBolumu[] = [
   { id: 'pano', label: 'Pano' },
   { id: 'droplar', label: 'Dropler' },
   { id: 'urunler', label: 'Ürünler' },
-  { id: 'studyo3b', label: '3B Stüdyo' },
-  { id: 'arsiv', label: 'Arşiv' }
+  { id: 'studyo3b', label: '3B Stüdyo' }
 ];
 
 interface MerchProps {
@@ -50,10 +49,9 @@ export default function Merch({
   // drop/ürüne kurumun arması konur (merchYedekGorseli).
   const items = useMemo(() => hamItems.map(hazirFotosuz), [hamItems]);
   const kapak = (i: Item) => (i.images && i.images[0]) || merchYedekGorseli(i, items);
-  const [activeTab, setActiveTab] = useState<'home' | 'pano' | 'droplar' | 'urunler' | 'studyo3b' | 'arsiv'>('home');
+  const [activeTab, setActiveTab] = useState<'home' | 'pano' | 'droplar' | 'urunler' | 'studyo3b'>('home');
   const [studyoUrunu, setStudyoUrunu] = useState<string | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
-  const [archiveConfirmId, setArchiveConfirmId] = useState<string | null>(null);
   
   const [isAiOneriOpen, setIsAiOneriOpen] = useState(true);
 
@@ -220,7 +218,6 @@ export default function Merch({
   React.useEffect(() => {
     setIsEditing(false);
     setDeleteConfirmId(null);
-    setArchiveConfirmId(null);
     setActiveImageIdx(0);
     setActiveDetailTab('vitrin');
     setIsFullScreenBrochure(false);
@@ -292,7 +289,8 @@ export default function Merch({
 
   // Sub-items computation with automatic deduplication by lowercased title to enforce exactly 1 drop = 1 unique record
   const activeDrops = useMemo(() => {
-    const rawDrops = items.filter(i => i.area === 'merch' && i.type === 'drop' && !i.archived);
+    // Arşiv kalktı (29 Eylül kuralı, 1 Ekim): eskiden arşive kalkan droplar da burada görünür
+    const rawDrops = items.filter(i => i.area === 'merch' && i.type === 'drop');
     const uniqueMap = new Map<string, Item>();
     rawDrops.forEach(drop => {
       const key = drop.title.trim().toLowerCase();
@@ -309,21 +307,9 @@ export default function Merch({
     return uniqueList.filter(kurumaUyar);
   }, [items, seciliKurum]);
 
-  const archivedDrops = useMemo(() => {
-    const rawDrops = items.filter(i => i.area === 'merch' && i.type === 'drop' && i.archived);
-    const uniqueMap = new Map<string, Item>();
-    rawDrops.forEach(drop => {
-      const key = drop.title.trim().toLowerCase();
-      if (!uniqueMap.has(key)) {
-        uniqueMap.set(key, drop);
-      }
-    });
-    const uniqueList = Array.from(uniqueMap.values());
-    return uniqueList.filter(kurumaUyar);
-  }, [items, seciliKurum]);
 
   const products = useMemo(() => {
-    const rawProducts = items.filter(i => i.area === 'merch' && i.type === 'merch_urun' && !i.archived);
+    const rawProducts = items.filter(i => i.area === 'merch' && i.type === 'merch_urun');
     const mapped = rawProducts.map(p => {
       const originalDropId = p.metadata?.dropId || '';
       const primaryDropId = dropIdMapping[originalDropId] || originalDropId;
@@ -338,21 +324,6 @@ export default function Merch({
     return mapped.filter(kurumaUyar);
   }, [items, dropIdMapping, seciliKurum]);
 
-  const archivedProducts = useMemo(() => {
-    const rawProducts = items.filter(i => i.area === 'merch' && i.type === 'merch_urun' && i.archived);
-    const mapped = rawProducts.map(p => {
-      const originalDropId = p.metadata?.dropId || '';
-      const primaryDropId = dropIdMapping[originalDropId] || originalDropId;
-      return {
-        ...p,
-        metadata: {
-          ...p.metadata,
-          dropId: primaryDropId
-        }
-      };
-    });
-    return mapped.filter(kurumaUyar);
-  }, [items, dropIdMapping, seciliKurum]);
 
   const activeItem = useMemo(() => {
     if (!activeItemId) return null;
@@ -391,20 +362,16 @@ export default function Merch({
     return Math.round(sum / dropProducts.length);
   };
 
-  // Auto-flip drop status to "Satışta" and archive if all products are Satışta
-  const triggerDropAutoArchiving = async (dropId: string) => {
+  // Bütün ürünleri "Satışta" olan drop da "Satışta" olur (ürün durumunu
+  // Kemal değiştirince). Arşive kaldırılmaz: arşiv kalktı (1 Ekim).
+  const dropDurumunuGuncelle = async (dropId: string) => {
     const drop = items.find(i => i.id === dropId);
-    if (!drop || drop.archived) return;
+    if (!drop || drop.status === 'Satışta') return;
 
     const primaryDropId = dropIdMapping[dropId] || dropId;
     const dropProducts = products.filter(p => p.metadata?.dropId === primaryDropId);
     if (dropProducts.length > 0 && dropProducts.every(p => p.status === 'Satışta')) {
-      // Auto-flip and Archive drop
-      await onUpdateItem({
-        ...drop,
-        status: 'Satışta',
-        archived: true
-      });
+      await onUpdateItem({ ...drop, status: 'Satışta' });
     }
   };
 
@@ -496,8 +463,7 @@ export default function Merch({
   const handleUpdateProductStatus = async (p: Item, status: string) => {
     await onUpdateItem({ ...p, status });
     if (p.metadata?.dropId) {
-      // check if all products are sold -> archives drop
-      await triggerDropAutoArchiving(p.metadata.dropId);
+      await dropDurumunuGuncelle(p.metadata.dropId);
     }
   };
 
@@ -505,33 +471,16 @@ export default function Merch({
     <div className="space-y-6">
       
       <SayfaRayi
-        baslik="Merch Atölyesi"
+        baslik="Merch"
         bolumler={RAY_BOLUMLERI}
         aktifId={activeTab}
         onSec={id => { setActiveTab(id as typeof activeTab); onSelectItem(null); }}
       />
 
-      {/* Header breadcrumb & view switches */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#CFC5B4]">
-        <div>
-          <span className="text-xs font-mono uppercase text-[#6A5E4C] dark:text-[#A6B0C9]">
-            Kems Company • Merch Atölyesi
-          </span>
-          <h1 className="font-sans font-bold text-2xl text-[#0E1C4F] dark:text-[#F3EFE8] mt-1 tracking-tight">
-            Tema, Drop & Ürünler
-          </h1>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-1.5 font-mono text-xs">
-          <ConsistencyChecker 
-            module="merch" 
-            items={items} 
-            onUpdateItem={onUpdateItem} 
-            onAddItem={onAddItem} 
-            buttonClassName="px-4 py-2 bg-[#FAF8F5] hover:bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] text-[#6A5E4C] dark:text-[#A6B0C9] rounded-lg cursor-pointer transition-all flex items-center gap-1"
-          />
+      {/* Sade başlık (1 Ekim, K-2) */}
+      <SayfaBasi baslik="Merch">
           {/* Brand select filter (Rule 4) */}
-          <div className="flex items-center bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] rounded-lg p-1.5 mr-1.5">
+          <div className="flex items-center bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] rounded-lg p-1.5">
             <span className="text-[9px] font-mono font-bold uppercase text-[#6A5E4C] dark:text-[#A6B0C9] px-2">Kurum:</span>
             <select
               value={seciliKurum}
@@ -546,10 +495,8 @@ export default function Merch({
               ))}
             </select>
           </div>
-
           {/* Sekmeler sayfa rayında (masaüstünde solda, telefonda üstte) — burada tekrar edilmez */}
-        </div>
-      </div>
+      </SayfaBasi>
 
       {/* 3B STÜDYO (yapisal-4, 6. tur) */}
       {activeTab === 'studyo3b' && !activeItem && (
@@ -1024,46 +971,6 @@ export default function Merch({
         </div>
       )}
 
-      {/* VIEW 5: ARŞİV TAB (For archived items drops/products) */}
-      {activeTab === 'arsiv' && (
-        <div className="space-y-6 animate-in fade-in duration-200">
-          <div className="border-b border-[#CFC5B4] pb-2">
-            <h3 className="font-sans font-bold text-lg text-[#0E1C4F] dark:text-[#F3EFE8] flex items-center gap-2 tracking-tight">
-              <Archive className="w-5 h-5 text-[#F26B6F]" />
-              Geçmiş / Arşivlenmiş Drops ({archivedDrops.length})
-            </h3>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {archivedDrops.map(d => (
-              <div key={d.id} className="bg-white/40 dark:bg-[#13204A]/40 border border-[#CFC5B4] rounded-xl p-5 opacity-75 hover:opacity-100 transition-opacity">
-                <div className="flex justify-between items-start">
-                  <h4 className="font-sans font-bold text-base text-[#0E1C4F] dark:text-[#F3EFE8] tracking-tight">
-                    {d.title}
-                  </h4>
-                  <span className="text-[10px] font-mono bg-[#3E8E5E]/10 text-[#3E8E5E] px-2 py-0.5 rounded uppercase">
-                    {d.status}
-                  </span>
-                </div>
-                <p className="text-xs text-[#6A5E4C] dark:text-[#A6B0C9] mt-2 line-clamp-2">
-                  {d.notes}
-                </p>
-                <div className="pt-3 border-t border-[#CFC5B4]/30 flex justify-end gap-2 text-[10px] font-mono">
-                  <button
-                    onClick={() => onUpdateItem({ ...d, archived: false })}
-                    className="text-[#F26B6F] hover:underline"
-                  >
-                    Arşivden Çıkar
-                  </button>
-                </div>
-              </div>
-            ))}
-            {archivedDrops.length === 0 && (
-              <p className="text-xs text-[#6A5E4C] dark:text-[#A6B0C9] italic">Arşivlenmiş drop bulunmuyor.</p>
-            )}
-          </div>
-        </div>
-      )}
 
       {/* Render Brochure/Showcase/Lookbook mode for Active Item */}
       {(() => {
@@ -1354,7 +1261,7 @@ export default function Merch({
               </h2>
             </div>
             
-            {/* Archive or restore button */}
+            {/* Geri dön */}
             <button
               onClick={() => onSelectItem(null)}
               className="absolute top-4 right-4 text-white hover:text-amber-200 text-xs font-mono bg-black/20 px-2.5 py-1 rounded"
@@ -1370,8 +1277,7 @@ export default function Merch({
               <DropKunyesi
                 drop={activeItem}
                 urunler={items.filter(
-                  i => i.type === 'merch_urun' && !i.archived
-                    && i.metadata?.dropId === activeItem.id
+                  i => i.type === 'merch_urun' && i.metadata?.dropId === activeItem.id
                 )}
                 onUpdateItem={onUpdateItem}
               />
@@ -2009,27 +1915,8 @@ export default function Merch({
               </div>
             )}
 
-            {/* Delete / Archive Drop Action */}
+            {/* Sil */}
             <div className="pt-4 border-t border-[#CFC5B4]/30 flex justify-end gap-2 text-xs font-mono">
-              <button
-                type="button"
-                onClick={async () => {
-                  if (archiveConfirmId === activeItem.id) {
-                    await onUpdateItem({ ...activeItem, archived: true });
-                    onSelectItem(null);
-                  } else {
-                    setArchiveConfirmId(activeItem.id);
-                    setDeleteConfirmId(null);
-                  }
-                }}
-                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                  archiveConfirmId === activeItem.id
-                    ? "bg-amber-500 text-white font-bold hover:bg-amber-600"
-                    : "bg-[#CFC5B4]/30 dark:bg-[#2C3C72] text-[#6A5E4C] hover:bg-[#CFC5B4]/50"
-                }`}
-              >
-                {archiveConfirmId === activeItem.id ? "⚠️ Emin misiniz?" : "Arşivle"}
-              </button>
               <button
                 type="button"
                 onClick={async () => {
@@ -2038,7 +1925,6 @@ export default function Merch({
                     onSelectItem(null);
                   } else {
                     setDeleteConfirmId(activeItem.id);
-                    setArchiveConfirmId(null);
                   }
                 }}
                 className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${

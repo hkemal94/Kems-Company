@@ -8,7 +8,7 @@ import type { Item } from '../../types';
 import { durumOranlari } from '../../lib/durumOranlari';
 import { adayKaydi, soruyuErtele, sorulacaklar } from '../../lib/adaylar';
 import { gununSorusuBitti } from '../../lib/bildirimler';
-import { eksikleriCikar } from '../Eksikler';
+import { eksikleriCikar } from '../../lib/eksikler';
 import { YuzdeSeridi, type SeritHedefi } from './YuzdeSeridi';
 import { SoruKarti } from './SoruKarti';
 import { OneriTepsisi } from '../studyo/OneriTepsisi';

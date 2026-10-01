@@ -58,7 +58,10 @@ export function silinecekler(items: Item[]): SilmeNedeni[] {
     if (i.type === 'map_settings' || i.type === 'channel') continue;
     if (i.type === 'aday' && !i.archived) continue;
     if ((i.tags || []).includes('gunluk-not') && !i.archived) continue;
-    if (i.archived) cikti.push({ item: i, neden: 'arşivde' });
+    // Merch'te arşiv kalktı (1 Ekim): satışı biten droplar eskiden kendiliğinden
+    // arşive kalkıyordu; Merch onları yine gösteriyor, silinecekler listesine girmez
+    const merchKaydi = i.type === 'drop' || i.type === 'merch_urun';
+    if (i.archived && !merchKaydi) cikti.push({ item: i, neden: 'arşivde' });
     else if (i.isProposal) cikti.push({ item: i, neden: 'onaylanmamış eski öneri' });
     else if (OYUN_VAKA_IDLERI.has(i.id) || /^kemskoy_(guest|companion)_/.test(i.id)) cikti.push({ item: i, neden: 'otel simülasyonu vakası' });
     else if (ORNEK_ONEKLERI.some(o => i.id.startsWith(o))) cikti.push({ item: i, neden: 'ilk günün örnek verisi' });

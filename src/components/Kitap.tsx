@@ -1,12 +1,11 @@
 import { KanonPaneli } from './wiki/KanonPaneli';
 import { TYPE_LABELS } from './wiki/wikiSchema';
 import React, { useState, useMemo } from 'react';
-import { Book, CheckSquare, Plus, FileText, Check, Trash2, HelpCircle, Compass, ListTodo, RefreshCw } from 'lucide-react';
+import { Book, FileText, Trash2, Compass, ListTodo, RefreshCw } from 'lucide-react';
 import { StudyodaAc } from './studyo/StudyodaAc';
 import { Item, ItemType, AreaType } from '../types';
 import { getCachedAccessToken } from '../lib/firebase';
 import { createGoogleDoc } from '../lib/googleApi';
-import ConsistencyChecker from './ConsistencyChecker';
 import SharedEditor from './SharedEditor';
 
 interface KitapProps {
@@ -290,24 +289,9 @@ export default function Kitap({
     <div className="space-y-6">
       
       {/* Breadcrumb row */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#CFC5B4]">
-        <div>
-          <span className="text-xs font-mono uppercase text-[#6A5E4C] dark:text-[#A6B0C9]">
-            Kems Company · Kitap
-          </span>
-          <h1 className="font-sans font-bold text-2xl text-[#0E1C4F] dark:text-[#F3EFE8] mt-1 tracking-tight">
-            Kitap
-          </h1>
-        </div>
-
-        <div className="flex items-center gap-2 font-mono text-xs">
-          <ConsistencyChecker 
-            module="kitap" 
-            items={items} 
-            onUpdateItem={onUpdateItem} 
-            onAddItem={onAddItem} 
-            buttonClassName="px-4 py-2 bg-[#FAF8F5] hover:bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] text-[#6A5E4C] dark:text-[#A6B0C9] rounded-lg cursor-pointer transition-all flex items-center gap-1"
-          />
+      {/* Görünüm düğmeleri (1 Ekim, K-2: başlık sayfa rayında; tutarlılık denetimi stüdyoda) */}
+      <div className="flex flex-wrap items-center gap-2 font-mono text-xs">
+        <div className="flex items-center gap-2">
           <button
             onClick={() => { setActiveTab('home'); onSelectItem(null); }}
             className={`px-4 py-2 rounded-lg cursor-pointer transition-all ${activeTab === 'home' ? 'bg-[#0E1C4F] dark:bg-[#F26B6F] text-[#F3EFE8]' : 'bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] text-[#6A5E4C] dark:text-[#A6B0C9]'}`}

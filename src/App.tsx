@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback, lazy, Suspense } from 'react';
 import { 
   auth, 
   signInWithGoogle,
@@ -39,33 +39,42 @@ import {
   Milestone,
   LayoutGrid,
 } from 'lucide-react';
-import Durum from './components/Durum';
-import Duzada from './components/Duzada';
-import Merch from './components/Merch';
-import YaziAtolyesi from './components/YaziAtolyesi';
 import { SAYFA_RAYI_YUVASI } from './components/SayfaRayi';
 import { Studyo, StudyoPaneli } from './components/studyo/Studyo';
 import { StudyoSaglayici, type StudyoIslemleri } from './components/studyo/StudyoBaglami';
-import Blog from './components/Blog';
-import Kitap from './components/Kitap';
 import HizliFikir from './components/HizliFikir';
-import Bosluklar from './components/Bosluklar';
-import Galeri from './components/Galeri';
-import Sosyal from './components/sosyal/Sosyal';
-import Site from './components/site/Site';
-import SiteYonetimi from './components/site/SiteYonetimi';
-import Takvim from './components/takvim/Takvim';
-import Araclar from './components/araclar/Araclar';
-import Studyo3BSayfasi from './components/merch/Studyo3BSayfasi';
-import FanzinSayfasi from './components/fanzin/FanzinSayfasi';
-import YolHaritasiSayfasi from './components/anasayfa/YolHaritasiSayfasi';
-import OyunEkrani from './components/oyun/OyunEkrani';
-import Markalar from './components/Markalar';
-import DuzadaDirectory from './components/DuzadaDirectory';
+
+/*
+ * Sayfalar açılınca yüklenir (1 Ekim, K-3 Hız). Uygulama açılırken yalnız
+ * kabuk ve ana sayfa iner; harita verisi, Oyun, Markalar… ilk girişte
+ * bir an "yükleniyor" der, sonra hep hazırdır.
+ */
+const Durum = lazy(() => import('./components/Durum'));
+const Duzada = lazy(() => import('./components/Duzada'));
+const Merch = lazy(() => import('./components/Merch'));
+const YaziAtolyesi = lazy(() => import('./components/YaziAtolyesi'));
+const Galeri = lazy(() => import('./components/Galeri'));
+const Sosyal = lazy(() => import('./components/sosyal/Sosyal'));
+const Site = lazy(() => import('./components/site/Site'));
+const SiteYonetimi = lazy(() => import('./components/site/SiteYonetimi'));
+const Takvim = lazy(() => import('./components/takvim/Takvim'));
+const Araclar = lazy(() => import('./components/araclar/Araclar'));
+const Studyo3BSayfasi = lazy(() => import('./components/merch/Studyo3BSayfasi'));
+const FanzinSayfasi = lazy(() => import('./components/fanzin/FanzinSayfasi'));
+const YolHaritasiSayfasi = lazy(() => import('./components/anasayfa/YolHaritasiSayfasi'));
+const OyunEkrani = lazy(() => import('./components/oyun/OyunEkrani'));
+const Markalar = lazy(() => import('./components/Markalar'));
+const Eksikler = lazy(() => import('./components/Eksikler'));
+
+/** Sayfa ilk kez yüklenirken */
+const SayfaYukleniyor = () => (
+  <div className="py-24 flex justify-center">
+    <span className="text-[12px] font-mono text-[#6A5E4C] dark:text-[#A6B0C9] animate-pulse">Yükleniyor…</span>
+  </div>
+);
 import { Yedekleme } from './components/Yedekleme';
 import HizliNotModal from './components/HizliNotModal';
 import AramaModal from './components/AramaModal';
-import { Eksikler } from './components/Eksikler';
 import { Anasayfa, type TelSekmesi } from './components/anasayfa/Anasayfa';
 import { Zil } from './components/kabuk/Zil';
 import { useBildirimler, type Bildirim } from './lib/bildirimler';
@@ -665,10 +674,12 @@ export default function App() {
   // Site önizlemesi: KKM'nin yerine tam sayfa (açılır pencere değil)
   if (siteAcik) {
     return (
+      <Suspense fallback={<SayfaYukleniyor />}>
       <Site
         items={items}
         onKapat={() => { history.pushState(null, '', location.pathname + location.search); setSiteAcik(false); }}
       />
+      </Suspense>
     );
   }
 
@@ -919,6 +930,7 @@ export default function App() {
               />
             )}
 
+            <Suspense fallback={<SayfaYukleniyor />}>
             {activeTab === 'durum' && (
               <Durum items={items} onSec={h => git(h)} onUpdateItem={handleUpdateItem} onAddItem={handleAddItem} eposta={girisli ? user?.email : null} />
             )}
@@ -1036,6 +1048,7 @@ export default function App() {
                 }}
               />
             )}
+            </Suspense>
 
           </main>
         </div>
