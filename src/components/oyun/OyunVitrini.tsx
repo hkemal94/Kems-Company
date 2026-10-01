@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
-import { ImagePlus, X } from 'lucide-react';
+import { ImagePlus, Save, X } from 'lucide-react';
+import { useKaydedilmemis } from '../../lib/kaydedilmemis';
 import type { Item } from '../../types';
 import { compressImageBase64 } from '../../lib/imageCompressor';
 import type { Asama } from './OyunSureci';
@@ -57,10 +58,26 @@ export const OyunVitrini: React.FC<Props> = ({ items, oyunId, asama, gddDolu, gd
     }
   };
 
-  const metinKaydet = (alan: 'ozet' | 'aciklama' | 'ad', deger: string) => {
-    if ((meta[alan] || '') === deger) return;
-    // Ad kaydın başlığı da olur (aramada ve listede görünsün)
-    void yaz({ ...(alan === 'ad' ? { title: deger || 'Oyun tanıtımı' } : {}), metadata: { ...meta, [alan]: deger } });
+  /*
+   * Yazılar yalnız Kaydet'e basınca kaydolur (1 Ekim, Kemal: "kaydetme
+   * butonu yok"). Değişiklik varsa düğme yanar; kaydetmeden çıkarken sorulur.
+   */
+  const [mesaj, setMesaj] = useState<string | null>(null);
+  const [yaziliyor, setYaziliyor] = useState(false);
+  const degisti = ad.trim() !== (meta.ad || '') || ozet.trim() !== (meta.ozet || '') || aciklama.trim() !== (meta.aciklama || '');
+  useKaydedilmemis(degisti);
+  const kaydet = async () => {
+    if (!degisti || yaziliyor) return;
+    setYaziliyor(true);
+    try {
+      // Ad kaydın başlığı da olur (aramada ve listede görünsün)
+      await yaz({ title: ad.trim() || 'Oyun tanıtımı', metadata: { ...meta, ad: ad.trim(), ozet: ozet.trim(), aciklama: aciklama.trim() } });
+      setMesaj('Kaydedildi.');
+    } catch {
+      setMesaj('Kaydedilemedi; bağlantıyı kontrol edip yeniden dene.');
+    } finally {
+      setYaziliyor(false);
+    }
   };
 
   const gorselEkle = async (liste: FileList | null) => {
@@ -92,15 +109,22 @@ export const OyunVitrini: React.FC<Props> = ({ items, oyunId, asama, gddDolu, gd
           </div>
           <div>
             <div className="text-[10px] font-mono uppercase tracking-wider text-[#A6B0C9] mb-1">Oyunun adı</div>
-            <input value={ad} onChange={e => setAd(e.target.value)} onBlur={() => metinKaydet('ad', ad.trim())} placeholder="Adı sen koyarsın…" className={`${kutu} font-semibold`} />
+            <input value={ad} onChange={e => { setAd(e.target.value); setMesaj(null); }} placeholder="Adı sen koyarsın…" className={`${kutu} font-semibold`} />
           </div>
           <div>
             <div className="text-[10px] font-mono uppercase tracking-wider text-[#A6B0C9] mb-1">Özet · tek cümle</div>
-            <input value={ozet} onChange={e => setOzet(e.target.value)} onBlur={() => metinKaydet('ozet', ozet.trim())} placeholder="Oyunu tek cümleyle anlat…" className={kutu} />
+            <input value={ozet} onChange={e => { setOzet(e.target.value); setMesaj(null); }} placeholder="Oyunu tek cümleyle anlat…" className={kutu} />
           </div>
           <div>
             <div className="text-[10px] font-mono uppercase tracking-wider text-[#A6B0C9] mb-1">Açıklama</div>
-            <textarea value={aciklama} onChange={e => setAciklama(e.target.value)} onBlur={() => metinKaydet('aciklama', aciklama.trim())} rows={4} placeholder="Tanıtım metni — sen yazıyorsun…" className={kutu} />
+            <textarea value={aciklama} onChange={e => { setAciklama(e.target.value); setMesaj(null); }} rows={4} placeholder="Tanıtım metni — sen yazıyorsun…" className={kutu} />
+          </div>
+          <div className="flex items-center gap-3">
+            <button type="button" onClick={() => void kaydet()} disabled={!degisti || yaziliyor}
+              className="inline-flex items-center gap-1.5 min-h-11 px-4 rounded-lg bg-[#F26B6F] text-white text-[13px] font-semibold disabled:opacity-40 cursor-pointer disabled:cursor-default">
+              <Save className="w-4 h-4" /> {yaziliyor ? 'Kaydediliyor…' : 'Kaydet'}
+            </button>
+            <span className="text-[13px] text-[#C9D0E3]">{mesaj ?? (degisti ? 'Kaydedilmemiş değişiklik var' : '')}</span>
           </div>
         </div>
         <div className="min-w-0">

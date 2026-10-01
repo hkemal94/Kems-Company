@@ -43,6 +43,7 @@ import { Studyo, StudyoPaneli } from './components/studyo/Studyo';
 import { StudyoSaglayici, type StudyoIslemleri } from './components/studyo/StudyoBaglami';
 import HizliFikir from './components/HizliFikir';
 import ArtiMenu from './components/kabuk/ArtiMenu';
+import { ayrilmayaIzinVar } from './lib/kaydedilmemis';
 
 /*
  * Sayfalar açılınca yüklenir (1 Ekim, K-3 Hız). Uygulama açılırken yalnız
@@ -549,6 +550,7 @@ export default function App() {
    * zil hepsi buradan geçer.
    */
   const git = (hedef: string, ayrinti?: string | null) => {
+    if (!ayrilmayaIzinVar()) return;
     setDigerAcik(false);
     setActiveItemId(null);
     const n = Date.now();
