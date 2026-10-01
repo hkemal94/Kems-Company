@@ -6,8 +6,8 @@ export const KART = 'rounded-2xl border border-[#CFC5B4] dark:border-[#2C3C72] b
 export const ETIKET = 'text-[10px] font-mono font-bold uppercase tracking-[0.18em] text-[#6A5E4C] dark:text-[#A6B0C9]';
 export const YAZI = 'text-[#0E1C4F] dark:text-[#F3EFE8]';
 export const IKINCIL = 'text-[#6A5E4C] dark:text-[#A6B0C9]';
-export const DUGME_LAC = 'px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-[#0E1C4F] dark:bg-[#2C3C72] text-[#F3EFE8] hover:opacity-90 disabled:opacity-40 cursor-pointer';
-export const DUGME_BOS = 'px-3 py-1.5 rounded-lg text-[11px] font-semibold border border-[#CFC5B4] dark:border-[#2C3C72] text-[#0E1C4F] dark:text-[#F3EFE8] hover:border-[#F26B6F] disabled:opacity-40 cursor-pointer';
+export const DUGME_LAC = 'min-h-11 lg:min-h-0 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-[#0E1C4F] dark:bg-[#2C3C72] text-[#F3EFE8] hover:opacity-90 disabled:opacity-40 cursor-pointer';
+export const DUGME_BOS = 'min-h-11 lg:min-h-0 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold border border-[#CFC5B4] dark:border-[#2C3C72] text-[#0E1C4F] dark:text-[#F3EFE8] hover:border-[#F26B6F] disabled:opacity-40 cursor-pointer';
 
 /** "az önce", "3 saat önce", "dün", "5 gün önce" */
 export function neZaman(ms: number): string {

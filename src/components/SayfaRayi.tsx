@@ -121,7 +121,7 @@ export const SayfaRayi: React.FC<SayfaRayiProps> = ({
       <span className="hidden lg:block text-[10px] font-mono uppercase tracking-wider text-[#6A5E4C] dark:text-[#95A1C2] font-bold px-1 mb-1.5">
         {baslik ?? 'Bu sayfada'}
       </span>
-      <nav className="flex lg:flex-col gap-1 lg:gap-0.5 overflow-x-auto lg:overflow-visible font-mono text-[11px] pb-1 lg:pb-0">
+      <nav className="flex lg:flex-col gap-1.5 lg:gap-0.5 overflow-x-auto [scrollbar-width:none] lg:overflow-visible text-[13px] lg:font-mono lg:text-[11px] pb-1 lg:pb-0">
         {bolumler.map(b => {
           const bu = secili === b.id;
           return (
@@ -129,10 +129,11 @@ export const SayfaRayi: React.FC<SayfaRayiProps> = ({
               key={b.id}
               type="button"
               onClick={() => git(b.id)}
-              className={`shrink-0 lg:w-full text-left px-3 py-2 lg:py-1.5 rounded-full lg:rounded-lg flex items-center gap-2 cursor-pointer transition-colors whitespace-nowrap border lg:border-0 ${
+              /* Telefonda 44 px çip, seçili olan dolu lacivert (1 Ekim, iskelet) */
+              className={`shrink-0 lg:w-full text-left min-h-11 lg:min-h-0 px-4 lg:px-3 lg:py-1.5 rounded-full lg:rounded-lg flex items-center gap-2 cursor-pointer transition-colors whitespace-nowrap border lg:border-0 font-semibold lg:font-normal ${
                 bu
-                  ? 'text-[#0E1C4F] dark:text-[#F3EFE8] font-bold bg-[#FAF8F5] lg:bg-[#F3EFE8] dark:bg-[#17345A] border-[#CFC5B4] dark:border-[#2C3C72]'
-                  : 'text-[#6A5E4C] dark:text-[#A6B0C9] hover:bg-[#F6F1E7] dark:hover:bg-[#202E5C] border-[#CFC5B4]/70 dark:border-[#2C3C72]'
+                  ? 'bg-[#0E1C4F] dark:bg-[#2C3C72] text-[#F3EFE8] border-transparent lg:text-[#0E1C4F] lg:dark:text-[#F3EFE8] lg:font-bold lg:bg-[#FAF8F5] lg:dark:bg-[#17345A] lg:shadow-sm'
+                  : 'bg-[#FAF8F5] dark:bg-[#13204A] lg:bg-transparent lg:dark:bg-transparent text-[#6A5E4C] dark:text-[#A6B0C9] hover:bg-[#F6F1E7] dark:hover:bg-[#202E5C] border-[#CFC5B4]/70 dark:border-[#2C3C72]'
               }`}
             >
               <span

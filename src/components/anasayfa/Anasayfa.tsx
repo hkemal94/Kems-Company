@@ -51,7 +51,8 @@ interface Props {
   zil: React.ReactNode;
   /** "+" ile yeni not sayfası isteği */
   yeniNotBekliyor: boolean;
-  onYeniNot: () => void;
+  /** Kiremit "+" (Not / Fikir), App'ten gelir */
+  arti: React.ReactNode;
   onYeniNotAcildi: () => void;
   sekme: TelSekmesi;
   onSekme: (s: TelSekmesi) => void;
@@ -67,7 +68,7 @@ function selam(): string {
 
 export const Anasayfa: React.FC<Props> = ({
   items, bugunDugmeler, onGit, onMaddeyiAc, onAddItem, onUpdateItem, studyo,
-  onOpenSearch, onBildirimYenile, zil, yeniNotBekliyor, onYeniNot, onYeniNotAcildi, sekme, onSekme
+  onOpenSearch, onBildirimYenile, zil, yeniNotBekliyor, arti, onYeniNotAcildi, sekme, onSekme
 }) => {
   const [nabiz, setNabiz] = useState(0);
   const oranlar = useMemo(() => durumOranlari(items), [items]);
@@ -113,19 +114,12 @@ export const Anasayfa: React.FC<Props> = ({
             <Search className="w-4 h-4" />
           </button>
           <span className="lg:hidden">{zil}</span>
-          <button
-            type="button"
-            onClick={onYeniNot}
-            title="Yeni not sayfası"
-            className="w-11 h-11 lg:w-auto lg:h-auto lg:px-4 lg:py-2 rounded-full lg:rounded-xl bg-[#F26B6F] text-white font-semibold text-[13px] flex items-center justify-center gap-1 hover:opacity-90 cursor-pointer"
-          >
-            <Plus className="w-5 h-5 lg:w-4 lg:h-4" /><span className="hidden lg:inline">Not</span>
-          </button>
+          {arti}
         </div>
       </div>
 
       {/* Telefon sekmeleri */}
-      <nav className="lg:hidden sticky top-0 z-20 -mx-4 px-4 py-2 bg-[#E4DCCD]/95 dark:bg-[#0B132B]/95 backdrop-blur-xs flex gap-1.5">
+      <nav className="lg:hidden sticky top-0 z-20 -mx-4 px-4 py-2 bg-[#F3EFE8]/95 dark:bg-[#0B132B]/95 backdrop-blur-xs flex gap-1.5">
         {TEL_SEKMELERI.map(s => (
           <button
             key={s.id}
