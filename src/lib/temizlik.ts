@@ -58,8 +58,8 @@ export function silinecekler(items: Item[]): SilmeNedeni[] {
     if (i.type === 'map_settings' || i.type === 'channel') continue;
     if (i.type === 'aday' && !i.archived) continue;
     if ((i.tags || []).includes('gunluk-not') && !i.archived) continue;
-    // Merch'te arşiv kalktı (1 Ekim): satışı biten droplar eskiden kendiliğinden
-    // arşive kalkıyordu; Merch onları yine gösteriyor, silinecekler listesine girmez
+    // Merch arşivi kalır (Kemal, 1 Ekim): işi biten droplar ve ürünleri arşive
+    // geçer, bir gün devamı gelebilir — silinecekler listesine girmez
     const merchKaydi = i.type === 'drop' || i.type === 'merch_urun';
     if (i.archived && !merchKaydi) cikti.push({ item: i, neden: 'arşivde' });
     else if (i.isProposal) cikti.push({ item: i, neden: 'onaylanmamış eski öneri' });

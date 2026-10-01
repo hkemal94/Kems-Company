@@ -1088,7 +1088,7 @@ Görseller: `docs/gorseller/h2-*.png`, `yerlesim-*.png` (önizleme, örnek veri)
 30 Eylül gecesi uygulamanın 17 ekranı telefonda ve bilgisayarda gezildi
 (rapor: "KKM sadeleştirme incelemesi"). Kemal'in 1 Ekim cevapları:
 
-- K-1 … K-6 paketlerinin hepsi: **olur**.
+- K-1 … K-6 paketlerinin hepsi: **olur** (Merch arşivi hariç; aşağıda).
 - Durum ile Neyin Eksik **birleşir**; adı **Durum** (sekmeler: Yüzdeler ·
   Eksikler · Boşluklar).
 - Sayfa başlıkları menüdeki adlarla aynı.
@@ -1107,10 +1107,11 @@ Görseller: `docs/gorseller/h2-*.png`, `yerlesim-*.png` (önizleme, örnek veri)
 
 ### 1. PR (uygulamada)
 
-- **Merch'te arşiv kalktı:** "Arşiv" sekmesi ve "Arşivle" düğmesi yok.
-  Satışı biten droplar eskiden kendiliğinden arşive kalkıyordu; artık
-  yalnız "Satışta" olur. Eskiden arşive kalkmış drop ve ürünler Merch'te
-  yine görünür; Temizlik kartı onları "arşivde" diye silmez.
+- **Merch arşivi kalır** (Kemal, 1 Ekim, PR'ı görünce: "Merch için arşiv
+  önemli … belki bir gün o dropun devamını getiririz"). İlk taslakta
+  kaldırılmıştı, geri geldi: Arşiv sekmesi, Arşivle düğmesi, işi biten
+  dropun arşive geçmesi eskisi gibi. Temizlik kartı arşivdeki drop ve
+  ürünleri artık silmez. CLAUDE.md'ye istisna olarak yazıldı.
 - **Tutarlılık Kontrolü** Düzada, Merch, Markalar, Kitap, Blog'un başından
   kalktı; Yapay zekâ stüdyosunun altında "Tutarlılık denetimi" bölümünde
   beş düğme (kurallı tarama, yapay zekâ değil).

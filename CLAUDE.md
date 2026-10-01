@@ -48,6 +48,10 @@ terimsiz olur. Kodu değil, **ekranda ne değiştiğini** anlat.
   "arşive kalkar" kuralı kalktı. Toplu silme Neyin Eksik'teki Temizlik
   kartıyla yapılır; önce bütün kayıtların yedeği iner (`src/lib/temizlik.ts`).
   Kişi bilgileri için `src/lib/adaSakini.ts` duruyor.
+- **İstisna: Merch arşivi kalır** (Kemal, 1 Ekim: "hazırlanmış ve satılmış
+  droplar arşive geçer işleri bittiklerinde, belki bir gün o dropun devamını
+  getiririz"). Merch'te Arşiv sekmesi ve Arşivle düğmesi durur; Temizlik
+  kartı arşivdeki drop ve ürünleri silmez (`src/lib/temizlik.ts`).
 - **Kayıtlara kendiliğinden yazan kod yazılmaz.** Sayfa açılınca kayıt
   oluşturan / düzelten "otomatik" etkiler kaldırıldı (örnek veri tohumu,
   bölge ve ada maddesi yaratma, otel simülasyonu); kayıt yalnız Kemal bir

@@ -12,7 +12,7 @@ export const Studyo3BSayfasi: React.FC<{
   onUpdateItem: (item: Item) => Promise<void>;
   onAddItem: (item: Omit<Item, 'id' | 'createdAt' | 'updatedAt' | 'userId'>) => Promise<void>;
 }> = ({ items, onUpdateItem, onAddItem }) => {
-  const urunler = useMemo(() => items.filter(i => i.type === 'merch_urun'), [items]);
+  const urunler = useMemo(() => items.filter(i => i.type === 'merch_urun' && !i.archived), [items]);
   const kurumlar = useMemo(() => markaYapisi(items).kurumlar, [items]);
   return (
     <div className="space-y-4 animate-in fade-in duration-300">
