@@ -1373,3 +1373,20 @@ boşluk ("boşlukları sevmem").
     orman alanlarında çam; ağaçlar yakına gelince görünür,
   - araba simgesinde ön/arka cam, teknede kabin, feribotta güverte ve köprü.
 - Atölye şimdilik yok (Kemal'in seçimi).
+
+## 2 Ekim akşam — Kurucu kullanımı (watabou sonrası 1. paket)
+
+Kemal: "bir yeri silerken tek tek uğraşmak zorunda kalıyorum", "zoom ve
+rotate kısımları tıklandıktan sonra olmuyor", "tıklayınca vazgeç
+yapamıyorum". Watabou'nun TownGeneratorOS'u GPL-3: kodu alınmaz, yöntemi
+uyarlanır (sıradaki iki paket: Ege dokusu, "mahalle doldur").
+
+- **Alanla kaldır:** Kaldır aracında "Tek tek / Alanla". Alanla'da parmakla
+  dikdörtgen çizilir; içindeki yapılar (gruplarıyla), Kurucu çizimleri ve
+  yol parçaları birden kalkar. Tek "Geri al" hepsini geri getirir.
+- **Şablon ve kalıp beklemede:** Dokununca hemen konmaz; taslak yerinde
+  bekler. Yön / Boyut onu çevirir, başka yere dokununca taşınır;
+  **Yerleştir** ya da **Vazgeç** (Enter / Esc). Eskiden dokunuş anında
+  konuyor, ayarlar yalnız parmağı izleyen önizlemeye işliyordu.
+- Telefonda yarım kalan dokunuşlar (kesilen jest) artık yakınlaştırmayı
+  kilitlemiyor.
