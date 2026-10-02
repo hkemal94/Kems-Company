@@ -8,7 +8,9 @@ import type { Feature, FeatureCollection, Polygon } from 'geojson';
  *   - çatılar: her evin üstünde biraz içeri çekilmiş ikinci bir kütle;
  *     çoğu kiremit, bir kısmı düz (beyaz badanalı) dam,
  *   - fenerin tepesi: balkon, lamba camı ve kubbe,
- *   - zeytinlikler (ve Kurucu'da çizilen orman alanları): tek tek ağaçlar.
+ *   - zeytinlikler (ve Kurucu'da çizilen orman alanları): tek tek ağaçlar,
+ *   - bağ bölmeleri: sıra sıra asma; avlular: ara ara bir ağaç (2 Ekim,
+ *     Ege dokusu).
  * Hepsi süs: tıklanmaz, kayda yazılmaz, adı yok.
  */
 
@@ -67,12 +69,30 @@ const DAM = ['#EEE8DC', '#E6DED0'];
 const ZEYTIN = ['#6E7F4A', '#7A8A55', '#647444', '#82905F'];
 const CAM = ['#4F6B45', '#5A7550', '#46603E'];
 
+const ASMA = ['#5E7A3A', '#67833F', '#587236'];
+
 const AGAC_ARALIK = 13;        // metre
 const EN_COK_AGAC = 4500;
+const ASMA_ARALIK = 3;         // bağ sıraları arası, metre
+const EN_COK_ASMA = 2500;
+const AVLU_ARALIK = 9;         // avlu ağacı adayları arası, metre
+const EN_COK_AVLU_AGACI = 1500;
+
+/** Yatay bir çizginin halkayı kestiği boylamlar, sıralı */
+const kesisimler = (y: number, h: Nokta[]): number[] => {
+  const xs: number[] = [];
+  for (let i = 0, j = h.length - 1; i < h.length; j = i++) {
+    const [xi, yi] = h[i], [xj, yj] = h[j];
+    if ((yi > y) !== (yj > y)) xs.push(xi + ((y - yi) * (xj - xi)) / (yj - yi));
+  }
+  return xs.sort((a, b) => a - b);
+};
 
 export function ayrintiVerisi(geo: FeatureCollection): FeatureCollection {
   const cikti: Feature[] = [];
   let agac = 0;
+  let asma = 0;
+  let avluAgaci = 0;
 
   for (const f of geo.features) {
     const p = (f.properties ?? {}) as Record<string, unknown>;
@@ -117,6 +137,47 @@ export function ayrintiVerisi(geo: FeatureCollection): FeatureCollection {
         cikti.push(kutle(icineCek(halka, 0.95), H, H + 0.8, '#E6DCCB', 'cati'));
         if (tur === 'kule') cikti.push(kutle(icineCek(halka, 0.6), H + 0.8, H + 3, '#A9553A', 'cati'));
         continue;
+      }
+      continue;
+    }
+
+    // Bağ: doğu-batı sıralar halinde alçak asmalar
+    if (p.katman === 'zemin' && p.tur === 'bağ' && asma < EN_COK_ASMA) {
+      const ys = halka.map(q => q[1]);
+      const kx = mBoylam(ys[0]);
+      const yari = 0.45 / M_ENLEM, pay = 1 / kx;
+      const renk = ASMA[Math.floor(sans(id) * 31) % ASMA.length];
+      for (let y = Math.min(...ys) + ASMA_ARALIK / M_ENLEM; y < Math.max(...ys) && asma < EN_COK_ASMA; y += ASMA_ARALIK / M_ENLEM) {
+        const xs = kesisimler(y, halka);
+        for (let i = 0; i + 1 < xs.length; i += 2) {
+          const x0 = xs[i] + pay, x1 = xs[i + 1] - pay;
+          if (x1 - x0 < 3 / kx) continue;
+          cikti.push(kutle([[x0, y - yari], [x1, y - yari], [x1, y + yari], [x0, y + yari], [x0, y - yari]], 0, 1.2, renk, 'agac'));
+          asma++;
+        }
+      }
+      continue;
+    }
+
+    // Avlu: ara ara bir ağaç (incir, limon, dut gibi; adı yok)
+    if (p.katman === 'zemin' && p.tur === 'avlu' && avluAgaci < EN_COK_AVLU_AGACI) {
+      const xs = halka.map(q => q[0]), ys = halka.map(q => q[1]);
+      const kx = mBoylam(ys[0]);
+      for (let y = Math.min(...ys); y <= Math.max(...ys) && avluAgaci < EN_COK_AVLU_AGACI; y += AVLU_ARALIK / M_ENLEM) {
+        for (let x = Math.min(...xs); x <= Math.max(...xs) && avluAgaci < EN_COK_AVLU_AGACI; x += AVLU_ARALIK / kx) {
+          const k = `${id}${x.toFixed(5)}${y.toFixed(5)}`;
+          if (sans(k + 'a') > 0.22) continue;
+          const q: Nokta = [x, y];
+          if (!icinde(q, halka)) continue;
+          // gövde avlunun kenarına değmesin: dört yanda 2 m boşluk
+          const d = 2 / M_ENLEM, dx = 2 / kx;
+          if (![[x + dx, y], [x - dx, y], [x, y + d], [x, y - d]].every(c => icinde(c as Nokta, halka))) continue;
+          const s = sans(k + 'r');
+          const r = 1.6 + s * 1.2, h = 3.6 + s * 1.8;
+          cikti.push(kutle(sekizgen(q, 0.3, 5), 0, 1.4, '#6B5640', 'agac'));
+          cikti.push(kutle(sekizgen(q, r, 7), 1.4, h, ZEYTIN[Math.floor(s * 31) % ZEYTIN.length], 'agac'));
+          avluAgaci++;
+        }
       }
       continue;
     }

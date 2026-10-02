@@ -798,6 +798,32 @@ if os.path.exists(_duzenleme_yolu):
           f"({len(SINIR_DUZENLEME.get('hatlar', {}))} hat)")
 
 
+# Kemal'in Kurucu taslağı (Ege dokusu, 2 Ekim): yollar, taşıdığı yapılar.
+# `gen/kurucu_aktar.py` yedekten çıkarır. Yollar yalnız sokak ağı olarak
+# kullanılır (haritada yine Kurucu katmanından çizilir).
+_KURUCU = {}
+_kurucu_dosyasi = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                               "kurucu-yollari.json")
+if os.path.exists(_kurucu_dosyasi):
+    with open(_kurucu_dosyasi, encoding="utf-8") as _f:
+        _KURUCU = json.load(_f)
+    print(f"Kurucu yolları : {_KURUCU.get('kaynak', '?')} — "
+          f"{len(_KURUCU.get('yollar', []))} yol, "
+          f"{len(_KURUCU.get('tasinanEvler', []))} taşınan ev")
+
+
+def _dm(p):
+    """[boylam, enlem] → üretecin metresi"""
+    return ((p[0] - LNG0) * M_PER_LNG, (p[1] - LAT0) * M_PER_LAT)
+
+
+def _kurucu_tasi(geom, d):
+    """Kurucu'nun yapı düzenini (dx, dy metre, y aşağı; aci radyan) uygular"""
+    from shapely import affinity
+    g = affinity.rotate(geom, -d.get("aci", 0.0), origin=geom.centroid, use_radians=True)
+    return affinity.translate(g, d.get("dx", 0.0), -d.get("dy", 0.0) * 111320.0 / M_PER_LAT)
+
+
 def catmull_rom(kontrol, kapali, bolme=8):
     """Kontrol noktalarından geçen yumuşak eğri.
 
@@ -1291,9 +1317,40 @@ _fe = (fx * 0.994, fy * 0.994)
 bina("bina_fener_evi", "Fener Evi", dikdortgen(_fe[0], _fe[1], 11, 8,
      math.degrees(math.atan2(fy, fx))), 5, "yapı", "yer_liman", kat=1)
 
-# Dirlik Stadı
-bina("bina_stad", "Dirlik Stadı", elips(4750, 3150, 78, 54, 15), 14, "stadyum",
+# Dirlik Stadı — küçük bir ilçe statı (Kemal, 2 Ekim: "küçük bir belde
+# veya ilçe stadı olmalıydı"; kanon: iki tribün, en fazla ~1.000 kişi).
+# Çim saha, çevresinde beton zemin; batıda kapalı ana tribün, doğuda açık
+# tribün, köşede soyunma binası, dört ışık direği. Yeri ve yönü Kemal'in
+# Kurucu'da eski statı taşıdığı yer (yapı düzeni bu parçalara işlendi).
+_STAD = {"merkez": (4750.0, 3150.0), "aci": 15.0}
+_sd = _KURUCU.get("yapiDuzeni", {}).get("bina_stad")
+if _sd:
+    _yeni = _kurucu_tasi(Point(*_STAD["merkez"]).buffer(1), _sd).centroid
+    _STAD = {"merkez": (_yeni.x, _yeni.y), "aci": _STAD["aci"] - math.degrees(_sd.get("aci", 0.0))}
+
+
+def _stad_parca(u, v, uzun, en):
+    a = math.radians(_STAD["aci"])
+    cx = _STAD["merkez"][0] + u * math.cos(a) - v * math.sin(a)
+    cy = _STAD["merkez"][1] + u * math.sin(a) + v * math.cos(a)
+    return dikdortgen(cx, cy, uzun, en, _STAD["aci"])
+
+
+STAD_ZEMIN = [("stad_cevre", "teras", _stad_parca(0, 0, 124, 92)),
+              ("stad_saha", "saha", _stad_parca(0, 0, 100, 64))]
+for _zid, _ztur, _zg in STAD_ZEMIN:
+    zemin.append({"id": _zid, "ad": "", "tur": _ztur, "geom": _zg})
+bina("bina_stad_tribun", "Dirlik Stadı", _stad_parca(0, -40.5, 72, 9), 7.5, "stadyum",
      "yer_stadyum", wiki_id="viki_mekan_dirlik_stadi")
+bina("bina_stad_cati", "Dirlik Stadı · ana tribün", _stad_parca(0, -44.0, 72, 3), 9.5,
+     "stadyum", "yer_stadyum")
+bina("bina_stad_acik", "Dirlik Stadı · açık tribün", _stad_parca(0, 38.5, 54, 7), 4.2,
+     "stadyum", "yer_stadyum")
+bina("bina_stad_soyunma", "Dirlik Stadı · soyunma", _stad_parca(-50, -38, 16, 8), 4.4,
+     "yapı", "yer_stadyum", kat=1)
+for _i, (_u, _v) in enumerate(((-55, -41), (55, -41), (-55, 41), (55, 41)), 1):
+    bina(f"bina_stad_isik_{_i}", "Işık direği", _stad_parca(_u, _v, 1.2, 1.2), 20,
+         "direk", "yer_stadyum")
 
 # Küçükçetmi Sürek Kulübü — çiftlik yerleşkesi
 bina("bina_surek", "Küçükçetmi Sürek Kulübü", dikdortgen(6320, -2320, 54, 26, -8),
@@ -2112,18 +2169,62 @@ for _yid, _ad, _nok, _tur, _ in YOLLAR:
 # ---------------------------------------------------------------- evler
 #
 # Kemal (29 Eylül gece): "Yapıları ilk etapta boş bile olsa sen ekle, dolu
-# görünsün; harita, site açılışı bu kadar çiğ durmamalı." Evler adsızdır
-# ("Ev" yalnız türün adı), maddeleri yok; Kemal isterse Kurucu'dan kaldırır
-# ya da madde bağlar. Sokak cephesine dizilirler; adanın içi (bahçe,
-# avlu) boş kalır — Bozcaada'da da evler sokağa yaslanır, arkada avlu olur.
+# görünsün." Evler adsızdır ("Ev" yalnız türün adı), maddeleri yok.
+#
+# Ege dokusu (2 Ekim, Kemal: "Senin yollarınla üret"): sokak ağı, üretilen
+# yollara Kemal'in Kurucu'da çizdiği yollar eklenerek kurulur
+# (`gen/kurucu-yollari.json`, `gen/kurucu_aktar.py` ile yedekten çıkar).
+# Kaldırdığı yollar ağa girmez. Ağın arasında kalan her yapı adası
+# (blok) sokağa bakan kenarlarından parsellere bölünür: evler sokağa
+# yaslanır, İskele ve Liman'da bitişik nizam, aralarda dar geçitler;
+# evlerin arkası avlu (kasabada) ya da bahçe (köyde); blokların içi
+# Merkez ve Stadyum'da tarla / bağ / bahçe bölmeleri. Meydanlar açık
+# kalır, evler meydana da bakar. Elle taşınan evler eski kimlikleriyle
+# yerinde kalır. Yöntem Watabou'nun Medieval Fantasy City Generator'ındaki
+# blok bölme fikrinden uyarlandı (kod alınmadı).
 
+import random as _random
 from shapely.prepared import prep as _hazirla
+
+
+
+def _parcala(g):
+    """Her türlü geometriden çokgen listesi"""
+    if g.is_empty:
+        return []
+    if g.geom_type == "Polygon":
+        return [g]
+    if hasattr(g, "geoms"):
+        return [p for h in g.geoms for p in _parcala(h)]
+    return []
+
 
 _YOL_YARI_EN = {"ana yol": 6.0, "yol": 4.5, "cadde": 4.5, "sokak": 3.0,
                 "merdiven": 2.2, "toprak": 3.0}
-_yol_engel = _hazirla(unary_union([
-    LineString(n).buffer(_YOL_YARI_EN.get(t, 3.0) + 0.8)
-    for _, _, n, t, _ in YOLLAR if len(n) > 1]))
+_KURUCU_YARI_EN = {"ana": 4.5, "sokak": 3.0, "toprak": 3.0, "patika": 1.2}
+_CEPHESIZ = ("merdiven", "toprak", "patika")    # bunlara ev dizilmez
+
+_kur_gizli = set(_KURUCU.get("gizlenen", []))
+_kur_duzen = _KURUCU.get("yolDuzeni", {})
+_ag = []            # (hat, yarı en, cephe alır mı)
+for _yid, _ad, _nok, _tur, _ymid in YOLLAR:
+    if _yid in _kur_gizli or len(_nok) < 2:
+        continue
+    _yari = _YOL_YARI_EN.get(_tur, 3.0)
+    _parcalar = ([[_dm(q) for q in _p] for _p in _kur_duzen[_yid]]
+                 if _yid in _kur_duzen else [_nok])
+    for _p in _parcalar:
+        if len(_p) >= 2:
+            _ag.append((LineString(_p), _yari, _tur not in _CEPHESIZ))
+_kurucu_sokaklari = []
+for _y in _KURUCU.get("yollar", []):
+    _h = LineString([_dm(q) for q in _y["n"]])
+    _ag.append((_h, _KURUCU_YARI_EN.get(_y["tur"], 3.0), _y["tur"] not in _CEPHESIZ))
+    if _y["tur"] == "sokak":
+        _kurucu_sokaklari.append(_h)
+
+_yol_alani = unary_union([h.buffer(y + 0.8) for h, y, _ in _ag])
+_yol_engel = _hazirla(_yol_alani)
 _ada_ici = _hazirla(ada.buffer(-8))
 _IZGARA = 40.0
 _yerlesen = {}          # ızgara hücresi → çokgenler
@@ -2145,76 +2246,270 @@ def _yerlestir(g):
         _yerlesen.setdefault(h, []).append(g)
 
 
+def _bol(g, hedef, rnd, sonuc, derinlik=0):
+    """Çokgeni uzun ekseninde ikiye bölerek `hedef` alanına iner"""
+    if g.area <= hedef or derinlik > 9:
+        sonuc.append(g)
+        return
+    k = list(g.minimum_rotated_rectangle.exterior.coords)
+    e1 = (k[1][0] - k[0][0], k[1][1] - k[0][1])
+    e2 = (k[2][0] - k[1][0], k[2][1] - k[1][1])
+    uzun = e1 if math.hypot(*e1) >= math.hypot(*e2) else e2
+    boy = math.hypot(*uzun) or 1.0
+    a = math.atan2(uzun[1], uzun[0]) + math.radians(rnd.uniform(-8, 8))
+    ux, uy = math.cos(a), math.sin(a)
+    c = g.centroid
+    px, py = c.x + ux * boy * rnd.uniform(-0.15, 0.15), c.y + uy * boy * rnd.uniform(-0.15, 0.15)
+    L = boy * 2 + 10
+    yari = Polygon([(px - uy * L, py + ux * L), (px + uy * L, py - ux * L),
+                    (px + uy * L + ux * L, py - ux * L + uy * L),
+                    (px - uy * L + ux * L, py + ux * L + uy * L)])
+    for p in _parcala(g.intersection(yari)) + _parcala(g.difference(yari)):
+        if p.area > 4:
+            _bol(p, hedef, rnd, sonuc, derinlik + 1)
+
+
+# Engeller: özel yapılar, Kemal'in Kurucu yapıları, taşıdığı evler
+_yapi_duzeni = _KURUCU.get("yapiDuzeni", {})
+_engeller = []
 for _b in binalar:
-    _yerlestir(_b["geom"].buffer(2.5))
-# meydanlar boş kalır: Merkez'de taş çeşme ve çınarın olduğu meydan,
-# İskele'de caddenin ortası (Bozcaada'daki gibi küçük bir açıklık)
-for _mey, _r in ((MERKEZ_KASABA, 32.0), (_kasaba_merkezi, 20.0)):
-    _yerlestir(Point(*_mey).buffer(_r))
+    _g = _b["geom"]
+    if _b["id"] in _yapi_duzeni:          # Kurucu'da taşınan yapı: yeni yeri
+        _g = _kurucu_tasi(_g, _yapi_duzeni[_b["id"]])
+    _yerlestir(_g.buffer(2.5))
+    _engeller.append(_g.buffer(2.5))
+for _z in STAD_ZEMIN:
+    _yerlestir(_z[2].buffer(2.0))
+    _engeller.append(_z[2].buffer(2.0))
+_kurucu_meydanlari = []
+for _y in _KURUCU.get("yapilar", []):
+    _cx, _cy = _dm(_y["merkez"])
+    _g = dikdortgen(_cx, _cy, _y["en"], _y["boy"], -math.degrees(_y.get("aci", 0)))
+    if _y["tur"] == "meydan":
+        _kurucu_meydanlari.append(_g)
+    _engeller.append(_g.buffer(2.0))
+    _yerlestir(_g.buffer(2.0))
+
+_tasinan = 0
+for _t in _KURUCU.get("tasinanEvler", []):
+    _ilk = Polygon([_dm(q) for q in _t["halka"]])
+    _son = Polygon([_dm(q) for q in _t["yeniHalka"]])
+    bina(_t["id"], "Ev", _ilk, _t["yukseklik"], "ev", _t["mahalle"],
+         kat=_t["kat"], taban=_t["taban"])
+    _engeller.append(_son.buffer(0.5))
+    _yerlestir(_son.buffer(0.5))
+    _tasinan += 1
+
+# Meydanlar: Merkez'de taş çeşme ve çınarın meydanı, İskele'de caddenin
+# ortasındaki küçük açıklık, Liman'da kasabanın ortası; Stadyum'da Kemal'in
+# Kurucu'da koyduğu meydan. Yolları örtmesin diye yol alanı çıkarılır.
+_MEYDANLAR = [("yer_merkez", MERKEZ_KASABA, 32.0),
+              ("yer_iskele", _kasaba_merkezi, 20.0),
+              ("yer_liman", LIMAN_KASABA, 22.0)]
+if not any(mahalle_geom["yer_stadyum"][2].contains(_g.centroid) for _g in _kurucu_meydanlari):
+    _MEYDANLAR.append(("yer_stadyum", (4550.0, 2950.0), 22.0))
+_meydan_alani = []
+for _mid, _mey, _r in _MEYDANLAR:
+    _rnd = _random.Random(_mid + "-meydan")
+    _daire = Polygon([(_mey[0] + _r * (1 + _rnd.uniform(-0.12, 0.12)) * math.cos(2 * math.pi * i / 14),
+                       _mey[1] + _r * (1 + _rnd.uniform(-0.12, 0.12)) * math.sin(2 * math.pi * i / 14))
+                      for i in range(14)])
+    _yerlestir(_daire)
+    _meydan_alani.append(_daire)
+    _g = _daire.intersection(ada.buffer(-8))
+    _g = _g.difference(unary_union([h.buffer(y) for h, y, _ in _ag if h.distance(_daire) < 10] or [Point(0, 0).buffer(0.01)]))
+    _g = _g.difference(unary_union(_engeller))
+    for _k, _p in enumerate(sorted(_parcala(_g), key=lambda p: -p.area)):
+        if _p.area > 15:
+            zemin.append({"id": f"meydan_{_mid}" + (f"_{_k}" if _k else ""),
+                          "ad": "", "tur": "meydan", "geom": _p})
+_meydan_alani += [g.buffer(1.0) for g in _kurucu_meydanlari]
+_engel_birlesik = unary_union(_engeller + [g.buffer(0.5) for g in _meydan_alani])
+_cephe_alani = unary_union([h.buffer(y + 0.8) for h, y, c in _ag if c] + _meydan_alani)
+_cephe = _hazirla(_cephe_alani.buffer(1.6))
 
 
-# mahalle: (cephe m, derinlik m, ara m, yoldan geri m, kat seçenekleri, sıklık)
+# mahalle: (cephe m, derinlik m, ara m, yoldan geri m, kat seçenekleri,
+#           sıklık, avlu derinliği m, ara sokak aralığı m ya da None,
+#           arka zemin, iç bölme alanı m² ya da None)
 EV_AYARI = {
-    # Bozcaada çarşısı gibi bitişik nizam, iki-üç kat
-    "yer_iskele":  ((7, 11), (9, 13), (0.0, 1.2), (0.6, 1.5), (2, 2, 3), 0.95),
-    # liman: karışık, bir-üç kat
-    "yer_liman":   ((8, 13), (9, 14), (0.5, 3.0), (0.8, 2.5), (1, 2, 2, 3), 0.85),
-    # eski köy: müstakil, bahçeli, bir-iki kat
-    "yer_merkez":  ((8, 12), (8, 11), (2.0, 6.0), (1.5, 4.0), (1, 2, 2), 0.8),
+    # Bozcaada çarşısı gibi bitişik nizam, iki-üç kat, taş avlular
+    "yer_iskele":  ((6, 10), (9, 13), (0.0, 0.0), (0.2, 0.9), (2, 2, 3), 0.96,
+                    7.0, (34, 60), "avlu", None),
+    # liman: çoğu bitişik, yer yer aralıklı, bir-üç kat
+    "yer_liman":   ((7, 12), (9, 14), (0.0, 1.5), (0.4, 1.8), (1, 2, 2, 3), 0.88,
+                    8.0, (40, 70), "avlu", None),
+    # eski köy: müstakil, bahçeli, bir-iki kat; arkada tarla ve bağ
+    "yer_merkez":  ((8, 12), (8, 11), (2.0, 6.0), (1.0, 3.5), (1, 2, 2), 0.82,
+                    13.0, None, "bahçe", 2200.0),
     # sonradan büyüyen: aralıklı, iki kat
-    "yer_stadyum": ((9, 13), (9, 12), (5.0, 10.0), (3.0, 6.0), (2, 2, 1), 0.7),
+    "yer_stadyum": ((9, 13), (9, 12), (4.0, 9.0), (2.5, 5.0), (2, 2, 1), 0.75,
+                    11.0, None, "bahçe", 2800.0),
 }
 
 _ev_sayisi = {}
-for _mid, (_cephe, _derin, _ara, _geri, _katlar, _siklik) in EV_AYARI.items():
-    import random as _random
+_ek_sayisi = {"avlu": 0, "bahçe": 0, "aralik": 0, "bolme": 0}
+for _mid, (_cephe_en, _derin, _ara, _geri, _katlar, _siklik, _avlu, _gecit,
+           _arka, _bolme) in EV_AYARI.items():
     _rnd = _random.Random(_mid + "-ev")
-    _alan = _hazirla(DOKU_ALANI[_mid].buffer(-15))
+    _mpoly = mahalle_geom[_mid][2]
+    _alan = DOKU_ALANI[_mid]
+    _ek = [h.buffer(45) for h in _kurucu_sokaklari if h.intersects(_mpoly)]
+    if _ek:
+        _alan = unary_union([_alan] + _ek).intersection(_mpoly)
+    _alan = _alan.intersection(ada.buffer(-8)).difference(_yol_alani).difference(_engel_birlesik)
+    _bloklar = sorted((p for p in _parcala(_alan) if p.area > 40),
+                      key=lambda p: (round(p.centroid.x), round(p.centroid.y)))
+    _evler_izgara = {}
     _n = 0
-    for _yid, _ad, _nok, _tur, _ymid in YOLLAR:
-        if _ymid != _mid or _tur not in ("sokak", "cadde"):
+    _arka_n = 0
+    for _blok in _bloklar:
+        _blok_evleri = []
+        _gecitler = []
+        _halkalar = [_blok.simplify(0.8).exterior] + list(_blok.simplify(0.8).interiors)
+        _sonraki_gecit = _rnd.uniform(*_gecit) if _gecit else None
+        _yol_boyu = 0.0
+        for _halka in _halkalar:
+            # Sokağa bakan kenarlar ardışık koşulara toplanır: kıvrımlı
+            # sokakta ve köşede cephe kesilmesin
+            _k = list(_halka.coords)[:-1]
+            _on = [_cephe.contains(Point((_k[i][0] + _k[(i + 1) % len(_k)][0]) / 2,
+                                         (_k[i][1] + _k[(i + 1) % len(_k)][1]) / 2))
+                   for i in range(len(_k))]
+            if not any(_on):
+                continue
+            _bas = next((i for i in range(len(_k)) if _on[i] and not _on[i - 1]), 0)
+            _kosular, _kosu = [], []
+            for _j in range(len(_k)):
+                _i = (_bas + _j) % len(_k)
+                if _on[_i]:
+                    if not _kosu:
+                        _kosu = [_k[_i]]
+                    _kosu.append(_k[(_i + 1) % len(_k)])
+                elif _kosu:
+                    _kosular.append(_kosu)
+                    _kosu = []
+            if _kosu:
+                _kosular.append(_kosu)
+            for _kosu in _kosular:
+                _hat = LineString(_kosu)
+                _L = _hat.length
+                _s = _rnd.uniform(0, 1.0)
+                while _s < _L - 3:
+                    _c = _rnd.uniform(*_cephe_en)
+                    if _s + _c > _L:
+                        if _L - _s < _cephe_en[0] * 0.7:
+                            break
+                        _c = _L - _s
+                    _p0 = _hat.interpolate(_s)
+                    _p1 = _hat.interpolate(_s + _c)
+                    _tx, _ty = _p1.x - _p0.x, _p1.y - _p0.y
+                    _tn = math.hypot(_tx, _ty)
+                    if _tn < _c * 0.6:              # keskin dönemeç
+                        _s += 2.0
+                        continue
+                    _tx, _ty = _tx / _tn, _ty / _tn
+                    _nx, _ny = -_ty, _tx
+                    _o = Point((_p0.x + _p1.x) / 2 + _nx * 0.8, (_p0.y + _p1.y) / 2 + _ny * 0.8)
+                    if not _blok.contains(_o):
+                        _nx, _ny = -_nx, -_ny
+                    # dar ara sokak: blok boyunca belli aralıkla bir geçit
+                    if _sonraki_gecit is not None and _yol_boyu >= _sonraki_gecit and _s < _L - 8:
+                        _g_en = _rnd.uniform(2.4, 3.4)
+                        _boy = _geri[1] + _derin[1] + _avlu
+                        _q1 = (_p0.x + _tx * _g_en, _p0.y + _ty * _g_en)
+                        _gecit_g = Polygon([(_p0.x - _nx, _p0.y - _ny), (_q1[0] - _nx, _q1[1] - _ny),
+                                            (_q1[0] + _nx * _boy, _q1[1] + _ny * _boy),
+                                            (_p0.x + _nx * _boy, _p0.y + _ny * _boy)]).intersection(_blok)
+                        _gecitler += _parcala(_gecit_g)
+                        _s += _g_en
+                        _yol_boyu = 0.0
+                        _sonraki_gecit = _rnd.uniform(*_gecit)
+                        continue
+                    _d = _rnd.uniform(*_derin)
+                    _g0 = _rnd.uniform(*_geri)
+                    _dik = Polygon([(_p0.x + _nx * _g0, _p0.y + _ny * _g0),
+                                    (_p0.x + _tx * _c + _nx * _g0, _p0.y + _ty * _c + _ny * _g0),
+                                    (_p0.x + _tx * _c + _nx * (_g0 + _d), _p0.y + _ty * _c + _ny * (_g0 + _d)),
+                                    (_p0.x + _nx * (_g0 + _d), _p0.y + _ny * (_g0 + _d))])
+                    _ev = _dik.intersection(_blok)
+                    _hucre = (int(_dik.centroid.x // 30), int(_dik.centroid.y // 30))
+                    for _o in [o for i in (-1, 0, 1) for j in (-1, 0, 1)
+                               for o in _evler_izgara.get((_hucre[0] + i, _hucre[1] + j), ())]:
+                        if _ev.intersects(_o):
+                            _ev = _ev.difference(_o)
+                    for _g in _gecitler[-2:]:
+                        if _ev.intersects(_g):
+                            _ev = _ev.difference(_g)
+                    _ev = max(_parcala(_ev), key=lambda p: p.area, default=None)
+                    if (_ev is not None and _rnd.random() < _siklik
+                            and _ev.area >= _dik.area * 0.72 and _ada_ici.contains(_ev)):
+                        _ev = _ev.simplify(0.05)
+                        _kat = _rnd.choice(_katlar)
+                        _n += 1
+                        bina(f"konut_{_mid}_{_n}", "Ev", _ev, round(_kat * 3.1 + 1.4, 1),
+                             "ev", _mid, kat=_kat)
+                        _evler_izgara.setdefault(_hucre, []).append(_ev)
+                        _blok_evleri.append(_ev)
+                        _yerlestir(_ev.buffer(0.3))
+                    _bosluk = _c + _rnd.uniform(*_ara)
+                    _s += _bosluk
+                    _yol_boyu += _bosluk
+        if not _blok_evleri:
             continue
-        _hat = LineString(_nok)
-        _yari = _YOL_YARI_EN.get(_tur, 3.0)
-        for _yan in (1, -1):
-            _s = _rnd.uniform(3, 9)
-            while _s < _hat.length - 6:
-                _c = _rnd.uniform(*_cephe)
-                _d = _rnd.uniform(*_derin)
-                _p0 = _hat.interpolate(_s)
-                _p1 = _hat.interpolate(min(_s + _c, _hat.length))
-                _tx, _ty = _p1.x - _p0.x, _p1.y - _p0.y
-                _tn = math.hypot(_tx, _ty)
-                if _tn < _c * 0.8:          # virajda yer yok
-                    _s += _c
+        # evlerin arkası: avlu ya da bahçe; geçitler avluya açılır
+        _dolu = unary_union(_blok_evleri)
+        _seridi = _blok.intersection(_cephe_alani.buffer(_geri[1] + _derin[1] + _avlu))
+        for _p in _parcala(_seridi.difference(_dolu.buffer(0.15))):
+            if _p.area > 12:
+                _arka_n += 1
+                _ek_sayisi[_arka] += 1
+                zemin.append({"id": f"{'avlu' if _arka == 'avlu' else 'bahce'}_{_mid}_{_arka_n}",
+                              "ad": "", "tur": _arka, "geom": _p.simplify(0.5)})
+        _ek_sayisi["aralik"] += len(_gecitler)
+        # bloğun içi: tarla, bağ, bahçe bölmeleri (köyde)
+        if _bolme:
+            _ic = _blok.difference(_seridi.buffer(0.5))
+            for _p in _parcala(_ic):
+                if _p.area < _bolme * 0.6:
                     continue
-                _tx, _ty = _tx / _tn, _ty / _tn
-                _nx, _ny = -_ty * _yan, _tx * _yan
-                _g0 = _yari + 0.8 + _rnd.uniform(*_geri)
-                _k = [(_p0.x + _nx * _g0, _p0.y + _ny * _g0),
-                      (_p1.x + _nx * _g0, _p1.y + _ny * _g0),
-                      (_p1.x + _nx * (_g0 + _d), _p1.y + _ny * (_g0 + _d)),
-                      (_p0.x + _nx * (_g0 + _d), _p0.y + _ny * (_g0 + _d))]
-                _ev = Polygon(_k)
-                if (_rnd.random() < _siklik and _ev.is_valid
-                        and _alan.contains(_ev) and _ada_ici.contains(_ev)
-                        and not _yol_engel.intersects(_ev) and _bos_mu(_ev)):
-                    _kat = _rnd.choice(_katlar)
-                    _n += 1
-                    bina(f"ev_{_mid}_{_n}", "Ev", _ev, round(_kat * 3.1 + 1.4, 1),
-                         "ev", _mid, kat=_kat)
-                    _yerlestir(_ev.buffer(0.3))
-                _s += _c + _rnd.uniform(*_ara)
+                _parsel = []
+                _bol(_p, _bolme * _rnd.uniform(0.8, 1.4), _rnd, _parsel)
+                for _q in _parsel:
+                    _q = _q.buffer(-0.8)          # bölmeler arası taş duvar / sınır
+                    for _r in _parcala(_q):
+                        # ince şerit tarla olmaz: alan / çevre ≥ 5,5 (en ≈ 11 m)
+                        if _r.area < 150 or _r.area / _r.length < 5.5:
+                            continue
+                        _arka_n += 1
+                        _ek_sayisi["bolme"] += 1
+                        _x = _rnd.random()
+                        zemin.append({"id": f"bolme_{_mid}_{_arka_n}", "ad": "",
+                                      "tur": "tarla" if _x < 0.35 else "bağ" if _x < 0.6
+                                      else "zeytinlik" if _x < 0.8 else "bahçe",
+                                      "geom": _r.simplify(0.5)})
     _ev_sayisi[_mid] = _n
 
 # Çiftlik kompleksleri: arazinin yola yakın yarısında ana ev, yanında ahır
-# ve depo; bazılarında ikinci ev. Arazinin kendisi zeytinlik zemini.
-import random as _random
+# ve depo; bazılarında ikinci ev. Arazi bölmelere ayrılır (2 Ekim, Ege
+# dokusu): çoğu zeytinlik, bir kısmı bağ ve tarla; aralarda taş duvar payı.
 _rnd = _random.Random("yer_ciftlik-kompleks")
+_rnd_bolme = _random.Random("yer_ciftlik-bolme")
 _kompleks = 0
 for _i, (_arazi, (_tx, _ty), (_nx, _ny), (_cx, _cy)) in enumerate(CIFTLIK_ARAZILERI, 1):
-    zemin.append({"id": f"zemin_ciftlik_{_i}", "ad": "Çiftlik arazisi",
-                  "tur": "zeytinlik", "geom": _arazi})
+    _parsel = []
+    _bol(_arazi, _rnd_bolme.uniform(2500, 4500), _rnd_bolme, _parsel)
+    _k = 0
+    for _q in _parsel:
+        for _r in _parcala(_q.buffer(-1.0)):
+            if _r.area < 200:
+                continue
+            _k += 1
+            _x = _rnd_bolme.random()
+            zemin.append({"id": f"zemin_ciftlik_{_i}_{_k}", "ad": "Çiftlik arazisi",
+                          "tur": "zeytinlik" if _x < 0.5 else "bağ" if _x < 0.8 else "tarla",
+                          "geom": _r.simplify(0.5)})
+        _ek_sayisi["bolme"] += 1
     _aci = math.degrees(math.atan2(_ty, _tx))
     _ic = 20.0 + _rnd.uniform(0, 12)          # yoldan içeri
     _yan = _rnd.uniform(-12, 12)
@@ -2242,6 +2537,9 @@ for z in zemin:
 
 print("Evler          : " + ", ".join(f"{m.replace('yer_', '')} {n}" for m, n in _ev_sayisi.items())
       + f"; Çiftlik {_kompleks} kompleks")
+print(f"Ege dokusu     : {_tasinan} taşınan ev yerinde, {_ek_sayisi['avlu']} avlu, "
+      f"{_ek_sayisi['bahçe']} bahçe, {_ek_sayisi['aralik']} geçit, {_ek_sayisi['bolme']} bölme, "
+      f"{len(_MEYDANLAR)} meydan")
 
 
 # ---------------------------------------------------------------- rölyef
@@ -2376,7 +2674,7 @@ for tid, ad, (x, y), rakim in ((z[0], z[1], z[2], z[3]) for z in ZIRVELER):
     etiketler.append({"id": f"etk_{tid}", "ad": ad, "tur": "zirve", "xy": (x, y),
                       "rakim": rakim, "oncelik": 2 if rakim > 300 else 3})
 for b in binalar:
-    if b["tur"] in ("otel", "fener", "stadyum", "kulüp"):
+    if b["tur"] in ("otel", "fener", "stadyum", "kulüp") and (b["tur"] != "stadyum" or b["wikiId"]):
         c = b["geom"].centroid
         etiketler.append({"id": f"etk_{b['id']}", "ad": b["ad"], "tur": "yapi",
                           "xy": (c.x, c.y), "wikiId": b["wikiId"], "oncelik": 2})
@@ -2399,8 +2697,8 @@ for b in binalar:
         etiketler.append({"id": f"etk_{b['id']}", "ad": b["ad"], "tur": "yerleske",
                           "xy": (c.x, c.y), "wikiId": b["wikiId"], "oncelik": 4})
 for z in zemin:
-    if z["id"].startswith("zemin_ciftlik_"):
-        continue                     # arazilerin adı yok, etiket de yok
+    if z["id"].startswith("zemin_ciftlik_") or not z["ad"]:
+        continue                     # arazilerin, avluların, bölmelerin adı yok
     c = z["geom"].centroid
     etiketler.append({"id": f"etk_{z['id']}", "ad": z["ad"], "tur": "yerleske",
                       "xy": (c.x, c.y), "oncelik": 4})

@@ -99,7 +99,14 @@ export const ZEMIN = {
   teras: '#e6dcc6',
   terasKenar: 'rgba(111, 96, 71, 0.55)',
   bahce: '#b9c4a4',
-  bahceKenar: 'rgba(90, 110, 80, 0.45)'
+  bahceKenar: 'rgba(90, 110, 80, 0.45)',
+  // Ege dokusu (2 Ekim): taş avlu, meydan taşı, tarla ve bağ bölmeleri
+  avlu: '#ece3d2',
+  meydan: '#e9dfcb',
+  meydanKenar: 'rgba(138, 119, 87, 0.6)',
+  tarla: '#d8cb98',
+  bag: '#aab873',
+  bolmeKenar: 'rgba(120, 104, 78, 0.5)'
 } as const;
 
 /** MapLibre'nin `interpolate` ifadesi için düz dizi: [eşik, renk, ...] */
