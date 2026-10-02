@@ -91,7 +91,8 @@ export function adayiIsle(aday: Item, items: Item[]): { hedef: Item; aday: Item 
   if (!b) return null;
   const hedef = items.find(i => i.id === b.hedefId);
   if (!hedef) return null;
-  const hala = bosluklariCikar([hedef]).some(x => x.alanId === b.alanId);
+  // Bütün kayıtlarla bakılır: mahallenin tanınıp tanınmadığı öteki kayıtlara bağlı
+  const hala = bosluklariCikar(items).some(x => x.item.id === hedef.id && x.alanId === b.alanId);
   if (!hala) return null;
   return {
     hedef: alanaYaz(hedef, b.yol, b.cevap),
@@ -133,7 +134,7 @@ export function sorulacaklar(items: Item[], adet = 4): Bosluk[] {
   const e = ertelenenler();
   const sinir = Date.now() - ERTELEME_GUNU * 86_400_000;
   const uygun = bosluklariCikar(items)
-    .filter(b => b.alanId !== 'notes' && !bekleyen.has(b.anahtar) && !((e[b.anahtar] || 0) > sinir)
+    .filter(b => b.alanId !== 'notes' && !b.yaz && !bekleyen.has(b.anahtar) && !((e[b.anahtar] || 0) > sinir)
       && !kunyedeCevabiVar(b));
   if (!uygun.length) return [];
   // Art arda aynı soru ("Hangi mahallede yaşar?") ya da aynı madde

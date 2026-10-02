@@ -1305,3 +1305,30 @@ Tarihçe" gibi). Ekle → o maddeye bölüm olarak girer.
 - Kart Eksikler'e değil stüdyoya kondu: yapay zekâ yalnız stüdyodan
   çağrılır kuralı.
 
+
+## 2 Ekim — Hatalar (1. PR / 3)
+
+Kemal'in 2 Ekim listesinden (ekran görüntüleriyle): 2, 3, 4, 8, 9.
+
+- **Mahalle eşleşmesi (3):** Viki'deki mahalle listesi artık "iskele",
+  "İskele Mahallesi", "Kemsköy Caddesi" yazımlarını "İskele Mahallesi
+  (Kemsköy)" ile; "merkez"i "Merkez Mahallesi (Düzada Köyü)" ile eşler.
+  Parantez içi de bir ad sayılır. Metindeki "* Mahalle: …" satırı da okunur
+  (`mahalleEslesir`, `wikiSchema.ts`).
+- **Ad düzenleme (4):** Düzenle ekranının başında "Ad" kutusu. Mahalle
+  kutusu mahalle listesinden seçtirir. Boş kutuda, metindeki künye
+  satırında yazan değer soluk olarak görünür ("metinde: …").
+- **Kanon uyarısı (2):** Bildirimde maddenin adı, çelişen cümle ve
+  kanondaki not yan yana; "Maddeyi aç" ve "Yanlış alarm, bir daha
+  gösterme". Yanlış alarm maddeye yazılır (`metadata.kanonYoksay`).
+  "Otelden önce, 1923'te…" gibi öncesini anlatan cümleler artık uyarı
+  vermez. Bildirim paneli telefonda ekrana sığar.
+- **Boşluklar (8):** Künyedeki boş alanlara ek olarak: başlığı açılmış ama
+  metni boş bölümler (ör. boş "Tarihçe"; kutuya yazınca bölüme yazılır) ve
+  mahallesi yazılı ama hiçbir mahalleyle eşleşmeyen kayıtlar. Görselsizler
+  sayılmaz (Kemal'in seçimi). Bölüm boşlukları günün sorusuna girmez.
+- **Silinen yollar (9):** Kurucu kaldırılanları "geri getirebilesin" diye
+  kırmızı kesik çizgiyle gösteriyordu. Artık gizli; yalnız Kaldır aracı
+  seçiliyken ya da araç çubuğundaki "Kaldırılan" düğmesiyle görünür
+  (düğme telefonda da var). 3B ve site haritası "Haritaya işle"den sonra
+  değişir — bu eskisi gibi.

@@ -39,6 +39,8 @@ export const TARIH_KURALLARI: TarihKurali[] = [
 
 export interface TarihUyarisi {
   kural: TarihKurali;
+  /** "Yanlış alarm" deyince maddeye yazılan anahtar */
+  anahtar: string;
   yil: number;
   /** Uyarının bulunduğu paragrafın başı */
   alinti: string;
@@ -69,12 +71,16 @@ export function tarihUyarilari(metin: string): TarihUyarisi[] {
       // Cümlede kurala uyan bir yıl da varsa ("1950'lerden beri… stat
       // 1980'ler") o yıl yerin kendi tarihidir; öteki başka bir şeyin.
       if (yillar.some(uyan)) continue;
+      // "otelden önce, 1923'te…" kuralı bozmaz: cümle o yerin öncesini
+      // (ya da bitişten sonrasını) anlatıyor (2 Ekim, İskele yanlış alarmı)
+      if (kural.baslangic !== undefined && /(?<!\p{L})(önce|öncesi|öncesinde|evvel)(?!\p{L})/iu.test(paragraf)) continue;
+      if (kural.bitis !== undefined && /(?<!\p{L})(sonra|sonrası|sonrasında)(?!\p{L})/iu.test(paragraf)) continue;
       const celisen = yillar.find(y => !uyan(y));
       if (celisen === undefined) continue;
       const anahtar = `${kural.ad}|${celisen}`;
       if (gorulen.has(anahtar)) continue;
       gorulen.add(anahtar);
-      cikti.push({ kural, yil: celisen, alinti: paragraf.trim().slice(0, 120) });
+      cikti.push({ kural, anahtar, yil: celisen, alinti: paragraf.trim().slice(0, 160) });
     }
   }
   return cikti;

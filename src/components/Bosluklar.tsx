@@ -1,8 +1,9 @@
 import React, { useMemo, useState } from 'react';
 import { Check, ChevronDown, ChevronRight, PenLine } from 'lucide-react';
-import type { Item, ItemType } from '../types';
+import type { Item, ItemType, WikiSection } from '../types';
 import { DEFAULT_QUESTIONS_BY_CAT } from './wiki/kunyeSorulari';
-import { schemaKeyFor, TYPE_LABELS, WIKI_TYPES, getKunyeFields, getArticleBody } from './wiki/wikiSchema';
+import { schemaKeyFor, TYPE_LABELS, WIKI_TYPES, getKunyeFields, getArticleBody, mahalleEslesir } from './wiki/wikiSchema';
+import { parseKunye } from './wiki/kunyeParser';
 import { SayfaRayi, type RayBolumu } from './SayfaRayi';
 import { ADA_KIMLIGI } from '../lib/vikiSifirlama';
 
@@ -68,13 +69,45 @@ export interface Bosluk {
   etiket: string;
   soru: string;
   yol: string;
+  /** Düz bir alan değilse (bölüm metni) yazmanın yolu */
+  yaz?: (item: Item, deger: string) => Item;
 }
 
 /** Başlık zaten dolu sayılır; onu boş bırakan kayıt yok. */
 const ATLANAN_ALAN = new Set(['title']);
 
+/** Mahallesi sorulan türler; marka (Kems Company) adanın dışında */
+const MAHALLELI = new Set<ItemType>(['mekân', 'dükkân', 'kulüp', 'olay', 'kisi', 'karakter', 'aile']);
+
+/** Mahalleler: başka bir yere bağlı olmayan 'yer' kayıtları */
+const mahalleBasliklari = (items: Item[]) => {
+  const kimlik = new Set(items.map(i => i.id));
+  return items
+    .filter(i => !i.archived && !i.isProposal && i.type === 'yer' && i.id !== ADA_KIMLIGI && !(i.metadata?.placeId && kimlik.has(i.metadata.placeId)))
+    .map(i => i.title);
+};
+
+/** Kayıtta yazılı mahalle (künye alanı ya da metindeki "* Mahalle:" satırı) */
+const yazilanMahalle = (item: Item): string => {
+  const alan = typeof item.metadata?.region === 'string' ? item.metadata.region.trim() : '';
+  if (alan) return alan;
+  return parseKunye(item).fields.find(f => /^(mahalle|mahallesi|yer|yeri)$/i.test(f.label.trim()))?.value || '';
+};
+
+/** Bölümün metnini yazar (başlığı olan boş bölüm) */
+const bolumeYaz = (id: string) => (item: Item, deger: string): Item => ({
+  ...item,
+  metadata: {
+    ...item.metadata,
+    wikiSections: ((item.metadata?.wikiSections as WikiSection[]) || []).map(b => (b.id === id ? { ...b, content: deger } : b))
+  },
+  updatedAt: Date.now()
+});
+
 export function bosluklariCikar(items: Item[]): Bosluk[] {
   const cikti: Bosluk[] = [];
+  const mahalleler = mahalleBasliklari(items);
+  const kimlik = new Set(items.map(i => i.id));
   for (const item of items) {
     if (item.archived || item.isProposal) continue;
     if (!WIKI_TYPES.includes(item.type as ItemType)) continue;
@@ -89,6 +122,15 @@ export function bosluklariCikar(items: Item[]): Bosluk[] {
     const govdeDolu = getArticleBody(item).length > 0;
     for (const s of sorular) {
       if (ATLANAN_ALAN.has(s.id)) continue;
+      // Mahalle yazılı ama hiçbir mahalleyle eşleşmiyorsa boş sayılır (2 Ekim)
+      if (s.id === 'region' && MAHALLELI.has(item.type as ItemType) && mahalleler.length) {
+        const yazili = yazilanMahalle(item);
+        const ustuVar = !!(item.metadata?.placeId && kimlik.has(item.metadata.placeId));
+        if (yazili && !ustuVar && !mahalleler.some(m => mahalleEslesir(yazili, m))) {
+          cikti.push({ anahtar: `${item.id}::region`, item, alanId: 'region', etiket: s.label, soru: `"${yazili}" bir mahalleyle eşleşmiyor. Hangi mahallede? (${mahalleler.join(', ')})`, yol: s.fieldPath });
+          continue;
+        }
+      }
       if (oku(item, s.fieldPath).trim()) continue;
       if ((kunye.get(s.id) || '').trim()) continue;
       if (s.id === 'notes' && govdeDolu) continue;
@@ -100,6 +142,11 @@ export function bosluklariCikar(items: Item[]): Bosluk[] {
         soru: s.question,
         yol: s.fieldPath
       });
+    }
+    // Başlığı açılmış ama metni yazılmamış bölümler (ör. boş "Tarihçe")
+    for (const b of (item.metadata?.wikiSections as WikiSection[] | undefined) || []) {
+      if (!b?.title?.trim() || (b.content || '').trim()) continue;
+      cikti.push({ anahtar: `${item.id}::bolum:${b.id}`, item, alanId: `bolum:${b.id}`, etiket: `Bölüm · ${b.title.trim()}`, soru: 'Bölümün metni.', yol: '', yaz: bolumeYaz(b.id) });
     }
   }
   return cikti;
@@ -118,6 +165,7 @@ export function boslukOrani(items: Item[]): { toplam: number; bos: number } {
     const anahtar = schemaKeyFor(item.type as ItemType);
     if (!anahtar) continue;
     toplam += (DEFAULT_QUESTIONS_BY_CAT[anahtar] || []).filter(s => !ATLANAN_ALAN.has(s.id)).length;
+    toplam += ((item.metadata?.wikiSections as WikiSection[] | undefined) || []).filter(b => b?.title?.trim()).length;
   }
   return { toplam, bos: bosluklariCikar(items).length };
 }
@@ -139,7 +187,7 @@ const BoslukSatiri: React.FC<BoslukSatiriProps> = ({ bosluk, onKaydet }) => {
     if (!d || yaziliyor) return;
     setYaziliyor(true);
     try {
-      await onKaydet(alanaYaz(bosluk.item, bosluk.yol, d));
+      await onKaydet(bosluk.yaz ? bosluk.yaz(bosluk.item, d) : alanaYaz(bosluk.item, bosluk.yol, d));
       setBitti(true);
     } finally {
       setYaziliyor(false);

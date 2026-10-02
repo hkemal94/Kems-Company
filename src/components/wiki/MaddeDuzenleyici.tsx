@@ -5,7 +5,7 @@ import type { Item, WikiSection } from '../../types';
 import { parseKunye, kendiMetniYaz } from './kunyeParser';
 import { useKaydedilmemis } from '../../lib/kaydedilmemis';
 import { DEFAULT_QUESTIONS_BY_CAT } from './kunyeSorulari';
-import { TYPE_LABELS, WIKI_TYPES, schemaKeyFor } from './wikiSchema';
+import { TYPE_LABELS, WIKI_TYPES, schemaKeyFor, getKunyeFields } from './wikiSchema';
 import { BAG_TURLERI, type BagTuru } from '../../utils/relations';
 
 /**
@@ -40,12 +40,17 @@ export const MaddeDuzenleyici: React.FC<Props> = ({ item, allItems, onKaydet, on
   const [alanlar, setAlanlar] = useState<Record<string, string>>(() => Object.fromEntries(sema.map(f => [f.fieldPath, yolOku(item, f.fieldPath)])));
   const [baglar, setBaglar] = useState<Bag[]>(() => ((item.metadata?.relations as Bag[]) || []).filter(b => b && b.targetId));
   const [esin, setEsin] = useState<string>(String(item.metadata?.esin || ''));
+  /** Alan boşsa metindeki künye satırından okunan değer — kutuda soluk görünür */
+  const metindeki = useMemo(() => new Map(getKunyeFields(item).map(f => [f.id, f.value])), [item]);
+  const ipucu = (id: string, soru: string) => (metindeki.get(id) ? `metinde: ${metindeki.get(id)}` : soru);
+  /** Maddenin adı (2 Ekim, Kemal: "isimleri değiştirmek mümkün değil") */
+  const [ad, setAd] = useState<string>(item.title);
   /** Giriş metni: notlardaki kendi metin (künye satırları hariç) */
   const ilkGiris = useMemo(() => parseKunye(item).kendiMetni, [item]);
   const [giris, setGiris] = useState<string>(ilkGiris);
   const [bolumler, setBolumler] = useState<WikiSection[]>(() => ((item.metadata?.wikiSections as WikiSection[]) || []).map(b => ({ ...b })));
   // Metin değiştiyse kaydetmeden çıkarken sorulur
-  const metinDegisti = giris.trim() !== ilkGiris.trim() || JSON.stringify(bolumler) !== JSON.stringify((item.metadata?.wikiSections as WikiSection[]) || []);
+  const metinDegisti = ad.trim() !== item.title.trim() || giris.trim() !== ilkGiris.trim() || JSON.stringify(bolumler) !== JSON.stringify((item.metadata?.wikiSections as WikiSection[]) || []);
   useKaydedilmemis(metinDegisti);
   const bolumYaz = (n: number, d: Partial<WikiSection>) => setBolumler(bs => bs.map((b, k) => (k === n ? { ...b, ...d } : b)));
   const bolumTasi = (n: number, yon: -1 | 1) => setBolumler(bs => {
@@ -66,6 +71,8 @@ export const MaddeDuzenleyici: React.FC<Props> = ({ item, allItems, onKaydet, on
     .filter(i => i.id !== item.id && !i.archived && !i.isProposal && WIKI_TYPES.includes(i.type) && i.type !== 'oda')
     .sort((a, b) => a.title.localeCompare(b.title, 'tr')), [allItems, item.id]);
   const aileler = hedefler.filter(i => i.type === 'aile');
+  /** Mahalle alanı için seçenekler: üst düzey 'yer' kayıtları (mahalleler) */
+  const mahalleSecenekleri = useMemo(() => hedefler.filter(i => i.type === 'yer' && !i.metadata?.placeId).map(i => i.title), [hedefler]);
 
   const kaydet = async () => {
     setYaziliyor(true);
@@ -93,7 +100,9 @@ export const MaddeDuzenleyici: React.FC<Props> = ({ item, allItems, onKaydet, on
       // Tik kalkınca false yazılır: kayıt birleşerek yazıldığı için anahtarı silmek yetmez
       if (kurumTikiVar && (kurum || metadata[KURUM_TIKI] !== undefined)) metadata[KURUM_TIKI] = kurum;
       const notes = giris.trim() === ilkGiris.trim() ? item.notes : kendiMetniYaz(item, giris);
-      await onKaydet({ ...item, notes, metadata: metadata as Item['metadata'], updatedAt: Date.now() });
+      // Boş ad yazılmaz; eski ad kalır
+      const title = ad.trim() || item.title;
+      await onKaydet({ ...item, title, notes, metadata: metadata as Item['metadata'], updatedAt: Date.now() });
       onKapat();
     } finally {
       setYaziliyor(false);
@@ -110,6 +119,11 @@ export const MaddeDuzenleyici: React.FC<Props> = ({ item, allItems, onKaydet, on
         <button type="button" onClick={onKapat} aria-label="Kapat" className="p-1 text-gri hover:text-lacivert dark:text-bej/85"><X size={16} /></button>
       </div>
 
+      <label className="block">
+        <span className="block text-[11px] text-gri dark:text-bej/85 mb-0.5">Ad</span>
+        <input value={ad} onChange={e => setAd(e.target.value)} placeholder={item.title} className={`${girdi} font-semibold`} />
+      </label>
+
       {sema.length > 0 && (
         <div>
           <div className="postmark-label text-gri dark:text-bej/85 mb-2">Künye</div>
@@ -119,11 +133,16 @@ export const MaddeDuzenleyici: React.FC<Props> = ({ item, allItems, onKaydet, on
                 <span className="block text-[11px] text-gri dark:text-bej/85 mb-0.5">{f.label}</span>
                 {f.id === 'aile' ? (
                   <>
-                    <input list="aile-listesi" value={alanlar[f.fieldPath] || ''} onChange={e => setAlanlar(a => ({ ...a, [f.fieldPath]: e.target.value }))} placeholder={f.question} className={girdi} />
+                    <input list="aile-listesi" value={alanlar[f.fieldPath] || ''} onChange={e => setAlanlar(a => ({ ...a, [f.fieldPath]: e.target.value }))} placeholder={ipucu(f.id, f.question)} className={girdi} />
                     <datalist id="aile-listesi">{aileler.map(a => <option key={a.id} value={a.title} />)}</datalist>
                   </>
+                ) : f.id === 'region' ? (
+                  <>
+                    <input list="mahalle-listesi" value={alanlar[f.fieldPath] || ''} onChange={e => setAlanlar(a => ({ ...a, [f.fieldPath]: e.target.value }))} placeholder={ipucu(f.id, f.question)} className={girdi} />
+                    <datalist id="mahalle-listesi">{mahalleSecenekleri.map(m => <option key={m} value={m} />)}</datalist>
+                  </>
                 ) : (
-                  <input value={alanlar[f.fieldPath] || ''} onChange={e => setAlanlar(a => ({ ...a, [f.fieldPath]: e.target.value }))} placeholder={f.question} className={girdi} />
+                  <input value={alanlar[f.fieldPath] || ''} onChange={e => setAlanlar(a => ({ ...a, [f.fieldPath]: e.target.value }))} placeholder={ipucu(f.id, f.question)} className={girdi} />
                 )}
               </label>
             ))}
