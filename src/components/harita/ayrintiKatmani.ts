@@ -108,7 +108,7 @@ export function ayrintiVerisi(geo: FeatureCollection): FeatureCollection {
       const tur = ['ev', 'dukkanli', 'yazlik'].includes(kt) ? 'ev' : kt === 'depo' ? 'depo' : String(p.tur ?? '');
 
       // Çatılar: ev, ahır, depo ve küçük mekânlar
-      if (['ev', 'ahir', 'depo', 'kafe', 'meyhane', 'yapı'].includes(tur)) {
+      if (['ev', 'ahir', 'depo', 'kafe', 'meyhane', 'yapı', 'kulüp'].includes(tur)) {
         const s = sans(id + 'c');
         const duz = tur === 'ev' && s < 0.28;          // düz dam (badanalı)
         const renk = duz ? DAM[Math.floor(s * 10) % DAM.length] : KIREMIT[Math.floor(s * 97) % KIREMIT.length];

@@ -65,7 +65,7 @@ export const YAPI = {
   kule: '#b08f72',
   fener: '#efe7d8',
   stadyum: '#5d7d6a',
-  kulup: '#75845f',
+  kulup: '#cdb995',   // taş çiftlik evi (2 Ekim gece: yeşil kutu gibi duruyordu)
   iskele: '#9c8467',
   genel: '#c2b193',
   vurgu: '#F26B6F'
