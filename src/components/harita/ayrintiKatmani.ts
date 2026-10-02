@@ -103,7 +103,9 @@ export function ayrintiVerisi(geo: FeatureCollection): FeatureCollection {
     if (p.katman === 'bina') {
       const H = Number(p.yukseklik) || 0;
       if (!H) continue;
-      const tur = String(p.tur ?? '');
+      // Kurucu'da konan evlerin türü `kurucuTur`da (tur okunur ad taşır)
+      const kt = String(p.kurucuTur ?? '');
+      const tur = ['ev', 'dukkanli', 'yazlik'].includes(kt) ? 'ev' : kt === 'depo' ? 'depo' : String(p.tur ?? '');
 
       // Çatılar: ev, ahır, depo ve küçük mekânlar
       if (['ev', 'ahir', 'depo', 'kafe', 'meyhane', 'yapı'].includes(tur)) {
