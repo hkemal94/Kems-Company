@@ -18,7 +18,7 @@ from PIL import Image
 
 BURASI = os.path.dirname(os.path.abspath(__file__))
 KOK = os.path.dirname(BURASI)
-CIKTI = os.path.join(KOK, "Kems-Company", "src", "data", "duzadaDem.ts")
+CIKTI = os.path.join(KOK, "src", "data", "duzadaDem.ts")
 
 # --- duzada.py'nin yükselti alanını ödünç al -------------------------------
 # Bina/yol üretimini çalıştırmaya gerek yok: dosyayı yükselti alanı kurulana
