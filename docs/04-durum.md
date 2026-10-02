@@ -1475,3 +1475,12 @@ yol genişliği gerçek metre.
   büyür (uzakta en az birkaç piksel).
 - Statın kaidesi: arazi statın altında 132×100 m düzlenir (`gen/duzlukler.json`,
   `gen/dem.py`), eteği yamaca yumuşak iner.
+
+## 2 Ekim gece — Harita turu düzeltmeleri
+
+Kemal'in Kurucu düzeniyle 3D tur sonrası seçtikleri:
+- Liman meydanı kasabanın içinde, dokunun ortasına en yakın kavşakta
+  (eskiden kenarda boş bir leke gibiydi).
+- Otel kulelerinin ve Otel İskelesi'nin adı iki kez yazılıyordu; maddesi olan
+  yapıya ikinci "yerleşke" etiketi eklenmiyor.
+- Küçükçetmi Sürek Kulübü taş renginde ve kiremit çatılı (yeşil kutu gibiydi).

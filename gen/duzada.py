@@ -2363,9 +2363,25 @@ for _t in _KURUCU.get("tasinanEvler", []):
 # Meydanlar: Merkez'de taş çeşme ve çınarın meydanı, İskele'de caddenin
 # ortasındaki küçük açıklık, Liman'da kasabanın ortası; Stadyum'da Kemal'in
 # Kurucu'da koyduğu meydan. Yolları örtmesin diye yol alanı çıkarılır.
+def _kavsak_merkezi(mid):
+    """Mahalle dokusunun ortasına en yakın, en az üç sokağın buluştuğu kavşak"""
+    from collections import Counter
+    say = Counter()
+    for _yid, _ad, _nok, _tur, _ymid in YOLLAR:
+        if _ymid != mid or _yid in _kur_gizli:
+            continue
+        for q in {(round(x), round(y)) for x, y in _nok}:
+            say[q] += 1
+    adaylar = [q for q, n in say.items() if n >= 3] or [q for q, n in say.items() if n >= 2]
+    hedef = DOKU_ALANI[mid].centroid
+    return min(adaylar, key=lambda q: math.hypot(q[0] - hedef.x, q[1] - hedef.y))
+
+
+# Liman'ın meydanı kasabanın içinde, sokakların buluştuğu yerde (2 Ekim
+# gece, Kemal: kenarda boş bir leke gibi duruyordu)
 _MEYDANLAR = [("yer_merkez", MERKEZ_KASABA, 32.0),
               ("yer_iskele", _kasaba_merkezi, 20.0),
-              ("yer_liman", LIMAN_KASABA, 22.0)]
+              ("yer_liman", _kavsak_merkezi("yer_liman"), 22.0)]
 if not any(mahalle_geom["yer_stadyum"][2].contains(_g.centroid) for _g in _kurucu_meydanlari):
     _MEYDANLAR.append(("yer_stadyum", (4550.0, 2950.0), 22.0))
 _meydan_alani = []
@@ -2773,8 +2789,10 @@ for b in binalar:
 YERLESKE_ETIKET = {
     "bina_imperial_kule_bati", "bina_imperial_kule_dogu", "bina_otel_iskele",
 }
+_etiketli = {e["id"] for e in etiketler}
 for b in binalar:
-    if b["id"] in YERLESKE_ETIKET:
+    # maddesi olan yapı zaten etiketli: ikinci kez yazılmasın (2 Ekim gece)
+    if b["id"] in YERLESKE_ETIKET and f"etk_{b['id']}" not in _etiketli:
         c = b["geom"].centroid
         etiketler.append({"id": f"etk_{b['id']}", "ad": b["ad"], "tur": "yerleske",
                           "xy": (c.x, c.y), "wikiId": b["wikiId"], "oncelik": 4})
