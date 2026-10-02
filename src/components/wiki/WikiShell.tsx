@@ -5,7 +5,8 @@ import { isEntityUnlinked } from '../../utils/relations';
 import { buildLinkIndex } from './autoLink';
 import { WikiArticle } from './WikiArticle';
 import { WikiGiris } from './WikiGiris';
-import { WIKI_TYPES, TYPE_LABELS, isStub, bolgeAdi } from './wikiSchema';
+import { parseKunye } from './kunyeParser';
+import { WIKI_TYPES, TYPE_LABELS, isStub, mahalleEslesir } from './wikiSchema';
 import { OYUN_VAKA_IDLERI } from '../../lib/temizlik';
 
 interface WikiShellProps {
@@ -107,8 +108,12 @@ export const WikiShell: React.FC<WikiShellProps> = ({
     const aitMi = (i: Item, yer: Item): boolean => {
       const p = i.metadata?.placeId;
       if (p && idSet.has(p)) return p === yer.id; // placeId varsa tek doğru cevap odur
-      const region = i.metadata?.region ?? i.metadata?.profile?.region;
-      return !!region && bolgeAdi(region) === yer.title;
+      // Mahalle üç yerde yazılı olabilir: künye alanı, eski profil alanı
+      // ya da notlardaki "* Mahalle: …" satırı
+      const satirlar = parseKunye(i).fields
+        .filter(f => /^(mahalle|mahallesi|yer|yeri|konum)$/i.test(f.label.trim()))
+        .map(f => f.value);
+      return [i.metadata?.region, i.metadata?.profile?.region, ...satirlar].some(r => mahalleEslesir(r, yer.title));
     };
 
     return yerler

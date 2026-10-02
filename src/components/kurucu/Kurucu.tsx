@@ -221,7 +221,10 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
   const [imlec, setImlec] = useState<Nokta | null>(null);
   const [yapisma, setYapisma] = useState<Yapisma | null>(null);
   const [secili, setSecili] = useState<string | null>(null);
-  const [gizliGoster, setGizliGoster] = useState(true);
+  // Kaldırılanlar yalnız istenince ya da Kaldır aracındayken görünür
+  // (2 Ekim, Kemal: "sildiklerim neden görünmeye devam ediyor?")
+  const [kaldirilanAcik, setGizliGoster] = useState(false);
+  const gizliGoster = kaldirilanAcik || arac === 'sil';
   const [uyari, setUyari] = useState<string | null>(null);
   const [binaTur, setBinaTur] = useState<BinaTuru>('ev');
   const [sablonId, setSablonId] = useState(SABLONLAR[0].id);
@@ -1515,8 +1518,8 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
           <button type="button" onClick={geriAl} disabled={adim === 0} className="flex shrink-0 flex-col items-center justify-center gap-0.5 min-w-[60px] px-2 py-1.5 rounded-xl text-[10.5px] text-[#C9D0E3] hover:bg-white/10 disabled:opacity-35 cursor-pointer">
             <Undo2 className="w-[18px] h-[18px]" />Geri al
           </button>
-          <button type="button" onClick={() => setGizliGoster(g => !g)} className="hidden lg:flex flex-col items-center justify-center gap-0.5 min-w-[60px] px-2 py-1.5 rounded-xl text-[10.5px] text-[#C9D0E3] hover:bg-white/10 cursor-pointer" title="Kaldırılanları göster / gizle">
-            {gizliGoster ? <EyeOff className="w-[18px] h-[18px]" /> : <Eye className="w-[18px] h-[18px]" />}Kaldırılan
+          <button type="button" onClick={() => setGizliGoster(g => !g)} className="flex shrink-0 flex-col items-center justify-center gap-0.5 min-w-[60px] px-2 py-1.5 rounded-xl text-[10.5px] text-[#C9D0E3] hover:bg-white/10 cursor-pointer" title="Kaldırılanları göster / gizle">
+            {kaldirilanAcik ? <EyeOff className="w-[18px] h-[18px]" /> : <Eye className="w-[18px] h-[18px]" />}Kaldırılan
           </button>
         </div>
       </div>

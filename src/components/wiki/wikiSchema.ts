@@ -90,6 +90,38 @@ export function bolgeAdi(raw: unknown): string {
   return raw.trim();
 }
 
+/**
+ * Mahalle eşleşmesi (2 Ekim, Kemal: "altta mahallesi belli olmayan yerlerin
+ * hepsinde mahalle belli aslında"). Kayıtta "iskele", "İskele Mahallesi",
+ * "Kemsköy Caddesi" yazabilir; mahallenin adı "İskele Mahallesi (Kemsköy)"
+ * olabilir. Hepsi aynı yere düşmeli: parantez içi de bir ad sayılır,
+ * "mahallesi" sözü ve Türkçe harf farkı yok sayılır.
+ */
+const mahalleAnahtari = (s: string) => s
+  .toLocaleLowerCase('tr')
+  .replace(/[çğıöşüâî]/g, h => ({ ç: 'c', ğ: 'g', ı: 'i', ö: 'o', ş: 's', ü: 'u', â: 'a', î: 'i' } as Record<string, string>)[h] || h)
+  .replace(/\bmahallesi\b/g, ' ')
+  .replace(/[^a-z0-9 ]+/g, ' ')
+  .replace(/\s+/g, ' ')
+  .trim();
+
+/** Mahalle adının bütün okunuşları: "İskele Mahallesi (Kemsköy)" → iskele, kemskoy */
+export function mahalleAdlari(baslik: string): string[] {
+  const adlar = [baslik.replace(/\(.*?\)/g, ''), ...Array.from(baslik.matchAll(/\(([^)]+)\)/g), m => m[1])];
+  return Array.from(new Set(adlar.map(mahalleAnahtari).filter(Boolean)));
+}
+
+/** Kayıttaki mahalle yazısı bu mahalleyi mi gösteriyor? */
+export function mahalleEslesir(bolge: unknown, mahalleBasligi: string): boolean {
+  if (typeof bolge !== 'string' || !bolge.trim()) return false;
+  const adlar = mahalleAdlari(mahalleBasligi);
+  return [bolge, bolgeAdi(bolge)].some(b => {
+    const k = mahalleAnahtari(b);
+    // "kemskoy caddesi" → kemskoy; "iskele" → iskele
+    return !!k && adlar.some(a => k === a || k.startsWith(a + ' '));
+  });
+}
+
 /** 'metadata.profile.profession' gibi bir yolu güvenle okur */
 function readPath(item: Item, path: string): unknown {
   return path.split('.').reduce<unknown>((acc, key) => {

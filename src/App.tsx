@@ -81,7 +81,7 @@ import HizliNotModal from './components/HizliNotModal';
 import AramaModal from './components/AramaModal';
 import { Anasayfa, type TelSekmesi } from './components/anasayfa/Anasayfa';
 import { Zil } from './components/kabuk/Zil';
-import { useBildirimler, type Bildirim } from './lib/bildirimler';
+import { useBildirimler, KANON_YOKSAY, type Bildirim, type KanonSatiri } from './lib/bildirimler';
 
 /** Uygulamanın sayfaları. 'komuta' ana sayfa; eski Komuta Merkezi 'durum'. */
 type Sayfa = 'komuta' | 'durum' | 'markalar' | 'duzada' | 'merch' | 'yazi' | 'oyun' | 'galeri' | 'studyo' | 'sosyal' | 'site' | 'takvim' | 'fanzin' | 'yolharitasi' | 'araclar';
@@ -589,6 +589,13 @@ export default function App() {
 
   const maddeyiAc = (item: Item) => { handleSelectResult(item); };
 
+  /** Kanon uyarısında "Yanlış alarm": anahtar maddeye yazılır (Kemal'in düğmesiyle) */
+  const kanonYoksay = (k: KanonSatiri) => {
+    const eski = (k.madde.metadata?.[KANON_YOKSAY] as string[] | undefined) || [];
+    if (eski.includes(k.uyari.anahtar)) return;
+    void handleUpdateItem({ ...k.madde, metadata: { ...k.madde.metadata, [KANON_YOKSAY]: [...eski, k.uyari.anahtar] }, updatedAt: Date.now() });
+  };
+
   const bildirimSec = (b: Bildirim, madde?: Item) => {
     if (madde) { maddeyiAc(madde); return; }
     if (b.tur === 'dugme') git('eksikler');
@@ -879,7 +886,7 @@ export default function App() {
             <Search className="w-[18px] h-[18px] shrink-0" /><span className={`${RAY_ADI} text-[13px] font-semibold`}>Ara <kbd className="ml-1 text-[10px] text-[#6F7BA0]">⌘K</kbd></span>
           </button>
           {/* Bütün satır düğme: yazıya basınca da açılır (1 Ekim) */}
-          <Zil bildirimler={bildirimler} onSec={bildirimSec} yon="sag" etiket={<span className={`${RAY_ADI} text-[13px] font-semibold`}>Bildirimler</span>} />
+          <Zil bildirimler={bildirimler} onSec={bildirimSec} onKanonYoksay={kanonYoksay} yon="sag" etiket={<span className={`${RAY_ADI} text-[13px] font-semibold`}>Bildirimler</span>} />
           {user && (
             <Yedekleme
               items={items}
@@ -916,7 +923,7 @@ export default function App() {
             <button type="button" onClick={() => setIsSearchOpen(true)} title="Ara" className="w-11 h-11 rounded-full flex items-center justify-center text-[#6A5E4C] dark:text-[#A6B0C9] cursor-pointer">
               <Search className="w-[18px] h-[18px]" />
             </button>
-            <Zil bildirimler={bildirimler} onSec={bildirimSec} />
+            <Zil bildirimler={bildirimler} onSec={bildirimSec} onKanonYoksay={kanonYoksay} />
             {arti()}
           </header>
         )}
@@ -955,7 +962,7 @@ export default function App() {
                 studyo={studyoIslemleri}
                 onOpenSearch={() => setIsSearchOpen(true)}
                 onBildirimYenile={() => setBildirimNabzi(n => n + 1)}
-                zil={<Zil bildirimler={bildirimler} onSec={bildirimSec} />}
+                zil={<Zil bildirimler={bildirimler} onSec={bildirimSec} onKanonYoksay={kanonYoksay} />}
                 yeniNotBekliyor={yeniNotBekliyor}
                 arti={arti()}
                 onYeniNotAcildi={() => setYeniNotBekliyor(false)}

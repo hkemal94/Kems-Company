@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Bell } from 'lucide-react';
 import type { Item } from '../../types';
-import type { Bildirim } from '../../lib/bildirimler';
+import type { Bildirim, KanonSatiri } from '../../lib/bildirimler';
 
 /**
  * Bildirim zili (Paket 4). Kırmızı sayı: bekleyen iş türü sayısı.
@@ -15,9 +15,11 @@ interface Props {
   yon?: 'asagi' | 'sag';
   /** Masaüstü rayında simgenin yanındaki yazı; verilirse bütün satır düğme olur */
   etiket?: React.ReactNode;
+  /** Kanon uyarısında "Yanlış alarm": maddeye yazılır, bir daha gösterilmez */
+  onKanonYoksay?: (s: KanonSatiri) => void;
 }
 
-export const Zil: React.FC<Props> = ({ bildirimler, onSec, yon = 'asagi', etiket }) => {
+export const Zil: React.FC<Props> = ({ bildirimler, onSec, yon = 'asagi', etiket, onKanonYoksay }) => {
   const [acik, setAcik] = useState(false);
   const kutu = useRef<HTMLDivElement | null>(null);
 
@@ -53,7 +55,7 @@ export const Zil: React.FC<Props> = ({ bildirimler, onSec, yon = 'asagi', etiket
         )}
       </button>
       {acik && (
-        <div className={`absolute z-50 w-[min(88vw,320px)] rounded-xl border border-[#CFC5B4] dark:border-[#2C3C72] bg-[#FAF8F5] dark:bg-[#13204A] shadow-xl p-2 ${yon === 'sag' ? 'fixed left-60 bottom-4' : 'right-0 top-full mt-2'}`}>
+        <div className={`z-50 rounded-xl border border-[#CFC5B4] dark:border-[#2C3C72] bg-[#FAF8F5] dark:bg-[#13204A] shadow-xl p-2 max-h-[75vh] overflow-y-auto ${yon === 'sag' ? 'fixed left-60 bottom-4 w-[340px]' : 'fixed left-4 right-4 top-20 sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-2 sm:w-[340px]'}`}>
           <div className="px-2 py-1.5 text-[10px] font-mono font-bold uppercase tracking-[0.18em] text-[#6A5E4C] dark:text-[#A6B0C9]">Bildirimler</div>
           {bildirimler.length === 0 && (
             <p className="px-2 py-2 text-[12px] text-[#6A5E4C] dark:text-[#A6B0C9]">Bekleyen bir şey yok.</p>
@@ -67,7 +69,20 @@ export const Zil: React.FC<Props> = ({ bildirimler, onSec, yon = 'asagi', etiket
                   <span className="block text-[11px] leading-snug text-[#6A5E4C] dark:text-[#A6B0C9] line-clamp-2">{b.ayrinti}</span>
                 </span>
               </button>
-              {b.maddeler?.map(m => (
+              {b.kanon ? b.kanon.map(k => (
+                // Kanon: neyin çeliştiği yan yana (2 Ekim, Kemal: "düzeltmemin yolunu bulamıyorum")
+                <div key={`${k.madde.id}|${k.uyari.anahtar}`} className="ml-8 mr-1 mb-2 p-2 rounded-lg border border-[#CFC5B4]/70 dark:border-[#2C3C72] text-[12px]">
+                  <b className="block text-[#0E1C4F] dark:text-[#F3EFE8]">{k.madde.title}</b>
+                  <span className="block mt-1 text-[#6A5E4C] dark:text-[#A6B0C9] italic leading-snug">“{k.uyari.alinti}”</span>
+                  <span className="block mt-1 text-[#0E1C4F] dark:text-[#F3EFE8] leading-snug"><b className="text-[#D6484C] dark:text-[#F26B6F]">{k.uyari.yil}</b> · Kanonda: {k.uyari.kural.not}</span>
+                  <span className="mt-2 flex flex-wrap gap-1.5">
+                    <button type="button" onClick={() => sec(b, k.madde)} className="px-2.5 py-1 rounded-md bg-[#0E1C4F] dark:bg-[#2C3C72] text-white text-[11px] font-semibold cursor-pointer">Maddeyi aç</button>
+                    {onKanonYoksay && (
+                      <button type="button" onClick={() => onKanonYoksay(k)} className="px-2.5 py-1 rounded-md border border-[#CFC5B4] dark:border-[#2C3C72] text-[11px] font-semibold text-[#0E1C4F] dark:text-[#F3EFE8] cursor-pointer">Yanlış alarm, bir daha gösterme</button>
+                    )}
+                  </span>
+                </div>
+              )) : b.maddeler?.map(m => (
                 <button key={m.id} type="button" onClick={() => sec(b, m)} className="w-full pl-10 pr-2 py-1 text-left text-[12px] text-[#0E1C4F] dark:text-[#F3EFE8] hover:underline cursor-pointer truncate">
                   {m.title}
                 </button>
