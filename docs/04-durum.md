@@ -1394,3 +1394,9 @@ uyarlanır (sıradaki iki paket: Ege dokusu, "mahalle doldur").
   Alanla". Alanla'da dikdörtgen çizilir; içindeki yapılar (gruplarıyla) ve
   tamamen içinde kalan yollar seçilir. Seçimin içinden tutup sürükleyince
   hepsi birlikte taşınır; seçim panelinden toplu Kaldır da var. Tek Geri al.
+- **Yol mıknatısı** (Kemal: "yollara mıknatıs ekle ki kavşak yapımı kolay
+  olsun"): Yol çizerken ve Seç'te yol noktası sürüklerken başka bir yolun
+  köşesine ya da üstüne yapışır; parmakta yakalama alanı geniş (30 px,
+  farede 16). Yolun ortasına yapışınca o yola da nokta eklenir: gerçek
+  kavşak (Kaldır'daki "iki kavşak arası" da bunu tanır). Yol ve Seç
+  araçlarında "Mıknatıs" çipiyle kapatılabilir.
