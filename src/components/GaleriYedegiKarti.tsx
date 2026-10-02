@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import type { Item } from '../types';
-import { W5_GORSELLERI, w5GorselAdresi, W5_ETIKETI } from '../lib/w5Aktarimi';
+import { W5_GORSELLERI, w5GorselAdresi, W5_ETIKETI } from '../lib/w5Gorselleri';
 import { ANA_MARKA_KIMLIKLERI, kurumMu } from '../lib/markaYapisi';
 
 /**

@@ -1484,3 +1484,27 @@ Kemal'in Kurucu düzeniyle 3D tur sonrası seçtikleri:
 - Otel kulelerinin ve Otel İskelesi'nin adı iki kez yazılıyordu; maddesi olan
   yapıya ikinci "yerleşke" etiketi eklenmiyor.
 - Küçükçetmi Sürek Kulübü taş renginde ve kiremit çatılı (yeşil kutu gibiydi).
+
+## 2 Ekim gece — Yazma kotası ve temizlik
+
+Kemal: "Viki'de düzenlediklerim anlık kaydoluyor, sayfayı yenileyince eski
+hâline dönüyor." Sebep: veritabanının günlük ücretsiz yazma kotası doldu
+(16:27'den sonra hiçbir yazma sunucuya gitmedi; sınır her gün 10:00'da
+sıfırlanır). Kotayı Kurucu'nun harita kaydı doldurdu: yeni bir yolun parçası
+kaldırılınca kalan parça 8 kat noktayla yazılıyordu (351 m'lik sokak 4.377
+nokta), kayıt 740 KB'a çıktı ve Kurucu her değişiklikte hepsini yazıyordu.
+
+- Yollar kayda yazılırken sadeleşir (`src/lib/hatSadelestir.ts`); harita
+  kaydı ~180 KB → ~22 KB. Taslak haritaya işlenenle aynıysa ikinci kopya
+  yazılmaz.
+- Kurucu değişiklikleri 20 sn biriktirip yazar; kapanınca / sekme arka
+  plana geçince bekleyen kayıt hemen gider.
+- Yazma reddedilirse ekranın üstünde kırmızı uyarı çıkar; viki düzenleyicisi
+  açık kalır, yazılan metin kaybolmaz.
+- Kemal: "kullanılmayan her şeyi sil" — işi biten göç kartları ve kodları
+  silindi (soru-cevap, W3, W4, W5, kanon kararları, viki düzeni, koordinat,
+  otel temizliği). Canva görsel listesi `src/lib/w5Gorselleri.ts`'e taşındı.
+- Neyin Eksik'e "kayıtta kullanılmayan eski alan" kartı: eski metinler,
+  oyun arşivi, eski öneri işaretleri ve kitap bölümlerindeki otel
+  simülasyonu günleri (vakalar, doluluk, hava, notlar) silinir; kayıtlar
+  kalır. Kemal basar (kota açıldıktan sonra).

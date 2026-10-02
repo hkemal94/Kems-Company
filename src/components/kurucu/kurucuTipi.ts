@@ -3,6 +3,7 @@ import { DUZADA_MERKEZ } from '../../data/duzadaGeo';
 import type { Nokta } from '../harita/sinirBolgeleri';
 import type { KurucuBelge } from '../harita/duzenTipi';
 import { BINA_TURLERI, type BinaTuru } from './kurucuSablonlari';
+import { hattiSadelestir } from '../../lib/hatSadelestir';
 
 export type { KurucuBelge };
 
@@ -105,11 +106,19 @@ const coz = (n: unknown): Nokta[] => {
 
 const TURLER = new Set<string>(YOL_TURLERI.map(t => t.id));
 
+/** [boylam, enlem] noktalarını sadeleştirir (bkz. lib/hatSadelestir) */
+export function sadelestir(k: Nokta[], pay = 0.3): Nokta[] {
+  const n = hattiSadelestir(k.flat(), pay);
+  const c: Nokta[] = [];
+  for (let i = 0; i + 1 < n.length; i += 2) c.push([n[i], n[i + 1]]);
+  return c;
+}
+
 export function taslaktanBelge(t: KurucuTaslak): KurucuBelge {
   return {
     surum: 1,
     yeniYollar: Object.fromEntries(
-      Object.entries(t.yeniYollar).map(([id, y]) => [id, { tur: y.tur, n: y.noktalar.flat() }])
+      Object.entries(t.yeniYollar).map(([id, y]) => [id, { tur: y.tur, n: duz(sadelestir(y.noktalar)) }])
     ),
     turDegisikligi: { ...t.turDegisikligi },
     gizlenen: [...t.gizlenen],
@@ -129,7 +138,7 @@ export function taslaktanBelge(t: KurucuTaslak): KurucuBelge {
     doga: Object.fromEntries(Object.entries(t.doga).map(([id, d]) => [id, { tur: d.tur, n: duz(d.koseler) }])),
     baglar: { ...t.baglar },
     yolDuzeni: Object.fromEntries(Object.entries(t.yolDuzeni).map(([id, p]) => [id,
-      Object.fromEntries(p.map((k, i) => [String(i), duz(k)]))])),
+      Object.fromEntries(p.map((k, i) => [String(i), duz(sadelestir(k))]))])),
     binaDuzeni: Object.fromEntries(Object.entries(t.binaDuzeni).map(([id, b]) => [id, {
       dx: Math.round(b.dx * 10) / 10, dy: Math.round(b.dy * 10) / 10, aci: Math.round(b.aci * 1000) / 1000,
       ...(b.kat ? { kat: b.kat } : {}), ...(b.tur ? { tur: b.tur } : {})
@@ -149,7 +158,7 @@ export function belgedenTaslak(ham: unknown): KurucuTaslak {
       const yy = Number(y.n[i + 1]);
       if (Number.isFinite(x) && Number.isFinite(yy)) noktalar.push([x, yy]);
     }
-    if (noktalar.length >= 2) t.yeniYollar[id] = { tur: y.tur as YolTuru, noktalar };
+    if (noktalar.length >= 2) t.yeniYollar[id] = { tur: y.tur as YolTuru, noktalar: sadelestir(noktalar) };
   }
   for (const [id, tur] of Object.entries(b.turDegisikligi ?? {})) {
     if (TURLER.has(String(tur))) t.turDegisikligi[id] = tur as YolTuru;

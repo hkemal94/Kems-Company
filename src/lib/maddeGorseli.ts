@@ -1,6 +1,6 @@
 import type { Item } from '../types';
 import { ANA_MARKA_KIMLIKLERI, kurumMu } from './markaYapisi';
-import { W5_GORSELLERI, w5GorselAdresi } from './w5Aktarimi';
+import { W5_GORSELLERI, w5GorselAdresi } from './w5Gorselleri';
 
 /**
  * Bir maddenin görseli — viki künyesi, Markalar ve kanon kutuları için.

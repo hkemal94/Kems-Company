@@ -104,6 +104,9 @@ export const MaddeDuzenleyici: React.FC<Props> = ({ item, allItems, onKaydet, on
       const title = ad.trim() || item.title;
       await onKaydet({ ...item, title, notes, metadata: metadata as Item['metadata'], updatedAt: Date.now() });
       onKapat();
+    } catch {
+      // Sunucu yazmadı: uyarıyı uygulama gösterir; düzenleyici açık kalır,
+      // yazılan metin kaybolmaz (2 Ekim gece)
     } finally {
       setYaziliyor(false);
     }

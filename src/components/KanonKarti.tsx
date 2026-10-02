@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { ChevronDown, ChevronRight, Download } from 'lucide-react';
 import type { Item } from '../types';
-import { kanonKararlari } from '../lib/kanonKararlari';
 
 /**
  * Kanon kararları ve eski otel yazıları kartı (29 Eylül akşamı).
@@ -16,7 +15,7 @@ interface Props {
    * Aynı kart başka tek seferlik işler için de kullanılır (29 Eylül gece:
    * "Boşlukları künyeden doldur"). Verilmezse kanon kararları.
    */
-  hesapla?: (items: Item[]) => Array<{ item: Item; neler: string[] }>;
+  hesapla: (items: Item[]) => Array<{ item: Item; neler: string[] }>;
   baslik?: string;
   aciklama?: string;
   /** Yedek dosyasının adı: kems-<ad>-2026-09-30.json */
@@ -26,7 +25,7 @@ interface Props {
 const KANON_ACIKLAMA = 'Eskibey Ailesi, Yağ Fabrikası, Küçükkuyu Gençlerbirliği, Eylül Hanım (yalnız ad), Kemsköy adı, antik yerleşim, kesinleşen adlar; Ekim 2003 paragrafı, Liman 54 / Peron cümleleri ve Oda Yapısı bölümü silinir.';
 
 export const KanonKarti: React.FC<Props> = ({
-  items, onUpdateItem, hesapla = kanonKararlari,
+  items, onUpdateItem, hesapla,
   baslik = 'kanon kararların ve eski otel yazıları vikiye işlenecek',
   aciklama = KANON_ACIKLAMA, yedekAdi = 'kanon-oncesi'
 }) => {

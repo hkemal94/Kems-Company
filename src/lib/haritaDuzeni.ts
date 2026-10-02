@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { doc, onSnapshot, setDoc } from 'firebase/firestore';
 import { db } from './firebase';
+import { hattiSadelestir } from './hatSadelestir';
 import {
   DUZEN_SURUMU, type HaritaDuzeni, type KurucuBelge, type MekanDuzeni, type MekanKaydi
 } from '../components/harita/duzenTipi';
@@ -121,13 +122,19 @@ const belgeye = (d: HaritaDuzeni): Belge => {
     mekanlar: mekanlariTemizle(d.mekanlar)
   };
   // Tanımsız alan yazılmaz: Firestore bütün kaydı reddeder
-  if (d.kurucu) b.kurucu = kurucuyuTemizle(d.kurucu);
   if (d.kurucuIslenen) b.kurucuIslenen = kurucuyuTemizle(d.kurucuIslenen);
+  if (d.kurucu) {
+    // Taslak haritaya işlenenle aynıysa ikinci kopya yazılmaz (2 Ekim gece,
+    // kayıt boyutu): Kurucu taslak yoksa işleneni açar.
+    const taslak = kurucuyuTemizle(d.kurucu);
+    if (!b.kurucuIslenen || JSON.stringify(taslak) !== JSON.stringify(b.kurucuIslenen)) b.kurucu = taslak;
+  }
   return b;
 };
 
 const sayilar = (n: unknown): number[] =>
   Array.isArray(n) ? n.map(Number).filter(Number.isFinite) : [];
+
 const nesne = (x: unknown): Record<string, any> => (x && typeof x === 'object' && !Array.isArray(x) ? x as Record<string, any> : {}); // eslint-disable-line @typescript-eslint/no-explicit-any
 
 /**
@@ -159,7 +166,7 @@ const kurucuyuTemizle = (k: KurucuBelge): KurucuBelge => ({
   yolDuzeni: Object.fromEntries(
     Object.entries(nesne(k.yolDuzeni))
       .map(([id, parcalar]) => [id, Object.fromEntries(
-        Object.entries(nesne(parcalar)).map(([i, n]) => [i, sayilar(n)]).filter(([, n]) => (n as number[]).length >= 4)
+        Object.entries(nesne(parcalar)).map(([i, n]) => [i, hattiSadelestir(sayilar(n))]).filter(([, n]) => (n as number[]).length >= 4)
       )] as const)
       .filter(([, p]) => Object.keys(p).length)
   ),
@@ -179,7 +186,7 @@ const kurucuTemelAlanlar = (k: KurucuBelge): KurucuBelge => ({
   yeniYollar: Object.fromEntries(
     Object.entries(k.yeniYollar ?? {})
       .filter(([, y]) => y && Array.isArray(y.n) && typeof y.tur === 'string')
-      .map(([id, y]) => [id, { tur: y.tur, n: y.n.map(Number).filter(Number.isFinite) }])
+      .map(([id, y]) => [id, { tur: y.tur, n: hattiSadelestir(y.n.map(Number).filter(Number.isFinite)) }])
   ),
   turDegisikligi: Object.fromEntries(
     Object.entries(k.turDegisikligi ?? {}).filter(([, t]) => typeof t === 'string')

@@ -14,7 +14,7 @@ import { MAHALLE_TONU } from '../harita/haritaStili';
 import type { KayitDurumu } from '../../lib/haritaDuzeni';
 import {
   YOL_TURLERI, turBilgisi, bosTaslak, belgedenTaslak, taslaktanBelge, taslakBosMu,
-  zeminCikar, yollariKur, yapistir, yeniYolId, derceye, metreye, uzunluk, karadaMi, DOGA_TURLERI,
+  zeminCikar, yollariKur, yapistir, yeniYolId, derceye, metreye, uzunluk, karadaMi, DOGA_TURLERI, sadelestir,
   binalariKur, binaKonabilirMi, hattaUzaklik, parcaCikar,
   type KurucuTaslak, type KurucuYol, type KurucuBina, type Yapisma, type YolTuru, type Cati, type DogaTuru, type BinaDuzeltme
 } from './kurucuTipi';
@@ -138,18 +138,39 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
   const grubu = useCallback((id: string) => gruplar.get(id) ?? [id], [gruplar]);
   const lider = useCallback((id: string) => grubu(id)[0], [grubu]);
 
-  // ---- kayıt (her değişiklikten 1 sn sonra) ----------------------------------
+  // ---- kayıt ----------------------------------------------------------------
+  // 2 Ekim gece: her değişiklikten 1 sn sonra bütün harita kaydı yeniden
+  // yazılıyordu; veritabanının günlük yazma kotası (belge boyutuna göre
+  // sayılıyor) bu yüzden doldu. Artık değişiklikler 20 sn birikir, tek
+  // seferde yazılır; Kurucu kapanınca, sekme arka plana geçince ya da sayfa
+  // kapanırken bekleyen kayıt hemen gönderilir.
   const ilkTaslak = useRef(taslak);
   const sonDuzen = useRef(duzen);
   useEffect(() => { sonDuzen.current = duzen; }, [duzen]);
+  const bekleyenTaslak = useRef<KurucuTaslak | null>(null);
+  const bekleyeniGonder = useCallback(() => {
+    const t = bekleyenTaslak.current;
+    if (!t) return;
+    bekleyenTaslak.current = null;
+    const d = sonDuzen.current ?? bosDuzen();
+    void kaydet({ ...d, guncelleme: Date.now(), kurucu: taslaktanBelge(t) });
+  }, [kaydet]);
   useEffect(() => {
     if (taslak === ilkTaslak.current) return;
-    const zaman = setTimeout(() => {
-      const d = sonDuzen.current ?? bosDuzen();
-      void kaydet({ ...d, guncelleme: Date.now(), kurucu: taslaktanBelge(taslak) });
-    }, 1000);
+    bekleyenTaslak.current = taslak;
+    const zaman = setTimeout(bekleyeniGonder, 20000);
     return () => clearTimeout(zaman);
-  }, [taslak, kaydet]);
+  }, [taslak, bekleyeniGonder]);
+  useEffect(() => {
+    const gizlenince = () => { if (document.visibilityState === 'hidden') bekleyeniGonder(); };
+    document.addEventListener('visibilitychange', gizlenince);
+    window.addEventListener('pagehide', bekleyeniGonder);
+    return () => {
+      document.removeEventListener('visibilitychange', gizlenince);
+      window.removeEventListener('pagehide', bekleyeniGonder);
+      bekleyeniGonder();
+    };
+  }, [bekleyeniGonder]);
 
   // ---- görünüm ----------------------------------------------------------------
   const kutu = useRef<HTMLDivElement>(null);
@@ -915,7 +936,7 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
         const yY = { ...t.yeniYollar };
         const tur = yY[id]?.tur ?? y.tur;
         delete yY[id];
-        kalan.forEach((k, i) => { yY[i === 0 ? id : yeniYolId(yY)] = { tur, noktalar: k.map(derceye) }; });
+        kalan.forEach((k, i) => { yY[i === 0 ? id : yeniYolId(yY)] = { tur, noktalar: sadelestir(k.map(derceye)) }; });
         return { ...t, yeniYollar: yY };
       }
       return { ...t, yolDuzeni: { ...t.yolDuzeni, [id]: kalan.map(k => k.map(derceye)) } };
@@ -960,7 +981,7 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
         if (y.yeni) {
           const tur = yY[y.id]?.tur ?? y.tur;
           delete yY[y.id];
-          kalan.forEach((k, i) => { yY[i === 0 ? y.id : yeniYolId(yY)] = { tur, noktalar: k.map(derceye) }; });
+          kalan.forEach((k, i) => { yY[i === 0 ? y.id : yeniYolId(yY)] = { tur, noktalar: sadelestir(k.map(derceye)) }; });
         } else {
           yD[y.id] = kalan.map(k => k.map(derceye));
         }
@@ -1110,6 +1131,7 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
       const onceki = yerelIslenen ?? duzen?.kurucuIslenen;
       if (onceki && !belgelerAyniMi(onceki, undefined) && arsivle) await arsivle(onceki);
       const d = sonDuzen.current ?? bosDuzen();
+      bekleyenTaslak.current = null;   // işlenen taslak zaten yazılıyor
       await kaydet({ ...d, guncelleme: Date.now(), kurucu: taslakBelgesi, kurucuIslenen: taslakBelgesi });
       setYerelIslenen(taslakBelgesi);
       setIsleRaporu('Haritaya işlendi. "3D · bak" ile ve sitede görünür.'

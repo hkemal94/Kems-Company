@@ -25,11 +25,12 @@ export const Durum: React.FC<{
   onUpdateItem: (item: Item) => Promise<void>;
   onAddItem: (item: Omit<Item, 'id' | 'createdAt' | 'updatedAt' | 'userId'>) => Promise<void>;
   onDeleteItem: (id: string) => Promise<void>;
+  onAlanSil?: (id: string, yollar: string[]) => Promise<void>;
   /** Ana sayfadan bir eksiğe basılınca o başlık açık gelir */
   eksikAcik?: string | null;
   /** Haftalık özetin gideceği adres: Kemal'in kendi Google hesabı */
   eposta?: string | null;
-}> = ({ items, sekme, onSekme, onSec, onSelectArea, onUpdateItem, onAddItem, onDeleteItem, eksikAcik }) => {
+}> = ({ items, sekme, onSekme, onSec, onSelectArea, onUpdateItem, onAddItem, onDeleteItem, onAlanSil, eksikAcik }) => {
   const oranlar = useMemo(() => durumOranlari(items), [items]);
   const eksikSayisi = useMemo(() => eksikleriCikar(items).length, [items]);
   const bolumler = [
@@ -54,6 +55,7 @@ export const Durum: React.FC<{
           onAddItem={onAddItem}
           baslangicAcik={eksikAcik}
           onDeleteItem={onDeleteItem}
+          onAlanSil={onAlanSil}
         />
       )}
       {sekme === 'bosluklar' && <Bosluklar items={items} onUpdateItem={onUpdateItem} gomulu />}

@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, User } from "firebase/auth";
-import { getFirestore, doc, collection, setDoc, updateDoc, deleteDoc, onSnapshot, query, where, getDocs, writeBatch } from "firebase/firestore";
+import { getFirestore, doc, collection, setDoc, updateDoc, deleteDoc, deleteField, onSnapshot, query, where, getDocs, writeBatch } from "firebase/firestore";
 import firebaseConfig from "../../firebase-applet-config.json";
 import { Item, UserSettings } from "../types";
 
@@ -221,6 +221,21 @@ export const updateItemFields = async (userId: string, itemId: string, fields: P
       ...fields,
       updatedAt: Date.now()
     }));
+  } catch (error) {
+    handleFirestoreError(error, OperationType.WRITE, path);
+  }
+};
+
+/**
+ * Kayıttan alan siler (ör. "metadata.eskiMetin"). saveItem birleştirerek
+ * yazdığı için alanı nesneden çıkarmak sunucuda silmiyor; burada açıkça
+ * silinir (2 Ekim gece, eski alan temizliği).
+ */
+export const alanlariSil = async (userId: string, itemId: string, yollar: string[]) => {
+  const path = `users/${userId}/items/${itemId}`;
+  const docRef = doc(db, "users", userId, "items", itemId);
+  try {
+    await updateDoc(docRef, { ...Object.fromEntries(yollar.map(y => [y, deleteField()])), updatedAt: Date.now() });
   } catch (error) {
     handleFirestoreError(error, OperationType.WRITE, path);
   }
