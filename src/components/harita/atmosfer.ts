@@ -197,10 +197,31 @@ function simge(en: number, boy: number, ciz: (c: CanvasRenderingContext2D) => vo
   ciz(c);
   return c.getImageData(0, 0, en, boy);
 }
+/** Simgede boşluk açar (cam, güverte çizgisi): SDF tek renk olduğu için ayrıntı boşlukla verilir */
+const oy = (c: CanvasRenderingContext2D, ciz: () => void) => {
+  c.save(); c.globalCompositeOperation = 'destination-out'; c.beginPath(); ciz(); c.fill(); c.restore();
+};
 const SIMGELER: Record<string, () => ImageData> = {
-  arac: () => simge(26, 14, c => { c.beginPath(); c.roundRect(2, 2, 22, 10, 4); c.fill(); }),
-  tekne: () => simge(34, 14, c => { c.beginPath(); c.moveTo(2, 3); c.lineTo(24, 3); c.lineTo(32, 7); c.lineTo(24, 11); c.lineTo(2, 11); c.closePath(); c.fill(); }),
-  feribot: () => simge(64, 22, c => { c.beginPath(); c.moveTo(3, 3); c.lineTo(50, 3); c.lineTo(62, 11); c.lineTo(50, 19); c.lineTo(3, 19); c.closePath(); c.fill(); })
+  // Araba: gövde, ön ve arka cam (2 Ekim, ayrıntı)
+  arac: () => simge(28, 16, c => {
+    c.beginPath(); c.roundRect(2, 2, 24, 12, 4); c.fill();
+    oy(c, () => { c.roundRect(17, 4, 4, 8, 1.5); });
+    oy(c, () => { c.roundRect(6, 4.5, 3, 7, 1.2); });
+  }),
+  // Balıkçı teknesi: sivri baş, kıçta kabin
+  tekne: () => simge(36, 16, c => {
+    c.beginPath(); c.moveTo(2, 3); c.lineTo(24, 3); c.lineTo(34, 8); c.lineTo(24, 13); c.lineTo(2, 13); c.closePath(); c.fill();
+    oy(c, () => { c.rect(5, 5.5, 13, 5); });
+    c.beginPath(); c.rect(7, 6.5, 6, 3); c.fill();
+  }),
+  // Feribot: gövde, iki güverte, köprü üstü
+  feribot: () => simge(66, 24, c => {
+    c.beginPath(); c.moveTo(3, 3); c.lineTo(51, 3); c.lineTo(64, 12); c.lineTo(51, 21); c.lineTo(3, 21); c.closePath(); c.fill();
+    oy(c, () => { c.rect(7, 6, 38, 12); });
+    c.beginPath(); c.rect(10, 8, 32, 8); c.fill();
+    oy(c, () => { c.rect(14, 10.5, 24, 3); });
+    c.beginPath(); c.roundRect(40, 7.5, 6, 9, 2); c.fill();
+  })
 };
 
 // ---- yıldızlar ----------------------------------------------------------------
@@ -353,9 +374,10 @@ export class Atmosfer {
 
     // Fener: tepede yanan lamba ve dönen huzme (30 Eylül, Kemal: "ışık altından
     // dağılıyor"). İkisi de fenerin boyunda, havada duran ince kütleler.
-    m.addSource('fener', { type: 'geojson', data: bos });
+    // maxzoom 12: huzme karelere bölünmesin (her parça ayrı araziye oturuyordu)
+    m.addSource('fener', { type: 'geojson', data: bos, maxzoom: 12 });
     m.addLayer({ id: 'fener-huzme', type: 'fill-extrusion', source: 'fener', filter: ['==', ['get', 'k'], 'huzme'],
-      paint: { 'fill-extrusion-color': '#FFFFFF', 'fill-extrusion-base': ['get', 'alt'], 'fill-extrusion-height': ['get', 'ust'], 'fill-extrusion-opacity': 0, 'fill-extrusion-vertical-gradient': false } });
+      paint: { 'fill-extrusion-color': ['get', 'renk'], 'fill-extrusion-base': ['get', 'alt'], 'fill-extrusion-height': ['get', 'ust'], 'fill-extrusion-opacity': 0, 'fill-extrusion-vertical-gradient': false } });
     m.addLayer({ id: 'fener-isik', type: 'fill-extrusion', source: 'fener', filter: ['==', ['get', 'k'], 'lamba'],
       paint: { 'fill-extrusion-color': '#FFF6D8', 'fill-extrusion-base': ['get', 'alt'], 'fill-extrusion-height': ['get', 'ust'], 'fill-extrusion-opacity': 0, 'fill-extrusion-vertical-gradient': false } });
   }
@@ -414,8 +436,10 @@ export class Atmosfer {
       ] as never);
     }
     m.setPaintProperty('lamba', 'circle-opacity', 0.9 * gece);
-    m.setPaintProperty('fener-isik', 'fill-extrusion-opacity', 0.95 * gece);
-    m.setPaintProperty('fener-huzme', 'fill-extrusion-opacity', 0.5 * gece);
+    // Fener yalnız gece yanar (2 Ekim, Kemal: "tepeden, dönen"); alacakaranlıkta söner
+    const fenerGece = sinirla((gece - 0.45) / 0.35);
+    m.setPaintProperty('fener-isik', 'fill-extrusion-opacity', 0.95 * fenerGece);
+    m.setPaintProperty('fener-huzme', 'fill-extrusion-opacity', 0.32 * fenerGece);
     m.setPaintProperty('trafik-far', 'circle-opacity', 0.55 * gece);
     m.setLayoutProperty('trafik', 'visibility', this.ayar.trafik ? 'visible' : 'none');
     m.setLayoutProperty('trafik-far', 'visibility', this.ayar.trafik ? 'visible' : 'none');
@@ -462,19 +486,33 @@ export class Atmosfer {
     if (kis > 0.05) m.setPaintProperty('kopuk', 'circle-opacity', ['*', 0.35 * kis, ['max', 0, ['sin', ['+', t * 0.9, ['get', 'faz']]]]] as never);
     else m.setPaintProperty('kopuk', 'circle-opacity', 0);
 
-    // Fener huzmesi döner (gece)
-    if (gece > 0.05 && this.fener) {
-      const a = t * 0.9, c = this.fener, H = this.fenerBoyu;
+    // Fener huzmesi döner (yalnız gece).
+    // 2 Ekim (Kemal: "ışık nereden çıkıyor nereye gidiyor"): fener 69 m'lik
+    // yamaçta. Arazi açıkken MapLibre her kütleyi köşelerinin ortalamasının
+    // arazi kotuna oturtur; tek yönlü uzun huzmenin ortası denizde kaldığı
+    // için ışık fenerin tepesinden değil, deniz seviyesinden çıkıyordu.
+    // Artık huzme karşılıklı iki koldan oluşan tek bir kum saati şekli: köşe
+    // ortalaması tam fenerin üstüne düşer, ışık lambadan yatay çıkar.
+    // (Gerçek fenerlerin döner merceği de iki yöne ışık verir.)
+    if (gece > 0.45 && this.fener) {
+      const a = t * 0.35, c = this.fener, H = this.fenerBoyu;
       const kx = mBoylam(c[1]);
       const nokta = (aci: number, r: number): Nokta => [c[0] + (Math.cos(aci) * r) / kx, c[1] + (Math.sin(aci) * r) / M_ENLEM];
       const lamba: Nokta[] = [];
-      for (let i = 0; i <= 12; i++) lamba.push(nokta((i / 12) * Math.PI * 2, 4.2));
-      const acik = 0.07, R = 650;
-      const huzme: Nokta[] = [nokta(a, 2), nokta(a - acik, R), nokta(a + acik, R), nokta(a, 2)];
+      for (let i = 0; i < 12; i++) lamba.push(nokta((i / 12) * Math.PI * 2, 3.2));
+      lamba.push(lamba[0]);
+      const acik = 0.05, R = 380, BOYUN = 0.6;
+      const P = Math.PI;
+      // Simetrik köşeler: her köşenin karşısında bir eşi var, ortalama = fener
+      const huzme: Nokta[] = [
+        nokta(a - acik, R), nokta(a + acik, R), nokta(a + P / 2, BOYUN),
+        nokta(a + P - acik, R), nokta(a + P + acik, R), nokta(a - P / 2, BOYUN)
+      ];
       (m.getSource('fener') as maplibregl.GeoJSONSource).setData({
         type: 'FeatureCollection', features: [
-          { type: 'Feature', properties: { k: 'lamba', alt: H, ust: H + 4 }, geometry: { type: 'Polygon', coordinates: [lamba] } },
-          { type: 'Feature', properties: { k: 'huzme', alt: H + 1.6, ust: H + 2.4 }, geometry: { type: 'Polygon', coordinates: [huzme] } }
+          { type: 'Feature', properties: { k: 'lamba', alt: H, ust: H + 3.5 }, geometry: { type: 'Polygon', coordinates: [lamba] } },
+          // Kapanış köşesi eklenmez: ortalamayı kaydırmasın diye halka açık bırakılır, MapLibre kapatır
+          { type: 'Feature', properties: { k: 'huzme', alt: H + 1.2, ust: H + 1.9, renk: '#FFF3C4' }, geometry: { type: 'Polygon', coordinates: [huzme] } }
         ]
       });
     }
