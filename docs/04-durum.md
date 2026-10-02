@@ -1352,3 +1352,24 @@ boşluk ("boşlukları sevmem").
   verdiyse hata metni ("bir saat sonra yeniden denenir"), bugün hazırlanıp
   tepsiden eklendiyse/silindiyse o. Kemal'in verisinde neden boş kaldığı
   buradan görülecek; önizlemede görülemedi.
+
+## 2 Ekim — Harita: fener ışığı ve ayrıntı (3. PR / 3)
+
+- **Fener ışığı (5):** Işık fenerin tepesinden çıkmıyordu. Sebep: fener
+  69 m'lik yamaçta; arazi açıkken MapLibre her kütleyi köşelerinin
+  ortalamasının arazi kotuna oturtuyor, tek yönlü uzun huzmenin ortası
+  denizde kaldığı için ışık deniz seviyesinden başlıyordu (ayrıca harita
+  uzun şekli karelere bölüyordu). Artık huzme karşılıklı iki kollu tek bir
+  şekil (ortası tam fenerin üstü), kaynak bölünmüyor (`maxzoom: 12`);
+  lambadan yatay çıkar, yavaş döner (eskisinin üçte biri hızla), yalnız
+  gece yanar. Karaya bakan kol tepede kaybolur.
+- **Ayrıntı (10)** (`src/components/harita/ayrintiKatmani.ts`, süs katmanı,
+  kayda yazılmaz):
+  - evlere iki kademeli kiremit çatı ya da düz badanalı dam; duvar tonları
+    evden eve değişir (badana, krem, taş, soluk mavi),
+  - fenerin tepesinde balkon, lamba camı ve kırmızı kubbe; otel kulelerine
+    ve kulelere külah,
+  - zeytinliklerde tek tek ağaç (gövde + taç; en çok 4.500), Kurucu'daki
+    orman alanlarında çam; ağaçlar yakına gelince görünür,
+  - araba simgesinde ön/arka cam, teknede kabin, feribotta güverte ve köprü.
+- Atölye şimdilik yok (Kemal'in seçimi).

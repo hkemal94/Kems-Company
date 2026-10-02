@@ -12,6 +12,7 @@ import {
   araziProtokolunuKur, araziKaynagi, ARAZI_KAYNAK, ARAZI_ABARTI
 } from './duzadaArazi';
 import { duzeniUygula, type HaritaDuzeni } from './duzenKatmani';
+import { ayrintiVerisi } from './ayrintiKatmani';
 import type { FeatureCollection } from 'geojson';
 import { yolEtiketleri } from './yolEtiketleri';
 import { DEM_SINIR } from '../../data/duzadaDem';
@@ -590,6 +591,8 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
             ['==', ['get', 'tur'], 'kulüp'], YAPI.kulup,
             ['==', ['get', 'tur'], 'iskele'], YAPI.iskele,
             ['==', ['get', 'tur'], 'Özel yapı'], '#EDE3D1',
+            // Evler: badana, krem, taş ve soluk mavi (2 Ekim, ayrıntı)
+            ['==', ['get', 'tur'], 'ev'], ['step', ['get', 'sans'], '#EDE7DA', 0.38, '#E4D9C4', 0.62, '#D6C7A8', 0.82, '#C9B48F', 0.93, '#C8D2D6'],
             YAPI.genel
           ],
           // Haritada gerçek 3B arazi yok: prizmalar kâğıdın üstünde durur.
@@ -598,6 +601,32 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
           'fill-extrusion-base': 0,
           'fill-extrusion-height': ['get', 'yukseklik'],
           'fill-extrusion-opacity': 0.97,
+          'fill-extrusion-vertical-gradient': true
+        }
+      });
+
+      // ---- ayrıntı: çatılar, fenerin tepesi, ağaçlar (2 Ekim) ----
+      // Süs katmanı; tıklanmaz. Ağaçlar yakına gelince görünür.
+      map.addSource('ayrinti', { type: 'geojson', data: ayrintiVerisi(duzeniUygula(DUZADA_GEO, ilkDuzen.current)) as never });
+      map.addLayer({
+        id: 'ayrinti-yapi', type: 'fill-extrusion', source: 'ayrinti',
+        filter: ['!=', ['get', 'tur'], 'agac'],
+        paint: {
+          'fill-extrusion-color': ['get', 'renk'],
+          'fill-extrusion-base': ['get', 'alt'],
+          'fill-extrusion-height': ['get', 'ust'],
+          'fill-extrusion-opacity': 0.97,
+          'fill-extrusion-vertical-gradient': true
+        }
+      });
+      map.addLayer({
+        id: 'ayrinti-agac', type: 'fill-extrusion', source: 'ayrinti', minzoom: 13.2,
+        filter: ['==', ['get', 'tur'], 'agac'],
+        paint: {
+          'fill-extrusion-color': ['get', 'renk'],
+          'fill-extrusion-base': ['get', 'alt'],
+          'fill-extrusion-height': ['get', 'ust'],
+          'fill-extrusion-opacity': ['interpolate', ['linear'], ['zoom'], 13.2, 0, 14, 0.95],
           'fill-extrusion-vertical-gradient': true
         }
       });
@@ -718,6 +747,8 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
     const uygulanan = duzeniUygula(DUZADA_GEO, duzen ?? null);
     (map.getSource('duzada') as maplibregl.GeoJSONSource | undefined)
       ?.setData(atmosferVerisi(uygulanan) as never);
+    (map.getSource('ayrinti') as maplibregl.GeoJSONSource | undefined)
+      ?.setData(ayrintiVerisi(uygulanan) as never);
     // Etiketler işaretçi olduğu için kaynakla birlikte güncellenmiyor
     if (!vitrin) etiketleriKurRef.current?.(uygulanan);
   }, [duzen, hazir, vitrin]);
