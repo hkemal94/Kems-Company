@@ -1332,3 +1332,23 @@ Kemal'in 2 Ekim listesinden (ekran görüntüleriyle): 2, 3, 4, 8, 9.
   seçiliyken ya da araç çubuğundaki "Kaldırılan" düğmesiyle görünür
   (düğme telefonda da var). 3B ve site haritası "Haritaya işle"den sonra
   değişir — bu eskisi gibi.
+
+## 2 Ekim — Ana sayfa sadeleşti (2. PR / 3)
+
+Kemal: "kaydırma ekranını beğenmedim, her yer çok tuş oldu"; "Ada sekmesi
+çok atıl, yukarı sekmeleri kaldırıp açılır kapanır bir şey"; Durum'daki
+boşluk ("boşlukları sevmem").
+
+- **Telefon:** üstteki sekmeler (Bugün / Ada / Notlar / Durum) ve yana
+  kayan kısayol şeridi kalktı. Tek sayfa, alt alta dört açılır-kapanır
+  başlık; Bugün açık gelir (Eksikler, Günün sorusu, Öneri tepsisi), ötekiler
+  kapalı. "+ Not" Notlar'ı açar. Araçlara Diğer menüsünden gidilir.
+- **Masaüstü:** düzen aynı (kısayollar orada duruyor).
+- **Durum ızgarası:** telefonda Merch tam genişlikte üstte, altında Künye /
+  Kitap / Harita / Boşluklar ikişerli; boş hücre yok.
+- **Düzada'nın türü:** "Ada'dan bilgi" kartında Düzada'nın altında artık
+  "Mahalle" değil "Ada" yazar.
+- **Gece önerileri:** neden boş kaldığı kartta yazar — hazırlık hata
+  verdiyse hata metni ("bir saat sonra yeniden denenir"), bugün hazırlanıp
+  tepsiden eklendiyse/silindiyse o. Kemal'in verisinde neden boş kaldığı
+  buradan görülecek; önizlemede görülemedi.

@@ -2,7 +2,8 @@ import React, { useMemo } from 'react';
 import { ArrowRight, Sparkles } from 'lucide-react';
 import type { Item } from '../../types';
 import { TYPE_LABELS, getArticleBody, getKunyeFields } from '../wiki/wikiSchema';
-import { GECE_TURLERI, istanbulGunu } from '../../lib/geceHazirligi';
+import { GECE_TURLERI, istanbulGunu, geceDurumu } from '../../lib/geceHazirligi';
+import { ADA_KIMLIGI } from '../../lib/vikiSifirlama';
 import { yapayZekaOnerisi } from '../../lib/studyo';
 
 /**
@@ -52,6 +53,13 @@ export const AdaKarti: React.FC<Props> = ({ items, onMadde, onTepsi, className =
     .sort((a, b) => b.i.createdAt - a.i.createdAt)
     .slice(0, 3), [items]);
 
+  // Bugün neden öneri yok? (2 Ekim: sabah hâlâ boştu) Gece defterinden okunur
+  const defter = geceDurumu(items);
+  const neden = oneriler.length ? null
+    : defter.hata && defter.sonHata ? `Bugünkü hazırlık olmadı: ${defter.hata} Bir saat sonra kendiliğinden yeniden denenir.`
+    : defter.sonGun === gun ? 'Bugünün önerileri hazırlandı; tepside eklenmiş ya da silinmiş.'
+    : null;
+
   return (
     <section className={`rounded-2xl bg-[#0E1C4F] dark:bg-[#13204A] dark:border dark:border-[#2C3C72] text-[#F3EFE8] p-4 lg:p-5 ${className}`}>
       <div className="grid gap-4 md:grid-cols-[1.15fr_1fr] flex-1">
@@ -61,7 +69,8 @@ export const AdaKarti: React.FC<Props> = ({ items, onMadde, onTepsi, className =
           {madde ? (
             <>
               <h2 className="mt-1 text-[20px] font-bold leading-tight">{madde.title}</h2>
-              <div className="text-[11px] text-[#A6B0C9]">{TYPE_LABELS[madde.type] || madde.type}</div>
+              {/* Düzada da 'yer' kaydı; altına "Mahalle" yazılmasın (2 Ekim) */}
+              <div className="text-[11px] text-[#A6B0C9]">{madde.id === ADA_KIMLIGI ? 'Ada' : TYPE_LABELS[madde.type] || madde.type}</div>
               {kunye.length > 0 && (
                 <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-[12px]">
                   {kunye.map(k => (
@@ -103,6 +112,9 @@ export const AdaKarti: React.FC<Props> = ({ items, onMadde, onTepsi, className =
             <p className="mt-2 text-[12px] leading-relaxed text-[#C9D0E3]">
               Stüdyo her gün üç öneri hazırlar (gece, ya da sabah ilk açılışta). Hazır olunca burada ve öneri tepsisinde görünür.
             </p>
+          )}
+          {neden && (
+            <p className="mt-2 text-[12px] leading-relaxed text-[#F26B6F]">{neden}</p>
           )}
           {oneriler.length > 0 && <p className="mt-auto pt-2 text-[11px] text-[#A6B0C9]">Ayrıntı ve "Ekle" öneri tepsisinde.</p>}
         </div>

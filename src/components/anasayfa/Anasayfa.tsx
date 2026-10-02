@@ -1,5 +1,6 @@
-import React, { useMemo, useState } from 'react';
-import { LayoutGrid, Plus, Search } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { ChevronDown, LayoutGrid, Search } from 'lucide-react';
+import { useMasaustu } from '../kabuk/KatlanirBolum';
 import { ARACLAR } from '../araclar/Araclar';
 
 /** Ana sayfadaki kısayollar (sıra ARACLAR'daki gibi) */
@@ -23,8 +24,10 @@ import { ETIKET, KART, IKINCIL, YAZI } from './stil';
  * Ana sayfa (Paket 4). Kemal onayladı, 29 Eylül:
  *   Masaüstü: tek ekran — yüzde şeridi, üretim atölyesi, günün sorusu,
  *   adaylar, neyin eksik, not defteri, Düzada kartı.
- *   Telefon: sekmeli — Bugün · Atölye · Notlar · Durum. Açılışta Bugün
- *   (en üstte neyin eksik, altında günün sorusu + adaylar).
+ *   Telefon (2 Ekim, Kemal: "kaydırma ekranını beğenmedim, her yer çok tuş
+ *   oldu"; "yukarı sekmeleri kaldırıp açılır kapanır bir şey"): sekme ve
+ *   kısayol şeridi yok. Tek sayfa, alt alta açılır-kapanır bölümler:
+ *   Bugün (açık) · Ada · Notlar · Durum. Araçlar Diğer menüsünde.
  *
  * Atölye yalnız kanon sorusu getirir. Yapay zekâ seçenekleri artık
  * stüdyoda (29 Eylül akşamı): ana sayfa açılınca kendiliğinden yapay
@@ -86,8 +89,17 @@ export const Anasayfa: React.FC<Props> = ({
     setNabiz(n => n + 1);
   };
 
+  // Telefonda açık bölümler; "+ Not" gibi dışarıdan gelen istek o bölümü açar
+  const masa = useMasaustu();
+  const [acik, setAcik] = useState<Set<TelSekmesi>>(() => new Set<TelSekmesi>(['bugun', sekme]));
+  useEffect(() => { setAcik(a => (a.has(sekme) ? a : new Set([...a, sekme]))); }, [sekme]);
+  const cevir = (s: TelSekmesi) => setAcik(a => {
+    const y = new Set(a);
+    if (y.has(s)) y.delete(s); else { y.add(s); onSekme(s); }
+    return y;
+  });
+
   const tarih = new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', weekday: 'long' });
-  const gorunur = (s: TelSekmesi) => (sekme === s ? '' : 'hidden') + ' lg:block min-w-0';
 
   const TEL_SEKMELERI: Array<{ id: TelSekmesi; ad: string; rozet?: number }> = [
     { id: 'bugun', ad: 'Bugün', rozet: adaySayisi || undefined },
@@ -95,6 +107,24 @@ export const Anasayfa: React.FC<Props> = ({
     { id: 'notlar', ad: 'Notlar' },
     { id: 'durum', ad: 'Durum' }
   ];
+
+  const gununSorusuKarti = (
+    <section className={`${KART} p-4`}>
+      <div className={ETIKET}>Günün sorusu</div>
+      <div className="mt-2">
+        {gununSorusu ? (
+          <SoruKarti
+            bosluk={gununSorusu}
+            buyuk
+            onCevap={(c, s) => cevapla(true)(gununSorusu, c, s)}
+            onSonra={() => ertele(true, gununSorusu.anahtar)}
+          />
+        ) : (
+          <p className={`text-[12px] ${IKINCIL}`}>Sorulacak boşluk kalmadı.</p>
+        )}
+      </div>
+    </section>
+  );
 
   return (
     <div className="space-y-3 lg:space-y-4 animate-in fade-in duration-300">
@@ -118,55 +148,63 @@ export const Anasayfa: React.FC<Props> = ({
         </div>
       </div>
 
-      {/* Telefon sekmeleri */}
-      <nav className="lg:hidden sticky top-0 z-20 -mx-4 px-4 py-2 bg-[#F3EFE8]/95 dark:bg-[#0B132B]/95 backdrop-blur-xs flex gap-1.5">
-        {TEL_SEKMELERI.map(s => (
-          <button
-            key={s.id}
-            type="button"
-            onClick={() => onSekme(s.id)}
-            className={`flex-1 py-2.5 rounded-xl text-[13px] font-semibold border cursor-pointer ${
-              sekme === s.id
-                ? 'bg-[#0E1C4F] dark:bg-[#2C3C72] text-[#F3EFE8] border-transparent'
-                : `bg-[#FAF8F5] dark:bg-[#13204A] border-[#CFC5B4] dark:border-[#2C3C72] ${IKINCIL}`
-            }`}
-          >
-            {s.ad}
-            {s.rozet ? <sup className="ml-1 px-1.5 rounded-full bg-[#F26B6F] text-white text-[9px] font-bold">{s.rozet}</sup> : null}
-          </button>
-        ))}
-      </nav>
-
-      {/* Telefonda Neyin Eksik en üstte (Kemal, 29 Eylül): açınca ilk görülen */}
-      {sekme === 'bugun' && (
-        <div className="lg:hidden">
-          <EksikOzeti eksikler={eksikler} dugmeler={bugunDugmeler} onAc={a => onGit('eksikler', a)} />
+      {!masa && (
+        <div className="space-y-2.5">
+          {TEL_SEKMELERI.map(b => {
+            const ac = acik.has(b.id);
+            return (
+              <section key={b.id} className="space-y-2.5">
+                <button type="button" onClick={() => cevir(b.id)} aria-expanded={ac}
+                  className={`${KART} w-full min-h-12 px-4 flex items-center gap-2 text-left cursor-pointer`}>
+                  <span className={`text-[14px] font-bold ${YAZI}`}>{b.ad}</span>
+                  {b.rozet ? <span className="px-1.5 rounded-full bg-[#F26B6F] text-white text-[10px] font-bold">{b.rozet}</span> : null}
+                  <ChevronDown className={`ml-auto w-4 h-4 ${IKINCIL} transition-transform ${ac ? '' : '-rotate-90'}`} />
+                </button>
+                {ac && b.id === 'bugun' && (
+                  <>
+                    <EksikOzeti eksikler={eksikler} dugmeler={bugunDugmeler} onAc={x => onGit('eksikler', x)} />
+                    {gununSorusuKarti}
+                    <OneriTepsisi {...studyo} sinir={3} />
+                  </>
+                )}
+                {ac && b.id === 'atolye' && <AdaKarti items={items} onMadde={onMaddeyiAc} onTepsi={studyo.onStudyoSayfasi} className="flex flex-col" />}
+                {ac && b.id === 'notlar' && (
+                  <NotDefteri items={items} onAddItem={onAddItem} onUpdateItem={onUpdateItem} onMaddeAc={onMaddeyiAc} uzun yeniSayfaBekliyor={yeniNotBekliyor} onYeniSayfaAcildi={onYeniNotAcildi} />
+                )}
+                {ac && b.id === 'durum' && (
+                  <>
+                    <YuzdeSeridi oranlar={oranlar} onSec={h => onGit(h)} />
+                    <DuzadaKarti items={items} onHarita={() => onGit('harita')} onMadde={onMaddeyiAc} />
+                  </>
+                )}
+              </section>
+            );
+          })}
         </div>
       )}
 
+      {masa && (<>
       {/*
         Kısayollar (30 Eylül, Kemal: "büyük şeyler çok derinlere saklanmış"):
-        büyük araçlar ana sayfadan tek dokunuşla. Telefonda yana kayar.
+        büyük araçlar ana sayfadan tek dokunuşla. Yalnız masaüstünde.
       */}
-      <div className={`${sekme === 'bugun' ? '' : 'hidden'} lg:block`}>
-        <div className="flex gap-2 overflow-x-auto -mx-4 px-4 lg:mx-0 lg:px-0 lg:grid lg:grid-cols-7">
+      <div className="grid grid-cols-7 gap-2">
           {ARACLAR.filter(a => KISAYOLLAR.includes(a.id)).map(a => (
             <button key={a.id} type="button" onClick={() => onGit(a.id as Hedef)}
-              className={`${KART} shrink-0 w-[132px] lg:w-auto p-3 text-left hover:border-[#F26B6F] cursor-pointer`}>
+              className={`${KART} p-3 text-left hover:border-[#F26B6F] cursor-pointer`}>
               <a.simge className="w-5 h-5 text-[#F26B6F]" />
               <span className={`mt-2 block text-[13px] font-bold leading-tight ${YAZI}`}>{a.ad}</span>
             </button>
           ))}
           <button type="button" onClick={() => onGit('araclar')}
-            className={`${KART} shrink-0 w-[132px] lg:w-auto p-3 text-left hover:border-[#F26B6F] cursor-pointer`}>
+            className={`${KART} p-3 text-left hover:border-[#F26B6F] cursor-pointer`}>
             <LayoutGrid className="w-5 h-5 text-[#6A5E4C] dark:text-[#A6B0C9]" />
             <span className={`mt-2 block text-[13px] font-bold leading-tight ${YAZI}`}>Bütün araçlar</span>
           </button>
-        </div>
       </div>
 
       {/* Yüzde şeridi */}
-      <div className={gorunur('durum')}>
+      <div>
         <YuzdeSeridi oranlar={oranlar} onSec={h => onGit(h)} />
       </div>
 
@@ -175,50 +213,36 @@ export const Anasayfa: React.FC<Props> = ({
         sütunlu ızgarada; atölye iki sütun kaplar. Bir sıradaki kartlar en
         uzununun boyuna uzar, alt kenarları aynı çizgide biter.
       */}
-      <div className="grid gap-3 lg:gap-4 lg:grid-cols-3 lg:items-stretch">
+      <div className="grid gap-4 grid-cols-3 items-stretch">
         {/* Ada'dan bilgi + bugünün üretim önerileri (yapisal-4); atölyenin üç sorusu kalktı */}
         <AdaKarti
           items={items}
           onMadde={onMaddeyiAc}
           onTepsi={studyo.onStudyoSayfasi}
-          className={`${gorunur('atolye')} lg:col-span-2 lg:!flex flex-col`}
+          className="col-span-2 flex flex-col"
         />
 
         <div className="flex flex-col gap-3 lg:gap-4 min-w-0">
-          {/* Günün sorusu */}
-          <section className={`${gorunur('bugun')} ${KART} p-4`}>
-            <div className={ETIKET}>Günün sorusu</div>
-            <div className="mt-2">
-              {gununSorusu ? (
-                <SoruKarti
-                  bosluk={gununSorusu}
-                  buyuk
-                  onCevap={(c, s) => cevapla(true)(gununSorusu, c, s)}
-                  onSonra={() => ertele(true, gununSorusu.anahtar)}
-                />
-              ) : (
-                <p className={`text-[12px] ${IKINCIL}`}>Sorulacak boşluk kalmadı.</p>
-              )}
-            </div>
-          </section>
+          {gununSorusuKarti}
 
-          <div className={`${gorunur('bugun')} flex-1 [&>*]:h-full`}>
+          <div className="flex-1 [&>*]:h-full">
             <OneriTepsisi {...studyo} sinir={3} />
           </div>
         </div>
       </div>
 
-      <div className="grid gap-3 lg:gap-4 lg:grid-cols-3 lg:items-stretch">
-        <div className="hidden lg:block min-w-0 [&>*]:h-full">
+      <div className="grid gap-4 grid-cols-3 items-stretch">
+        <div className="min-w-0 [&>*]:h-full">
           <EksikOzeti eksikler={eksikler} dugmeler={bugunDugmeler} onAc={a => onGit('eksikler', a)} />
         </div>
-        <div className={`${gorunur('notlar')} lg:[&>*]:h-full`}>
-          <NotDefteri items={items} onAddItem={onAddItem} onUpdateItem={onUpdateItem} onMaddeAc={onMaddeyiAc} uzun={sekme === 'notlar'} yeniSayfaBekliyor={yeniNotBekliyor} onYeniSayfaAcildi={onYeniNotAcildi} />
+        <div className="min-w-0 [&>*]:h-full">
+          <NotDefteri items={items} onAddItem={onAddItem} onUpdateItem={onUpdateItem} onMaddeAc={onMaddeyiAc} uzun={false} yeniSayfaBekliyor={yeniNotBekliyor} onYeniSayfaAcildi={onYeniNotAcildi} />
         </div>
-        <div className={`${gorunur('durum')} lg:[&>*]:h-full`}>
+        <div className="min-w-0 [&>*]:h-full">
           <DuzadaKarti items={items} onHarita={() => onGit('harita')} onMadde={onMaddeyiAc} />
         </div>
       </div>
+      </>)}
     </div>
   );
 };
