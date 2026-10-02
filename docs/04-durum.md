@@ -1427,3 +1427,16 @@ Kemal: "Senin yollarınla üret", "Hepsi yeniden, ben düzeltirim". Stat için:
   yerde ve yönde. Eski tek parça stadın (`bina_stad`) Kurucu düzeni
   artık hiçbir şeyi oynatmaz; yeni parçalar Kurucu'da tek grup.
 - Yöntem watabou'nun blok bölme fikrinden uyarlandı; kod alınmadı.
+
+## 2 Ekim gece — Kurucu "Mahalle doldur" (watabou sonrası 3. paket)
+
+- Kurucu'nun araç çubuğunda **Doldur**: bir dikdörtgen çizilir; içindeki
+  görünür sokak ve ana yolların iki yanına evler dizilir. Dört doku:
+  Bitişik çarşı (İskele gibi, arada dar geçit), Karışık (Liman), Bahçeli köy
+  (Merkez), Seyrek (Stadyum). Evler önce kırmızı taslak olarak bekler;
+  doku değişince ya da **Karıştır**'a basınca yeniden dizilir; **Yerleştir**
+  (Enter) taslağa yazar, **Vazgeç** (Esc) bırakır. Tek "Geri al" hepsini
+  geri alır. Yol, yapı ve deniz üstüne ev konmaz.
+- Yöntem üretecin Ege dokusuyla aynı (`src/components/kurucu/mahalleDoldur.ts`).
+- Kurucu'da konan evler haritada artık hazır evlerle aynı renkleri ve
+  kiremit / düz dam çatıları alıyor.

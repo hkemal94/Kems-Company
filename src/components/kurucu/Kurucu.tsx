@@ -1,9 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Eraser, Hand, MousePointer2, PenLine, Redo2, Undo2, Check, X, Eye, EyeOff, Home, LayoutGrid, RotateCcw, RotateCw, MapPinned, Pentagon, TreePine, Link2, Minus, Plus, ExternalLink } from 'lucide-react';
+import { Eraser, Hand, MousePointer2, PenLine, Redo2, Undo2, Check, X, Eye, EyeOff, Home, LayoutGrid, RotateCcw, RotateCw, MapPinned, Pentagon, TreePine, Link2, Minus, Plus, ExternalLink, Blocks, Shuffle } from 'lucide-react';
 import type { Item } from '../../types';
 import { DEM_SINIR } from '../../data/duzadaDem';
 import { ANIT_KALIPLARI, kalipBul, kalibiYerlestir, alan, merkez as cokgenMerkezi, yolCokgeneBiniyor } from './anitKaliplari';
 import { belgelerAyniMi, belgeFarklari } from './kurucuHarita';
+import { DOKULAR, dokuBul, mahalleDoldur, yolYariEni, type DokuTuru, type DoldurAlani } from './mahalleDoldur';
 import type { KurucuBelge } from '../harita/duzenTipi';
 import { DUZADA_GEO } from '../../data/duzadaGeo';
 import type { HaritaBakisi } from '../harita/DuzadaHarita';
@@ -41,7 +42,7 @@ import {
  * Geri al / yinele: düğmeler ya da Ctrl+Z / Ctrl+Y.
  */
 
-type Arac = 'gez' | 'sec' | 'ciz' | 'bina' | 'sablon' | 'ozel' | 'doga' | 'bagla' | 'sil';
+type Arac = 'gez' | 'sec' | 'ciz' | 'bina' | 'sablon' | 'doldur' | 'ozel' | 'doga' | 'bagla' | 'sil';
 
 interface KurucuProps {
   duzen: HaritaDuzeni | null;
@@ -289,6 +290,14 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
    * "Yerleştir" ya da "Vazgeç" ile biter. Başka yere dokununca taşınır.
    */
   const [bekleyen, setBekleyen] = useState<Nokta | null>(null);
+  /**
+   * Mahalle doldur (2 Ekim gece, watabou sonrası 3. paket): dikdörtgen
+   * çizilir, içindeki sokakların iki yanına seçilen dokuyla evler dizilir.
+   * Sonuç taslak olarak bekler; "Yerleştir" ya da "Vazgeç".
+   */
+  const [doldurAlani, setDoldurAlani] = useState<DoldurAlani | null>(null);
+  const [doku, setDoku] = useState<DokuTuru>('bitisik');
+  const [tohum, setTohum] = useState(1);
   /** Sürüklenen yapı (30 Eylül, Kemal: "binaları taşıyabilmek isterim") */
   const [surukBina, setSurukBina] = useState<{ id: string; bas: Nokta; m: Nokta } | null>(null);
 
@@ -493,6 +502,30 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
     setUyari(`${konan.length} yapı kondu`);
   }, [yollar, binalariEkle, degistir]);
 
+  const doldurOnizleme = useMemo(() => {
+    if (!doldurAlani) return [];
+    const girdi = yollar.filter(y => !y.gizli).map(y => ({
+      parcalar: y.parcalar, yari: yolYariEni(y.tur, y.haritaTur), cepheAlir: y.tur === 'ana' || y.tur === 'sokak'
+    }));
+    const engel = [
+      ...binalar.filter(b => !b.gizli).map(b => b.kose),
+      ...ozelYapilar.filter(o => !o.gizli).map(o => o.m)
+    ];
+    return mahalleDoldur(doldurAlani, girdi, engel, zemin.ada, doku, tohum);
+  }, [doldurAlani, yollar, binalar, ozelYapilar, zemin.ada, doku, tohum]);
+
+  const doldurKoy = useCallback(() => {
+    if (!doldurOnizleme.length) { setUyari('Bu alanda ev dizilecek sokak kenarı yok.'); return; }
+    const evler = doldurOnizleme;
+    degistir(t => {
+      const yB = { ...t.yeniBinalar };
+      for (const b of evler) yB[yeniYolId(yB, 'kurucu_bina')] = { tur: b.tur, merkez: derceye(b.m), en: b.en, boy: b.boy, aci: b.aci, kat: b.kat };
+      return { ...t, yeniBinalar: yB };
+    });
+    setUyari(`${evler.length} ev kondu`);
+    setDoldurAlani(null);
+  }, [doldurOnizleme, degistir]);
+
   useEffect(() => {
     const tus = (e: KeyboardEvent) => {
       const hedef = e.target as HTMLElement;
@@ -502,7 +535,8 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
       else if (e.key === 'Enter' && arac === 'ciz') bitir();
       else if (e.key === 'Enter' && (arac === 'ozel' || arac === 'doga') && cokgen.length >= 3) cokgeniBitir();
       else if (e.key === 'Enter' && bekleyen) bekleyeniKoy()
-      else if (e.key === 'Escape') { setCizilen([]); setCokgen([]); setSecili(null); setBekleyen(null); setSilAlani(null); setCoklu(null); setKavsakAdaylari([]); }
+      else if (e.key === 'Enter' && arac === 'doldur' && doldurAlani) doldurKoy();
+      else if (e.key === 'Escape') { setCizilen([]); setCokgen([]); setSecili(null); setBekleyen(null); setSilAlani(null); setCoklu(null); setKavsakAdaylari([]); setDoldurAlani(null); }
       else if (e.key === 'Backspace' && arac === 'ciz' && cizilen.length) { e.preventDefault(); setCizilen(c => c.slice(0, -1)); }
       else if (e.key === 'Backspace' && (arac === 'ozel' || arac === 'doga') && cokgen.length) { e.preventDefault(); setCokgen(c => c.slice(0, -1)); }
       // Seçili yol ya da yapı Delete / Backspace ile kaldırılır
@@ -511,7 +545,7 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
     };
     window.addEventListener('keydown', tus);
     return () => window.removeEventListener('keydown', tus);
-  }, [arac, bitir, cizilen.length, geriAl, yinele, secili, seciliNokta, cokgen.length, cokgeniBitir, bekleyen]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [arac, bitir, cizilen.length, geriAl, yinele, secili, seciliNokta, cokgen.length, cokgeniBitir, bekleyen, doldurAlani, doldurKoy]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ---- işaretçi: kaydır / tıkla / çimdikle ------------------------------------
   const basilanlar = useRef(new Map<number, { x: number; y: number }>());
@@ -571,7 +605,7 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
       }
     }
     // Alanla kaldır / alanla seç: tek parmak dikdörtgen çizer (iki parmak yine yakınlaştırır)
-    if (((arac === 'sil' && silAlanla) || (arac === 'sec' && secAlanla)) && basilanlar.current.size === 0) {
+    if (((arac === 'sil' && silAlanla) || (arac === 'sec' && secAlanla) || arac === 'doldur') && basilanlar.current.size === 0) {
       (e.currentTarget as Element).setPointerCapture(e.pointerId);
       const m = ekrandanMetre(e.clientX, e.clientY);
       setSilAlani({ bas: m, son: m });
@@ -640,7 +674,8 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
       setSilAlani(null);
       // Çok küçük alan: kaza ile dokunuş sayılır
       if (Math.abs(son[0] - bas[0]) * olcek < 12 || Math.abs(son[1] - bas[1]) * olcek < 12) { if (arac === 'sec') setCoklu(null); return; }
-      if (arac === 'sec') alanlaSec(bas, son); else topluKaldir(bas, son);
+      if (arac === 'doldur') { setDoldurAlani({ x0: bas[0], y0: bas[1], x1: son[0], y1: son[1] }); setTohum(t => t + 1); }
+      else if (arac === 'sec') alanlaSec(bas, son); else topluKaldir(bas, son);
       return;
     }
     if (surukCoklu) {
@@ -1196,6 +1231,7 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
     { id: 'ciz', ad: 'Yol', Ikon: PenLine },
     { id: 'bina', ad: 'Bina', Ikon: Home },
     { id: 'sablon', ad: 'Şablon', Ikon: LayoutGrid },
+    { id: 'doldur', ad: 'Doldur', Ikon: Blocks },
     { id: 'ozel', ad: 'Özel yapı', Ikon: Pentagon },
     { id: 'doga', ad: 'Doğa', Ikon: TreePine },
     { id: 'bagla', ad: 'Madde bağla', Ikon: Link2 },
@@ -1208,7 +1244,7 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
     else if (arac === 'ozel' && kalipId) kalibiKoy(bekleyen);
     setBekleyen(null);
   }
-  const aracSec = (id: Arac) => { setArac(id); setCizilen([]); setCokgen([]); setImlec(null); setBekleyen(null); setSilAlani(null); setCoklu(null); if (id !== 'sec' && id !== 'bagla') setSecili(null); };
+  const aracSec = (id: Arac) => { setArac(id); setCizilen([]); setCokgen([]); setImlec(null); setBekleyen(null); setSilAlani(null); setCoklu(null); setDoldurAlani(null); if (id !== 'sec' && id !== 'bagla') setSecili(null); };
 
   const ipucu = (() => {
     if (arac === 'ciz') return cizilen.length === 0
@@ -1221,6 +1257,9 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
     if (arac === 'bagla') return 'Bağlamak istediğin yapıya dokun, sonra sağdan maddesini seç.';
     if (arac === 'bina') return `${binaBilgisi(binaTur).ad}: dokun. Yola yakınsa yola dönük oturur.`;
     if (arac === 'sablon') return bekleyen ? `${SABLONLAR.find(x => x.id === sablonId)!.ad} bekliyor: yönünü ve boyutunu ayarla, başka yere dokunup taşı; sonra Yerleştir ya da Vazgeç.` : `${SABLONLAR.find(x => x.id === sablonId)!.ad}: koymak istediğin yere dokun.`;
+    if (arac === 'doldur') return doldurAlani
+      ? `${doldurOnizleme.length} ev bekliyor (${dokuBul(doku).ad}). Dokuyu değiştir ya da Karıştır; sonra Yerleştir ya da Vazgeç.`
+      : 'Mahalle doldur: doldurmak istediğin yerin çevresine bir dikdörtgen çiz. İçindeki sokakların iki yanına evler dizilir.';
     if (arac === 'sil') return silAlanla ? 'Bir dikdörtgen çiz: içindeki yapılar ve yol parçaları birden kalkar. Geri al hepsini birden getirir.' : 'Yola dokununca iki kavşak arası kalkar; yapıya dokununca yapı. Kaldırılana dokununca geri gelir. Geri al da çalışır.';
     if (arac === 'sec') return seciliBina || seciliOzel
       ? 'Yapıyı sürükleyerek taşı; katını, türünü ve yönünü sağdaki karttan değiştir.'
@@ -1237,7 +1276,7 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
       <div
         ref={kutu}
         className={`absolute inset-0 bg-[#1C4E8C] touch-none select-none ${
-          ['ciz', 'bina', 'sablon', 'sil', 'ozel', 'doga'].includes(arac) ? 'cursor-crosshair' : arac === 'gez' ? 'cursor-grab' : 'cursor-pointer'}`}
+          ['ciz', 'bina', 'sablon', 'doldur', 'sil', 'ozel', 'doga'].includes(arac) ? 'cursor-crosshair' : arac === 'gez' ? 'cursor-grab' : 'cursor-pointer'}`}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
@@ -1421,6 +1460,18 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
             const k = kalibiYerlestir(kalipBul(kalipId)!, (bekleyen ?? imlec)!, (kalipAci * Math.PI) / 180);
             return <path d={halkaYolu([k])} fill="#F26B6F" fillOpacity={0.3} stroke="#F26B6F" strokeWidth={px(1.5)} style={{ pointerEvents: 'none' }} />;
           })()}
+
+          {/* Mahalle doldur: alan ve bekleyen evler */}
+          {arac === 'doldur' && doldurAlani && (
+            <g style={{ pointerEvents: 'none' }}>
+              <rect x={Math.min(doldurAlani.x0, doldurAlani.x1)} y={Math.min(doldurAlani.y0, doldurAlani.y1)}
+                width={Math.abs(doldurAlani.x1 - doldurAlani.x0)} height={Math.abs(doldurAlani.y1 - doldurAlani.y0)}
+                fill="none" stroke="#F26B6F" strokeWidth={px(1.5)} strokeDasharray={`${px(5)} ${px(4)}`} />
+              {doldurOnizleme.map((b, i) => (
+                <path key={i} d={halkaYolu([binaKoseleri(b.m, b.en, b.boy, b.aci)])} fill="#F26B6F" fillOpacity={0.35} stroke="#F26B6F" strokeWidth={px(0.8)} />
+              ))}
+            </g>
+          )}
 
           {/* Alanla kaldır: çizilen dikdörtgen */}
           {silAlani && (
@@ -1743,6 +1794,20 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
                 <button type="button" onClick={() => setBekleyen(null)} className={dugmeBos}><X className="w-3.5 h-3.5" />Vazgeç</button>
               </>
             ) : <span className="text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9]">Haritaya dokun: taslak orada bekler</span>}
+          </div>
+        )}
+        {arac === 'doldur' && (
+          <div className={`${kart} flex lg:flex-wrap items-center gap-2 px-3 py-2 max-w-full lg:max-w-[900px] overflow-x-auto whitespace-nowrap lg:whitespace-normal`}>
+            <span className={etiket}>Doldur</span>
+            {DOKULAR.map(d => <button key={d.id} type="button" onClick={() => setDoku(d.id)} className={cip(doku === d.id)} title={d.aciklama}>{d.ad}</button>)}
+            {doldurAlani ? (
+              <>
+                <span className="text-[11px]">{doldurOnizleme.length} ev</span>
+                <button type="button" onClick={() => setTohum(t => t + 1)} className={dugmeBos} title="Aynı alanı başka bir dizilişle doldur"><Shuffle className="w-3.5 h-3.5" />Karıştır</button>
+                <button type="button" onClick={doldurKoy} disabled={!doldurOnizleme.length} className={dugmeBos}><Check className="w-3.5 h-3.5" />Yerleştir</button>
+                <button type="button" onClick={() => setDoldurAlani(null)} className={dugmeBos}><X className="w-3.5 h-3.5" />Vazgeç</button>
+              </>
+            ) : <span className="text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9]">Parmağınla bir dikdörtgen çiz</span>}
           </div>
         )}
         {arac === 'ozel' && (

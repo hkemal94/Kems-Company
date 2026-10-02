@@ -601,7 +601,9 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
             ['==', ['get', 'tur'], 'iskele'], YAPI.iskele,
             ['==', ['get', 'tur'], 'Özel yapı'], '#EDE3D1',
             // Evler: badana, krem, taş ve soluk mavi (2 Ekim, ayrıntı)
-            ['==', ['get', 'tur'], 'ev'], ['step', ['get', 'sans'], '#EDE7DA', 0.38, '#E4D9C4', 0.62, '#D6C7A8', 0.82, '#C9B48F', 0.93, '#C8D2D6'],
+            // Kurucu'da konan ev ve "Mahalle doldur" evleri de aynı renkleri alır
+            ['any', ['==', ['get', 'tur'], 'ev'], ['in', ['get', 'kurucuTur'], ['literal', ['ev', 'dukkanli', 'yazlik']]]],
+            ['step', ['get', 'sans'], '#EDE7DA', 0.38, '#E4D9C4', 0.62, '#D6C7A8', 0.82, '#C9B48F', 0.93, '#C8D2D6'],
             YAPI.genel
           ],
           // Haritada gerçek 3B arazi yok: prizmalar kâğıdın üstünde durur.
