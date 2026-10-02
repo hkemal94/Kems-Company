@@ -263,6 +263,14 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
   const [silAlanla, setSilAlanla] = useState(false);
   const [silAlani, setSilAlani] = useState<{ bas: Nokta; son: Nokta } | null>(null);
   /**
+   * Toplu taşıma (2 Ekim akşam, Kemal: "toplu taşıma da koy"): Seç aracında
+   * "Alanla" seçiliyken dikdörtgenle seçilen yapılar ve tamamen içinde kalan
+   * yollar birlikte sürüklenir; tek "Geri al" adımı.
+   */
+  const [secAlanla, setSecAlanla] = useState(false);
+  const [coklu, setCoklu] = useState<{ x0: number; y0: number; x1: number; y1: number; binalar: string[]; yollar: string[] } | null>(null);
+  const [surukCoklu, setSurukCoklu] = useState<{ bas: Nokta; m: Nokta } | null>(null);
+  /**
    * Bekleyen yerleşim (2 Ekim, Kemal: "tıklandıktan sonra döndürme ve
    * büyütme olmuyor, vazgeç yapamıyorum"): şablon ve kalıp dokununca hemen
    * konmaz; yerinde taslak olarak bekler, Yön / Boyut onu çevirir,
@@ -444,7 +452,7 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
       else if (e.key === 'Enter' && arac === 'ciz') bitir();
       else if (e.key === 'Enter' && (arac === 'ozel' || arac === 'doga') && cokgen.length >= 3) cokgeniBitir();
       else if (e.key === 'Enter' && bekleyen) bekleyeniKoy()
-      else if (e.key === 'Escape') { setCizilen([]); setCokgen([]); setSecili(null); setBekleyen(null); setSilAlani(null); }
+      else if (e.key === 'Escape') { setCizilen([]); setCokgen([]); setSecili(null); setBekleyen(null); setSilAlani(null); setCoklu(null); }
       else if (e.key === 'Backspace' && arac === 'ciz' && cizilen.length) { e.preventDefault(); setCizilen(c => c.slice(0, -1)); }
       else if (e.key === 'Backspace' && (arac === 'ozel' || arac === 'doga') && cokgen.length) { e.preventDefault(); setCokgen(c => c.slice(0, -1)); }
       // Seçili yol ya da yapı Delete / Backspace ile kaldırılır
@@ -502,8 +510,17 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
         return;
       }
     }
-    // Alanla kaldır: tek parmak dikdörtgen çizer (iki parmak yine yakınlaştırır)
-    if (arac === 'sil' && silAlanla && basilanlar.current.size === 0) {
+    // Toplu seçimin içinden tutulursa: hepsi birlikte sürüklenir
+    if (arac === 'sec' && coklu && basilanlar.current.size === 0) {
+      const m = ekrandanMetre(e.clientX, e.clientY);
+      if (m[0] >= coklu.x0 && m[0] <= coklu.x1 && m[1] >= coklu.y0 && m[1] <= coklu.y1) {
+        (e.currentTarget as Element).setPointerCapture(e.pointerId);
+        setSurukCoklu({ bas: m, m });
+        return;
+      }
+    }
+    // Alanla kaldır / alanla seç: tek parmak dikdörtgen çizer (iki parmak yine yakınlaştırır)
+    if (((arac === 'sil' && silAlanla) || (arac === 'sec' && secAlanla)) && basilanlar.current.size === 0) {
       (e.currentTarget as Element).setPointerCapture(e.pointerId);
       const m = ekrandanMetre(e.clientX, e.clientY);
       setSilAlani({ bas: m, son: m });
@@ -527,6 +544,7 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
     if (surukKose) { setSurukKose({ ...surukKose, m: ekrandanMetre(e.clientX, e.clientY) }); return; }
     if (surukYol) { setSurukYol({ ...surukYol, m: ekrandanMetre(e.clientX, e.clientY) }); return; }
     if (surukBina) { setSurukBina({ ...surukBina, m: ekrandanMetre(e.clientX, e.clientY) }); return; }
+    if (surukCoklu) { setSurukCoklu({ ...surukCoklu, m: ekrandanMetre(e.clientX, e.clientY) }); return; }
     if (silAlani) { setSilAlani({ ...silAlani, son: ekrandanMetre(e.clientX, e.clientY) }); return; }
     if (basilanlar.current.has(e.pointerId)) basilanlar.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (cimdik.current && basilanlar.current.size === 2) {
@@ -563,8 +581,14 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
       const { bas, son } = silAlani;
       setSilAlani(null);
       // Çok küçük alan: kaza ile dokunuş sayılır
-      if (Math.abs(son[0] - bas[0]) * olcek < 12 || Math.abs(son[1] - bas[1]) * olcek < 12) return;
-      topluKaldir(bas, son);
+      if (Math.abs(son[0] - bas[0]) * olcek < 12 || Math.abs(son[1] - bas[1]) * olcek < 12) { if (arac === 'sec') setCoklu(null); return; }
+      if (arac === 'sec') alanlaSec(bas, son); else topluKaldir(bas, son);
+      return;
+    }
+    if (surukCoklu) {
+      const { bas, m } = surukCoklu;
+      setSurukCoklu(null);
+      if (Math.hypot(m[0] - bas[0], m[1] - bas[1]) * olcek >= 3) topluTasi(m[0] - bas[0], m[1] - bas[1]);
       return;
     }
     if (surukKose) {
@@ -846,6 +870,51 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
     setUyari(`Alandan ${binaIds.size} yapı, ${yolKes.length} yol parçası${silinecek.length ? `, ${silinecek.length} çizim` : ''} kaldırıldı. Geri al ile hepsi birden döner.`);
   };
 
+  /** Alanla seç: dikdörtgendeki yapılar (gruplarıyla) ve tamamen içinde kalan yollar */
+  const alanlaSec = (a: Nokta, b: Nokta) => {
+    const x0 = Math.min(a[0], b[0]), x1 = Math.max(a[0], b[0]);
+    const y0 = Math.min(a[1], b[1]), y1 = Math.max(a[1], b[1]);
+    const icinde = (p: Nokta) => p[0] >= x0 && p[0] <= x1 && p[1] >= y0 && p[1] <= y1;
+    const bs = new Set<string>();
+    for (const bn of binalar) if (!bn.gizli && icinde(bn.m)) grubu(bn.id).forEach(u => bs.add(u));
+    for (const o of ozelYapilar) if (!o.gizli && icinde(cokgenMerkezi(o.m))) bs.add(o.id);
+    const ys = yollar.filter(y => !y.gizli && y.parcalar.every(h => h.every(icinde))).map(y => y.id);
+    if (!bs.size && !ys.length) { setCoklu(null); setUyari('Seçtiğin alanda yapı yok.'); return; }
+    setSecili(null);
+    setCoklu({ x0, y0, x1, y1, binalar: [...bs], yollar: ys });
+    setUyari(`${bs.size} yapı${ys.length ? `, ${ys.length} yol` : ''} seçildi. Seçimin içinden tutup sürükle.`);
+  };
+
+  /** Toplu seçimi dx, dy metre taşır (tek Geri al adımı) */
+  const topluTasi = (dx: number, dy: number) => {
+    if (!coklu) return;
+    const kayik = (p: Nokta): Nokta => [p[0] + dx, p[1] + dy];
+    const denize = coklu.binalar.some(id => {
+      const bn = binalar.find(b => b.id === id);
+      const oz = ozelYapilar.find(o => o.id === id);
+      const m = bn ? bn.m : oz ? cokgenMerkezi(oz.m) : null;
+      return m ? !karadaMi(kayik(m), zemin.ada) : false;
+    });
+    if (denize) { setUyari('Seçimin bir kısmı denize düşüyor; daha az kaydır.'); return; }
+    degistir(t => {
+      const oz = { ...t.ozelYapilar }, yB = { ...t.yeniBinalar }, bD = { ...t.binaDuzeni }, yY = { ...t.yeniYollar }, yD = { ...t.yolDuzeni };
+      for (const id of coklu.binalar) {
+        if (oz[id]) oz[id] = { ...oz[id], koseler: oz[id].koseler.map(k => derceye(kayik(metreye(k)))) };
+        else if (yB[id]) yB[id] = { ...yB[id], merkez: derceye(kayik(metreye(yB[id].merkez))) };
+        else { const d = bD[id] ?? { dx: 0, dy: 0, aci: 0 }; bD[id] = { ...d, dx: d.dx + dx, dy: d.dy + dy }; }
+      }
+      for (const id of coklu.yollar) {
+        const y = yollar.find(o => o.id === id);
+        if (!y) continue;
+        if (yY[id]) yY[id] = { ...yY[id], noktalar: yY[id].noktalar.map(k => derceye(kayik(metreye(k)))) };
+        else yD[id] = y.parcalar.map(h => h.map(p => derceye(kayik(p))));
+      }
+      return { ...t, ozelYapilar: oz, yeniBinalar: yB, binaDuzeni: bD, yeniYollar: yY, yolDuzeni: yD };
+    });
+    setCoklu({ ...coklu, x0: coklu.x0 + dx, x1: coklu.x1 + dx, y0: coklu.y0 + dy, y1: coklu.y1 + dy });
+    setUyari(`${coklu.binalar.length} yapı${coklu.yollar.length ? `, ${coklu.yollar.length} yol` : ''} taşındı. Geri al ile döner.`);
+  };
+
   /** Yolun i. noktasından sonra yeni nokta (metre) */
   const yolNoktasiEkle = (id: string, parca: number | 'k', i: number, m: Nokta) => {
     const yol = yollar.find(y => y.id === id);
@@ -1074,7 +1143,7 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
     else if (arac === 'ozel' && kalipId) kalibiKoy(bekleyen);
     setBekleyen(null);
   }
-  const aracSec = (id: Arac) => { setArac(id); setCizilen([]); setCokgen([]); setImlec(null); setBekleyen(null); setSilAlani(null); if (id !== 'sec' && id !== 'bagla') setSecili(null); };
+  const aracSec = (id: Arac) => { setArac(id); setCizilen([]); setCokgen([]); setImlec(null); setBekleyen(null); setSilAlani(null); setCoklu(null); if (id !== 'sec' && id !== 'bagla') setSecili(null); };
 
   const ipucu = (() => {
     if (arac === 'ciz') return cizilen.length === 0
@@ -1091,7 +1160,7 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
     if (arac === 'sec') return seciliBina || seciliOzel
       ? 'Yapıyı sürükleyerek taşı; katını, türünü ve yönünü sağdaki karttan değiştir.'
       : seciliYol ? 'Yolun beyaz noktalarını sürükle. Bir parçasını silmek için Kaldır aracıyla o parçaya dokun.'
-      : 'Bir yola, yapıya ya da doğa alanına dokun.';
+      : secAlanla ? (coklu ? 'Seçimin içinden tutup sürükle; hepsi birlikte taşınır. Geri al tek adımda geri getirir.' : 'Taşımak istediğin yerin çevresine bir dikdörtgen çiz.') : 'Bir yola, yapıya ya da doğa alanına dokun.';
     return null;
   })();
 
@@ -1107,7 +1176,7 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
-        onPointerCancel={e => { basilanlar.current.delete(e.pointerId); cimdik.current = null; surukleme.current = null; setSilAlani(null); }}
+        onPointerCancel={e => { basilanlar.current.delete(e.pointerId); cimdik.current = null; surukleme.current = null; setSilAlani(null); setSurukCoklu(null); }}
         onPointerLeave={() => { setImlec(null); setYapisma(null); }}
         onWheel={onWheel}
         onDoubleClick={() => { if (arac === 'ciz') bitir(); else if ((arac === 'ozel' || arac === 'doga') && cokgen.length >= 3) cokgeniBitir(); }}
@@ -1294,6 +1363,21 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
               width={Math.abs(silAlani.son[0] - silAlani.bas[0])} height={Math.abs(silAlani.son[1] - silAlani.bas[1])}
               fill="#F26B6F" fillOpacity={0.15} stroke="#F26B6F" strokeWidth={px(1.5)} strokeDasharray={`${px(5)} ${px(4)}`} style={{ pointerEvents: 'none' }} />
           )}
+
+          {/* Toplu seçim: çerçeve ve (sürüklenirken) yeni yerindeki gölgesi */}
+          {coklu && (() => {
+            const dx = surukCoklu ? surukCoklu.m[0] - surukCoklu.bas[0] : 0;
+            const dy = surukCoklu ? surukCoklu.m[1] - surukCoklu.bas[1] : 0;
+            return (
+              <g style={{ pointerEvents: 'none' }}>
+                <rect x={coklu.x0 + dx} y={coklu.y0 + dy} width={coklu.x1 - coklu.x0} height={coklu.y1 - coklu.y0}
+                  fill="#0E1C4F" fillOpacity={0.08} stroke="#0E1C4F" strokeWidth={px(1.5)} strokeDasharray={`${px(6)} ${px(4)}`} />
+                {binalar.filter(b => coklu.binalar.includes(b.id)).map(b => (
+                  <path key={b.id} d={halkaYolu([b.kose.map(p => [p[0] + dx, p[1] + dy] as Nokta)])} fill="none" stroke="#F26B6F" strokeWidth={px(1.5)} />
+                ))}
+              </g>
+            );
+          })()}
 
           {/* Etiketler: yalnız ad (mahalle sınırı çizilmez) */}
           {zemin.etiketler.map((et, i) => gorunenEtiketler.has(i) && (
@@ -1548,6 +1632,20 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
             {YOL_TURLERI.map(t => <button key={t.id} type="button" onClick={() => setCizTur(t.id)} className={cip(cizTur === t.id)} title={t.aciklama}>{t.ad}</button>)}
             <button type="button" onClick={() => bitir()} disabled={cizilen.length < 2} className={dugmeBos}><Check className="w-3.5 h-3.5" />Bitir</button>
             <button type="button" onClick={() => setCizilen([])} disabled={!cizilen.length} className={dugmeBos}><X className="w-3.5 h-3.5" />Vazgeç</button>
+          </div>
+        )}
+        {arac === 'sec' && (
+          <div className={`${kart} flex items-center gap-2 px-3 py-2 max-w-full overflow-x-auto whitespace-nowrap`}>
+            <span className={etiket}>Seç</span>
+            <button type="button" onClick={() => { setSecAlanla(false); setCoklu(null); }} className={cip(!secAlanla)}>Tek tek</button>
+            <button type="button" onClick={() => { setSecAlanla(true); setSecili(null); }} className={cip(secAlanla)}>Alanla</button>
+            {coklu ? (
+              <>
+                <span className="text-[11px]">{coklu.binalar.length} yapı{coklu.yollar.length ? ` · ${coklu.yollar.length} yol` : ''} · içinden tutup sürükle</span>
+                <button type="button" onClick={() => { topluKaldir([coklu.x0, coklu.y0], [coklu.x1, coklu.y1]); setCoklu(null); }} className={dugmeBos}>Kaldır</button>
+                <button type="button" onClick={() => setCoklu(null)} className={dugmeBos}><X className="w-3.5 h-3.5" />Vazgeç</button>
+              </>
+            ) : secAlanla && <span className="text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9]">Taşımak istediğin yerin çevresine dikdörtgen çiz</span>}
           </div>
         )}
         {arac === 'sil' && (
