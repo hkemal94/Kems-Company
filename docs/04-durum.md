@@ -1390,3 +1390,7 @@ uyarlanır (sıradaki iki paket: Ege dokusu, "mahalle doldur").
   konuyor, ayarlar yalnız parmağı izleyen önizlemeye işliyordu.
 - Telefonda yarım kalan dokunuşlar (kesilen jest) artık yakınlaştırmayı
   kilitlemiyor.
+- **Toplu taşıma** (Kemal: "toplu taşıma da koy"): Seç aracında "Tek tek /
+  Alanla". Alanla'da dikdörtgen çizilir; içindeki yapılar (gruplarıyla) ve
+  tamamen içinde kalan yollar seçilir. Seçimin içinden tutup sürükleyince
+  hepsi birlikte taşınır; seçim panelinden toplu Kaldır da var. Tek Geri al.
