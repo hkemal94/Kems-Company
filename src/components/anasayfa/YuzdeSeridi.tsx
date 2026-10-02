@@ -65,7 +65,7 @@ export const YuzdeSeridi: React.FC<Props> = ({ oranlar: o, onSec, ayrintili = fa
       key="merch"
       type="button"
       onClick={() => onSec('merch')}
-      className={`${KART} p-3 text-left hover:border-[#F26B6F] cursor-pointer min-w-0 col-span-2 sm:col-span-1`}
+      className={`${KART} p-3 text-left hover:border-[#F26B6F] cursor-pointer min-w-0 col-span-2 order-first xl:col-span-1 xl:order-none`}
     >
       <b className={`block text-[13px] ${YAZI}`}>Merch</b>
       <span className={`block text-[11px] ${IKINCIL} truncate`}>
@@ -94,7 +94,7 @@ export const YuzdeSeridi: React.FC<Props> = ({ oranlar: o, onSec, ayrintili = fa
       key={k.id}
       type="button"
       onClick={() => onSec(k.id)}
-      className={`${KART} p-3 text-left hover:border-[#F26B6F] cursor-pointer min-w-0 flex items-center gap-3 ${k.id === 'kunye' ? 'col-span-2 sm:col-span-1' : ''}`}
+      className={`${KART} p-3 text-left hover:border-[#F26B6F] cursor-pointer min-w-0 flex items-center gap-3`}
     >
       <Halka oran={k.oran} renk={RENK[k.id]} />
       <span className="min-w-0">
@@ -106,7 +106,7 @@ export const YuzdeSeridi: React.FC<Props> = ({ oranlar: o, onSec, ayrintili = fa
   );
 
   return (
-    <div className="[--halka-bos:#E4DCCD] dark:[--halka-bos:#2C3C72] grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-5 gap-2.5">
+    <div className="[--halka-bos:#E4DCCD] dark:[--halka-bos:#2C3C72] grid grid-cols-2 xl:grid-cols-5 gap-2.5">
       {kart(kartlar[0])}
       {merch}
       {kartlar.slice(1).map(kart)}
