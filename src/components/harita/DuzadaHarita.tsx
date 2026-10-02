@@ -441,6 +441,19 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
         yol
       ] as unknown as maplibregl.ExpressionSpecification);
 
+      // Yol genişliği gerçek metre (2 Ekim gece, Kemal: "yol ölçeği bir
+      // türlü oturmadı"). Eskiden piksel sabitti: yaklaşınca yollar evlere
+      // göre inceliyordu. 15. yakınlıktan sonra genişlik metreyle büyür
+      // (2 tabanlı üstel = haritanın kendi ölçeği); uzakta okunur kalsın diye
+      // 11'de en az piksel.
+      const pikselMetre = (z: number) => (512 * 2 ** z) / (40075016.686 * Math.cos((39.6 * Math.PI) / 180));
+      const metreyle = (enAz: number | maplibregl.ExpressionSpecification, m: number | maplibregl.ExpressionSpecification) => ([
+        'interpolate', ['exponential', 2], ['zoom'],
+        11, enAz,
+        15, typeof m === 'number' ? m * pikselMetre(15) : ['*', m, pikselMetre(15)],
+        22, typeof m === 'number' ? m * pikselMetre(22) : ['*', m, pikselMetre(22)]
+      ] as unknown as maplibregl.ExpressionSpecification);
+
       const surulebilir: maplibregl.FilterSpecification = [
         'all', ['==', ['get', 'katman'], 'yol'],
         ['!', ['in', ['get', 'tur'], ['literal', ['merdiven', 'toprak', 'patika']]]]
@@ -455,11 +468,8 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
         paint: {
           'line-color': YOL.kaplama,
           'line-opacity': 0.7,
-          'line-width': [
-            'interpolate', ['linear'], ['zoom'],
-            11, kademe(4.2, 2.6, 2.2, 1.3),
-            16, kademe(15, 10, 8, 5)
-          ]
+          // metre: ana yol 10, cadde 8, yol 7, sokak 5
+          'line-width': metreyle(kademe(4.2, 2.6, 2.2, 1.3), kademe(10, 8, 7, 5))
         }
       });
 
@@ -472,11 +482,7 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
         paint: {
           'line-color': YOL.dolgu,
           'line-opacity': 0.88,
-          'line-width': [
-            'interpolate', ['linear'], ['zoom'],
-            11, kademe(2.2, 1.3, 1.0, 0.6),
-            16, kademe(10, 6.4, 5, 3)
-          ]
+          'line-width': metreyle(kademe(2.2, 1.3, 1.0, 0.6), kademe(8.4, 6.6, 5.6, 3.8))
         }
       });
 
@@ -491,7 +497,7 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
         paint: {
           'line-color': KARA.kiyiCizgi,
           'line-opacity': 0.75,
-          'line-width': ['interpolate', ['linear'], ['zoom'], 14, 2, 18, 9],
+          'line-width': metreyle(1, 2.5),
           'line-dasharray': [0.6, 0.5]
         }
       });
@@ -506,7 +512,7 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
         paint: {
           'line-color': '#B08F72',
           'line-opacity': 0.85,
-          'line-width': ['interpolate', ['linear'], ['zoom'], 11, 1, 16, 4],
+          'line-width': metreyle(1, 4),
           'line-dasharray': [3, 1.5]
         }
       });
@@ -519,7 +525,7 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
         paint: {
           'line-color': '#6F5E48',
           'line-opacity': 0.75,
-          'line-width': ['interpolate', ['linear'], ['zoom'], 12, 0.8, 17, 2.5],
+          'line-width': metreyle(0.8, 1.5),
           'line-dasharray': [1, 1.6]
         }
       });
@@ -567,6 +573,20 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
           // Avlunun kenar çizgisi evlerin dibinde gürültü yapıyor: yok
           'line-opacity': ['case', ['==', ['get', 'tur'], 'avlu'], 0, 1],
           'line-width': 1.1
+        }
+      });
+
+      // ---- bahçe duvarları (2 Ekim gece): parseller arası alçak taş duvar ----
+      map.addLayer({
+        id: 'bahce-duvari',
+        type: 'line',
+        source: src,
+        minzoom: 15,
+        filter: ['==', ['get', 'katman'], 'duvar'],
+        paint: {
+          'line-color': ZEMIN.duvar,
+          'line-opacity': 0.9,
+          'line-width': metreyle(0.4, 0.6)
         }
       });
 

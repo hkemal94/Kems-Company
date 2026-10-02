@@ -1454,3 +1454,24 @@ duruyor, kulelerin biri aşağıda biri yukarıda."
   (`kurucu-yollari.json` → `yapiDuzeni.bina_imperial`).
 - Otelin eski ve yeni sahanlığı, terası, bahçesi ev üretiminde yasak alan.
 - `gen/dem.py`'nin çıktı yolu düzeltildi (depo kökündeki `src/data`).
+
+## 2 Ekim gece — Bahçeli parseller, metre yollar, stat kaidesi
+
+Kemal: "çok fazla dip dibe ev var; müstakilse birer ufak bahçeleri olmalı",
+"bahçeler de görünsün, bahçelerle bitişik görünebilir evler, daha nizami,
+Bodrum gibi"; "yol ölçeği bir türlü oturmadı"; "stadyum yamuk duruyor,
+altında bir kaide olması lazım". Kararlar: İskele ve Liman bitişik kalır,
+yol genişliği gerçek metre.
+
+- Evler parsel parsel: sokak cephesi parsellere bölünür, her parselde bir
+  ev ve kendi bahçesi, aralarında alçak bahçe duvarı (`katman: duvar`).
+  Bir cephe boyunca evin geriliği ve derinliği sabit (nizamlı sıra).
+  İskele ve Liman bitişik: 3–6 (Liman 2–5) ev yan yana, sonra bir bahçe
+  parseli, arada dar geçit. Merkez ve Stadyum müstakil: ön bahçe 3–6 m,
+  yanlarda 2–4 m bahçe payı. Ev sayısı ~6.600 → ~4.750. Bahçelerde ara
+  ara ağaç.
+- Yol genişliği metre: ana yol 10, cadde 8, yol 7, sokak 5, toprak 4,
+  merdiven 2,5, patika 1,5 m; 15. yakınlıktan sonra haritayla aynı oranda
+  büyür (uzakta en az birkaç piksel).
+- Statın kaidesi: arazi statın altında 132×100 m düzlenir (`gen/duzlukler.json`,
+  `gen/dem.py`), eteği yamaca yumuşak iner.

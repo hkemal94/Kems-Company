@@ -76,7 +76,7 @@ const EN_COK_AGAC = 4500;
 const ASMA_ARALIK = 3;         // bağ sıraları arası, metre
 const EN_COK_ASMA = 2500;
 const AVLU_ARALIK = 9;         // avlu ağacı adayları arası, metre
-const EN_COK_AVLU_AGACI = 1500;
+const EN_COK_AVLU_AGACI = 3000;
 
 /** Yatay bir çizginin halkayı kestiği boylamlar, sıralı */
 const kesisimler = (y: number, h: Nokta[]): number[] => {
@@ -161,8 +161,8 @@ export function ayrintiVerisi(geo: FeatureCollection): FeatureCollection {
       continue;
     }
 
-    // Avlu: ara ara bir ağaç (incir, limon, dut gibi; adı yok)
-    if (p.katman === 'zemin' && p.tur === 'avlu' && avluAgaci < EN_COK_AVLU_AGACI) {
+    // Avlu ve ev bahçesi: ara ara bir ağaç (incir, limon, dut gibi; adı yok)
+    if (p.katman === 'zemin' && (p.tur === 'avlu' || p.tur === 'bahçe') && avluAgaci < EN_COK_AVLU_AGACI) {
       const xs = halka.map(q => q[0]), ys = halka.map(q => q[1]);
       const kx = mBoylam(ys[0]);
       for (let y = Math.min(...ys); y <= Math.max(...ys) && avluAgaci < EN_COK_AVLU_AGACI; y += AVLU_ARALIK / M_ENLEM) {

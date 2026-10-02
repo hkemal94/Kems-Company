@@ -106,7 +106,9 @@ export const ZEMIN = {
   meydanKenar: 'rgba(138, 119, 87, 0.6)',
   tarla: '#d8cb98',
   bag: '#aab873',
-  bolmeKenar: 'rgba(120, 104, 78, 0.5)'
+  bolmeKenar: 'rgba(120, 104, 78, 0.5)',
+  // badanalı bahçe duvarı
+  duvar: '#f6f0e3'
 } as const;
 
 /** MapLibre'nin `interpolate` ifadesi için düz dizi: [eşik, renk, ...] */
