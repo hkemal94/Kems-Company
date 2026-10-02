@@ -40,17 +40,17 @@ export const HARITA_YAPILARI: HaritaYapisi[] =
     }
   },
   {
-    "id": "bina_stad",
+    "id": "bina_stad_tribun",
     "wikiId": "viki_mekan_dirlik_stadi",
     "ad": "Dirlik Stadı",
     "tur": "stadyum",
     "mahalle": "yer_stadyum",
     "kat": null,
-    "yukseklik": 14,
-    "taban": 157.0,
+    "yukseklik": 7.5,
+    "taban": 147.0,
     "merkez": {
-      "x": 25.905402135135137,
-      "y": 39.62834948648648
+      "x": 25.906989,
+      "y": 39.628060600000005
     }
   },
   {

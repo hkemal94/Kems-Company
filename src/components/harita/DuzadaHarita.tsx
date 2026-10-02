@@ -538,6 +538,10 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
           'fill-color': [
             'case', ['==', ['get', 'tur'], 'bahçe'], ZEMIN.bahce,
             ['==', ['get', 'tur'], 'saha'], '#A9C08F',
+            ['==', ['get', 'tur'], 'avlu'], ZEMIN.avlu,
+            ['==', ['get', 'tur'], 'meydan'], ZEMIN.meydan,
+            ['==', ['get', 'tur'], 'tarla'], ZEMIN.tarla,
+            ['==', ['get', 'tur'], 'bağ'], ZEMIN.bag,
             // Doğa alanları (Kurucu, 29 Eylül)
             ['==', ['get', 'tur'], 'zeytinlik'], '#8FA25E',
             ['==', ['get', 'tur'], 'orman'], '#4F6F42',
@@ -556,8 +560,12 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
         paint: {
           'line-color': [
             'case', ['==', ['get', 'tur'], 'bahçe'], ZEMIN.bahceKenar,
+            ['==', ['get', 'tur'], 'meydan'], ZEMIN.meydanKenar,
+            ['in', ['get', 'tur'], ['literal', ['tarla', 'bağ', 'zeytinlik']]], ZEMIN.bolmeKenar,
             ZEMIN.terasKenar
           ],
+          // Avlunun kenar çizgisi evlerin dibinde gürültü yapıyor: yok
+          'line-opacity': ['case', ['==', ['get', 'tur'], 'avlu'], 0, 1],
           'line-width': 1.1
         }
       });
@@ -589,6 +597,7 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
             ['==', ['get', 'tur'], 'fener'], YAPI.fener,
             ['==', ['get', 'tur'], 'stadyum'], YAPI.stadyum,
             ['==', ['get', 'tur'], 'kulüp'], YAPI.kulup,
+            ['==', ['get', 'tur'], 'direk'], '#9AA0A6',
             ['==', ['get', 'tur'], 'iskele'], YAPI.iskele,
             ['==', ['get', 'tur'], 'Özel yapı'], '#EDE3D1',
             // Evler: badana, krem, taş ve soluk mavi (2 Ekim, ayrıntı)

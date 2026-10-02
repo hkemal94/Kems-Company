@@ -1400,3 +1400,30 @@ uyarlanır (sıradaki iki paket: Ege dokusu, "mahalle doldur").
   farede 16). Yolun ortasına yapışınca o yola da nokta eklenir: gerçek
   kavşak (Kaldır'daki "iki kavşak arası" da bunu tanır). Yol ve Seç
   araçlarında "Mıknatıs" çipiyle kapatılabilir.
+
+
+## 2 Ekim gece — Ege dokusu (watabou sonrası 2. paket)
+
+Kemal: "Senin yollarınla üret", "Hepsi yeniden, ben düzeltirim". Stat için:
+"küçük bir belde veya ilçe stadı olmalıydı".
+
+- **Sokak ağı Kemal'in yollarıyla:** `gen/kurucu_aktar.py` yedekten
+  (2 Ekim 16.29) Kurucu taslağını `gen/kurucu-yollari.json`'a çıkarır:
+  71 yol, kaldırılan yollar, taşınan evler ve yapılar. Üreteç bu yolları
+  yalnız ağ olarak kullanır (haritada yine Kurucu katmanından çizilirler);
+  kaldırılan yollar ağa girmez, taşınan yapıların yeni yerine ev konmaz.
+- **Evler yeniden üretildi** (kimlikler `konut_<mahalle>_<n>`): ağın
+  arasında kalan her blok sokağa bakan kenarlarından parsellenir. İskele ve
+  Liman bitişik nizam, 35–70 m'de bir dar geçit; evlerin arkası taş avlu
+  (ara ara ağaç). Merkez ve Stadyum müstakil, arkası bahçe; blokların içi
+  tarla / bağ / zeytinlik / bahçe bölmeleri. Elle taşınan 33 ev eski
+  kimliğiyle yerinde (Kurucu'daki düzeni geçerli).
+- **Meydanlar** zemin olarak çizilir: Merkez (çeşme ve çınar), İskele,
+  Liman; Stadyum'da Kemal'in Kurucu'da koyduğu meydan.
+- **Çiftlik arazileri** bölmelere ayrıldı: çoğu zeytinlik, bir kısmı bağ
+  (sıra sıra asma) ve tarla.
+- **Dirlik Stadı** küçük ilçe statı: çim saha, kapalı ana tribün, açık
+  tribün, soyunma binası, dört ışık direği; Kemal'in Kurucu'da taşıdığı
+  yerde ve yönde. Eski tek parça stadın (`bina_stad`) Kurucu düzeni
+  artık hiçbir şeyi oynatmaz; yeni parçalar Kurucu'da tek grup.
+- Yöntem watabou'nun blok bölme fikrinden uyarlandı; kod alınmadı.

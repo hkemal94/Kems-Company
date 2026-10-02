@@ -112,7 +112,8 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
    * entegre et, ayrı olarak oynatmak istemiyorum"). Grubun her parçası
    * birlikte seçilir, taşınır, döner, kaldırılır. İlk kimlik grubun başı:
    *   - The Imperial Kemsköy + Batı ve Doğu kuleleri
-   *   - Dirlik Stadı + çevresine Kurucu'da konan tribün ve sahalar
+   *   - Dirlik Stadı (ana tribün, açık tribün, soyunma, ışık direkleri) +
+ *     çevresine Kurucu'da konan tribün ve sahalar
    *   - Çiftlik kompleksleri: ev, ahır, depo (`ciftlik_<arazi>_<parça>`)
    */
   const gruplar = useMemo(() => {
@@ -120,9 +121,10 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
     const kur = (uyeler: string[]) => { if (uyeler.length > 1) uyeler.forEach(u => g.set(u, uyeler)); };
     const var_ = new Set(binalar.map(b => b.id));
     kur(['bina_imperial', 'bina_imperial_kule_bati', 'bina_imperial_kule_dogu'].filter(i => var_.has(i)));
-    const stad = binalar.find(b => b.id === 'bina_stad');
-    if (stad) kur(['bina_stad', ...binalar.filter(b => b.yeni && (b.tur === 'tribun' || b.tur === 'saha')
-      && Math.hypot(b.m[0] - stad.m[0], b.m[1] - stad.m[1]) < 180).map(b => b.id)]);
+    // Stat (2 Ekim): ana tribün başta; öbür tribün, soyunma, ışık direkleri
+    const stad = binalar.find(b => b.id === 'bina_stad_tribun');
+    if (stad) kur(['bina_stad_tribun', ...binalar.filter(b => b.id !== 'bina_stad_tribun' && (b.id.startsWith('bina_stad_')
+      || (b.yeni && (b.tur === 'tribun' || b.tur === 'saha') && Math.hypot(b.m[0] - stad.m[0], b.m[1] - stad.m[1]) < 180))).map(b => b.id)]);
     const ciftlik = new Map<string, string[]>();
     for (const b of binalar) {
       const e = /^ciftlik_(\d+)_\d+$/.exec(b.id);
