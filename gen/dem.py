@@ -99,25 +99,35 @@ if not os.path.exists(_sahanlik_yolu):
 with open(_sahanlik_yolu, encoding="utf-8") as _f:
     SAHANLIK = json.load(_f)
 
-_sy = math.radians(SAHANLIK["yon"])
-_ileri_x, _ileri_y = math.cos(_sy), math.sin(_sy)
-_u = (GX - SAHANLIK["x"]) * _ileri_x + (GY - SAHANLIK["y"]) * _ileri_y
-_v = -(GX - SAHANLIK["x"]) * _ileri_y + (GY - SAHANLIK["y"]) * _ileri_x
+def _duzle(Z, S):
+    """Dikdörtgen bir sekiyi S["kot"]a düzler; eteğinde araziye yumuşak geçiş"""
+    sy = math.radians(S["yon"])
+    ix, iy = math.cos(sy), math.sin(sy)
+    u = (GX - S["x"]) * ix + (GY - S["y"]) * iy
+    v = -(GX - S["x"]) * iy + (GY - S["y"]) * ix
+    # Dikdörtgenin dışına olan mesafe (içeride 0)
+    du = np.maximum(S["ileri_min"] - u, u - S["ileri_max"])
+    dv = np.abs(v) - S["yan_yari"]
+    dis = np.hypot(np.maximum(du, 0.0), np.maximum(dv, 0.0))
+    # Seki yalnızca KARADA geçerli ve kıyıya da taşmıyor: yoksa etek denizin
+    # üstünü de 59 metreye kaldırıyor ve teras havada bir çıkma gibi duruyordu.
+    a = np.clip(1.0 - dis / S["etek"], 0.0, 1.0) ** 2
+    a = a * kara_mi * np.clip((kiyiya - 6.0) / 18.0, 0.0, 1.0)
+    return Z * (1.0 - a) + S["kot"] * a
 
-# Dikdörtgenin dışına olan mesafe (içeride 0)
-_du = np.maximum(SAHANLIK["ileri_min"] - _u, _u - SAHANLIK["ileri_max"])
-_dv = np.abs(_v) - SAHANLIK["yan_yari"]
-_dis = np.hypot(np.maximum(_du, 0.0), np.maximum(_dv, 0.0))
 
-# Sekinin içinde tam düz, eteğinde araziye yumuşak geçiş.
-# Seki yalnızca KARADA geçerli ve kıyıya da taşmıyor: yoksa etek denizin
-# üstünü de 59 metreye kaldırıyor ve teras havada bir çıkma gibi duruyordu.
-_agirlik = np.clip(1.0 - _dis / SAHANLIK["etek"], 0.0, 1.0) ** 2
-_agirlik = _agirlik * kara_mi * np.clip((kiyiya - 6.0) / 18.0, 0.0, 1.0)
-Z = Z * (1.0 - _agirlik) + SAHANLIK["kot"] * _agirlik
+Z = _duzle(Z, SAHANLIK)
 print(f"Otel sahanlığı : {SAHANLIK['kot']:.0f} m kotunda, "
       f"{SAHANLIK['ileri_max'] - SAHANLIK['ileri_min']:.0f}x"
       f"{2 * SAHANLIK['yan_yari']:.0f} m + {SAHANLIK['etek']:.0f} m etek")
+
+# Öteki sekiler: statın kaidesi (2 Ekim gece) — duzada.py yazar
+_duzluk_yolu = os.path.join(BURASI, "duzlukler.json")
+if os.path.exists(_duzluk_yolu):
+    with open(_duzluk_yolu, encoding="utf-8") as _f:
+        for _S in json.load(_f):
+            Z = _duzle(Z, _S)
+            print(f"Seki           : {_S['ad']}, {_S['kot']:.0f} m")
 
 print(f"Rakım aralığı  : {Z.min():.0f} … {Z.max():.0f} m")
 
