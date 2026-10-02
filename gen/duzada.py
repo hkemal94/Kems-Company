@@ -817,6 +817,17 @@ def _dm(p):
     return ((p[0] - LNG0) * M_PER_LNG, (p[1] - LAT0) * M_PER_LAT)
 
 
+def _parcala(g):
+    """Her türlü geometriden çokgen listesi"""
+    if g.is_empty:
+        return []
+    if g.geom_type == "Polygon":
+        return [g]
+    if hasattr(g, "geoms"):
+        return [p for h in g.geoms for p in _parcala(h)]
+    return []
+
+
 def _kurucu_tasi(geom, d):
     """Kurucu'nun yapı düzenini (dx, dy metre, y aşağı; aci radyan) uygular"""
     from shapely import affinity
@@ -1161,6 +1172,43 @@ OTEL_SAHANLIK = {
     "ileri_min": -88.0, "ileri_max": TERAS_ON + 4.0, "yan_yari": 52.0,
     "kot": round(_otel_kot, 1), "etek": 46.0,
 }
+
+# Kemal oteli Kurucu'da taşıdıysa (2 Ekim: kuleler biri aşağıda biri yukarıda
+# kaldı, teras yamaca serildi) sahanlık, teras ve bahçe otelle birlikte
+# yeni yerine gider. Binaların kendisi Kurucu'nun yapı düzeniyle taşınıyor;
+# burada yalnız altındaki zemin onlara uyduruluyor.
+_OTEL_DUZENI = _KURUCU.get("yapiDuzeni", {}).get("bina_imperial")
+
+
+def _otel_tasi(g):
+    """Zemini otelin Kurucu'daki düzeniyle taşır (otel yoksa olduğu gibi)"""
+    if not _OTEL_DUZENI:
+        return g
+    from shapely import affinity
+    g = affinity.rotate(g, -_OTEL_DUZENI.get("aci", 0.0), origin=(ox, oy), use_radians=True)
+    return affinity.translate(g, _OTEL_DUZENI.get("dx", 0.0),
+                              -_OTEL_DUZENI.get("dy", 0.0) * 111320.0 / M_PER_LAT)
+
+
+if _OTEL_DUZENI:
+    _yeni_merkez = _otel_tasi(Point(ox, oy))
+    OTEL_SAHANLIK["x"], OTEL_SAHANLIK["y"] = _yeni_merkez.x, _yeni_merkez.y
+    OTEL_SAHANLIK["yon"] = OTEL_YON - math.degrees(_OTEL_DUZENI.get("aci", 0.0))
+    print(f"  Sahanlık         : Kurucu'daki otelle taşındı "
+          f"({_yeni_merkez.x - ox:+.0f}, {_yeni_merkez.y - oy:+.0f}) m")
+
+
+def _sahanlik_dortgeni(s_):
+    """Sahanlığın düz kısmı (çokgen) — evler buraya konmaz"""
+    a = math.radians(s_["yon"])
+    ix, iy = math.cos(a), math.sin(a)
+    k = [(s_["x"] + ix * u - iy * v, s_["y"] + iy * u + ix * v)
+         for u, v in ((s_["ileri_min"], -s_["yan_yari"]), (s_["ileri_max"], -s_["yan_yari"]),
+                      (s_["ileri_max"], s_["yan_yari"]), (s_["ileri_min"], s_["yan_yari"]))]
+    return Polygon(k)
+
+
+OTEL_YERLESKESI = _sahanlik_dortgeni(OTEL_SAHANLIK)
 with open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
                        "otel_sahanlik.json"), "w", encoding="utf-8") as _f:
     json.dump(OTEL_SAHANLIK, _f, ensure_ascii=False, indent=1)
@@ -1221,6 +1269,10 @@ zemin.append({
 })
 
 for z in zemin:
+    if _OTEL_DUZENI:
+        # otelle birlikte taşınır; uçurumun ötesine taşan kısmı kırpılır
+        _g = _otel_tasi(z["geom"]).intersection(ada.buffer(-6))
+        z["geom"] = max(_parcala(_g) if _g.geom_type != "Polygon" else [_g], key=lambda p: p.area)
     if not ada.contains(z["geom"]):
         raise SystemExit(f"HATA: {z['ad']} karada değil")
     _c = z["geom"].centroid
@@ -2188,17 +2240,6 @@ from shapely.prepared import prep as _hazirla
 
 
 
-def _parcala(g):
-    """Her türlü geometriden çokgen listesi"""
-    if g.is_empty:
-        return []
-    if g.geom_type == "Polygon":
-        return [g]
-    if hasattr(g, "geoms"):
-        return [p for h in g.geoms for p in _parcala(h)]
-    return []
-
-
 _YOL_YARI_EN = {"ana yol": 6.0, "yol": 4.5, "cadde": 4.5, "sokak": 3.0,
                 "merdiven": 2.2, "toprak": 3.0}
 _KURUCU_YARI_EN = {"ana": 4.5, "sokak": 3.0, "toprak": 3.0, "patika": 1.2}
@@ -2281,6 +2322,13 @@ for _b in binalar:
 for _z in STAD_ZEMIN:
     _yerlestir(_z[2].buffer(2.0))
     _engeller.append(_z[2].buffer(2.0))
+# Otel yerleşkesi (2 Ekim, Kemal: "otel bahçesinde binalar var"): sahanlık,
+# teras ve bahçe; otel Kurucu'da taşındıysa eski yeri de otelin arazisi
+_otel_arazi = [OTEL_YERLESKESI, _sahanlik_dortgeni({**OTEL_SAHANLIK, "x": ox, "y": oy, "yon": OTEL_YON})]
+_otel_arazi += [z["geom"] for z in zemin if z["id"] in ("zemin_teras", "zemin_bahce")]
+for _g in _otel_arazi:
+    _yerlestir(_g.buffer(6.0))
+    _engeller.append(_g.buffer(6.0))
 _kurucu_meydanlari = []
 for _y in _KURUCU.get("yapilar", []):
     _cx, _cy = _dm(_y["merkez"])

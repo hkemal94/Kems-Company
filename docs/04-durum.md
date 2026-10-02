@@ -1440,3 +1440,17 @@ Kemal: "Senin yollarınla üret", "Hepsi yeniden, ben düzeltirim". Stat için:
 - Yöntem üretecin Ege dokusuyla aynı (`src/components/kurucu/mahalleDoldur.ts`).
 - Kurucu'da konan evler haritada artık hazır evlerle aynı renkleri ve
   kiremit / düz dam çatıları alıyor.
+
+## 2 Ekim gece — Otel yerleşkesi düzeltmesi
+
+Kemal (3B ekran görüntüsü): "Otel bahçesinde binalar var, teras bir garip
+duruyor, kulelerin biri aşağıda biri yukarıda."
+
+- Sebep: Kemal oteli Kurucu'da ~46 m taşımıştı; bina düzlenmiş sahanlıktan
+  çıkıp yamaca geçti (her parça oturduğu yerin kotunu aldı), teras ve bahçe
+  eski yerde kaldı. Ege dokusu da otelin arazisini yasak saymıyordu.
+- Sahanlık (arazi düzlemesi, `gen/dem.py`), Otel Terası ve Otel Bahçesi
+  artık Kurucu'daki otelin yerine ve yönüne göre üretiliyor
+  (`kurucu-yollari.json` → `yapiDuzeni.bina_imperial`).
+- Otelin eski ve yeni sahanlığı, terası, bahçesi ev üretiminde yasak alan.
+- `gen/dem.py`'nin çıktı yolu düzeltildi (depo kökündeki `src/data`).
