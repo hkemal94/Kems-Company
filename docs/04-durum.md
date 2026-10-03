@@ -1508,3 +1508,8 @@ nokta), kayıt 740 KB'a çıktı ve Kurucu her değişiklikte hepsini yazıyordu
   oyun arşivi, eski öneri işaretleri ve kitap bölümlerindeki otel
   simülasyonu günleri (vakalar, doluluk, hava, notlar) silinir; kayıtlar
   kalır. Kemal basar (kota açıldıktan sonra).
+- Ana sayfada **Bekleyen işler** kartı (3 Ekim, Kemal: "onlara buton ver,
+  aratma bana"): harita kaydını küçült / Kurucu taslağını haritaya işle,
+  eski alanları sil, kullanılmayan kayıtları sil, boşlukları künyeden
+  doldur, galeriye görseller. Her birinin "Yap" düğmesi, üstte "Hepsini
+  yap". İş kalmayınca kart kaybolur (`src/components/anasayfa/BekleyenIsler.tsx`).

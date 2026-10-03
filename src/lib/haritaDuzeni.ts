@@ -132,6 +132,21 @@ const belgeye = (d: HaritaDuzeni): Belge => {
   return b;
 };
 
+/**
+ * Ana sayfadaki "Bekleyen işler" için (3 Ekim): harita kaydı şişmiş mi,
+ * Kurucu taslağı haritaya işlenmemiş mi? Şişmiş: yazılacak temiz hâli
+ * bugünkünden %20'den fazla küçük.
+ */
+export function haritaKaydiDurumu(d: HaritaDuzeni | null): { sisik: boolean; islenmemis: boolean } {
+  if (!d) return { sisik: false, islenmemis: false };
+  const ham = JSON.stringify({ k: d.kurucu ?? null, i: d.kurucuIslenen ?? null }).length;
+  const temiz = belgeye(d);
+  const yeni = JSON.stringify({ k: temiz.kurucu ?? null, i: temiz.kurucuIslenen ?? null }).length;
+  const islenmemis = !!d.kurucu && JSON.stringify(kurucuyuTemizle(d.kurucu))
+    !== JSON.stringify(d.kurucuIslenen ? kurucuyuTemizle(d.kurucuIslenen) : null);
+  return { sisik: ham > 20000 && yeni < ham * 0.8, islenmemis };
+}
+
 const sayilar = (n: unknown): number[] =>
   Array.isArray(n) ? n.map(Number).filter(Number.isFinite) : [];
 
@@ -343,7 +358,7 @@ export function useHaritaDuzeni() {
     return () => { clearTimeout(yedekZaman); birak(); };
   }, []);
 
-  const kaydet = useCallback(async (yeni: HaritaDuzeni) => {
+  const kaydet = useCallback(async (yeni: HaritaDuzeni): Promise<boolean> => {
     // Kayıt her zaman yeni koordinatta yazılır; "eski" işareti kalkar
     const { eskiKoordinat: _eski, ...temiz } = yeni;
     const d: HaritaDuzeni = { ...temiz, guncelleme: yeni.guncelleme || Date.now() };
@@ -360,10 +375,12 @@ export function useHaritaDuzeni() {
       });
       setDurum('kaydedildi');
       setHata(null);
+      return true;
     } catch (e) {
       console.error('[harita düzeni] buluta yazılamadı', e);
       setDurum('yerelde');
       setHata(String((e as { code?: string })?.code ?? e));
+      return false;
     }
   }, []);
 

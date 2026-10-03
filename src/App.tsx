@@ -1009,6 +1009,8 @@ export default function App() {
                 onMaddeyiAc={maddeyiAc}
                 onAddItem={handleAddItem}
                 onUpdateItem={handleUpdateItem}
+                onDeleteItem={handleDeleteItem}
+                onAlanSil={handleAlanSil}
                 studyo={studyoIslemleri}
                 onOpenSearch={() => setIsSearchOpen(true)}
                 onBildirimYenile={() => setBildirimNabzi(n => n + 1)}
