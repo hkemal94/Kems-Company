@@ -1,3 +1,4 @@
+import { BekleyenIsler } from './BekleyenIsler';
 import React, { useEffect, useMemo, useState } from 'react';
 import { ChevronDown, LayoutGrid, Search } from 'lucide-react';
 import { useMasaustu } from '../kabuk/KatlanirBolum';
@@ -45,6 +46,8 @@ interface Props {
   onMaddeyiAc: (item: Item) => void;
   onAddItem: (item: Omit<Item, 'id' | 'createdAt' | 'updatedAt' | 'userId'> & { id?: string }) => Promise<void>;
   onUpdateItem: (item: Item) => Promise<void>;
+  onDeleteItem?: (id: string) => Promise<void>;
+  onAlanSil?: (id: string, yollar: string[]) => Promise<void>;
   /** Öneri tepsisi (stüdyoyla ortak) */
   studyo: StudyoIslemleri;
   onOpenSearch: () => void;
@@ -70,7 +73,7 @@ function selam(): string {
 }
 
 export const Anasayfa: React.FC<Props> = ({
-  items, bugunDugmeler, onGit, onMaddeyiAc, onAddItem, onUpdateItem, studyo,
+  items, bugunDugmeler, onGit, onMaddeyiAc, onAddItem, onUpdateItem, onDeleteItem, onAlanSil, studyo,
   onOpenSearch, onBildirimYenile, zil, yeniNotBekliyor, arti, onYeniNotAcildi, sekme, onSekme
 }) => {
   const [nabiz, setNabiz] = useState(0);
@@ -162,6 +165,7 @@ export const Anasayfa: React.FC<Props> = ({
                 </button>
                 {ac && b.id === 'bugun' && (
                   <>
+                    <BekleyenIsler items={items} onUpdateItem={onUpdateItem} onAddItem={onAddItem} onDeleteItem={onDeleteItem} onAlanSil={onAlanSil} />
                     <EksikOzeti eksikler={eksikler} dugmeler={bugunDugmeler} onAc={x => onGit('eksikler', x)} />
                     {gununSorusuKarti}
                     <OneriTepsisi {...studyo} sinir={3} />
@@ -184,6 +188,9 @@ export const Anasayfa: React.FC<Props> = ({
       )}
 
       {masa && (<>
+      {/* Bekleyen tek seferlik işler (3 Ekim, Kemal: "onlara buton ver, aratma bana") */}
+      <BekleyenIsler items={items} onUpdateItem={onUpdateItem} onAddItem={onAddItem} onDeleteItem={onDeleteItem} onAlanSil={onAlanSil} />
+
       {/*
         Kısayollar (30 Eylül, Kemal: "büyük şeyler çok derinlere saklanmış"):
         büyük araçlar ana sayfadan tek dokunuşla. Yalnız masaüstünde.

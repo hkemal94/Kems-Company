@@ -66,7 +66,12 @@ terimsiz olur. Kodu değil, **ekranda ne değiştiğini** anlat.
   `src/lib/` altında yazılacak kayıtları üreten saf bir fonksiyon + Durum → Eksikler
   sekmesinde (`src/components/Eksikler.tsx`) yalnızca iş varken
   görünen bir kart. İkinci basışta hiçbir şey yapmamalı. Örnekler:
-  `kanonKararlari.ts`, `markaYapisi.ts`, `otelTemizligi.ts`.
+  `markaYapisi.ts`, `temizlik.ts` (`eskiAlanlar`). İşi biten göç kartı ve
+  kodu silinir (2 Ekim gece: soru-cevap, W3–W5, kanon, viki düzeni gitti).
+- **Yazma kotası:** veritabanı ücretsiz katmanda; günlük yazma sınırı belge
+  boyutuna göre sayılıyor (2 Ekim'de doldu). Büyük belgeyi sık yazan kod
+  yazılmaz; Kurucu 20 sn biriktirip yazar, yollar `lib/hatSadelestir.ts`'den
+  geçer. Yazma reddedilirse ekranda uyarı çıkar.
 
 **Yazı ve ad**
 - **Kurgu metni yazma.** Künye, mekân hikâyesi, slogan, drop anlatısı
@@ -162,6 +167,6 @@ olmayan iş oraya yazılır, bitince silinir.
 ## Açık işler (29 Eylül itibarıyla)
 
 Eski otel yazıları ve ad / tarih soruları vikiye işlendi (kanon kartı,
-29 Eylül gece Kemal bastı; `src/lib/kanonKararlari.ts`). Kalan açık
+29 Eylül gece Kemal bastı; kart ve kodu 2 Ekim'de silindi). Kalan açık
 sorular `docs/soru-cevap/acik-sorular.md`'de. "Eylül Hanım" yalnız bir
 ad; bu karakter hakkında hiçbir şey yazma ya da önerme.

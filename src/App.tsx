@@ -10,6 +10,7 @@ import {
   saveSettings, 
   saveItem, 
   deleteItemDoc,
+  alanlariSil,
 } from './lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { geceHazirliginiYap, yapilacaklar } from './lib/geceHazirligi';
@@ -367,6 +368,20 @@ export default function App() {
   };
 
   // Firestore DB operations wrapper passed down
+  /**
+   * Kayıt sunucuya yazılamadıysa açıkça söylenir (2 Ekim gece, Kemal:
+   * "düzenlediklerim anlık kaydoluyor, yenileyince eski hâline dönüyor").
+   * Ekran değişikliği hemen gösteriyordu ama yazma reddedilince hiçbir şey
+   * demiyordu; o gün veritabanının günlük yazma kotası dolmuştu.
+   */
+  const [kayitHatasi, setKayitHatasi] = useState<string | null>(null);
+  const kayitHatasiGoster = (e: unknown) => {
+    const metin = e instanceof Error ? e.message : String(e);
+    setKayitHatasi(/quota|resource.?exhausted/i.test(metin)
+      ? 'Kaydedilemedi: veritabanının günlük yazma sınırı doldu. Değişiklik bu ekranda duruyor ama sayfayı yenilersen kaybolur. Sınır her gün Türkiye saatiyle 10:00\'da sıfırlanır.'
+      : 'Kaydedilemedi: sunucu yazmayı kabul etmedi. Değişiklik bu ekranda duruyor ama sayfayı yenilersen kaybolur.');
+  };
+
   const handleAddItem = async (itemData: Omit<Item, 'id' | 'createdAt' | 'updatedAt' | 'userId'> & { id?: string }) => {
     if (!user) return;
     const randomSuffix = Math.random().toString(36).substring(2, 7);
@@ -394,7 +409,12 @@ export default function App() {
     // İyimser anlık güncelleme: Sayılar ve liste sunucu turunu beklemeden anında yenilenir
     setItems(prev => [newItem, ...prev.filter(i => i.id !== id)]);
     setLastSyncTime(new Date());
-    await saveItem(user.uid, newItem);
+    try {
+      await saveItem(user.uid, newItem);
+    } catch (e) {
+      kayitHatasiGoster(e);
+      throw e;
+    }
   };
 
   const handleUpdateItem = async (updatedItem: Item) => {
@@ -402,7 +422,30 @@ export default function App() {
     // İyimser anlık güncelleme
     setItems(prev => prev.map(i => i.id === updatedItem.id ? { ...updatedItem, updatedAt: Date.now() } : i));
     setLastSyncTime(new Date());
-    await saveItem(user.uid, updatedItem);
+    try {
+      await saveItem(user.uid, updatedItem);
+    } catch (e) {
+      kayitHatasiGoster(e);
+      throw e;
+    }
+  };
+
+  /** Kayıttan alan siler (eski alan temizliği, 2 Ekim gece) */
+  const handleAlanSil = async (itemId: string, yollar: string[]) => {
+    if (!user) return;
+    const anahtarlar = yollar.map(y => y.replace(/^metadata\./, ''));
+    setItems(prev => prev.map(i => {
+      if (i.id !== itemId || !i.metadata) return i;
+      const m = { ...i.metadata } as Record<string, unknown>;
+      anahtarlar.forEach(k => { delete m[k]; });
+      return { ...i, metadata: m as Item['metadata'] };
+    }));
+    try {
+      await alanlariSil(user.uid, itemId, yollar);
+    } catch (e) {
+      kayitHatasiGoster(e);
+      throw e;
+    }
   };
 
   /**
@@ -844,6 +887,13 @@ export default function App() {
     <StudyoPaneli {...studyoIslemleri} />
     <div className="min-h-screen bg-[#F3EFE8] dark:bg-[#0B132B] text-[#0E1C4F] dark:text-[#F3EFE8] font-sans transition-colors duration-200 paper-grain selection:bg-[#F26B6F] selection:text-white">
 
+      {kayitHatasi && (
+        <div role="alert" className="fixed z-[60] top-3 left-3 right-3 lg:left-1/2 lg:right-auto lg:-translate-x-1/2 lg:max-w-xl flex items-start gap-2 rounded-xl bg-[#F26B6F] text-white px-4 py-3 text-[13px] font-medium shadow-[0_10px_26px_-10px_rgba(0,0,0,0.5)]">
+          <span className="flex-1">{kayitHatasi}</span>
+          <button type="button" onClick={() => setKayitHatasi(null)} aria-label="Kapat" className="shrink-0 px-1 font-bold cursor-pointer">×</button>
+        </div>
+      )}
+
       {/* MASAÜSTÜ: ince simge çubuğu; üstüne gelince açılır, adlar görünür */}
       <nav className="group/ray hidden lg:flex fixed inset-y-0 left-0 z-40 w-16 hover:w-60 has-[:focus-visible]:w-60 hover:delay-150 transition-[width,box-shadow] duration-200 hover:shadow-2xl flex-col py-3 overflow-x-hidden overflow-y-auto [scrollbar-width:none] bg-[#0E1C4F] dark:bg-[#081029]">
         <button type="button" onClick={() => git('komuta')} aria-label="Ana sayfa" className="mx-3 mb-2 flex items-center gap-3 cursor-pointer">
@@ -959,6 +1009,8 @@ export default function App() {
                 onMaddeyiAc={maddeyiAc}
                 onAddItem={handleAddItem}
                 onUpdateItem={handleUpdateItem}
+                onDeleteItem={handleDeleteItem}
+                onAlanSil={handleAlanSil}
                 studyo={studyoIslemleri}
                 onOpenSearch={() => setIsSearchOpen(true)}
                 onBildirimYenile={() => setBildirimNabzi(n => n + 1)}
@@ -982,6 +1034,7 @@ export default function App() {
                 onUpdateItem={handleUpdateItem}
                 onAddItem={handleAddItem}
                 onDeleteItem={handleDeleteItem}
+                onAlanSil={handleAlanSil}
                 eksikAcik={eksikAcik}
                 eposta={girisli ? user?.email : null}
               />

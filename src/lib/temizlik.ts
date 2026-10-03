@@ -78,3 +78,39 @@ export function silmeOzeti(liste: SilmeNedeni[]): string {
   for (const s of liste) say.set(s.neden, (say.get(s.neden) || 0) + 1);
   return [...say.entries()].map(([n, k]) => `${k} ${n}`).join(' · ');
 }
+
+/**
+ * Kayıtlarda kalan, kodun artık hiç okumadığı alanlar (2 Ekim gece, Kemal:
+ * "kullanılmayan her şeyi sil"). Kayıt durur, yalnız bu alanlar silinir.
+ *   - eskiMetin: soru-cevap / W3 / W5 aktarımlarının yedeği (göçler bitti)
+ *   - oyunArsivi: otel maddesinde silinen otel simülasyonunun arşivi
+ *   - proposalsSeeded: eski öneri sisteminin işareti
+ *   - kitap bölümlerindeki otel simülasyonu günleri: resepsiyon vakaları,
+ *     doluluk, hava, sabah notu, müdür notu, beklenen çıkışlar
+ */
+const ESKI_ALANLAR = ['eskiMetin', 'oyunArsivi', 'proposalsSeeded'];
+const SIMULASYON_ALANLARI = ['operations', 'occupancy', 'weather', 'morningNote', 'memoText', 'memoFrom', 'expectedCheckouts'];
+
+export interface EskiAlan { item: Item; alanlar: string[] }
+
+export function eskiAlanlar(items: Item[]): EskiAlan[] {
+  const cikti: EskiAlan[] = [];
+  for (const i of items) {
+    const m = (i.metadata || {}) as Record<string, unknown>;
+    const adaylar = i.type === 'kitap_bolum' ? [...ESKI_ALANLAR, ...SIMULASYON_ALANLARI] : ESKI_ALANLAR;
+    const alanlar = adaylar.filter(a => a in m);
+    if (alanlar.length) cikti.push({ item: i, alanlar });
+  }
+  return cikti;
+}
+
+/** "7 eski metin · 16 otel simülasyonu günü …" */
+export function eskiAlanOzeti(liste: EskiAlan[]): string {
+  const say = (f: (a: string) => boolean) => liste.filter(e => e.alanlar.some(f)).length;
+  return [
+    [say(a => a === 'eskiMetin'), 'kayıtta eski metin'],
+    [say(a => a === 'oyunArsivi'), 'kayıtta oyun arşivi'],
+    [say(a => a === 'proposalsSeeded'), 'kayıtta eski öneri işareti'],
+    [say(a => SIMULASYON_ALANLARI.includes(a)), 'kitap bölümünde otel simülasyonu günü']
+  ].filter(([n]) => n).map(([n, ad]) => `${n} ${ad}`).join(' · ');
+}
