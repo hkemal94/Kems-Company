@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { BookOpen, ChevronLeft, Eye, MapPin, Search, Settings2, Unlink } from 'lucide-react';
+import { BookOpen, ChevronLeft, Eye, FileText, MapPin, Search, Settings2, Unlink } from 'lucide-react';
 import { Item, ItemType } from '../../types';
 import { isEntityUnlinked } from '../../utils/relations';
 import { buildLinkIndex } from './autoLink';
@@ -22,6 +22,8 @@ interface WikiShellProps {
   /** Madde düzenleyici ve "Yeni madde" (yapisal-4) */
   onUpdateItem?: (item: Item) => Promise<void>;
   onAddItem?: (item: Omit<Item, 'id' | 'createdAt' | 'updatedAt' | 'userId'> & { id?: string }) => Promise<void>;
+  /** Evren raporuna geçiş */
+  onRaporAc?: () => void;
 }
 
 /** Yeni maddede seçilebilen türler. Karakter yok (Kişi ile birleşti). */
@@ -45,7 +47,8 @@ export const WikiShell: React.FC<WikiShellProps> = ({
   onSitede,
   readOnly = false,
   onUpdateItem,
-  onAddItem
+  onAddItem,
+  onRaporAc
 }) => {
   const [yeniAcik, setYeniAcik] = useState(false);
   const [yeniAd, setYeniAd] = useState('');
@@ -217,6 +220,18 @@ export const WikiShell: React.FC<WikiShellProps> = ({
             </button>
           )}
 
+          {onRaporAc && (
+            <button
+              type="button"
+              onClick={onRaporAc}
+              className="flex items-center gap-1.5 text-[11px] font-mono px-2.5 py-1.5 rounded border border-bej/55 dark:border-lacivert-600/55 hover:bg-bej/15 dark:hover:bg-lacivert-600/30 transition-colors text-[#F26B6F] dark:text-[#F26B6F] font-semibold cursor-pointer"
+              title="Kapsamlı Düzada Evren Raporunu Aç"
+            >
+              <FileText size={12} />
+              Evren Raporu
+            </button>
+          )}
+
           {!readOnly && onAddItem && mode === 'yonetim' && (
             <button
               type="button"
@@ -230,7 +245,7 @@ export const WikiShell: React.FC<WikiShellProps> = ({
             <button
               type="button"
               onClick={() => setMode(m => (m === 'okuma' ? 'yonetim' : 'okuma'))}
-              className={`${onAddItem && mode === 'yonetim' ? '' : 'ml-auto '} flex items-center gap-1.5 text-[11px] font-mono px-2.5 py-1.5 rounded border border-bej/55 dark:border-lacivert-600/55 hover:bg-bej/15 dark:hover:bg-lacivert-600/30 transition-colors`}
+              className={`${onAddItem && mode === 'yonetim' ? '' : onRaporAc ? '' : 'ml-auto '} flex items-center gap-1.5 text-[11px] font-mono px-2.5 py-1.5 rounded border border-bej/55 dark:border-lacivert-600/55 hover:bg-bej/15 dark:hover:bg-lacivert-600/30 transition-colors`}
             >
               {admin ? <Settings2 size={12} /> : <Eye size={12} />}
               {admin ? 'yönetim yüzü' : 'okuma yüzü'}

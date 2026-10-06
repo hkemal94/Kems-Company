@@ -6,5 +6,7 @@
   "firestoreDatabaseId": "ai-studio-kemskomutamerkez-e87daa22-f667-4923-9ed3-924993c6e23e",
   "storageBucket": "mystical-transmitter-j4wsx.firebasestorage.app",
   "messagingSenderId": "46656609012",
-  "measurementId": ""
+  "measurementId": "",
+  "oAuthClientId": "46656609012-0iu649giiv48ii54m656b3jd9nalsdi5.apps.googleusercontent.com",
+  "recaptchaSiteKey": ""
 }

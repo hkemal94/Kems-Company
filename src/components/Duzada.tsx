@@ -13,11 +13,13 @@ import {
   haritadaAra, maddeTohumu, kunyeSatiri, type HaritaKunyesi
 } from '../lib/haritaMaddesi';
 import { SayfaRayi, type RayBolumu } from './SayfaRayi';
+import { DuzadaRaporu } from './duzada/DuzadaRaporu';
 
-/** Düzada'nın iki yüzü — sekme, kaydırma değil */
+/** Düzada'nın üç yüzü — Viki, Harita ve Evren Raporu */
 const RAY_BOLUMLERI: RayBolumu[] = [
   { id: 'wiki', label: 'Düzada Wiki' },
-  { id: 'harita', label: 'Harita ve Kurucu' }
+  { id: 'harita', label: 'Harita ve Kurucu' },
+  { id: 'rapor', label: 'Evren Raporu' }
 ];
 
 // MapLibre haritası ~1 MB'lık bir paket (motor + arazi verisi). Sekme
@@ -37,8 +39,8 @@ interface DuzadaProps {
   onUpdateItem: (item: Item) => Promise<void>;
   onDeleteItem: (itemId: string) => Promise<void>;
   onAddItem: (itemData: Omit<Item, 'id' | 'createdAt' | 'updatedAt' | 'userId'> & { id?: string }) => Promise<void>;
-  /** Menüden doğrudan bir sekmeye gelmek için (telefonda "Harita", "Kurucu") */
-  istek?: { sekme: 'wiki' | 'harita' | 'kurucu'; n: number } | null;
+  /** Menüden doğrudan bir sekmeye gelmek için (telefonda "Harita", "Kurucu", "Rapor") */
+  istek?: { sekme: 'wiki' | 'harita' | 'kurucu' | 'rapor'; n: number } | null;
 }
 
 
@@ -120,7 +122,7 @@ export default function Duzada({
 
   // Navigation / Tabs inside Düzada
   // Kurucu artık haritanın kendisi (29 Eylül): 'kurucu' isteği haritayı açar
-  const [activeTab, setActiveTab] = useState<'wiki' | 'harita'>(istek?.sekme === 'kurucu' ? 'harita' : istek?.sekme ?? 'wiki');
+  const [activeTab, setActiveTab] = useState<'wiki' | 'harita' | 'rapor'>(istek?.sekme === 'kurucu' ? 'harita' : istek?.sekme ?? 'wiki');
   useEffect(() => { if (istek) setActiveTab(istek.sekme === 'kurucu' ? 'harita' : istek.sekme); }, [istek?.n]);
   
   const regionsCreatedRef = useRef(false);
@@ -1059,11 +1061,21 @@ export default function Duzada({
           onHaritayaGit={() => setActiveTab('harita')}
           onUpdateItem={onUpdateItem}
           onAddItem={onAddItem}
+          onRaporAc={() => setActiveTab('rapor')}
           onSitede={(it, acik) => {
             // Yalnız Kemal basınca yazılır. Kayıt eskisinin üstüne eklenerek
             // yazıldığı için alanı silmek işe yaramıyor; kapatınca false yazılır.
             void onUpdateItem({ ...it, metadata: { ...(it.metadata || {}), sitede: acik } as Item['metadata'], updatedAt: Date.now() });
           }}
+        />
+      )}
+
+      {/* VIEW 3: EVREN RAPORU — kapsamlı, yazdırılabilir resmi Düzada raporu */}
+      {activeTab === 'rapor' && (
+        <DuzadaRaporu
+          items={items}
+          onMaddeSec={haritaMaddesiniAc}
+          onHaritayaGit={() => setActiveTab('harita')}
         />
       )}
 

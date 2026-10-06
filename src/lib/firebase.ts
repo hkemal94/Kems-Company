@@ -156,19 +156,49 @@ export const fetchAllItemsDirect = async (userId: string): Promise<Item[]> => {
 };
 
 export const subscribeToAllItemsWithArchived = (userId: string, callback: (items: Item[]) => void) => {
-  const path = `users/${userId}/items`;
-  const q = query(collection(db, "users", userId, "items"));
-  return onSnapshot(q, (snapshot) => {
-    const items: Item[] = [];
-    snapshot.forEach((doc) => {
-      items.push({ id: doc.id, ...doc.data() } as Item);
-    });
-    // Order by updatedAt desc
-    items.sort((a, b) => b.updatedAt - a.updatedAt);
-    callback(items);
-  }, (error) => {
-    console.warn("Firestore arşivli abonelik uyarısı:", error);
-  });
+  let isCancelled = false;
+  let currentUnsubscribe: (() => void) | null = null;
+  let retryTimer: any = null;
+
+  const startListening = () => {
+    if (isCancelled) return;
+    try {
+      const q = query(collection(db, "users", userId, "items"));
+      currentUnsubscribe = onSnapshot(q, (snapshot) => {
+        const items: Item[] = [];
+        snapshot.forEach((doc) => {
+          items.push({ id: doc.id, ...doc.data() } as Item);
+        });
+        // Order by updatedAt desc
+        items.sort((a, b) => b.updatedAt - a.updatedAt);
+        callback(items);
+      }, (error) => {
+        console.warn("Firestore arşivli abonelik uyarısı, yeniden bağlanılıyor:", error);
+        if (!isCancelled) {
+          clearTimeout(retryTimer);
+          retryTimer = setTimeout(startListening, 3000);
+        }
+      });
+    } catch (e) {
+      console.warn("Firestore listener başlatma hatası, tekrar denenecek:", e);
+      if (!isCancelled) {
+        clearTimeout(retryTimer);
+        retryTimer = setTimeout(startListening, 4000);
+      }
+    }
+  };
+
+  startListening();
+
+  return () => {
+    isCancelled = true;
+    clearTimeout(retryTimer);
+    if (currentUnsubscribe) {
+      try {
+        currentUnsubscribe();
+      } catch (_) {}
+    }
+  };
 };
 
 // Recursive helper to clean any undefined values from payloads before sending to Firestore
