@@ -1,6 +1,8 @@
 import React from 'react';
 import type { Item, AreaType } from '../../types';
-import OyunStudyo from './OyunStudyo';
+import OyunStudyoDefault, { OyunStudyo as OyunStudyoNamed } from './OyunStudyo';
+
+const OyunStudyoComponent = OyunStudyoDefault || OyunStudyoNamed;
 
 /**
  * Oyun sekmesinin kabuğu.
@@ -23,7 +25,7 @@ export interface OyunEkraniProps {
 }
 
 export const OyunEkrani: React.FC<OyunEkraniProps> = (p) => (
-  <OyunStudyo
+  <OyunStudyoComponent
     items={p.items}
     onAddItem={p.onAddItem}
     onUpdateItem={p.onUpdateItem}

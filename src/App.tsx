@@ -48,28 +48,59 @@ import { StudyoSaglayici, type StudyoIslemleri } from './components/studyo/Study
 import HizliFikir from './components/HizliFikir';
 import ArtiMenu from './components/kabuk/ArtiMenu';
 import HesapMenusu from './components/kabuk/HesapMenusu';
+import { HataKapsayici } from './components/kabuk/HataKapsayici';
 import { ayrilmayaIzinVar } from './lib/kaydedilmemis';
+
+/**
+ * Dinamik modül yükleyici: Ağ gecikmesi veya Vite önbellek yenilenmesi
+ * durumunda modülü güvenle tekrar dener.
+ */
+function lazyYukle<T extends React.ComponentType<any>>(
+  factory: () => Promise<{ default: T }>
+) {
+  return lazy(async () => {
+    try {
+      return await factory();
+    } catch (ilkHata: any) {
+      console.warn('Dinamik modül yüklenemedi, yeniden deneniyor...', ilkHata);
+      await new Promise(r => setTimeout(r, 300));
+      try {
+        return await factory();
+      } catch (ikinciHata: any) {
+        const anahtar = 'kems_chunk_reload';
+        const reloaded = sessionStorage.getItem(anahtar);
+        if (!reloaded) {
+          sessionStorage.setItem(anahtar, '1');
+          window.location.reload();
+          return new Promise<{ default: T }>(() => {});
+        }
+        sessionStorage.removeItem(anahtar);
+        throw ikinciHata;
+      }
+    }
+  });
+}
 
 /*
  * Sayfalar açılınca yüklenir (1 Ekim, K-3 Hız). Uygulama açılırken yalnız
  * kabuk ve ana sayfa iner; harita verisi, Oyun, Markalar… ilk girişte
  * bir an "yükleniyor" der, sonra hep hazırdır.
  */
-const Durum = lazy(() => import('./components/Durum'));
+const Durum = lazyYukle(() => import('./components/Durum'));
 import type { DurumSekmesi } from './components/Durum';
-const Duzada = lazy(() => import('./components/Duzada'));
-const Merch = lazy(() => import('./components/Merch'));
-const YaziAtolyesi = lazy(() => import('./components/YaziAtolyesi'));
-const Galeri = lazy(() => import('./components/Galeri'));
-const Sosyal = lazy(() => import('./components/sosyal/Sosyal'));
-const Site = lazy(() => import('./components/site/Site'));
-const SiteYonetimi = lazy(() => import('./components/site/SiteYonetimi'));
-const Takvim = lazy(() => import('./components/takvim/Takvim'));
-const Araclar = lazy(() => import('./components/araclar/Araclar'));
-const FanzinSayfasi = lazy(() => import('./components/fanzin/FanzinSayfasi'));
-const YolHaritasiSayfasi = lazy(() => import('./components/anasayfa/YolHaritasiSayfasi'));
-const OyunEkrani = lazy(() => import('./components/oyun/OyunEkrani'));
-const Markalar = lazy(() => import('./components/Markalar'));
+const Duzada = lazyYukle(() => import('./components/Duzada'));
+const Merch = lazyYukle(() => import('./components/Merch'));
+const YaziAtolyesi = lazyYukle(() => import('./components/YaziAtolyesi'));
+const Galeri = lazyYukle(() => import('./components/Galeri'));
+const Sosyal = lazyYukle(() => import('./components/sosyal/Sosyal'));
+const Site = lazyYukle(() => import('./components/site/Site'));
+const SiteYonetimi = lazyYukle(() => import('./components/site/SiteYonetimi'));
+const Takvim = lazyYukle(() => import('./components/takvim/Takvim'));
+const Araclar = lazyYukle(() => import('./components/araclar/Araclar'));
+const FanzinSayfasi = lazyYukle(() => import('./components/fanzin/FanzinSayfasi'));
+const YolHaritasiSayfasi = lazyYukle(() => import('./components/anasayfa/YolHaritasiSayfasi'));
+const OyunEkrani = lazyYukle(() => import('./components/oyun/OyunEkrani'));
+const Markalar = lazyYukle(() => import('./components/Markalar'));
 
 /** Sayfa ilk kez yüklenirken */
 const SayfaYukleniyor = () => (
@@ -1023,6 +1054,7 @@ export default function App() {
               />
             )}
 
+            <HataKapsayici onReset={() => git('komuta')}>
             <Suspense fallback={<SayfaYukleniyor />}>
             {activeTab === 'durum' && (
               <Durum
@@ -1157,6 +1189,7 @@ export default function App() {
               />
             )}
             </Suspense>
+            </HataKapsayici>
 
           </main>
         </div>
