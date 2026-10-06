@@ -1,7 +1,8 @@
-import { jsPDF } from 'jspdf';
 import type { Item } from '../types';
 import { WIKI_TYPES, TYPE_LABELS, isStub, BOLGE_ADLARI } from '../components/wiki/wikiSchema';
-import { DUZADA_ALAN_KM2, DUZADA_MERKEZ } from '../data/duzadaGeo';
+
+const DUZADA_MERKEZ: [number, number] = [25.85, 39.6];
+const DUZADA_ALAN_KM2 = 162.2;
 
 /**
  * jsPDF Type1 yazı tipi (Helvetica) için Türkçe karakterleri güvenle dönüştürür.
@@ -33,11 +34,14 @@ export interface DuzadaPdfRaporuSecenekleri {
 /**
  * Düzada evreni için filtrelenmiş verilerden resmi, yazdırılabilir ve
  * profesyonel mizanpaja sahip çok sayfalı PDF raporu üretir.
+ * jsPDF modülü yalnız bu fonksiyon çağrıldığında dinamik olarak yüklenir.
  */
-export function generateDuzadaPdf(
+export async function generateDuzadaPdf(
   items: Item[],
   options: DuzadaPdfRaporuSecenekleri = { kaydet: true }
-): jsPDF {
+): Promise<any> {
+  const { jsPDF } = await import('jspdf');
+
   // A4 Boyutu: 210 x 297 mm
   const doc = new jsPDF({
     orientation: 'portrait',

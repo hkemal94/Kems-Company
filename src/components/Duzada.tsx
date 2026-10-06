@@ -13,7 +13,6 @@ import {
   haritadaAra, maddeTohumu, kunyeSatiri, type HaritaKunyesi
 } from '../lib/haritaMaddesi';
 import { SayfaRayi, type RayBolumu } from './SayfaRayi';
-import { DuzadaRaporu } from './duzada/DuzadaRaporu';
 
 /** Düzada'nın üç yüzü — Viki, Harita ve Evren Raporu */
 const RAY_BOLUMLERI: RayBolumu[] = [
@@ -21,6 +20,11 @@ const RAY_BOLUMLERI: RayBolumu[] = [
   { id: 'harita', label: 'Harita ve Kurucu' },
   { id: 'rapor', label: 'Evren Raporu' }
 ];
+
+// Rapor sekmesi açılınca yüklenir (sayfa açılışı hafif kalsın diye)
+const DuzadaRaporu = lazy(() =>
+  import('./duzada/DuzadaRaporu').then(m => ({ default: m.DuzadaRaporu }))
+);
 
 // MapLibre haritası ~1 MB'lık bir paket (motor + arazi verisi). Sekme
 // açılmadan indirilmesin diye tembel yükleniyor.
@@ -1072,11 +1076,13 @@ export default function Duzada({
 
       {/* VIEW 3: EVREN RAPORU — kapsamlı, yazdırılabilir resmi Düzada raporu */}
       {activeTab === 'rapor' && (
-        <DuzadaRaporu
-          items={items}
-          onMaddeSec={haritaMaddesiniAc}
-          onHaritayaGit={() => setActiveTab('harita')}
-        />
+        <Suspense fallback={<div className="h-48 flex items-center justify-center font-mono text-xs text-[#6A5E4C] dark:text-[#A6B0C9] animate-pulse">Rapor hazırlanıyor…</div>}>
+          <DuzadaRaporu
+            items={items}
+            onMaddeSec={haritaMaddesiniAc}
+            onHaritayaGit={() => setActiveTab('harita')}
+          />
+        </Suspense>
       )}
 
       {/* Custom Confirm Modal for iframe environment safety */}
