@@ -54,6 +54,8 @@ export async function evrenRaporuPdf(items: Item[]): Promise<void> {
   maddeListesi(p, r.kurumlar);
   p.bolum(`Mekânlar (${r.mekanlar.length})`);
   maddeListesi(p, r.mekanlar);
+  p.bolum(`Cadde, meydan ve yer adları (${r.yerler.length})`);
+  maddeListesi(p, r.yerler);
   p.bolum(`Aileler (${r.aileler.length})`);
   maddeListesi(p, r.aileler);
   p.bolum(`Olaylar (${r.olaylar.length})`);

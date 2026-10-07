@@ -116,7 +116,7 @@ export const Site: React.FC<Props> = ({ items, onKapat }) => {
     const q = trKucuk(aranan.trim());
     return aranabilir.filter(i => !q || trKucuk(i.title).includes(q) || trKucuk(i.notes || '').includes(q)).slice(0, 30);
   }, [aranabilir, aranan]);
-  const haritaMaddeleri = useMemo(() => vikiMaddeleri.filter(i => ['yer', 'mekân', 'dükkân', 'kulüp'].includes(i.type))
+  const haritaMaddeleri = useMemo(() => vikiMaddeleri.filter(i => ['yer', 'cadde', 'meydan', 'yer_adi', 'mekân', 'dükkân', 'kulüp'].includes(i.type))
     .sort((a, b) => a.title.localeCompare(b.title, 'tr')), [vikiMaddeleri]);
 
   const simge = `w-10 h-10 sm:w-[42px] sm:h-[42px] rounded-full flex items-center justify-center border backdrop-blur-md ${saydam ? 'bg-[#0E1C4F]/35 border-[#F3EFE8]/25 text-[#F3EFE8]' : koyu ? 'bg-[#F3EFE8]/10 border-[#F3EFE8]/20 text-[#F3EFE8]' : 'bg-[#0E1C4F] border-transparent text-[#F3EFE8]'}`;

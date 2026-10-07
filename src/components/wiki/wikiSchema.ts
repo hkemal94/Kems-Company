@@ -14,6 +14,10 @@ const TYPE_TO_SCHEMA: Partial<Record<ItemType, string>> = {
   mekân: 'mekan',
   dükkân: 'mekan',
   yer: 'yer',
+  cadde: 'cadde',
+  meydan: 'meydan',
+  yer_adi: 'yer_adi',
+  ada: 'ada',
   marka: 'marka',
   kulüp: 'marka',
   olay: 'olay',
@@ -29,6 +33,10 @@ export const TYPE_LABELS: Partial<Record<ItemType, string>> = {
   mekân: 'Mekân',
   dükkân: 'Dükkân',
   yer: 'Mahalle',
+  cadde: 'Cadde / sokak',
+  meydan: 'Meydan',
+  yer_adi: 'Yer adı',
+  ada: 'Ada',
   marka: 'Marka',
   kulüp: 'Kulüp',
   olay: 'Olay',
@@ -38,8 +46,14 @@ export const TYPE_LABELS: Partial<Record<ItemType, string>> = {
 
 /** Wiki'de kendi sayfası olan tipler */
 export const WIKI_TYPES: ItemType[] = [
-  'yer', 'mekân', 'dükkân', 'kulüp', 'marka', 'kisi', 'karakter', 'aile', 'olay', 'ürün', 'oda'
+  'yer', 'cadde', 'meydan', 'yer_adi', 'ada', 'mekân', 'dükkân', 'kulüp', 'marka', 'kisi', 'karakter', 'aile', 'olay', 'ürün', 'oda'
 ];
+
+/**
+ * Yer kartları (8 Ekim, Kemal: "cadde ve tepeyi mahalle kartı altında ele
+ * alıyor, bu doğru değil"). 'yer' artık yalnız mahalle.
+ */
+export const YER_TURLERI: ItemType[] = ['yer', 'cadde', 'meydan', 'yer_adi', 'ada'];
 
 export function schemaKeyFor(type: ItemType): string | undefined {
   return TYPE_TO_SCHEMA[type];

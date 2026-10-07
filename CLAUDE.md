@@ -92,6 +92,10 @@ terimsiz olur. Kodu değil, **ekranda ne değiştiğini** anlat.
   yazılmaz.** Buradaki eski otel simülasyonu 29 Eylül'de silindi; oyunun
   kaynağı hiçbir zaman o değildi.
 - Otel departmanlarına (Resepsiyon, Kat Hizmetleri, Güvenlik) ad uydurulmaz.
+- **Yer kartları** (8 Ekim): `yer` yalnız mahalle; cadde / sokak `cadde`,
+  `meydan`, yer adı (tepe, koy…) `yer_adi`, adanın kendisi `ada`
+  (`src/lib/yerTurleri.ts`). Aynı başlıkta dolu bölüme gelen öneri yeni
+  bölüm açmaz, `bekleyenOneri` olarak bekler.
 
 **Marka**
 - **Kems Company tek markadır.** Dirlik Spor Kulübü ve Küçükçetmi Sürek

@@ -18,7 +18,7 @@ interface Props {
   onKapat: () => void;
 }
 
-const TURLER: ItemType[] = ['kisi', 'aile', 'mekân', 'dükkân', 'yer', 'kulüp', 'marka', 'olay', 'ürün'];
+const TURLER: ItemType[] = ['kisi', 'aile', 'mekân', 'dükkân', 'yer', 'cadde', 'meydan', 'yer_adi', 'ada', 'kulüp', 'marka', 'olay', 'ürün'];
 const HUCRE = 'w-full min-w-[9rem] bg-transparent px-2 py-1.5 text-[13px] rounded border border-transparent hover:border-bej/70 focus:border-kiremit focus:bg-white dark:focus:bg-lacivert-800 focus:outline-hidden';
 
 /** "metadata.profile.x" yoluna değer yazılmış yeni kayıt (Firestore: undefined yok) */

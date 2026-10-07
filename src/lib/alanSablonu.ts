@@ -26,6 +26,8 @@ export const BAG_GRUPLARI = {
   mekan: { ad: 'Mekân', turler: ['mekân', 'dükkân'] },
   kurum: { ad: 'Kurum', turler: ['kulüp', 'marka'] },
   mahalle: { ad: 'Mahalle', turler: ['yer'] },
+  yol: { ad: 'Cadde / meydan', turler: ['cadde', 'meydan'] },
+  doga: { ad: 'Yer adı', turler: ['yer_adi'] },
   olay: { ad: 'Olay', turler: ['olay'] },
   esya: { ad: 'Eşya', turler: ['ürün'] }
 } as const satisfies Record<string, { ad: string; turler: readonly ItemType[] }>;
@@ -52,7 +54,9 @@ export type VikiSablonu = Record<string, SablonAlani[]>;
 /** Türlerin şablon sayfasındaki adları ve sırası */
 export const SABLON_TURLERI: Array<{ anahtar: string; ad: string }> = [
   { anahtar: 'kisi', ad: 'Kişi' }, { anahtar: 'aile', ad: 'Aile' }, { anahtar: 'mekan', ad: 'Mekân / dükkân' },
-  { anahtar: 'marka', ad: 'Kurum / marka' }, { anahtar: 'yer', ad: 'Mahalle / yer' }, { anahtar: 'olay', ad: 'Olay' },
+  { anahtar: 'marka', ad: 'Kurum / marka' }, { anahtar: 'yer', ad: 'Mahalle' },
+  { anahtar: 'cadde', ad: 'Cadde / sokak' }, { anahtar: 'meydan', ad: 'Meydan' }, { anahtar: 'yer_adi', ad: 'Yer adı' }, { anahtar: 'ada', ad: 'Ada' },
+  { anahtar: 'olay', ad: 'Olay' },
   { anahtar: 'urun', ad: 'Eşya' }, { anahtar: 'oda', ad: 'Oda' }
 ];
 
@@ -63,7 +67,10 @@ const VARSAYILAN_BAGLAR: Record<string, Record<string, { bag: BagGrubu[]; coklu?
   aile: { mekanlar: { bag: ['mekan'], coklu: true }, kisiler: { bag: ['kisi'], coklu: true } },
   marka: { leader: { bag: ['kisi', 'aile'], coklu: true } },
   olay: { manager: { bag: ['kisi', 'aile', 'kurum'], coklu: true } },
-  urun: { owner: { bag: ['kisi', 'mekan'], coklu: true } }
+  urun: { owner: { bag: ['kisi', 'mekan'], coklu: true } },
+  cadde: { region: { bag: ['mahalle'], coklu: true }, uzerindekiler: { bag: ['mekan'], coklu: true } },
+  meydan: { cevresi: { bag: ['mekan'], coklu: true }, caddeler: { bag: ['yol'], coklu: true } },
+  ada: { mahalleler: { bag: ['mahalle'], coklu: true } }
 };
 
 const govdeDisi = (f: KunyeSorusu) => f.fieldPath !== 'title' && f.fieldPath !== 'notes';

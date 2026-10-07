@@ -3,6 +3,8 @@ import { aiCagir, AiHatasi } from './aiCagir';
 import { hakkindaTaslaginaYaz } from './siteAyari';
 import { yeniGonderi } from './sosyal';
 import { MAHALLE_ISKELETI, mahalleMaddesi, mahalleMetniVerisi } from './mahalleMetinleri';
+import { derlemeVerisi, siraya } from './yerTurleri';
+import { adiCoz } from './alanSablonu';
 
 /**
  * Yapay zekâ stüdyosu (29 Eylül akşamı).
@@ -35,7 +37,7 @@ export const GRUP_ADLARI: Record<StudyoGrubu, string> = {
 export type SonucTuru = 'metin' | 'liste' | 'bolumler' | 'kunye' | 'renkler' | 'urunler';
 
 /** "Ekle" düğmesinin ne yaptığı; null ise yalnız kopyalanır */
-export type Uygulama = 'notlara-ekle' | 'bolum-ekle' | 'kunye-ekle' | 'baslik-yap' | 'metnin-yerine' | 'renk-ekle' | 'urun-ekle' | 'site-hakkinda' | 'gece-oneri-ekle' | 'fanzin-olustur' | 'fanzin-bolum' | null;
+export type Uygulama = 'notlara-ekle' | 'bolum-ekle' | 'bolum-derle' | 'kunye-ekle' | 'baslik-yap' | 'metnin-yerine' | 'renk-ekle' | 'urun-ekle' | 'site-hakkinda' | 'gece-oneri-ekle' | 'fanzin-olustur' | 'fanzin-bolum' | null;
 
 export interface StudyoAraci {
   id: string;
@@ -60,7 +62,7 @@ export interface StudyoAraci {
    * Tek çağrının sonucunu birden çok maddeye öneri olarak dağıtır
    * (mahalle metinleri). Maddesi bulunamayanlar `eksik`te döner.
    */
-  dagit?: (sonuc: StudyoSonucu, items: Item[]) => { oneriler: Array<{ hedef: Item; sonuc: StudyoSonucu }>; eksik: string[] };
+  dagit?: (sonuc: StudyoSonucu, items: Item[], hedef: Item | null) => { oneriler: Array<{ hedef: Item; sonuc: StudyoSonucu }>; eksik: string[] };
 }
 
 /** Fanzin bölümünün tonları (yapisal-4, 32: "yazıya göre seçilir") */
@@ -78,7 +80,7 @@ export const fanzinIstegi = (s = '') => {
   return m ? { sira: Number(m[1]), ton: m[2] } : null;
 };
 
-const VIKI: ItemType[] = ['yer', 'mekân', 'dükkân', 'kulüp', 'marka', 'kisi', 'karakter', 'aile', 'olay'];
+const VIKI: ItemType[] = ['yer', 'cadde', 'meydan', 'yer_adi', 'ada', 'mekân', 'dükkân', 'kulüp', 'marka', 'kisi', 'karakter', 'aile', 'olay'];
 const YAZI: ItemType[] = ['blog_post', 'kitap_bolum'];
 
 const vikiBaglami = (items: Item[]) => items
@@ -145,6 +147,34 @@ export const STUDYO_ARACLARI: StudyoAraci[] = [
         oneriler.push({ hedef, sonuc: { bolumler: [{ title: b.bolum, content: gelen.content }] } });
       });
       if (!oneriler.length && !eksik.length) throw new AiHatasi('Yapay zekâ bölümleri tanınmayan bir biçimde döndü; bir daha dene.');
+      return { oneriler, eksik };
+    }
+  },
+  {
+    // Mahalle derlemesi (8 Ekim, Kemal: "tekrar eden çok bilgi oldu"). Öneri
+    // bölümleri tek düzenli hâle gelir; resmî bölümlere dokunulmaz. Cadde,
+    // meydan ya da tepe hakkındaki uzun yazı o maddeye ayrı öneri olarak düşer.
+    id: 'viki-derle', grup: 'viki', ad: 'Mahalleyi derle', kurgu: true,
+    aciklama: 'Mahallenin öneri bölümlerini tek düzenli hâle getirir: her bilgi bir kez, aynı başlık iki kez yok, bölümler sabit sırada. Resmî bölümlere dokunmaz; yeni bilgi eklemez. Cadde, meydan ve tepe hakkındaki uzun yazı o maddeye ayrı öneri olur.',
+    hedefTurleri: ['yer'], sonuc: 'bolumler', uygulama: 'bolum-derle', task: 'mahalle-derle', enCokBolum: 12,
+    veri: (h, _s, items) => derlemeVerisi(h, items),
+    dagit: (sonuc, items, hedef) => {
+      const oneriler: Array<{ hedef: Item; sonuc: StudyoSonucu }> = [];
+      const eksik: string[] = [];
+      if (!hedef) return { oneriler, eksik };
+      const kendi = (sonuc.bolumler || []).filter(b => !b.madde).map(({ title, content }) => ({ title, content }));
+      oneriler.push({ hedef, sonuc: { bolumler: kendi, derle: true } });
+      const altlar = items.filter(i => !i.archived && ['cadde', 'meydan', 'yer_adi'].includes(i.type));
+      const tasinan = new Map<string, { hedef: Item; bolumler: Array<{ title: string; content: string }> }>();
+      for (const b of sonuc.bolumler || []) {
+        if (!b.madde || !b.content.trim()) continue;
+        const h = adiCoz(b.madde, altlar);
+        if (!h) { if (!eksik.includes(b.madde)) eksik.push(b.madde); continue; }
+        const t = tasinan.get(h.id) || { hedef: h, bolumler: [] };
+        t.bolumler.push({ title: b.title, content: b.content });
+        tasinan.set(h.id, t);
+      }
+      for (const t of tasinan.values()) oneriler.push({ hedef: t.hedef, sonuc: { bolumler: t.bolumler } });
       return { oneriler, eksik };
     }
   },
@@ -247,7 +277,9 @@ export const aracBul = (id?: string | null) => STUDYO_ARACLARI.find(a => a.id ==
 export interface StudyoSonucu {
   metin?: string;
   liste?: string[];
-  bolumler?: Array<{ title: string; content: string; anahtar?: string }>;
+  bolumler?: Array<{ title: string; content: string; anahtar?: string; madde?: string }>;
+  /** Mahalle derlemesi: "Ekle" öneri bölümlerinin yerine geçer */
+  derle?: boolean;
   kunye?: Record<string, string>;
   renkler?: Array<{ hex: string; name: string }>;
   urunler?: Array<{ title: string; description: string; slogan: string }>;
@@ -289,7 +321,7 @@ export function sonucuAyikla(arac: StudyoAraci, ham: unknown): StudyoSonucu {
     case 'bolumler': {
       const v = jsonAyikla(ham);
       // anahtar yalnız varsa yazılır (Firestore undefined kabul etmez)
-      const b = Array.isArray(v) ? v.filter(x => x && metinMi(x.title)).map(x => ({ title: String(x.title), content: String(x.content || ''), ...(metinMi(x.anahtar) ? { anahtar: x.anahtar } : {}) })) : [];
+      const b = Array.isArray(v) ? v.filter(x => x && metinMi(x.title)).map(x => ({ title: String(x.title), content: String(x.content || ''), ...(metinMi(x.anahtar) ? { anahtar: x.anahtar } : {}), ...(metinMi(x.madde) ? { madde: x.madde.trim() } : {}) })) : [];
       return b.length ? { bolumler: b.slice(0, arac.enCokBolum || 6) } : bozuk();
     }
     case 'kunye': {
@@ -337,6 +369,26 @@ export function oneriKaydi(arac: StudyoAraci, hedef: Item | null, sonuc: StudyoS
 }
 
 // ---------------------------------------------------------------- "Ekle"
+
+const baslikAnahtari = (s = '') => s.trim().toLocaleLowerCase('tr').replace(/\s+/g, ' ');
+
+/**
+ * Bölüm önerisini maddeye ekler. Aynı başlıkta boş bölüm varsa o dolar;
+ * dolu bölüm varsa (8 Ekim, Kemal: "Merkez'de bir sürü tarihçe oldu")
+ * yeni bölüm açılmaz, öneri o bölümün altında bekler (`bekleyenOneri`).
+ */
+export function bolumleriEkle(hedef: Item, bolumler: Array<{ title: string; content: string }>, simdi = Date.now()): Item {
+  const eski = [...((hedef.metadata?.wikiSections as WikiSection[]) || [])];
+  const yeni: WikiSection[] = [];
+  bolumler.forEach((b, n) => {
+    if (!b.content.trim()) return;
+    const ayni = eski.findIndex(e => baslikAnahtari(e.title) === baslikAnahtari(b.title));
+    if (ayni < 0) { yeni.push({ id: `studyo_${simdi}_${n}`, title: b.title, content: b.content, status: 'öneri' }); return; }
+    if (!String(eski[ayni].content || '').trim()) eski[ayni] = { ...eski[ayni], content: b.content, status: 'öneri' };
+    else eski[ayni] = { ...eski[ayni], bekleyenOneri: b.content };
+  });
+  return { ...hedef, metadata: { ...hedef.metadata, wikiSections: [...eski, ...yeni] }, updatedAt: simdi };
+}
 
 export interface EkleSecimi {
   /** baslik-yap: seçilen başlık; urun-ekle: hangi ürün (sıra) */
@@ -411,16 +463,24 @@ export function oneriyiUygula(
       return oneri.metin ? { guncel: { ...hedef, notes: oneri.metin, updatedAt: simdi } } : null;
     case 'baslik-yap':
       return typeof s.secim === 'string' && s.secim.trim() ? { guncel: { ...hedef, title: s.secim.trim(), updatedAt: simdi } } : null;
-    case 'bolum-ekle': {
-      // Aynı başlıkta boş bir bölüm varsa yenisi açılmaz, o dolar
-      const eski = [...((hedef.metadata?.wikiSections as WikiSection[]) || [])];
+    case 'bolum-ekle':
+      return { guncel: bolumleriEkle(hedef, oneri.bolumler || [], simdi) };
+    case 'bolum-derle': {
+      if (!oneri.derle) return { guncel: bolumleriEkle(hedef, oneri.bolumler || [], simdi) };
+      // Öneri bölümleri gider, derlenmiş hâli gelir; resmî ve boş bölümler kalır
+      const kalan = ((hedef.metadata?.wikiSections as WikiSection[]) || []).filter(b => b.status !== 'öneri');
+      const resmiBasliklar = new Set(kalan.filter(b => String(b.content || '').trim()).map(b => baslikAnahtari(b.title)));
       const yeni: WikiSection[] = [];
       (oneri.bolumler || []).forEach((b, n) => {
-        const bos = eski.findIndex(e => e.title.trim().toLocaleLowerCase('tr') === b.title.trim().toLocaleLowerCase('tr') && !String(e.content || '').trim());
-        if (bos >= 0) eski[bos] = { ...eski[bos], content: b.content, status: 'öneri' };
-        else yeni.push({ id: `studyo_${simdi}_${n}`, title: b.title, content: b.content, status: 'öneri' });
+        if (!b.content.trim()) return;
+        const bos = kalan.findIndex(e => baslikAnahtari(e.title) === baslikAnahtari(b.title) && !String(e.content || '').trim());
+        if (bos >= 0) { kalan[bos] = { ...kalan[bos], content: b.content, status: 'öneri' }; return; }
+        // Aynı başlıkta resmî bölüm varsa yeni bölüm açılmaz: altında bekler
+        const resmi = resmiBasliklar.has(baslikAnahtari(b.title)) ? kalan.findIndex(e => baslikAnahtari(e.title) === baslikAnahtari(b.title)) : -1;
+        if (resmi >= 0) { kalan[resmi] = { ...kalan[resmi], bekleyenOneri: b.content }; return; }
+        yeni.push({ id: `studyo_${simdi}_${n}`, title: b.title, content: b.content, status: 'öneri' });
       });
-      return { guncel: { ...hedef, metadata: { ...hedef.metadata, wikiSections: [...eski, ...yeni] }, updatedAt: simdi } };
+      return { guncel: { ...hedef, metadata: { ...hedef.metadata, wikiSections: siraya([...kalan, ...yeni]) }, updatedAt: simdi } };
     }
     case 'kunye-ekle': {
       // Dolu alanın üstüne yazılmaz; yalnız boş olanlar dolar

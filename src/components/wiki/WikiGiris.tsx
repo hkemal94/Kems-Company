@@ -37,7 +37,7 @@ function bagSayisi(item: Item, hepsi: Item[]): number {
 }
 
 const KAPI_SIRASI: ItemType[] = [
-  'kisi', 'karakter', 'mekân', 'dükkân', 'kulüp', 'yer', 'marka'
+  'kisi', 'karakter', 'mekân', 'dükkân', 'kulüp', 'yer', 'cadde', 'meydan', 'yer_adi', 'ada', 'marka'
 ];
 
 export const WikiGiris: React.FC<WikiGirisProps> = ({

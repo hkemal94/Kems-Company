@@ -55,7 +55,7 @@ export const DuzadaRaporu: React.FC<DuzadaRaporuProps> = ({ items, onMaddeSec })
     const q = arama.trim().toLocaleLowerCase('tr');
     return !q || [m.ad, m.ozet, m.mahalle, ...m.kunye.map(f => f.value)].some(s => s.toLocaleLowerCase('tr').includes(q));
   };
-  const varliklar = [...r.kurumlar, ...r.mekanlar, ...r.aileler, ...r.olaylar].filter(uyan);
+  const varliklar = [...r.kurumlar, ...r.mekanlar, ...r.yerler, ...r.aileler, ...r.olaylar].filter(uyan);
   const kisiler = r.kisiler.filter(uyan);
 
   const kopyala = async () => {

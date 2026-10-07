@@ -5,6 +5,7 @@ import { TemizlikKarti, EskiAlanKarti } from './TemizlikKarti';
 import { OrtakAlanKarti } from './OrtakAlanKarti';
 import { GaleriYedegiKarti } from './GaleriYedegiKarti';
 import { KanonKarti } from './KanonKarti';
+import { YerKartlariKarti, MahalleDerlemeKarti } from './YerKartlari';
 import { boslukDoldurma } from '../lib/boslukDoldurma';
 import { haritadaAra, maddeTohumu } from '../lib/haritaMaddesi';
 import { eksikleriCikar, type Cozum, type Eksik } from '../lib/eksikler';
@@ -73,6 +74,13 @@ export const Eksikler: React.FC<EksiklerProps> = ({
 
       {/* Galeri (29 Eylül): kullanılan görseller galeriye */}
       {onAddItem && <GaleriYedegiKarti items={items} onAddItem={onAddItem} />}
+
+      {/* Yer kartları ve mahalle derlemesi (8 Ekim) */}
+      {onUpdateItem && (
+        <YerKartlariKarti items={items} onUpdateItem={onUpdateItem} onAc={id => onSelectArea('duzada', id)}
+          onAddItem={onAddItem as ((i: Omit<Item, 'id' | 'createdAt' | 'updatedAt' | 'userId'> & { id?: string }) => Promise<void>) | undefined} />
+      )}
+      <MahalleDerlemeKarti items={items} onAc={id => onSelectArea('duzada', id)} />
 
       {/* Boşlukları künyedeki cevaplarla doldur (yeni boşluk çıktıkça yine görünür) */}
       {onUpdateItem && (

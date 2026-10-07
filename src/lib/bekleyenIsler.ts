@@ -3,6 +3,7 @@ import { boslukDoldurma } from './boslukDoldurma';
 import { silinecekler } from './temizlik';
 import { mahalleAdDuzeltmeleri } from './vikiTemizligi';
 import { galeridenEksikler } from '../components/GaleriYedegiKarti';
+import { adaMaddesiEksik, cevreYoluVar, mahalleTekrarlari, tasinacaklar } from './yerTurleri';
 
 /**
  * Neyin Eksik'te basılmayı bekleyen tek seferlik düğmeler (bildirimler).
@@ -22,5 +23,8 @@ export function bekleyenDugmeler(items: Item[], haritaEskiKoordinatta = false): 
   if (galeridenEksikler(items).length) is.push('galeriye görseller');
   if (haritaEskiKoordinatta) is.push('harita düzeni yeni koordinata');
   if (boslukDoldurma(items).length) is.push('boşlukları künyeden doldur');
+  // 8 Ekim: yer kartları ve mahalle derlemesi
+  if (tasinacaklar(items).length || adaMaddesiEksik(items) || !cevreYoluVar(items)) is.push('yer kartları');
+  if (mahalleTekrarlari(items).length) is.push('mahalle derlemesi');
   return is;
 }

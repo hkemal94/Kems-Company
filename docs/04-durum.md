@@ -1842,3 +1842,56 @@ katlanır listede. Plan `src/lib/yolHaritasi.ts`'te; her PR kendi paketini
   Görseli gizlenen madde sitenin her yerinde görselsiz görünür.
 - `src/lib/siteGizleme.ts`; site `SiteSayfalari.tsx`. Görseller:
   `docs/gorseller/gizleme-*.png`.
+
+## 8 Ekim — 7. gece, 1. paket: yer kartları ve mahalle derlemesi (uygulamada)
+
+Kemal'in isteği: Merkez'de tarihçeler çoğaldı; cadde ve tepe mahalle
+kartında duruyor; genel bir Düzada maddesi yok; adayı çevreleyen yola
+madde; mahalle bilgilerinde tekrar. Soru turunda seçtikleri aşağıda.
+
+- **Tarihçe neden çoğaldı:** gece önerileri yapay zekâya "en son
+  dokunulan 40 madde"yi gösteriyordu; öneri eklenince madde yine en
+  son dokunulan oluyor, ertesi gece yine seçiliyordu. Bir de "Ekle",
+  aynı adlı bölüm doluysa yanına ikincisini açıyordu.
+  - Gece önerileri artık tepside önerisi bekleyen maddeleri sona,
+    uzun süredir dokunulmamışları öne koyar (`geceHazirligi.ts` →
+    `vikiSirasi`).
+  - Aynı başlıkta dolu bölüm varsa yeni bölüm açılmaz: öneri o bölümün
+    altında bekler (`WikiSection.bekleyenOneri`); madde sayfasında
+    **Yerine koy / Altına ekle / At**.
+- **Derleme (Kemal: "ortalama bir özet"):** Durum → Eksikler'de
+  "N mahallede tekrar eden bilgi var" kartı; aynı adlı bölümleri ve
+  benzer cümleleri bulur. **✨ Stüdyoda derle** → stüdyonun yeni aracı
+  "Mahalleyi derle". Kemal'in seçimleri: her bilgi bir kez, bölüm
+  başlıkları sabit sırada, cadde / tepe hakkındaki uzun yazı o maddeye
+  ayrı öneri, resmî bölümlere dokunulmaz. Tepside eski öneri bölümleri
+  ile yenisi birlikte görünür; "Derlenmiş hâli koy" deyince öneri
+  bölümleri yerini derlenmiş hâline bırakır. Bölüm sırası şimdilik:
+  Konum ve sınırlar · Tarihçe · Gündelik hayat · Kamu binaları · Çarşı
+  ve işletmeler (`MAHALLE_BOLUM_SIRASI`; soru turunda kesinleşecek).
+- **Yeni kartlar:** `yer` artık yalnız **Mahalle**. Yeni türler:
+  **Cadde / sokak** (`cadde`), **Meydan** (`meydan`), **Yer adı**
+  (`yer_adi`: tepe, burun, koy, plaj, dere…) ve **Ada** (`ada`). Künye
+  alanları başlangıç önerisi (`kunyeSorulari.ts`); Alan şablonları
+  ekranında ayrı ayrı düzenlenir. Bağ grupları: "Cadde / meydan",
+  "Yer adı". Vikide cadde, meydan ve yer adları mahallenin kutusunda
+  listelenir; ada maddesi viki ana sayfasında mahallelerin üstünde.
+- **Taşıma kartı (Durum → Eksikler, "Yer kartları"):** mahalle kartında
+  duran ve adında "mahalle" geçmeyen kayıtlar listelenir; tür adın
+  sonundan tahmin edilir (Caddesi → Cadde, Tepesi → Yer adı…), Kemal
+  değiştirebilir. **Taşı** yalnız türü değiştirir; metin, künye, bağ
+  kalır (eski mahalle alanları "Bilgiler"de görünür). **Mahalle kalsın**
+  bir daha sormaz (`metadata.mahalleOnayli`). Adanın eski çatı kaydı
+  (`duzada_world_details`) burada Ada'ya taşınır ve vikide görünür olur;
+  kayıt yoksa **Düzada maddesini aç** (boş). **Çevre yolu maddesini aç**:
+  boş cadde maddesi, adı "Çevre yolu (geçici ad)" — adı Kemal koyacak.
+- **Açık:** soru turu — yeni kartların ve Kişi'nin künye alanları,
+  bölüm başlıkları, mahalle bölüm sırası (Kemal: "Kişi de soru turuna").
+- **AI Studio'nun 7 Ekim düzeltmesi** (Kemal, GitHub'a gönderdi):
+  açılıştaki kanca hatası düzeltmesi kaldı. Paket listesinden düşen
+  harita ve PDF kütüphaneleri geri kondu (`package-lock.json`);
+  hiçbir yerden açılmayan iki dosya (eski "Bütün araçlar" ekranı ve
+  `DuzadaDirectory`) silindi; stüdyo işlemleri yeniden her çizimde
+  güncel.
+- Görseller: `docs/gorseller/yer-*.png` (deneme kayıtları ve deneme
+  yapay zekâ cevabıyla; önizleme).

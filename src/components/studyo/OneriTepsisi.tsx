@@ -135,6 +135,19 @@ export const OneriTepsisi: React.FC<Props> = ({
             {o.bolumler.map(b => <div key={b.title}><b>{b.title}</b><p className="whitespace-pre-line">{b.content}</p></div>)}
           </div>
         )}
+        {o.derle && (() => {
+          // Derlemede eski hâl: "Ekle" deyince giden öneri bölümleri (8 Ekim)
+          const giden = ((items.find(i => i.id === o.hedefId)?.metadata?.wikiSections as Array<{ title: string; status: string; content: string }> | undefined) || [])
+            .filter(b => b.status === 'öneri' && String(b.content || '').trim());
+          return (
+            <div className={`${kutu} space-y-1`}>
+              <b className="text-[11px]">Ekle deyince yerine geçtiği {giden.length} öneri bölümü</b>
+              {giden.length ? giden.map((b, n) => <p key={n} className={`text-[11px] ${IKINCIL} line-clamp-2`}><b>{b.title}</b> · {b.content}</p>)
+                : <p className={`text-[11px] ${IKINCIL}`}>Maddede öneri bölümü kalmamış.</p>}
+              <p className={`text-[10px] ${IKINCIL}`}>Resmî bölümler olduğu gibi kalır.</p>
+            </div>
+          );
+        })()}
         {o.kunye && (
           <dl className={`${kutu} grid grid-cols-[auto_1fr] gap-x-3 gap-y-1`}>
             {Object.entries(o.kunye).map(([k, v]) => <React.Fragment key={k}><dt className={IKINCIL}>{k}</dt><dd>{v}</dd></React.Fragment>)}
@@ -169,7 +182,8 @@ export const OneriTepsisi: React.FC<Props> = ({
                 : arac.uygulama === 'fanzin-olustur' ? 'Fanzin olarak aç (Yazı)'
                 : arac.uygulama === 'fanzin-bolum' ? 'Bölümün yerine koy'
                 : arac.uygulama === 'site-hakkinda' ? "Site taslağına koy (Hakkında)"
-                : arac.uygulama === 'metnin-yerine' ? 'Metnin yerine koy' : arac.uygulama === 'bolum-ekle' ? 'Maddeye ekle (öneri olarak)' : arac.uygulama === 'kunye-ekle' ? 'Boş künye alanlarına yaz' : arac.uygulama === 'renk-ekle' ? 'Paletine ekle' : 'Metne ekle'}
+                : arac.uygulama === 'metnin-yerine' ? 'Metnin yerine koy' : arac.uygulama === 'bolum-ekle' ? 'Maddeye ekle (öneri olarak)'
+                : arac.uygulama === 'bolum-derle' ? (o.derle ? 'Derlenmiş hâli koy' : 'Maddeye ekle (öneri olarak)') : arac.uygulama === 'kunye-ekle' ? 'Boş künye alanlarına yaz' : arac.uygulama === 'renk-ekle' ? 'Paletine ekle' : 'Metne ekle'}
             </button>
           )}
           {o.metin && <button type="button" onClick={() => kopyala(o.metin!)} className={`${DUGME_BOS} inline-flex items-center gap-1`}><Copy className="w-3 h-3" /> Kopyala</button>}

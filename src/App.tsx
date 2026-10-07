@@ -868,7 +868,8 @@ export default function App() {
   );
 
   /** Stüdyonun işlemleri: sayfa, yan panel ve öneri tepsisi aynı işlemleri kullanır */
-  const studyoIslemleri: StudyoIslemleri = useMemo(() => ({
+  // Düz nesne: işlemler her çizimde güncel kalsın (useMemo([items]) eski oturum bilgisini tutuyordu)
+  const studyoIslemleri: StudyoIslemleri = {
     items,
     onAddItem: handleAddItem,
     onUpdateItem: handleUpdateItem,
@@ -876,7 +877,7 @@ export default function App() {
     onAcceptProposal: handleAcceptProposal,
     onMaddeyiAc: maddeyiAc,
     onStudyoSayfasi: () => git('studyo')
-  }), [items]);
+  };
 
   if (girisGerekli && !user) {
     return (

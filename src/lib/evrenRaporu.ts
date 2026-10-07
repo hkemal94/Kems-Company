@@ -57,6 +57,8 @@ export interface EvrenRaporu {
   mahalleler: RaporMahallesi[];
   kurumlar: RaporMaddesi[];
   mekanlar: RaporMaddesi[];
+  /** Cadde, meydan ve yer adları (8 Ekim) */
+  yerler: RaporMaddesi[];
   aileler: RaporMaddesi[];
   olaylar: RaporMaddesi[];
   kisiler: RaporMaddesi[];
@@ -137,6 +139,7 @@ export function evrenRaporu(items: Item[]): EvrenRaporu {
 
   const kisiler = tur('kisi', 'karakter').map(maddeyeCevir).sort(sirala);
   const mekanlar = tur('mekân', 'dükkân').map(maddeyeCevir).sort(sirala);
+  const yerAdlari = tur('cadde', 'meydan', 'yer_adi').map(maddeyeCevir).sort(sirala);
   const kurumlar = tur('kulüp', 'marka').map(maddeyeCevir).sort(sirala);
   const aileler = tur('aile').map(maddeyeCevir).sort(sirala);
   const olaylar = tur('olay').map(maddeyeCevir).sort(sirala);
@@ -154,7 +157,7 @@ export function evrenRaporu(items: Item[]): EvrenRaporu {
       sitede: viki.filter(i => i.metadata?.sitede === true).length
     },
     ada: adaMaddesi ? maddeyeCevir(adaMaddesi) : null,
-    mahalleler, kurumlar, mekanlar, aileler, olaylar, kisiler, tarihce
+    mahalleler, kurumlar, mekanlar, yerler: yerAdlari, aileler, olaylar, kisiler, tarihce
   };
 }
 
@@ -188,6 +191,7 @@ export function raporMarkdown(r: EvrenRaporu): string {
   };
   liste('Kurumlar', r.kurumlar);
   liste('Mekânlar', r.mekanlar);
+  liste('Cadde, meydan ve yer adları', r.yerler);
   liste('Aileler', r.aileler);
   liste('Olaylar', r.olaylar);
   s.push(`## Kişiler (${r.kisiler.length})`, '');
