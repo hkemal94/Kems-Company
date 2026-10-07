@@ -1914,3 +1914,25 @@ Kemal'in seçimleri:
   eklenir. Boş bölüm soluk görünür, doluluğa sayılmaz; metin Kemal'in.
 - Çıkan alanlar: caddede "Nereden nereye", meydanda "Açılan yollar", yer
   adında "Yükseklik" (hiçbir kayıtta değer yoktu).
+
+## 8 Ekim — 7. gece, 2. paket: yazım paneli (uygulamada)
+
+Kemal'in seçimleri: panel kitap bölümü, fanzin, blog yazısı ve not
+defterinde; maddeye basınca **künye**; arama var; maddesi olmayan adlar
+listelenir.
+
+- **Yazım paneli** (`src/components/wiki/YazimPaneli.tsx`) eski Kanon
+  panelinin ve fanzindeki "metinde anılanlar"ın yerini aldı (ikisi silindi):
+  - "Bu metinde anılanlar": adı ya da takma adı geçen viki maddeleri;
+    basınca künyesi panelde, "Maddeyi vikide aç".
+  - "Vikide ara": metinde geçmeyen maddeye de bakılır.
+  - Kanonla çelişen tarih uyarıları (eskisi gibi).
+  - "Maddesi yok": türünü söyleyen ama maddesi olmayan adlar
+    (`maddeOnerileri.ts` → `metindekiYeniAdlar`; "Önerme" denenler gelmez).
+    Tür seçilir, **Madde aç** boş madde açar (ad metinden, yazıya bağlı).
+- Kitapta ve blogda sağ sütunda, fanzinde bölümlerin yanında (masaüstünde
+  yapışık), not defterinde sayfanın altında kapalı başlar.
+- Kitap / blog / fanzinden "Maddeyi vikide aç" artık gerçekten vikiyi açar
+  (önceden fanzindeki çip yalnız yazıyı seçiyordu).
+- Kitap ve blogda panel kaydedilen metni okur; yazı kaydolunca güncellenir.
+- Görseller: `docs/gorseller/yazim-*.png`.

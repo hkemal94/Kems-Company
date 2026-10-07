@@ -1,3 +1,4 @@
+import { YazimPaneli } from '../wiki/YazimPaneli';
 import { nottakiMaddeler } from '../../lib/notBaglari';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Plus } from 'lucide-react';
@@ -183,6 +184,9 @@ export const NotDefteri: React.FC<Props> = ({ items, onAddItem, onUpdateItem, uz
                 </div>
               );
             })()}
+            {/* Yazım paneli (7. gece): defterde kapalı başlar */}
+            <YazimPaneli metin={metin} items={items} onMaddeAc={onMaddeAc ? id => { const m = items.find(i => i.id === id); if (m) onMaddeAc(m); } : undefined}
+              onAddItem={onAddItem} kaynakId={secili.id} kapaliBaslar className="my-2" />
             <div className="flex justify-end">
               {kaldirOnay ? (
                 <span className="flex items-center gap-2 text-[11px]">

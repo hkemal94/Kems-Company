@@ -27,6 +27,8 @@ interface YaziAtolyesiProps {
   istek?: { sekme: 'blog' | 'kitap' | 'fanzin'; n: number } | null;
   /** Fanzin sekmesinin içeriği (App çizer) */
   fanzin?: React.ReactNode;
+  /** Yazım panelinden maddeyi vikide açar (7. gece) */
+  onMaddeAc?: (id: string) => void;
 }
 
 export default function YaziAtolyesi({
@@ -37,7 +39,8 @@ export default function YaziAtolyesi({
   onDeleteItem,
   onAddItem,
   istek = null,
-  fanzin
+  fanzin,
+  onMaddeAc
 }: YaziAtolyesiProps) {
   const [subTab, setSubTab] = useState<'blog' | 'kitap' | 'fanzin'>(istek?.sekme ?? 'blog');
   React.useEffect(() => { if (istek) setSubTab(istek.sekme); }, [istek?.n]);
@@ -109,6 +112,7 @@ export default function YaziAtolyesi({
             onUpdateItem={onUpdateItem}
             onDeleteItem={onDeleteItem}
             onAddItem={onAddItem}
+            onMaddeAc={onMaddeAc}
           />
         ) : (
           <Kitap
@@ -118,6 +122,7 @@ export default function YaziAtolyesi({
             onUpdateItem={onUpdateItem}
             onDeleteItem={onDeleteItem}
             onAddItem={onAddItem}
+            onMaddeAc={onMaddeAc}
           />
         )}
       </div>

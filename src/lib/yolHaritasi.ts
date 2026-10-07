@@ -68,7 +68,7 @@ export const YOL_HARITASI: YolIsi[] = [
     ad: 'Yer kartları (cadde, meydan, yer adı, ada), Düzada ve çevre yolu maddeleri, tekrar eden tarihçe ve mahalle bilgilerinin derlenmesi' },
   { id: 'yer-soru-turu', gece: 7, paket: 'W', kimde: 'claude', nereden: '8 Ekim', bitti: true,
     ad: 'Soru turu: yeni kartların (ve Kişi\'nin) künye alanları, bölüm başlıkları, mahalle bölüm sırası' },
-  { id: 'yazim', gece: 7, paket: 'W', kimde: 'claude', nereden: '7 Ekim · vvd',
+  { id: 'yazim', gece: 7, paket: 'W', kimde: 'claude', nereden: '7 Ekim · vvd', bitti: true,
     ad: 'Yazım: kitap ve fanzinde metinde tanıma, yazarken yan panel' },
   { id: 'kitap-disa', gece: 7, paket: 'K', kimde: 'claude', nereden: '7 Ekim · vvd',
     ad: 'Kitabı PDF ve EPUB olarak indirme' },

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { MetindeAnilanlar } from '../wiki/MetindeAnilanlar';
+import { YazimPaneli } from '../wiki/YazimPaneli';
 import { ArrowDown, ArrowUp, Download, Globe, Plus, Printer, Save, Trash2 } from 'lucide-react';
 import type { Item } from '../../types';
 import { FANZIN_TONLARI, fanzinBilgisi, type FanzinBilgisi, type FanzinBolumu } from '../../lib/studyo';
@@ -25,11 +25,13 @@ interface Props {
   /** Metinde tanıma (4. gece): anılan maddeler için kayıtlar ve açma */
   items?: Item[];
   onMaddeAc?: (id: string) => void;
+  /** Yazım panelinde "Madde aç" (7. gece) */
+  onAddItem?: (item: Omit<Item, 'id' | 'createdAt' | 'updatedAt' | 'userId'>) => Promise<void>;
 }
 
 const yeniBolum = (): FanzinBolumu => ({ id: `b${Date.now()}`, baslik: '', metin: '', ton: 'Sade' });
 
-export const Fanzin: React.FC<Props> = ({ yazi, onUpdateItem, items, onMaddeAc }) => {
+export const Fanzin: React.FC<Props> = ({ yazi, onUpdateItem, items, onMaddeAc, onAddItem }) => {
   const kayitli = fanzinBilgisi(yazi) || { ay: '', bolumler: [] };
   const [f, setF] = useState<FanzinBilgisi>(kayitli);
   const [baslik, setBaslik] = useState(yazi.title);
@@ -92,7 +94,8 @@ export const Fanzin: React.FC<Props> = ({ yazi, onUpdateItem, items, onMaddeAc }
       </div>
 
       {gorunum === 'dergi' ? <DergiGorunumu baslik={baslik} f={f} /> : (
-        <div className="space-y-3">
+        <div className="grid gap-4 lg:grid-cols-[1fr_300px] items-start">
+        <div className="space-y-3 min-w-0">
           {f.bolumler.map((b, i) => (
             <section key={b.id} className={`${KART} p-4 space-y-2`}>
               <div className="flex flex-wrap items-center gap-2">
@@ -118,7 +121,9 @@ export const Fanzin: React.FC<Props> = ({ yazi, onUpdateItem, items, onMaddeAc }
           <button type="button" onClick={() => setF(x => ({ ...x, bolumler: [...x.bolumler, yeniBolum()] }))} className={`${DUGME_BOS} inline-flex items-center gap-1`}>
             <Plus className="w-3.5 h-3.5" /> Bölüm ekle
           </button>
-          {items && <MetindeAnilanlar metin={f.bolumler.map(b => `${b.baslik}\n\n${b.metin}`).join('\n\n')} items={items} onAc={onMaddeAc} baslik="Bu fanzinde anılanlar" />}
+        </div>
+          {/* Yazım paneli (7. gece): yazarken anılanlar, künye, arama, maddesiz adlar */}
+          {items && <YazimPaneli metin={f.bolumler.map(b => `${b.baslik}\n\n${b.metin}`).join('\n\n')} items={items} onMaddeAc={onMaddeAc} onAddItem={onAddItem} kaynakId={yazi.id} className="lg:sticky lg:top-4" />}
         </div>
       )}
     </div>

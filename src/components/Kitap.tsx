@@ -1,4 +1,4 @@
-import { KanonPaneli } from './wiki/KanonPaneli';
+import { YazimPaneli } from './wiki/YazimPaneli';
 import { tuvaldeAc } from '../lib/tuval';
 import { TYPE_LABELS } from './wiki/wikiSchema';
 import React, { useState, useMemo } from 'react';
@@ -17,6 +17,8 @@ interface KitapProps {
   onUpdateItem: (item: Item) => Promise<void>;
   onDeleteItem: (itemId: string) => Promise<void>;
   onAddItem: (item: Omit<Item, 'id' | 'createdAt' | 'updatedAt' | 'userId'>) => Promise<void>;
+  /** Yazım panelinden maddeyi vikide açar (7. gece) */
+  onMaddeAc?: (id: string) => void;
 }
 
 export default function Kitap({
@@ -25,7 +27,8 @@ export default function Kitap({
   onSelectItem,
   onUpdateItem,
   onDeleteItem,
-  onAddItem
+  onAddItem,
+  onMaddeAc
 }: KitapProps) {
   const [activeTab, setActiveTab] = useState<'home' | 'bölüm_editör'>(
     () => (activeItemId && items.some(i => i.id === activeItemId && i.type === 'kitap_bolum') ? 'bölüm_editör' : 'home'));
@@ -766,7 +769,7 @@ export default function Kitap({
           <div className="space-y-6">
 
             {/* Kanon: bölümde geçen maddeler ve tarih uyarıları (29 Eylül) */}
-            <KanonPaneli metin={activeChapter.notes || ''} items={items} />
+            <YazimPaneli metin={activeChapter.notes || ''} items={items} onMaddeAc={onMaddeAc} onAddItem={onAddItem} kaynakId={activeChapter.id} />
             
             {/* MANUAL TODOS - Kalan işler */}
             <div className="bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] dark:border-[#2C3C72] p-5 rounded-xl paper-grain space-y-4">
