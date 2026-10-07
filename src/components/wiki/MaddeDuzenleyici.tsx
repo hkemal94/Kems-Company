@@ -49,6 +49,8 @@ export const MaddeDuzenleyici: React.FC<Props> = ({ item, allItems, onKaydet, on
     return semaAlanlari(sablonAnahtari, taslak).filter(f => f.fieldPath !== 'title' && f.fieldPath !== 'notes');
   }, [sablonAnahtari, yeniAlanlar]);
   const [alanlar, setAlanlar] = useState<Record<string, string>>(() => Object.fromEntries(sema.map(f => [f.fieldPath, yolOku(item, f.fieldPath)])));
+  /** Üst madde (4. gece): her madde bir başka maddenin altına konabilir (metadata.placeId) */
+  const [ust, setUst] = useState<string>(String(item.metadata?.placeId || ''));
   /** Takma adlar (3. gece): virgülle; eski adlar da burada görünür */
   const ilkTakma = useMemo(() => takmaAdlar(item).join(', '), [item]);
   const [takma, setTakma] = useState<string>(ilkTakma);
@@ -64,7 +66,7 @@ export const MaddeDuzenleyici: React.FC<Props> = ({ item, allItems, onKaydet, on
   const [giris, setGiris] = useState<string>(ilkGiris);
   const [bolumler, setBolumler] = useState<WikiSection[]>(() => ((item.metadata?.wikiSections as WikiSection[]) || []).map(b => ({ ...b })));
   // Metin değiştiyse kaydetmeden çıkarken sorulur
-  const metinDegisti = yeniAlanlar.length > 0 || takma.trim() !== ilkTakma.trim() || ad.trim() !== item.title.trim() || giris.trim() !== ilkGiris.trim() || JSON.stringify(bolumler) !== JSON.stringify((item.metadata?.wikiSections as WikiSection[]) || []);
+  const metinDegisti = ust !== String(item.metadata?.placeId || '') || yeniAlanlar.length > 0 || takma.trim() !== ilkTakma.trim() || ad.trim() !== item.title.trim() || giris.trim() !== ilkGiris.trim() || JSON.stringify(bolumler) !== JSON.stringify((item.metadata?.wikiSections as WikiSection[]) || []);
   useKaydedilmemis(metinDegisti);
   const bolumYaz = (n: number, d: Partial<WikiSection>) => setBolumler(bs => bs.map((b, k) => (k === n ? { ...b, ...d } : b)));
   const bolumTasi = (n: number, yon: -1 | 1) => setBolumler(bs => {
@@ -84,6 +86,19 @@ export const MaddeDuzenleyici: React.FC<Props> = ({ item, allItems, onKaydet, on
   const hedefler = useMemo(() => allItems
     .filter(i => i.id !== item.id && !i.archived && !i.isProposal && WIKI_TYPES.includes(i.type) && i.type !== 'oda')
     .sort((a, b) => a.title.localeCompare(b.title, 'tr')), [allItems, item.id]);
+  /** Üst madde adayları: kendisi ve kendi alt maddeleri hariç (döngü olmasın) */
+  const ustAdaylari = useMemo(() => {
+    const altlar = new Set<string>([item.id]);
+    let degisti = true;
+    while (degisti) {
+      degisti = false;
+      for (const i of allItems) {
+        const p = i.metadata?.placeId;
+        if (p && altlar.has(p) && !altlar.has(i.id)) { altlar.add(i.id); degisti = true; }
+      }
+    }
+    return hedefler.filter(h => !altlar.has(h.id));
+  }, [hedefler, allItems, item.id]);
   /** Mahalle alanı için seçenekler: üst düzey 'yer' kayıtları (mahalleler) */
   const mahalleSecenekleri = useMemo(() => hedefler.filter(i => i.type === 'yer' && !i.metadata?.placeId).map(i => i.title), [hedefler]);
 
@@ -118,6 +133,8 @@ export const MaddeDuzenleyici: React.FC<Props> = ({ item, allItems, onKaydet, on
         return o;
       });
       metadata.esin = esin.trim();
+      // Üst madde: kayıt birleşerek yazıldığı için kaldırınca boş yazılır
+      if (ust || metadata.placeId) metadata.placeId = ust;
       // Bölümler: boş başlık ve boş metinli olanlar atılır; undefined yazılmaz
       metadata.wikiSections = bolumler
         .map(b => ({ id: b.id, title: b.title.trim(), content: b.content.trim(), status: b.status || 'resmi' }))
@@ -196,6 +213,14 @@ export const MaddeDuzenleyici: React.FC<Props> = ({ item, allItems, onKaydet, on
           )}
         </div>
       )}
+
+      <label className="block">
+        <span className="block text-[11px] text-gri dark:text-bej/85 mb-0.5">Üst madde · bu madde neyin altında?</span>
+        <select value={ust} onChange={e => setUst(e.target.value)} className={`${secim} w-full`}>
+          <option value="">— yok (en üstte)</option>
+          {ustAdaylari.map(h => <option key={h.id} value={h.id}>{h.title} · {TYPE_LABELS[h.type] || h.type}</option>)}
+        </select>
+      </label>
 
       <label className="block">
         <span className="block text-[11px] text-gri dark:text-bej/85 mb-0.5">Takma adlar · virgülle</span>

@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { BookOpen, ChevronLeft, Eye, FileText, MapPin, Search, Settings2, Unlink } from 'lucide-react';
+import { BookOpen, ChevronLeft, Eye, FileText, MapPin, Pin, Search, Settings2, Unlink } from 'lucide-react';
 import { Item, ItemType } from '../../types';
 import { isEntityUnlinked } from '../../utils/relations';
 import { buildLinkIndex } from './autoLink';
@@ -11,6 +11,7 @@ import { OYUN_VAKA_IDLERI } from '../../lib/temizlik';
 import { etkinSablon, sablonKaydi, takmaAdlar, type VikiSablonu } from '../../lib/alanSablonu';
 import { AlanSablonlari } from './AlanSablonlari';
 import { MaddeOnerileri } from './MaddeOnerileri';
+import { MaddeTablosu } from './MaddeTablosu';
 import { maddeOnerileri, reddedilenler } from '../../lib/maddeOnerileri';
 
 interface WikiShellProps {
@@ -59,6 +60,8 @@ export const WikiShell: React.FC<WikiShellProps> = ({
   const [sablonAcik, setSablonAcik] = useState(false);
   /** Madde önerileri sayfası (4. gece) */
   const [onerilerAcik, setOnerilerAcik] = useState(false);
+  /** Maddeler tablosu (4. gece) */
+  const [tabloAcik, setTabloAcik] = useState(false);
   const [yeniAd, setYeniAd] = useState('');
   const [yeniTur, setYeniTur] = useState<ItemType>('kisi');
   const [internalId, setInternalId] = useState<string | null>(null);
@@ -76,6 +79,7 @@ export const WikiShell: React.FC<WikiShellProps> = ({
   const navigate = (id: string | null) => {
     setSablonAcik(false);
     setOnerilerAcik(false);
+    setTabloAcik(false);
     setInternalId(id);
     onSelect?.(id);
   };
@@ -173,7 +177,8 @@ export const WikiShell: React.FC<WikiShellProps> = ({
             i.tags.some(t => t.toLocaleLowerCase('tr').includes(needle))
           : true
       )
-      .sort((a, b) => a.title.localeCompare(b.title, 'tr'));
+      // Sabitlenenler (4. gece) listenin başında
+      .sort((a, b) => Number(b.metadata?.sabit === true) - Number(a.metadata?.sabit === true) || a.title.localeCompare(b.title, 'tr'));
   }, [wikiItems, q, typeFilter]);
 
   const typeCounts = useMemo(() => {
@@ -250,6 +255,16 @@ export const WikiShell: React.FC<WikiShellProps> = ({
             </button>
           )}
 
+          {!readOnly && onUpdateItem && mode === 'yonetim' && (
+            <button
+              type="button"
+              onClick={() => { navigate(null); setTabloAcik(true); }}
+              className="flex items-center gap-1.5 text-[11px] font-mono px-2.5 py-1.5 rounded border border-bej/55 dark:border-lacivert-600/55 hover:bg-bej/15 dark:hover:bg-lacivert-600/30 transition-colors"
+              title="Maddeleri tablo olarak gör ve hücreden düzenle"
+            >
+              tablo
+            </button>
+          )}
           {!readOnly && onAddItem && onUpdateItem && mode === 'yonetim' && (
             <button
               type="button"
@@ -315,7 +330,9 @@ export const WikiShell: React.FC<WikiShellProps> = ({
       </div>
 
       <div className="max-w-5xl mx-auto px-4 py-8">
-        {onerilerAcik && onAddItem && onUpdateItem ? (
+        {tabloAcik && onUpdateItem ? (
+          <MaddeTablosu maddeler={wikiItems.filter(i => !i.isProposal)} onUpdateItem={onUpdateItem} onNavigate={navigate} onKapat={() => setTabloAcik(false)} />
+        ) : onerilerAcik && onAddItem && onUpdateItem ? (
           <MaddeOnerileri items={items} onAddItem={onAddItem} onUpdateItem={onUpdateItem} onNavigate={navigate} onKapat={() => setOnerilerAcik(false)} />
         ) : sablonAcik && sablonuYaz ? (
           <AlanSablonlari sablon={etkinSablon()} onKaydet={sablonuYaz} onKapat={() => setSablonAcik(false)} />
@@ -525,6 +542,7 @@ const MaddeButonu: React.FC<{
         <span className="font-serif text-[15px] group-hover:underline decoration-lacivert/30 dark:decoration-bej/40 underline-offset-2 leading-snug">
           {item.title}
         </span>
+        {item.metadata?.sabit === true && <Pin size={11} className="text-kiremit shrink-0 mt-1" aria-label="sabit" />}
         {floating && <Unlink size={11} className="text-kiremit shrink-0 mt-1" />}
       </span>
       <span className="flex items-center gap-1.5 mt-1.5">

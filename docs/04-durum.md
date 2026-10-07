@@ -1691,3 +1691,16 @@ katlanır listede. Plan `src/lib/yolHaritasi.ts`'te; her PR kendi paketini
 - Madde eşleşmesi parantezli başlığı da tanır: "Merkez Mahallesi (Düzada
   Köyü)" hem "Merkez Mahallesi" hem "Düzada Köyü" ile bulunur.
 - Görseller: `docs/gorseller/oneri-*.png`.
+
+**4. gece, 2. paket (uygulamada): üst–alt madde, sabitleme, tablo.**
+- Düzenleyicide "Üst madde · bu madde neyin altında?" seçimi (her tür
+  için). Mevcut `metadata.placeId` alanı kullanılır; mahalle gruplaması ve
+  bağlantılar zaten onu okuyordu. Kendisi ve kendi altındakiler seçilemez.
+- Madde sayfası: başlığın üstünde üst madde zinciri, metnin altında
+  "Alt maddeler".
+- "sabitle" düğmesi (`metadata.sabit`): sabit maddeler viki listesinde en
+  üstte, iğne simgesiyle.
+- Viki → "tablo": tür seçilir, künye alanları sütun olur (alan
+  şablonundan); hücreye yazıp çıkınca yalnız o madde yazılır, değişmeyen
+  hücre yazılmaz. `src/components/wiki/MaddeTablosu.tsx`.
+- Görseller: `docs/gorseller/ustalt-*.png`.
