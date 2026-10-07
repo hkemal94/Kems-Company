@@ -41,7 +41,7 @@ async function base64(url: string): Promise<string> {
   return btoa(s);
 }
 
-function fontlar(): Promise<Record<Kalinlik, string>> {
+export function fontlar(): Promise<Record<Kalinlik, string>> {
   if (!fontOnbellek) {
     const kok = `${import.meta.env.BASE_URL || '/'}fontlar/`;
     fontOnbellek = Promise.all([

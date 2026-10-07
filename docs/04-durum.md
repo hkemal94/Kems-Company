@@ -1936,3 +1936,22 @@ listelenir.
   (önceden fanzindeki çip yalnız yazıyı seçiyordu).
 - Kitap ve blogda panel kaydedilen metni okur; yazı kaydolunca güncellenir.
 - Görseller: `docs/gorseller/yazim-*.png`.
+
+## 8 Ekim — 7. gece, 3. paket: kitabı PDF ve EPUB indirme (uygulamada)
+
+Kemal'in seçimleri: bölümleri indirirken seçer; başta kapak, içindekiler,
+yazar adı ve kitap notu; PDF A5; düğme kitap kartında.
+
+- Yazı → Kitap → kitap kartında **indir · PDF · EPUB**. Açılan kutuda
+  yazar adı (boşsa kapakta yazmaz; "İndir"e basınca kitabın kaydına
+  `metadata.yazar` olarak yazılır, sonra hazır gelir) ve bölüm listesi
+  (hepsi işaretli gelir).
+- **PDF (A5):** kapak (ad, yazar, "Kems Company · Düzada, TR"),
+  içindekiler (sayfa numaralı), kitap notu "Önsöz" olarak, her bölüm yeni
+  sayfada; Poppins gömülü, sayfa numaraları altta. Boş bölüm "boş" yazar.
+- **EPUB 3:** aynı içerik; kendi küçük zip yazıcısıyla, ek kütüphane yok.
+- Metindeki editör işaretleri (`[[ad]]`, `[ad](kimlik)`, `**kalın**`)
+  düz yazıya çevrilir. `src/lib/kitapCiktisi.ts`, `src/components/KitapIndir.tsx`.
+- Görseller: `docs/gorseller/kitap-indir.png`, `kitap-pdf.png`.
+
+**7 Ekim planı (7 gece) bu paketle bitti.**
