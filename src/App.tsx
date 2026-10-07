@@ -607,6 +607,10 @@ export default function App() {
       setActiveTab('oyun');
     } else if (item.type === 'aday') {
       setActiveTab('studyo');
+    } else if (item.type === 'map_pin') {
+      // Harita notu (5. gece): Atölye'de haritada
+      setAtolyeIstek({ sekme: 'harita', n: Date.now() });
+      setActiveTab('atolye');
     } else if (item.type === 'fikir') {
       /*
        * Brainstorm sekmesi kalktı (28 Eylül kararı). Fikirler köşedeki
@@ -638,7 +642,7 @@ export default function App() {
     sablonuUygula(sablonuOku(items.find(i => i.type === 'kkm_ayar')?.metadata?.vikiSablonu));
   }, [items]);
 
-  const SAYILMAZ_TIP = new Set(['map_settings', 'channel', 'aday']);
+  const SAYILMAZ_TIP = new Set(['map_settings', 'map_pin', 'channel', 'aday']);
   const varlikSayisi = useMemo(
     () => items.filter(
       i => !i.archived && !i.isProposal
@@ -1219,6 +1223,7 @@ export default function App() {
                 items={items}
                 onAddItem={handleAddItem}
                 onUpdateItem={handleUpdateItem}
+                onDeleteItem={handleDeleteItem}
                 istek={atolyeIstek}
                 onMaddeAc={id => { setDuzadaIstek({ sekme: 'wiki', n: Date.now() }); setActiveItemId(id); setActiveTab('duzada'); }}
               />
