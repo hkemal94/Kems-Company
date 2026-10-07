@@ -45,7 +45,7 @@ export const YOL_HARITASI: YolIsi[] = [
   { id: 'boyut-hiz', gece: 3, paket: 'K', kimde: 'claude', nereden: '7 Ekim', bitti: true,
     ad: 'Boyut ve hız sayfası: kayıt boyutları, uygulama parçaları, açılış hızı' },
   // 4. gece
-  { id: 'madde-onerileri', gece: 4, paket: 'W', kimde: 'claude', nereden: '7 Ekim',
+  { id: 'madde-onerileri', gece: 4, paket: 'W', kimde: 'claude', nereden: '7 Ekim', bitti: true,
     ad: 'Künyeden ve yazılarından madde önerileri; vikide metinde anılanı tanıma' },
   { id: 'ust-alt-tablo', gece: 4, paket: 'W', kimde: 'claude', nereden: '7 Ekim · vvd',
     ad: 'Üst–alt madde, sabitleme, maddeler tablo olarak' },

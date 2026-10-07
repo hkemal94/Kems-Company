@@ -1676,3 +1676,18 @@ katlanır listede. Plan `src/lib/yolHaritasi.ts`'te; her PR kendi paketini
 - Açılış hızı: ilk ekran, kayıtların gelmesi, Harita ve Kurucu'nun çizilmesi;
   son 10 açılış bu tarayıcıda tutulur (kayda yazılmaz). `src/lib/olcumler.ts`.
 - Görsel: `docs/gorseller/boyut-hiz.png`.
+
+**4. gece, 1. paket (uygulamada): madde önerileri ve metinde tanıma.**
+- Viki → yönetim yüzü → "madde önerileri · N": künyede (bağ alanları,
+  Simgeler) ve yazılarda (viki metni, kitap bölümleri, yazılar, fanzin,
+  notlar) adı geçen ama maddesi olmayan yapılar, yerler, kurumlar, aileler.
+  Yazılarda türünü söyleyen sözle biten adlar aranır ("… Kahvehanesi",
+  "… Ailesi", "… Kulübü", "… Koyu"). Kişi adları önerilmez. Yapay zekâ yok.
+  `src/lib/maddeOnerileri.ts`.
+- "Madde aç": adı ve seçilen türüyle boş madde, geçtiği kayıtlara bağlı.
+  "Önerme": ad `kkm_ayar` → `reddedilenOneriler`'e yazılır, bir daha çıkmaz.
+- Tanıma: kitap ve yazılardaki eşleştirme takma adları da tanır; fanzinde
+  "Bu fanzinde anılanlar" (`MetindeAnilanlar`, `autoLink.anilanKimlikler`).
+- Madde eşleşmesi parantezli başlığı da tanır: "Merkez Mahallesi (Düzada
+  Köyü)" hem "Merkez Mahallesi" hem "Düzada Köyü" ile bulunur.
+- Görseller: `docs/gorseller/oneri-*.png`.

@@ -230,3 +230,12 @@ export function countOutgoingLinks(text: string, index: LinkIndexEntry[], selfId
   );
   return ids.size;
 }
+
+/**
+ * Metinde anılan maddelerin kimlikleri (4. gece, "metinde tanıma"): başlık
+ * ve takma adlarla, bağlantı motorunun kurallarıyla (genel kelimeler yalnız
+ * [[...]] ile). Viki, kitap ve fanzin aynı tanımayı kullanır.
+ */
+export function anilanKimlikler(text: string, index: LinkIndexEntry[], selfId?: string): string[] {
+  return Array.from(new Set(findMatches(text || '', index, selfId).map(m => m.id).filter(Boolean)));
+}

@@ -206,12 +206,21 @@ export function bagAdaylari(items: Item[], bag: BagGrubu[], disari?: string): It
     .sort((a, b) => a.title.localeCompare(b.title, 'tr'));
 }
 
-/** Bir adı bu türlerdeki bir maddeye çözer: başlık, takma ad; "X Ailesi" ↔ "X" */
+/**
+ * Bir adı bu türlerdeki bir maddeye çözer: başlık, başlığın parantezsiz hâli
+ * ve parantez içi ("Merkez Mahallesi (Düzada Köyü)"), takma adlar;
+ * "X Ailesi" ↔ "X".
+ */
 export function adiCoz(ad: string, adaylar: Item[]): Item | null {
   const k = trKucuk(ad);
   if (!k) return null;
   const ailesiz = (s: string) => s.replace(/\s+ailesi$/, '');
-  for (const i of adaylar) if (trKucuk(i.title) === k || takmaAdlar(i).some(t => trKucuk(t) === k)) return i;
+  const adlari = (i: Item) => {
+    const t = i.title || '';
+    return [t, t.replace(/\s*\([^)]*\)\s*/g, ' '), ...Array.from(t.matchAll(/\(([^)]+)\)/g), m => m[1]), ...takmaAdlar(i)]
+      .map(trKucuk).filter(Boolean);
+  };
+  for (const i of adaylar) if (adlari(i).includes(k)) return i;
   for (const i of adaylar) if (i.type === 'aile' && ailesiz(trKucuk(i.title)) === ailesiz(k)) return i;
   return null;
 }
