@@ -1,3 +1,4 @@
+import { KitapIndir } from './KitapIndir';
 import { YazimPaneli } from './wiki/YazimPaneli';
 import { tuvaldeAc } from '../lib/tuval';
 import { TYPE_LABELS } from './wiki/wikiSchema';
@@ -443,6 +444,7 @@ export default function Kitap({
                         className="text-[11px] font-mono underline underline-offset-2 decoration-[#0E1C4F]/30 text-[#6A5E4C] dark:text-[#A6B0C9] hover:text-[#F26B6F] cursor-pointer">
                         kitap planı · tuvalde aç
                       </button>
+                      <KitapIndir kitap={activeBook} bolumler={currentChapters} onUpdateItem={onUpdateItem} />
                       <button
                         onClick={async (e) => {
                           e.stopPropagation();

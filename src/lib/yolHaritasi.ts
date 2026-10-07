@@ -70,7 +70,7 @@ export const YOL_HARITASI: YolIsi[] = [
     ad: 'Soru turu: yeni kartların (ve Kişi\'nin) künye alanları, bölüm başlıkları, mahalle bölüm sırası' },
   { id: 'yazim', gece: 7, paket: 'W', kimde: 'claude', nereden: '7 Ekim · vvd', bitti: true,
     ad: 'Yazım: kitap ve fanzinde metinde tanıma, yazarken yan panel' },
-  { id: 'kitap-disa', gece: 7, paket: 'K', kimde: 'claude', nereden: '7 Ekim · vvd',
+  { id: 'kitap-disa', gece: 7, paket: 'K', kimde: 'claude', nereden: '7 Ekim · vvd', bitti: true,
     ad: 'Kitabı PDF ve EPUB olarak indirme' },
   // sırası belli değil
   { id: 'teknik-foy', paket: 'M', ad: 'Ürünlere teknik föy (tech pack): ölçü tablosu, malzeme, renk, etiket', nereden: '1 Ekim', kimde: 'kemal', not: 'Kemal isterse; 3B stüdyo kaldırıldı (1 Ekim gece).' },
