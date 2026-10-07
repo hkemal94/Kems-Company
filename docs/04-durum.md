@@ -1704,3 +1704,17 @@ katlanır listede. Plan `src/lib/yolHaritasi.ts`'te; her PR kendi paketini
   şablonundan); hücreye yazıp çıkınca yalnız o madde yazılır, değişmeyen
   hücre yazılmaz. `src/components/wiki/MaddeTablosu.tsx`.
 - Görseller: `docs/gorseller/ustalt-*.png`.
+
+**4. gece, 3. paket (uygulamada): Atölye.**
+- Menüde yeni bölüm **Atölye** (sol rayda Evren altında, Düzada'nın
+  ardından; telefonda Diğer → Evren). İçinde Harita ve Kurucu (2D kur,
+  3D bak, tam ekran, trafik/saat/mevsim; hepsi eskisi gibi).
+- Düzada artık iki sekme: Düzada Wiki · Evren Raporu. Vikideki ve
+  rapordaki "Haritada gör" Atölye'yi açar; haritadan seçilen yapı vikide
+  açılır.
+- Bağ ağı, soy ağacı ve tuval geldikleri gece Atölye'nin rayına eklenir;
+  şimdiden görünmez (Kemal, 7 Ekim).
+- 3B stüdyo: Kemal "Atölye'ye taşınsın" dedi, ama 3B stüdyo 1 Ekim'de
+  silinmişti (yukarıda "3B stüdyo kaldırıldı"); taşınacak bir şey yok.
+- `src/components/Atolye.tsx`; ortak "haritadan maddeyi aç" kutusu
+  `src/components/duzada/HaritaMaddesi.tsx`. Görseller: `docs/gorseller/atolye-*.png`.

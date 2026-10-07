@@ -29,7 +29,7 @@ import {
   Home,
   Percent,
   Sparkles,
-  Map as MapIcon,
+  Hammer,
   Sun,
   Moon,
   UserRound,
@@ -87,7 +87,9 @@ const Durum = lazyYukle(() => import('./components/Durum'));
 import type { DurumSekmesi } from './components/Durum';
 import type { SeritHedefi } from './components/anasayfa/YuzdeSeridi';
 const Duzada = lazyYukle(() => import('./components/Duzada'));
+import type { DuzadaSekmesi } from './components/Duzada';
 const Merch = lazyYukle(() => import('./components/Merch'));
+const Atolye = lazyYukle(() => import('./components/Atolye'));
 const YaziAtolyesi = lazyYukle(() => import('./components/YaziAtolyesi'));
 const Galeri = lazyYukle(() => import('./components/Galeri'));
 const Sosyal = lazyYukle(() => import('./components/sosyal/Sosyal'));
@@ -113,7 +115,7 @@ import { Zil } from './components/kabuk/Zil';
 import { useBildirimler, KANON_YOKSAY, type Bildirim, type KanonSatiri } from './lib/bildirimler';
 
 /** Uygulamanın sayfaları. 'komuta' ana sayfa; eski Komuta Merkezi 'durum'. */
-type Sayfa = 'komuta' | 'durum' | 'markalar' | 'duzada' | 'merch' | 'yazi' | 'oyun' | 'studyo' | 'sosyal' | 'site';
+type Sayfa = 'komuta' | 'durum' | 'markalar' | 'duzada' | 'atolye' | 'merch' | 'yazi' | 'oyun' | 'studyo' | 'sosyal' | 'site';
 /** 7 Ekim'de başka sayfanın sekmesi olanlar: eski adla gelen istek oraya yönlenir */
 const SEKMEYE_GECENLER = ['fanzin', 'takvim', 'yolharitasi', 'galeri'];
 
@@ -137,7 +139,7 @@ export default function App() {
   // Navigation & interaction states
   const [activeTab, setActiveTab] = useState<Sayfa>('komuta');
   /** Paket 4: alt sekmeye doğrudan gitme istekleri (telefonda Harita, Kurucu, Kitap) */
-  const [duzadaIstek, setDuzadaIstek] = useState<{ sekme: 'wiki' | 'harita' | 'kurucu'; n: number } | null>(null);
+  const [duzadaIstek, setDuzadaIstek] = useState<{ sekme: DuzadaSekmesi; n: number } | null>(null);
   const [yaziIstek, setYaziIstek] = useState<{ sekme: 'blog' | 'kitap' | 'fanzin'; n: number } | null>(null);
   /** Neyin Eksik sayfası açılırken açık gelecek başlık */
   const [eksikAcik, setEksikAcik] = useState<string | null>(null);
@@ -664,8 +666,8 @@ export default function App() {
     const n = Date.now();
     if (!hedef.startsWith('durum-')) setDurumListe(null);
     switch (hedef) {
-      case 'harita': setDuzadaIstek({ sekme: 'harita', n }); setActiveTab('duzada'); break;
-      case 'kurucu': setDuzadaIstek({ sekme: 'kurucu', n }); setActiveTab('duzada'); break;
+      // 4. gece: Harita ve Kurucu Atölye'de
+      case 'harita': case 'kurucu': setActiveTab('atolye'); break;
       case 'viki': case 'kunye': case 'duzada': setDuzadaIstek({ sekme: 'wiki', n }); setActiveTab('duzada'); break;
       case 'kitap': setYaziIstek({ sekme: 'kitap', n }); setActiveTab('yazi'); break;
       case 'blog': setYaziIstek({ sekme: 'blog', n }); setActiveTab('yazi'); break;
@@ -731,7 +733,7 @@ export default function App() {
       setDurumSekme((d.durum as DurumSekmesi) ?? 'yuzdeler');
       setDigerAcik(!!d.diger);
       setMarkaGaleri(!!d.galeri);
-      if (d.tab === 'duzada' && d.duzada) setDuzadaIstek({ sekme: d.duzada, n: Date.now() });
+      if (d.tab === 'duzada' && (d.duzada === 'wiki' || d.duzada === 'rapor')) setDuzadaIstek({ sekme: d.duzada, n: Date.now() });
     };
     window.addEventListener('popstate', geri);
     return () => window.removeEventListener('popstate', geri);
@@ -901,7 +903,8 @@ export default function App() {
       { id: 'komuta', ad: 'Ana sayfa', simge: Home, nokta: bildirimVar('aday') || bildirimVar('soru') }
     ] },
     { grup: 'Evren', satirlar: [
-      { id: 'duzada', ad: 'Düzada', alt: 'viki ve harita', simge: Compass, nokta: bildirimVar('kanon') },
+      { id: 'duzada', ad: 'Düzada', alt: 'viki ve Evren Raporu', simge: Compass, nokta: bildirimVar('kanon') },
+      { id: 'atolye', ad: 'Atölye', alt: 'harita ve Kurucu', simge: Hammer },
       { id: 'yazi', ad: 'Yazı', alt: 'kitap, blog, fanzin', simge: PenTool },
       { id: 'oyun', ad: 'Oyun', simge: Gamepad2 }
     ] },
@@ -928,7 +931,7 @@ export default function App() {
    */
   const DIGER: Array<{ grup: string; satirlar: Array<{ hedef: string; ad: string; alt?: string; simge: React.ElementType; nokta?: boolean }> }> = [
     { grup: 'Evren', satirlar: [
-      { hedef: 'harita', ad: 'Harita', alt: 'harita ve Kurucu', simge: MapIcon },
+      { hedef: 'atolye', ad: 'Atölye', alt: 'harita ve Kurucu', simge: Hammer },
       { hedef: 'yazi', ad: 'Yazı', alt: 'kitap, blog, fanzin', simge: PenTool },
       { hedef: 'oyun', ad: 'Oyun', simge: Gamepad2 }
     ] },
@@ -948,7 +951,7 @@ export default function App() {
     .map(g => ({ ...g, satirlar: g.satirlar.filter(r => !aranan || `${r.ad} ${r.alt ?? ''}`.toLocaleLowerCase('tr').includes(aranan)) }))
     .filter(g => g.satirlar.length > 0);
 
-  const haritada = activeTab === 'duzada' && duzadaIstek?.sekme === 'harita';
+  const haritada = activeTab === 'atolye';
   const ALT: Array<{ id: string; ad: string; simge: React.ElementType; aktif: boolean; nokta?: boolean }> = [
     { id: 'komuta', ad: 'Ana sayfa', simge: Home, aktif: activeTab === 'komuta', nokta: bildirimVar('aday') || bildirimVar('soru') },
     { id: 'viki', ad: 'Viki', simge: Compass, aktif: activeTab === 'duzada' && !haritada, nokta: bildirimVar('kanon') },
@@ -957,7 +960,7 @@ export default function App() {
   ];
 
   const SAYFA_ADI: Record<Sayfa, string> = {
-    komuta: 'Ana sayfa', duzada: 'Düzada', markalar: 'Markalar', merch: 'Merch', yazi: 'Yazı',
+    komuta: 'Ana sayfa', duzada: 'Düzada', atolye: 'Atölye', markalar: 'Markalar', merch: 'Merch', yazi: 'Yazı',
     oyun: 'Oyun', durum: 'Durum', studyo: 'Yapay zekâ', sosyal: 'Sosyal medya', site: 'Site'
   };
 
@@ -1203,6 +1206,15 @@ export default function App() {
                 onDeleteItem={handleDeleteItem}
                 onAddItem={handleAddItem}
                 istek={duzadaIstek}
+                onAtolye={() => git('atolye')}
+              />
+            )}
+
+            {activeTab === 'atolye' && (
+              <Atolye
+                items={items}
+                onAddItem={handleAddItem}
+                onMaddeAc={id => { setDuzadaIstek({ sekme: 'wiki', n: Date.now() }); setActiveItemId(id); setActiveTab('duzada'); }}
               />
             )}
 
