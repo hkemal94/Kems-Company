@@ -1895,3 +1895,22 @@ madde; mahalle bilgilerinde tekrar. Soru turunda seçtikleri aşağıda.
   güncel.
 - Görseller: `docs/gorseller/yer-*.png` (deneme kayıtları ve deneme
   yapay zekâ cevabıyla; önizleme).
+
+## 8 Ekim — yer kartları soru turu (uygulamada)
+
+Kemal'in seçimleri:
+
+| Kart | Künye alanları | Bölüm başlıkları |
+|---|---|---|
+| Cadde / sokak | Mahalleler · Üstündekiler (mekânlara bağ) | Tarihçe · Gündelik hayat · Adı · Yapılar |
+| Meydan | Mahalle · Çevresindekiler (mekânlara bağ) | Tarihçe · Gündelik hayat · Adı · Yapılar |
+| Yer adı | Tür · Mahalle · Adın kökeni | Tarihçe · Gündelik hayat · Adı · Yapılar |
+| Ada | Konum · Ölçek · İklim · Mahalleler · Ulaşım | Tarihçe · Coğrafya · Ulaşım · Ada hayatı |
+| Kişi | bugünkülere **Evi** eklendi (cadde / meydana bağ) | — |
+| Mahalle | değişmedi | sıra: Konum ve sınırlar · Tarihçe · Gündelik hayat · Kamu binaları · Çarşı ve işletmeler |
+
+- Bölüm başlıkları yeni maddede ("+ yeni madde", Düzada ve Çevre yolu
+  düğmeleri) boş açılır; Taşı'ya basılınca maddede olmayan başlıklar boş
+  eklenir. Boş bölüm soluk görünür, doluluğa sayılmaz; metin Kemal'in.
+- Çıkan alanlar: caddede "Nereden nereye", meydanda "Açılan yollar", yer
+  adında "Yükseklik" (hiçbir kayıtta değer yoktu).

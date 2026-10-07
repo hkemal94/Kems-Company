@@ -55,8 +55,34 @@ export function tasinacaklar(items: Item[]): Array<{ item: Item; tahmin: ItemTyp
     .sort((a, b) => a.item.title.localeCompare(b.item.title, 'tr'));
 }
 
-/** Türü değiştirir; metin, künye ve bağlar olduğu gibi kalır */
-export const turuDegistir = (i: Item, tur: ItemType): Item => ({ ...i, type: tur, area: 'duzada', updatedAt: Date.now() });
+/**
+ * Kartların bölüm başlıkları (Kemal, 8 Ekim soru turu). Yeni maddede boş
+ * açılır ("boş" bölüm soluk görünür, doluluğa sayılmaz).
+ */
+export const BOLUM_BASLIKLARI: Partial<Record<ItemType, string[]>> = {
+  cadde: ['Tarihçe', 'Gündelik hayat', 'Adı', 'Yapılar'],
+  meydan: ['Tarihçe', 'Gündelik hayat', 'Adı', 'Yapılar'],
+  yer_adi: ['Tarihçe', 'Gündelik hayat', 'Adı', 'Yapılar'],
+  ada: ['Tarihçe', 'Coğrafya', 'Ulaşım', 'Ada hayatı']
+};
+
+/** Türün başlıklarından maddede olmayanlar, boş bölüm olarak */
+export function eksikBolumler(tur: ItemType, mevcut: WikiSection[] = [], on = `b${Date.now()}`): WikiSection[] {
+  const var_ = new Set(mevcut.map(b => trKucuk(b.title || '')));
+  return (BOLUM_BASLIKLARI[tur] || [])
+    .filter(t => !var_.has(trKucuk(t)))
+    .map((title, n) => ({ id: `${on}_${n}`, title, content: '', status: 'boş' as const }));
+}
+
+/** Türü değiştirir; metin, künye ve bağlar olduğu gibi kalır, kartın eksik başlıkları boş eklenir */
+export const turuDegistir = (i: Item, tur: ItemType): Item => {
+  const bolumler = (i.metadata?.wikiSections as WikiSection[] | undefined) || [];
+  const ek = eksikBolumler(tur, bolumler, `${i.id}_${tur}`);
+  return {
+    ...i, type: tur, area: 'duzada', updatedAt: Date.now(),
+    ...(ek.length ? { metadata: { ...(i.metadata || {}), wikiSections: [...bolumler, ...ek] } } : {})
+  };
+};
 
 /** "Mahalle kalsın": kayıt bir daha sorulmaz */
 export const mahalleKalsin = (i: Item): Item => ({ ...i, metadata: { ...(i.metadata || {}), mahalleOnayli: true }, updatedAt: Date.now() });
@@ -72,7 +98,8 @@ export const adaMaddesiEksik = (items: Item[]) => !items.some(i => i.type === 'a
 export const adaMaddesiKaydi = (): YeniKayit => ({
   id: ADA_KIMLIGI,
   title: 'Düzada', area: 'duzada', type: 'ada', status: 'Fikir', priority: 'orta',
-  tags: [], links: [], notes: '', images: [], isProposal: false, archived: false, metadata: {}
+  tags: [], links: [], notes: '', images: [], isProposal: false, archived: false,
+  metadata: { wikiSections: eksikBolumler('ada', [], ADA_KIMLIGI) }
 });
 
 export const cevreYoluVar = (items: Item[]) => items.some(i => i.metadata?.cevreYolu === true);
@@ -81,15 +108,14 @@ export const cevreYoluVar = (items: Item[]) => items.some(i => i.metadata?.cevre
 export const cevreYoluKaydi = (): YeniKayit => ({
   title: 'Çevre yolu (geçici ad)', area: 'duzada', type: 'cadde', status: 'Fikir', priority: 'orta',
   tags: [], links: [], notes: '', images: [], isProposal: false, archived: false,
-  metadata: { cevreYolu: true }
+  metadata: { cevreYolu: true, wikiSections: eksikBolumler('cadde', [], `cevre_yolu`) }
 });
 
 // ---------------------------------------------------------------- tekrarlar
 
 /**
- * Mahallede bölümlerin sırası (Kemal, 8 Ekim: "bölüm başlıkları sabit").
- * Sıra soru turunda kesinleşecek; şimdilik mahallelerde bugün en çok
- * kullanılan sıra. Listede olmayan başlıklar sona gelir.
+ * Mahallede bölümlerin sırası (Kemal, 8 Ekim: "bölüm başlıkları sabit";
+ * sıra soru turunda onaylandı). Listede olmayan başlıklar sona gelir.
  */
 export const MAHALLE_BOLUM_SIRASI = ['Konum ve sınırlar', 'Tarihçe', 'Gündelik hayat', 'Kamu binaları', 'Çarşı ve işletmeler'];
 
