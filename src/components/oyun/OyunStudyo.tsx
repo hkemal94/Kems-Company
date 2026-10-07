@@ -8,7 +8,7 @@ import type { Item, AreaType } from '../../types';
 import {
   ASAMALAR, oyunIsleri, gddBolumleri, GDD_BOLUMLERI, projeAsamasi, BOLUM_ACIKLAMASI,
   KONSEPT_BOLUMLERI, MEKANIK_BOLUMLERI, ADIM_SIRASI, bolumYapildi, FIKIR_KATEGORILERI,
-  oyunFikirleri, oyunBelgesi, GDD_SECIMLERI, secilenler, oyunlar, oyunAdi, oyunKimligi, ILK_OYUN_ID,
+  oyunFikirleri, GDD_SECIMLERI, secilenler, oyunlar, oyunAdi, oyunKimligi, ILK_OYUN_ID,
   KUNYE_SATIRLARI, kunyeDegeri
 } from './OyunSureci';
 import NpcSihirbazi from './NpcSihirbazi';
@@ -29,7 +29,7 @@ import { DUGME_BOS, DUGME_LAC, IKINCIL, KART, YAZI } from '../anasayfa/stil';
  *   Mekanikler ve notlar — oynanış bölümleri + kategorili fikir notları
  *
  * Her şey Kemal'in kayıtlarına yazılır (gdd_bolum, oyun_fikir, oyun_is,
- * oyun_tanitim) ve "Oyun dosyasını indir" ile tek belge olur. Oyunun kendisi
+ * oyun_tanitim) ve "Oyun PDF'i" ile tek belge olur. Oyunun kendisi
  * ayrı depoda; buradan oraya bir şey yazılmaz.
  */
 
@@ -189,6 +189,7 @@ const OyunEkrani: React.FC<OyunStudyoProps & { oyunId: string; onGeri: () => voi
   }, [belgeler]);
 
   const [sekme, setSekme] = useState<Sekme>('kunye');
+  const [pdfDurumu, setPdfDurumu] = useState<'' | 'hazirlaniyor' | 'hata'>('');
   const [yeniIs, setYeniIs] = useState<string | null>(null);
   const [yeniBaslik, setYeniBaslik] = useState('');
   const [npcAcik, setNpcAcik] = useState(false);
@@ -249,14 +250,18 @@ const OyunEkrani: React.FC<OyunStudyoProps & { oyunId: string; onGeri: () => voi
     }
   };
 
-  const belgeIndir = () => {
-    const blob = new Blob([oyunBelgesi(items, oyunId)], { type: 'text/markdown;charset=utf-8' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    const dosyaAdi = (oyunAdi(oyunKaydi) || 'oyun').toLocaleLowerCase('tr').replace(/[^a-z0-9çğıöşü]+/g, '-').replace(/^-|-$/g, '');
-    a.download = `${dosyaAdi}-dosyasi-${new Date().toISOString().slice(0, 10)}.md`;
-    a.click();
-    window.setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  // Oyun dosyası PDF olarak (7 Ekim, Kemal: .md telefonda Türkçe harfleri
+  // bozuyordu). PDF yazıcısı yalnız tıklanınca yüklenir.
+  const belgeIndir = async () => {
+    setPdfDurumu('hazirlaniyor');
+    try {
+      const { oyunPdf } = await import('../../lib/raporPdf');
+      await oyunPdf(items, oyunId);
+      setPdfDurumu('');
+    } catch (e) {
+      console.error('Oyun PDF\'i hazırlanamadı:', e);
+      setPdfDurumu('hata');
+    }
   };
 
   const bolum = (id: string) => {
@@ -374,10 +379,13 @@ const OyunEkrani: React.FC<OyunStudyoProps & { oyunId: string; onGeri: () => voi
       {/* Stüdyo aşaması ve işler */}
       <section className="space-y-2">
         <BolumBasligi baslik="Yapım aşaması ve işler" sayi={isler.length} renk="lacivert" />
-        <p className={`text-[13px] ${IKINCIL}`}>
-          Sektörün zinciri: her aşamanın bir çıktısı var, çıktı olmadan sonrakine geçilmez. İlk iki aşama tasarım belgesindeki adımlardan, sonrakiler buradaki işlerden hesaplanır
-          {suAn ? <> — şu an <b className={YAZI}>{suAn.ad}</b>.</> : '. Henüz başlamadı.'}
-        </p>
+        {/* Ne işe yaradığı (7 Ekim, Kemal: "ne iş yapıyor anlayamıyorum") */}
+        <div className={`${KART} p-4 space-y-1.5 text-[13px] leading-relaxed ${IKINCIL}`}>
+          <p><b className={YAZI}>Bu bölüm ne işe yarar?</b> Oyunun yapılacaklar listesi; işler, oyunun yapımında hangi aşamaya ait olduklarına göre dizilir.</p>
+          <p>Aşamanın yanındaki <b className={YAZI}>+</b> ile iş eklersin (ör. "ilk bölümün haritası"). İş ilerleyince oklarla sonraki aşamaya taşırsın; bitince silersin.</p>
+          <p>Künyedeki <b className={YAZI}>Durum</b> buradan hesaplanır: ilk iki aşama yukarıdaki tasarım belgesinin adımlarından, sonrakiler en geride kalan işten. Her aşamanın altındaki satır, o aşamadan çıkmak için neyin bitmiş olması gerektiğini söyler.</p>
+          <p>Şu an: <b className={YAZI}>{suAn ? suAn.ad : 'başlamadı'}</b>.</p>
+        </div>
         <div className="space-y-2">
           {ASAMALAR.map((a, i) => {
             const bunlar = isler.filter(x => String((x.metadata as any)?.asama || 'konsept') === a.id);
@@ -472,8 +480,8 @@ const OyunEkrani: React.FC<OyunStudyoProps & { oyunId: string; onGeri: () => voi
     <div className="space-y-5 animate-in fade-in duration-300">
       <button type="button" onClick={onGeri} className={DUGME_BOS}><ArrowLeft className="w-3.5 h-3.5" /> Oyunlar</button>
       <SayfaBasi baslik={oyunAdi(oyunKaydi) || 'Adsız oyun'}>
-        <button type="button" onClick={belgeIndir} className={DUGME_BOS} title="Künye, tasarım belgesi, fikir notları ve işler tek dosyada">
-          <Download className="w-3.5 h-3.5" /> Oyun dosyasını indir
+        <button type="button" onClick={() => void belgeIndir()} disabled={pdfDurumu === 'hazirlaniyor'} className={DUGME_BOS} title="Künye ve konsept, mekanikler ve notlar, Düzada özeti tek PDF'te">
+          <Download className="w-3.5 h-3.5" /> {pdfDurumu === 'hazirlaniyor' ? 'Hazırlanıyor…' : 'Oyun PDF\'i'}
         </button>
         <button type="button" onClick={() => setNpcAcik(true)} className={DUGME_BOS}><UserPlus className="w-3.5 h-3.5" /> NPC yarat</button>
       </SayfaBasi>
