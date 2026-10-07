@@ -15,7 +15,7 @@ import { hattaUzaklik, karadaMi } from './kurucuTipi';
  * Saf fonksiyon: aynı girdi ve tohumla aynı sonucu verir.
  */
 
-export type DokuTuru = 'bitisik' | 'karisik' | 'koy' | 'seyrek';
+export type DokuTuru = 'bitisik' | 'karisik' | 'koy' | 'seyrek' | 'balikci' | 'teras' | 'sahil' | 'zeytinlik';
 
 type Aralik = [number, number];
 
@@ -28,6 +28,14 @@ export interface Doku {
   gecit: Aralik | null;
   siklik: number;
   katlar: number[];
+  /**
+   * Yalnız yolun karaya bakan yanı (3. gece): sahilde deniz tarafı açık
+   * kalır (kordon), yamaçta evler yolun yukarı yanına dizilir. Adada
+   * kıyıdan uzaklaştıkça yükselindiği için "karaya bakan" = "yukarı".
+   */
+  tekYan?: 'karaya';
+  /** Yapı türü ağırlıkları; yoksa hep müstakil ev */
+  turler?: Array<[BinaTuru, number]>;
 }
 
 export const DOKULAR: Doku[] = [
@@ -38,7 +46,20 @@ export const DOKULAR: Doku[] = [
   { id: 'koy', ad: 'Bahçeli köy', aciklama: 'Merkez gibi: müstakil, 1–2 kat',
     cephe: [8, 12], derin: [8, 11], ara: [2, 6], geri: [1, 3.5], gecit: null, siklik: 0.82, katlar: [1, 2, 2] },
   { id: 'seyrek', ad: 'Seyrek', aciklama: 'Stadyum gibi: aralıklı, iki kat',
-    cephe: [9, 13], derin: [9, 12], ara: [4, 9], geri: [2.5, 5], gecit: null, siklik: 0.75, katlar: [2, 2, 1] }
+    cephe: [9, 13], derin: [9, 12], ara: [4, 9], geri: [2.5, 5], gecit: null, siklik: 0.75, katlar: [2, 2, 1] },
+  // 3. gece: dört yeni doku (7 Ekim planı)
+  { id: 'balikci', ad: 'Balıkçı köyü', aciklama: 'Küçük, sık, 1–2 kat; araya kayık depoları, sık dar geçit',
+    cephe: [5, 8], derin: [6, 9], ara: [0, 1], geri: [0.2, 0.8], gecit: [20, 36], siklik: 0.95, katlar: [1, 1, 2],
+    turler: [['ev', 0.8], ['depo', 0.2]] },
+  { id: 'teras', ad: 'Yamaç teras', aciklama: 'Yokuşta basamak basamak: yolun yukarı yanında sığ, sık evler',
+    cephe: [6, 9], derin: [6, 8], ara: [0.5, 2], geri: [0.3, 1.2], gecit: [24, 40], siklik: 0.9, katlar: [1, 2, 2],
+    tekYan: 'karaya' },
+  { id: 'sahil', ad: 'Sahil şeridi', aciklama: 'Kordon: denize bakan tek sıra, altı dükkânlı 2–3 kat; deniz tarafı açık',
+    cephe: [8, 12], derin: [10, 13], ara: [0, 0.5], geri: [0.5, 1.5], gecit: [50, 80], siklik: 0.95, katlar: [2, 2, 3],
+    tekYan: 'karaya', turler: [['dukkanli', 0.6], ['ev', 0.4]] },
+  { id: 'zeytinlik', ad: 'Zeytinlik evleri', aciklama: 'Zeytinlikler arasında tek tük, yoldan geride taş evler',
+    cephe: [10, 15], derin: [9, 12], ara: [25, 60], geri: [5, 12], gecit: null, siklik: 0.7, katlar: [1, 1, 2],
+    turler: [['ciftlik', 0.5], ['ev', 0.5]] }
 ];
 
 export const dokuBul = (id: DokuTuru) => DOKULAR.find(d => d.id === id)!;
@@ -130,6 +151,28 @@ export function mahalleDoldur(
   const engel = engeller.filter(k => k.some(p => p[0] > x0 - pay && p[0] < x1 + pay && p[1] > y0 - pay && p[1] < y1 + pay));
   const konan: DoldurEv[] = [];
   const konanKose: Nokta[][] = [];
+  /** Kıyıya uzaklık (yalnız alanın çevresindeki kıyı; tek yanlı dokular için) */
+  const kiyi: Nokta[][] = [];
+  if (d.tekYan) {
+    // Pencereye giren ardışık kıyı noktaları ayrı parçalar (atlayan noktalar
+    // adanın içinden geçen sahte kenar kurmasın)
+    const icinde = (p: Nokta) => p[0] > x0 - 800 && p[0] < x1 + 800 && p[1] > y0 - 800 && p[1] < y1 + 800;
+    for (const h of ada) {
+      let parca: Nokta[] = [];
+      for (const p of h) {
+        if (icinde(p)) parca.push(p);
+        else { if (parca.length >= 2) kiyi.push(parca); parca = []; }
+      }
+      if (parca.length >= 2) kiyi.push(parca);
+    }
+  }
+  const kiyiyaUzak = (p: Nokta) => kiyi.length ? Math.min(...kiyi.map(h => hattaUzaklik(p, h).d)) : Infinity;
+  const turSec = (): BinaTuru => {
+    if (!d.turler?.length) return 'ev';
+    let x = r() * d.turler.reduce((t, [, w]) => t + w, 0);
+    for (const [t, w] of d.turler) { if ((x -= w) <= 0) return t; }
+    return d.turler[0][0];
+  };
 
   const yolaBinmez = (k: Nokta[]) => {
     const orta: Nokta = [(k[0][0] + k[2][0]) / 2, (k[0][1] + k[2][1]) / 2];
@@ -178,6 +221,11 @@ export function mahalleDoldur(
           const derin = arasinda(r, d.derin);
           const g = y.yari + 0.8 + arasinda(r, d.geri) + derin / 2;
           const m: Nokta = [(p0[0] + p1[0]) / 2 + nx * g, (p0[1] + p1[1]) / 2 + ny * g];
+          // Tek yanlı doku: bu yan denize bakıyorsa geç (karşı yan daha içeride)
+          if (d.tekYan && kiyi.length) {
+            const karsi: Nokta = [(p0[0] + p1[0]) / 2 - nx * g, (p0[1] + p1[1]) / 2 - ny * g];
+            if (kiyiyaUzak(m) <= kiyiyaUzak(karsi)) { s += bosluk; yolBoyu += bosluk; continue; }
+          }
           const aci = Math.atan2(ty, tx);
           const co = Math.cos(aci), si = Math.sin(aci);
           const k = ([[-tn / 2, -derin / 2], [tn / 2, -derin / 2], [tn / 2, derin / 2], [-tn / 2, derin / 2]] as Nokta[])
@@ -185,7 +233,7 @@ export function mahalleDoldur(
           const ic = daralt(k, 0.3);
           if (r() < d.siklik && k.every(alanda) && k.every(p => karadaMi(p, ada))
               && !engel.some(o => biner(ic, o)) && !konanKose.some(o => biner(ic, o)) && yolaBinmez(k)) {
-            konan.push({ tur: 'ev', m, en: Math.round(tn * 10) / 10, boy: Math.round(derin * 10) / 10,
+            konan.push({ tur: turSec(), m, en: Math.round(tn * 10) / 10, boy: Math.round(derin * 10) / 10,
               aci: Math.round(aci * 1000) / 1000, kat: d.katlar[Math.floor(r() * d.katlar.length)] });
             konanKose.push(k);
           }

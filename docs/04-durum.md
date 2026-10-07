@@ -1655,3 +1655,13 @@ katlanır listede. Plan `src/lib/yolHaritasi.ts`'te; her PR kendi paketini
   aramada bulunur, mahalle eşleşmesinde kullanılır; madde sayfasında ve
   sitede başlığın altında "Diğer adları".
 - Görseller: `docs/gorseller/sablon-*.png`.
+
+**3. gece, 2. paket (uygulamada): Mahalle doldur'a dört doku.**
+- Kurucu → Doldur: Balıkçı köyü (küçük, sık, 1–2 kat, araya kayık
+  depoları), Yamaç teras (yolun yukarı yanında sığ, sık evler), Sahil şeridi
+  (denize bakan tek sıra, çoğu dükkânlı 2–3 kat; deniz tarafı açık), Zeytinlik
+  evleri (tek tük, yoldan geride taş evler).
+- Tek yanlı dokular yolun karaya bakan yanını kıyıya uzaklıkla seçer
+  (adada kıyıdan uzaklaştıkça yükselinir); kıyıdan 800 m'den uzak alanda
+  iki yana da dizer. `src/components/kurucu/mahalleDoldur.ts`.
+- Görseller: `docs/gorseller/doku-*.png`.
