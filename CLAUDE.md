@@ -161,7 +161,7 @@ bağlantısı 2. adım.
 **Tek kayıtlık ayarlar** (30 Eylül): `site_ayar` (sitenin taslağı ve
 yayındaki hâli), `gece_hazirlik` (gece önerilerinin defteri), `kkm_ayar`
 (Durum hedefleri, yol haritasında bitenler, Kemal'in ekrandan eklediği
-işler, vikinin alan şablonu `vikiSablonu`). Temizlik bunlara dokunmaz.
+işler, vikinin alan şablonu `vikiSablonu`, bağ ağının yerleşimi `bagAgiYerlesim`). Temizlik bunlara dokunmaz.
 **Yol haritası açık işlerin tek yeridir** (7 Ekim): plan `src/lib/yolHaritasi.ts`'te
 (paket H/W/M/K, gece, kimde). Her PR kendi paketini `bitti: true` yapar;
 Kemal birleştirince ekranda "bitti" olur. Kemal'in eklediği işler `kkm_ayar`'da.
