@@ -1600,3 +1600,14 @@ katlanır listede. Plan `src/lib/yolHaritasi.ts`'te; her PR kendi paketini
 - **Kural ihlali düzeltildi:** Düzada sayfası her açılışta bütün viki
   maddelerine "ada maddesi" bağını kendiliğinden yazıyordu; silindi.
 - Bildirimdeki tek seferlik düğme ana sayfaya (Bekleyen işler) götürür.
+
+**2. gece, 2. paket (uygulamada): ev dokusu.**
+- İlçelerde evler yarıya indi (4.755 → 2.328: İskele 610, Liman 868,
+  Merkez 490, Stadyum 360); arsalar geniş ve derin, bitişik sıralar kısa
+  (2–4 ev, arada geçit). Her evin eni ve derinliği biraz oynar (hafif Ege
+  düzensizliği). Ayarlar `gen/duzada.py` → `EV_AYARI`.
+- Arsa çakışma denetimi bütün adada yapılıyor; 290 bozuk bahçe çizgisi
+  (üst üste binen arsa gibi görünüyordu) düzeltildi.
+- Kemal'in taşıdığı ve gizlediği evler etkilenmez (yalnız `ev_`/`bina_`
+  numaraları kullanılır).
+- Görseller: `docs/gorseller/ev-*.png`.

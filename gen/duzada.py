@@ -7,6 +7,7 @@ yerleştirildi ki mesafeler ve alanlar metre cinsinden doğru çıksın.
 Kanon: 100-180 km², zirve 600-800 m.
 """
 import math, json, os
+import shapely as _shapely
 from shapely.geometry import Polygon, Point, LineString, MultiPolygon
 from shapely.ops import unary_union, polygonize
 from shapely.algorithms.polylabel import polylabel
@@ -2455,15 +2456,21 @@ _cephe = _hazirla(_cephe_alani.buffer(1.6))
 # mahalle: parsel cephesi, ev yan payı (her yan), ön bahçe, ev derinliği,
 #          arka bahçe, bitişik sıra uzunluğu (ev) ya da None, geçit aralığı,
 #          kat seçenekleri, boş parsel oranı, iç bölme alanı m² ya da None
+#
+# 7 Ekim (Kemal: "ilçelerin içindeki evler çok dip dibe, nüfusu çok
+# artırıyor; evleri yarı yarıya azaltıp arsalarını büyüt"; düzen "hafif Ege
+# düzensizliği"): parseller iki kat geniş, bahçeler derin, bitişik sıralar
+# kısa; her evin yoldan geriliği ve derinliği sıra içinde biraz oynar
+# (`oyna`, m), cephe yine yola paralel.
 EV_AYARI = {
-    "yer_iskele":  dict(parsel=(9, 12), yan=(0, 0), on=(0.3, 1.0), derin=(9, 12), arka=8.0,
-                        sira=(3, 6), gecit=(45, 75), katlar=(2, 2, 3), bos=0.0, bolme=None),
-    "yer_liman":   dict(parsel=(9, 13), yan=(0, 0), on=(0.6, 2.0), derin=(9, 12), arka=9.0,
-                        sira=(2, 5), gecit=(55, 85), katlar=(1, 2, 2, 3), bos=0.0, bolme=None),
-    "yer_merkez":  dict(parsel=(14, 19), yan=(2.0, 3.5), on=(3.0, 5.0), derin=(8, 10), arka=10.0,
-                        sira=None, gecit=None, katlar=(1, 2, 2), bos=0.1, bolme=2200.0),
-    "yer_stadyum": dict(parsel=(16, 22), yan=(2.5, 4.0), on=(4.0, 6.0), derin=(9, 11), arka=10.0,
-                        sira=None, gecit=None, katlar=(2, 2, 1), bos=0.1, bolme=2800.0),
+    "yer_iskele":  dict(parsel=(12, 16), yan=(0, 1.0), on=(0.5, 1.5), derin=(9, 12), arka=12.0,
+                        sira=(2, 4), gecit=(45, 75), katlar=(2, 2, 3), bos=0.1, bolme=None, oyna=0.8),
+    "yer_liman":   dict(parsel=(13, 17), yan=(0, 1.5), on=(1.0, 2.5), derin=(9, 12), arka=13.0,
+                        sira=(2, 4), gecit=(55, 85), katlar=(1, 2, 2, 3), bos=0.1, bolme=None, oyna=1.0),
+    "yer_merkez":  dict(parsel=(21, 27), yan=(3.0, 5.0), on=(4.0, 6.0), derin=(8, 11), arka=15.0,
+                        sira=None, gecit=None, katlar=(1, 2, 2), bos=0.15, bolme=2200.0, oyna=1.5),
+    "yer_stadyum": dict(parsel=(24, 30), yan=(4.0, 6.0), on=(5.0, 7.0), derin=(9, 12), arka=15.0,
+                        sira=None, gecit=None, katlar=(2, 2, 1), bos=0.15, bolme=2800.0, oyna=1.5),
 }
 
 _ev_sayisi = {}
@@ -2565,7 +2572,9 @@ for _mid, _A in EV_AYARI.items():
                         continue
                     _ham = _dortgen(0, _c, 0, _D)
                     _parsel = _ham.intersection(_blok)
-                    for _o in _parseller[-6:] + _gecitler[-2:]:
+                    # bloğun bütün parselleri ve geçitleri: köşede ve
+                    # kıvrımda arsalar üst üste binmesin (7 Ekim)
+                    for _o in _parseller + _gecitler:
                         if _parsel.intersects(_o):
                             _parsel = _parsel.difference(_o)
                     _parsel = max(_parcala(_parsel), key=lambda p: p.area, default=None)
@@ -2573,7 +2582,10 @@ for _mid, _A in EV_AYARI.items():
                     _yol_boyu += _c
                     if _parsel is None or _parsel.area < _ham.area * 0.55:
                         continue
-                    _parsel = _parsel.simplify(0.05)
+                    _parsel = _parsel.simplify(0.05).buffer(0)
+                    _parsel = max(_parcala(_parsel), key=lambda p: p.area, default=None)
+                    if _parsel is None:
+                        continue
                     _parseller.append(_parsel)
                     # bitişik sırada her birkaç evden sonra bir bahçe parseli
                     if _sira_kalan is not None:
@@ -2584,9 +2596,13 @@ for _mid, _A in EV_AYARI.items():
                     if _rnd.random() < _A["bos"]:
                         continue
                     _yan = _rnd.uniform(*_A["yan"])
-                    _ev = _dortgen(_yan, _c - _yan, _g0, _g0 + _d).intersection(_parsel)
+                    # hafif Ege düzensizliği: gerilik ve derinlik ev ev oynar
+                    _oy = _A.get("oyna", 0.0)
+                    _ge = max(0.2, _g0 + _rnd.uniform(-_oy, _oy))
+                    _de = max(7.0, _d + _rnd.uniform(-_oy, _oy))
+                    _ev = _dortgen(_yan, _c - _yan, _ge, _ge + _de).intersection(_parsel)
                     _ev = max(_parcala(_ev), key=lambda p: p.area, default=None)
-                    if _ev is None or _ev.area < (_c - 2 * _yan) * _d * 0.8 or not _ada_ici.contains(_ev):
+                    if _ev is None or _ev.area < (_c - 2 * _yan) * _de * 0.8 or not _ada_ici.contains(_ev):
                         continue
                     _ev = _ev.simplify(0.05)
                     _kat = _rnd.choice(_A["katlar"])
@@ -2604,10 +2620,15 @@ for _mid, _A in EV_AYARI.items():
         _bahce = _parsel_alani.difference(unary_union(_blok_evleri).buffer(0.1)) if _blok_evleri else _parsel_alani
         for _p in _parcala(_bahce):
             if _p.area > 8:
-                _arka_n += 1
-                _ek_sayisi["bahçe"] += 1
-                zemin.append({"id": f"bahce_{_mid}_{_arka_n}", "ad": "", "tur": "bahçe",
-                              "geom": _p.simplify(0.3)})
+                # sadeleşince sınırı kendi üstüne katlanmasın (7 Ekim: 290 bahçe
+                # bozuktu, haritada üst üste binen arsa gibi görünüyordu)
+                for _q in _parcala(_p.simplify(0.3).buffer(0)):
+                    if _q.area <= 8:
+                        continue
+                    _arka_n += 1
+                    _ek_sayisi["bahçe"] += 1
+                    zemin.append({"id": f"bahce_{_mid}_{_arka_n}", "ad": "", "tur": "bahçe",
+                                  "geom": _q})
         # bahçe duvarları: parsellerin sınırları (evin duvarı ayrıca çizilmez)
         _duvar = unary_union([p.exterior for p in _parseller])
         if _blok_evleri:
@@ -2881,11 +2902,21 @@ for mid, (ad, merkez, geom) in mahalle_geom.items():
     ))
 
 for z in zemin:
-    features.append(feature(
-        {"type": "Polygon", "coordinates": poly_ll(z["geom"])},
-        {"katman": "zemin", "id": z["id"], "ad": z["ad"], "tur": z["tur"],
-         "taban": z["taban"]}
-    ))
+    # 6 basamağa yuvarlanınca dar bir bahçenin sınırı kendi üstüne
+    # katlanabiliyordu (7 Ekim: 201 bahçe; haritada üst üste binen arsa gibi
+    # görünüyordu). Yuvarlanmış hâli bozuksa onarılır, parçaları ayrı yazılır.
+    _koord = poly_ll(z["geom"])
+    _g = Polygon(_koord[0], _koord[1:])
+    _parcalar = [_koord] if _g.is_valid else [
+        [[[round(a, R), round(b, R)] for a, b in h] for h in
+         [list(q.exterior.coords)] + [list(i.coords) for i in q.interiors]]
+        for q in _parcala(_shapely.set_precision(_g.buffer(0), 10 ** -R)) if q.area > 1e-10]
+    for _pi, _pk in enumerate(_parcalar):
+        features.append(feature(
+            {"type": "Polygon", "coordinates": _pk},
+            {"katman": "zemin", "id": z["id"] if _pi == 0 else f"{z['id']}_{_pi}", "ad": z["ad"], "tur": z["tur"],
+             "taban": z["taban"]}
+        ))
 
 # Bahçe duvarları (2 Ekim gece): blok başına tek çizgi öğesi
 def _cizgiler(g):
