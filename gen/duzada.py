@@ -833,7 +833,9 @@ def _kurucu_tasi(geom, d):
     """Kurucu'nun yapı düzenini (dx, dy metre, y aşağı; aci radyan) uygular"""
     from shapely import affinity
     g = affinity.rotate(geom, -d.get("aci", 0.0), origin=geom.centroid, use_radians=True)
-    return affinity.translate(g, d.get("dx", 0.0), -d.get("dy", 0.0) * 111320.0 / M_PER_LAT)
+    # Kurucu metresi enlemde 111.320 m/derece, üreteçinki M_PER_LAT (7 Ekim:
+    # oran tersti; 844 m taşınan meyhane 3 m kayık çıkıyordu)
+    return affinity.translate(g, d.get("dx", 0.0), -d.get("dy", 0.0) * M_PER_LAT / 111320.0)
 
 
 def catmull_rom(kontrol, kapali, bolme=8):
@@ -1450,7 +1452,8 @@ bina("bina_stad_cati", "Dirlik Stadı · ana tribün", _stad_parca(0, -44.0, 72,
      "stadyum", "yer_stadyum")
 bina("bina_stad_acik", "Dirlik Stadı · açık tribün", _stad_parca(0, 38.5, 54, 7), 4.2,
      "stadyum", "yer_stadyum")
-bina("bina_stad_soyunma", "Dirlik Stadı · soyunma", _stad_parca(-50, -38, 16, 8), 4.4,
+# Soyunma ışık direğine biniyordu (7 Ekim çakışma denetimi); biraz içeride
+bina("bina_stad_soyunma", "Dirlik Stadı · soyunma", _stad_parca(-46, -34, 16, 8), 4.4,
      "yapı", "yer_stadyum", kat=1)
 for _i, (_u, _v) in enumerate(((-55, -41), (55, -41), (-55, 41), (55, 41)), 1):
     bina(f"bina_stad_isik_{_i}", "Işık direği", _stad_parca(_u, _v, 1.2, 1.2), 20,
@@ -2365,12 +2368,22 @@ def _bol(g, hedef, rnd, sonuc, derinlik=0):
 # Engeller: özel yapılar, Kemal'in Kurucu yapıları, taşıdığı evler
 _yapi_duzeni = _KURUCU.get("yapiDuzeni", {})
 _engeller = []
+# Kamu yapılarının bahçesi (7 Ekim, Kemal: "okul, devlet binaları gibi özel
+# binaları büyük bahçeli yap, dip dibe olmasın"): yapının çevresinde bu kadar
+# metre ev girmez; yollar çıkınca kalan yer bahçe olarak çizilir. Bahçe
+# yapının Kurucu'daki son yerinde; yapı yeniden taşınırsa üreteç yeniden çalışır.
+OZEL_BAHCE = {"bina_okul": 20.0, "bina_belediye": 15.0, "bina_pazar": 10.0,
+              "bina_liman_ofis": 10.0, "bina_liman_depo": 8.0, "bina_meyhane": 10.0}
+_ozel_bahceler = []
 for _b in binalar:
     _g = _b["geom"]
     if _b["id"] in _yapi_duzeni:          # Kurucu'da taşınan yapı: yeni yeri
         _g = _kurucu_tasi(_g, _yapi_duzeni[_b["id"]])
-    _yerlestir(_g.buffer(2.5))
-    _engeller.append(_g.buffer(2.5))
+    _pay = OZEL_BAHCE.get(_b["id"], 2.5)
+    _yerlestir(_g.buffer(_pay))
+    _engeller.append(_g.buffer(_pay))
+    if _b["id"] in OZEL_BAHCE:
+        _ozel_bahceler.append((_b["id"], _g, len(_engeller) - 1))
 for _z in STAD_ZEMIN:
     _yerlestir(_z[2].buffer(2.0))
     _engeller.append(_z[2].buffer(2.0))
@@ -2399,6 +2412,21 @@ for _t in _KURUCU.get("tasinanEvler", []):
     _engeller.append(_son.buffer(0.5))
     _yerlestir(_son.buffer(0.5))
     _tasinan += 1
+
+# Kamu yapılarının bahçeleri: yollar, öteki yapılar ve kıyı çıkar
+_ozel_engel = {i for _, _, i in _ozel_bahceler}
+for _bid, _g, _i in _ozel_bahceler:
+    _ic = _g.buffer(OZEL_BAHCE[_bid] - 1.0, join_style=2)
+    _ic = _ic.intersection(ada.buffer(-8)).difference(_yol_alani).difference(_g.buffer(0.3))
+    _yakin = [e for j, e in enumerate(_engeller) if j not in _ozel_engel and e.distance(_ic) < 1]
+    _yakin += [g.buffer(2.5) for b, g, j in _ozel_bahceler if j != _i and g.distance(_ic) < 5]
+    if _yakin:
+        _ic = _ic.difference(unary_union(_yakin))
+    # Yalnız yapıya değen parçalar; yolun karşısına düşen şerit bahçe değil
+    _ic = [p for p in _parcala(_ic) if p.area > 20 and p.distance(_g) < 3]
+    for _k, _p in enumerate(sorted(_ic, key=lambda p: -p.area)):
+        zemin.append({"id": f"bahce_{_bid[5:]}" + (f"_{_k}" if _k else ""),
+                      "ad": "", "tur": "bahçe", "geom": _p})
 
 # Meydanlar: Merkez'de taş çeşme ve çınarın meydanı, İskele'de caddenin
 # ortasındaki küçük açıklık, Liman'da kasabanın ortası; Stadyum'da Kemal'in
@@ -2699,6 +2727,40 @@ for _i, (_arazi, (_tx, _ty), (_nx, _ny), (_cx, _cy)) in enumerate(CIFTLIK_ARAZIL
             _yerlestir(_g.buffer(2))
             _konan += 1
     _kompleks += 1 if _konan else 0
+
+# Son denetim (7 Ekim, Kemal: "çakışan bina olursa da sil"): üretilen bir ev
+# uygulamadaki son hâlde başka bir yapıya biniyorsa silinir. Kemal'in
+# taşıdığı yapılar yeni yerleriyle, Kurucu'da koyduğu yapılar da sayılır;
+# kaldırdığı (gizlediği) yapılar sayılmaz. Kemal'in yapılarına dokunulmaz.
+from shapely.strtree import STRtree as _STRtree
+_son_yer = {_t["id"]: Polygon([_dm(q) for q in _t["yeniHalka"]]) for _t in _KURUCU.get("tasinanEvler", [])}
+_son_liste = []
+for _b in binalar:
+    if _b["id"] in _kur_gizli:
+        continue
+    _g = _son_yer.get(_b["id"]) or (_kurucu_tasi(_b["geom"], _yapi_duzeni[_b["id"]])
+                                    if _b["id"] in _yapi_duzeni else _b["geom"])
+    _son_liste.append((_b["id"], _g))
+for _y in _KURUCU.get("yapilar", []):
+    if _y["tur"] != "meydan":
+        _cx, _cy = _dm(_y["merkez"])
+        _son_liste.append(("kurucu", dikdortgen(_cx, _cy, _y["en"], _y["boy"], -math.degrees(_y.get("aci", 0)))))
+_son_tur = {_b["id"]: _b["tur"] for _b in binalar}
+_agac = _STRtree([g for _, g in _son_liste])
+_silinecek = set()
+for _i, (_id, _g) in enumerate(_son_liste):
+    if not _id.startswith(("konut_", "ciftlik_")) or _son_tur.get(_id) != "ev":
+        continue
+    for _j in _agac.query(_g):
+        _oid = _son_liste[_j][0]
+        if _j == _i or _oid in _silinecek:
+            continue
+        if _g.intersection(_son_liste[_j][1]).area > 0.5:
+            _silinecek.add(_id)
+            break
+binalar[:] = [_b for _b in binalar if _b["id"] not in _silinecek]
+print(f"Çakışma denetimi: {len(_silinecek)} ev silindi" + (f" ({', '.join(sorted(_silinecek))})" if _silinecek else ""))
+
 for z in zemin:
     if "taban" not in z:
         _c = z["geom"].centroid

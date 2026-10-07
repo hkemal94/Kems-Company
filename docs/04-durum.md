@@ -1610,4 +1610,13 @@ katlanır listede. Plan `src/lib/yolHaritasi.ts`'te; her PR kendi paketini
   (üst üste binen arsa gibi görünüyordu) düzeltildi.
 - Kemal'in taşıdığı ve gizlediği evler etkilenmez (yalnız `ev_`/`bina_`
   numaraları kullanılır).
-- Görseller: `docs/gorseller/ev-*.png`.
+- Kamu yapılarının bahçesi (Kemal, 7 Ekim: "okul, devlet binaları gibi özel
+  binaları büyük bahçeli yap"): Okul 20 m, Belediye 15 m, Pazar, Liman İdare,
+  Sade Meze 10 m, Liman Deposu 8 m çevresinde ev yok; yola kadar bahçe.
+  Bahçe yapının Kurucu'daki son yerinde (`OZEL_BAHCE`, `gen/duzada.py`).
+- Çakışma denetimi (Kemal: "çakışan bina olursa da sil"): üretilen bir ev
+  uygulamadaki son hâlde başka bir yapıya binerse üreteç onu siler. Şu an
+  çakışan ev yok. Soyunma odası stadın ışık direğinden ayrıldı.
+- Düzeltme: Kurucu'da taşınan yapıların yeri üreteçte kuzey–güney yönünde
+  binde 3,4 kayıktı (844 m taşınan Sade Meze'de 3 m).
+- Görseller: `docs/gorseller/ev-*.png`, `docs/gorseller/bahce-*.png`.
