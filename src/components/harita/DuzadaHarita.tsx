@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { isaretle } from '../../lib/olcumler';
 import * as maplibregl from 'maplibre-gl';
 import type { Map as MLMap, MapGeoJSONFeature, MapLayerMouseEvent } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
@@ -689,6 +690,8 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
      * yüklenmiş olabilir; o durumda `once('load')` hiç tetiklenmez. Bu yüzden
      * yüklüyse doğrudan kuruyoruz.
      */
+    // Açılış hızı (3. gece): 3B haritanın ilk tam çizimi
+    map.once('idle', () => isaretle('harita-hazir'));
     if (map.isStyleLoaded()) katmanlariKur();
     else map.once('load', katmanlariKur);
 

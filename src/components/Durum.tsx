@@ -8,8 +8,9 @@ import { Bosluklar } from './Bosluklar';
 import { Eksikler } from './Eksikler';
 import { SayfaRayi } from './SayfaRayi';
 import { DurumListesi, LISTELI_HEDEFLER } from './anasayfa/DurumListesi';
+import { BoyutHiz } from './anasayfa/BoyutHiz';
 
-export type DurumSekmesi = 'yuzdeler' | 'eksikler' | 'bosluklar' | 'takvim' | 'yolharitasi';
+export type DurumSekmesi = 'yuzdeler' | 'eksikler' | 'bosluklar' | 'takvim' | 'yolharitasi' | 'boyut';
 
 /**
  * Durum (29 Eylül; 1 Ekim'de Neyin Eksik de buraya katıldı). Kemal:
@@ -54,7 +55,9 @@ export const Durum: React.FC<{
     { id: 'eksikler', label: eksikSayisi ? `Eksikler · ${eksikSayisi}` : 'Eksikler' },
     { id: 'bosluklar', label: 'Boşluklar' },
     { id: 'takvim', label: 'Takvim' },
-    { id: 'yolharitasi', label: 'Yol haritası' }
+    { id: 'yolharitasi', label: 'Yol haritası' },
+    // 3. gece: kayıt boyutları, uygulama parçaları, açılış hızı
+    { id: 'boyut', label: 'Boyut ve hız' }
   ];
   return (
     <div className="space-y-5 animate-in fade-in duration-300">
@@ -78,6 +81,7 @@ export const Durum: React.FC<{
         />
       )}
       {sekme === 'bosluklar' && <Bosluklar items={items} onUpdateItem={onUpdateItem} gomulu />}
+      {sekme === 'boyut' && <BoyutHiz items={items} />}
       <GomuluSayfa.Provider value={true}>
         {sekme === 'takvim' && takvim}
         {sekme === 'yolharitasi' && yolHaritasi}

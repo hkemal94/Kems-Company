@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { isaretle } from '../../lib/olcumler';
 import { Eraser, Hand, MousePointer2, PenLine, Redo2, Undo2, Check, X, Eye, EyeOff, Home, LayoutGrid, RotateCcw, RotateCw, MapPinned, Pentagon, TreePine, Link2, Minus, Plus, ExternalLink, Blocks, Shuffle } from 'lucide-react';
 import type { Item } from '../../types';
 import { DEM_SINIR } from '../../data/duzadaDem';
@@ -147,6 +148,8 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
   const ilkTaslak = useRef(taslak);
   const sonDuzen = useRef(duzen);
   useEffect(() => { sonDuzen.current = duzen; }, [duzen]);
+  // Açılış hızı (3. gece): Kurucu'nun ilk çizimi bittiğinde
+  useEffect(() => { requestAnimationFrame(() => requestAnimationFrame(() => isaretle('harita-hazir'))); }, []);
   const bekleyenTaslak = useRef<KurucuTaslak | null>(null);
   const bekleyeniGonder = useCallback(() => {
     const t = bekleyenTaslak.current;

@@ -42,7 +42,7 @@ export const YOL_HARITASI: YolIsi[] = [
     ad: 'Alan şablonları, maddeler arası bağlar, takma adlar' },
   { id: 'yeni-dokular', gece: 3, paket: 'H', kimde: 'claude', nereden: '7 Ekim', bitti: true,
     ad: 'Mahalle doldur\'a 4 doku: balıkçı köyü, yamaç teras, sahil şeridi, zeytinlik evleri' },
-  { id: 'boyut-hiz', gece: 3, paket: 'K', kimde: 'claude', nereden: '7 Ekim',
+  { id: 'boyut-hiz', gece: 3, paket: 'K', kimde: 'claude', nereden: '7 Ekim', bitti: true,
     ad: 'Boyut ve hız sayfası: kayıt boyutları, uygulama parçaları, açılış hızı' },
   // 4. gece
   { id: 'madde-onerileri', gece: 4, paket: 'W', kimde: 'claude', nereden: '7 Ekim',
