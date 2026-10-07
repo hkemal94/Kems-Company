@@ -6,6 +6,7 @@ import {
   mahalleKalsin, mahalleTekrarlari, tasinacaklar, turAdi, turuDegistir
 } from '../lib/yerTurleri';
 import { useStudyo } from './studyo/StudyoBaglami';
+import { acilacaklar, duzeltmeler } from '../lib/maddeSoruTuru';
 
 /**
  * Yer kartları (8 Ekim). İki kart, ikisi de yalnız iş varken görünür:
@@ -91,7 +92,7 @@ export const YerKartlariKarti: React.FC<{
           )}
           {yolYok && (
             <button type="button" disabled={!!calisan} onClick={() => void isle('yol', () => onAddItem(cevreYoluKaydi()))} className={DUGME}>
-              {calisan === 'yol' ? '…' : 'Çevre yolu maddesini aç'}
+              {calisan === 'yol' ? '…' : 'Sahil Yolu maddesini aç'}
             </button>
           )}
         </div>
@@ -134,6 +135,65 @@ export const MahalleDerlemeKarti: React.FC<{ items: Item[]; onAc: (id: string) =
           </li>
         ))}
       </ul>
+    </div>
+  );
+};
+
+/**
+ * Madde soru turu kartı (8 Ekim). Kanonda olup maddesi olmayan yerleri boş
+ * metinle açar, eski yanlış alanları düzeltir. İş bitince kendini gizler.
+ */
+export const MaddeSoruTuruKarti: React.FC<{
+  items: Item[];
+  onUpdateItem: (item: Item) => Promise<void>;
+  onAddItem: (item: YeniKayit) => Promise<void>;
+}> = ({ items, onUpdateItem, onAddItem }) => {
+  const yeniler = useMemo(() => acilacaklar(items), [items]);
+  const duzelt = useMemo(() => duzeltmeler(items), [items]);
+  const [acik, setAcik] = useState(false);
+  const [calisiyor, setCalisiyor] = useState(false);
+  const [rapor, setRapor] = useState<string | null>(null);
+
+  if (rapor) return <p className="mb-2.5 px-4 py-3 rounded-xl bg-[#FAF8F5] dark:bg-[#13204A] text-[13px] text-[#336659] dark:text-[#8FC4A8]">{rapor}</p>;
+  if (!yeniler.length && !duzelt.length) return null;
+
+  const isle = async () => {
+    if (calisiyor) return;
+    setCalisiyor(true);
+    let a = 0, d = 0;
+    try {
+      for (const y of yeniler) { await onAddItem(y); a++; }
+      for (const x of duzelt) { await onUpdateItem(x.item); d++; }
+      setRapor(`${a} madde açıldı, ${d} madde düzeltildi. Metinleri boş; sen yazarsın.`);
+    } catch (e) {
+      setRapor(`${a} madde açıldı, ${d} düzeltildi; sonra hata: ${e instanceof Error ? e.message : 'bilinmeyen'}`);
+    } finally { setCalisiyor(false); }
+  };
+
+  return (
+    <div className={KUTU}>
+      <div className="flex items-start gap-3">
+        <MapPin className="w-4 h-4 mt-0.5 shrink-0 text-[#D6484C] dark:text-[#F26B6F]" />
+        <div className="flex-1 min-w-0">
+          <p className={BASLIK}>Soru turu: {yeniler.length} madde açılacak, {duzelt.length} madde düzeltilecek</p>
+          <p className={ACIKLAMA}>
+            Kanonda yazılı olup maddesi olmayan yerler açılır; künyelerine yalnız kanondaki ve bu turdaki cevapların yazılır, metinleri boş kalır.
+            Ayrıntı: docs/soru-cevap/madde-1.md
+          </p>
+          <button type="button" onClick={() => setAcik(a => !a)} className="mt-1 text-[11px] text-[#D6484C] dark:text-[#F26B6F] hover:underline cursor-pointer">
+            {acik ? 'listeyi gizle' : 'neler olacak?'}
+          </button>
+        </div>
+        <button type="button" disabled={calisiyor} onClick={() => void isle()} className={DUGME}>
+          {calisiyor ? 'İşleniyor…' : 'Aç ve düzelt'}
+        </button>
+      </div>
+      {acik && (
+        <ul className="mt-2.5 space-y-1 text-[12px] text-[#0E1C4F] dark:text-[#F3EFE8]">
+          {yeniler.map(y => <li key={y.title}>＋ {y.title} <span className="text-[#6A5E4C] dark:text-[#A6B0C9]">· {turAdi(y.type)}</span></li>)}
+          {duzelt.map(x => <li key={x.item.id}>✎ {x.item.title} <span className="text-[#6A5E4C] dark:text-[#A6B0C9]">· {x.neler.join(' · ')}</span></li>)}
+        </ul>
+      )}
     </div>
   );
 };

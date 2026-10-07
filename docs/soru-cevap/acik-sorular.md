@@ -10,7 +10,7 @@ Ad sorularında Claude aday önerebilir; karar Kemal'in.
 - Sade Meze ve Dondurmacı Kızlar'ın sahibi: şimdilik "Eylül Hanım". Kemal'in kararı bekleniyor; hakkında bir şey yazılmaz, önerilmez.
 - ~~Küçükçetmi ailesinin soyadı~~ — Eskibey Ailesi (29 Eylül).
 - ~~Dirlik'in rakibi~~ — gerçek Küçükkuyu Gençlerbirliği, easter egg olarak (29 Eylül).
-- Dirlik forması — merch'le birlikte düşünülecek.
+- Dirlik forması — merch'le birlikte düşünülecek (8 Ekim: "sonra").
 - ~~"Kemsköy" adı~~ — yerel söyleyiş, kökeni bilinmiyor (29 Eylül).
 - ~~Sokak adları~~ — numaralı kalır (29 Eylül).
 - ~~Geçici yapı adları~~ — altısı da kesin (29 Eylül).
@@ -26,6 +26,9 @@ Ad sorularında Claude aday önerebilir; karar Kemal'in.
 ## Harita
 - ~~Kems Company dükkânının yeri~~ — Kemsköy Caddesi (Kemal, 29 Eylül). Adı açık.
 - Küçükçetmi Çiftliği: Çiftlik'in iç tarafında, tepeye yakın (W3 62. tur) — tam yerini Kemal kurucuda seçecek.
+
+- Zirvelerin (Kuzey Sırtı, Çetmi Sırtı, Fener Burnu) mahallesi — Kemal Kurucu'da bakacak (8 Ekim).
+- Kems Company dükkânının maddesi ve adı — açılmadı (8 Ekim).
 
 ## Metin (Kemal yazacak)
 - Her mahallenin Tarihçe bölümü.

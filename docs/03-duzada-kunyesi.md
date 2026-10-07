@@ -280,6 +280,27 @@ Ayrıntı ve bölüm iskeletleri: `docs/soru-cevap/metin-1.md`.
 - **Toprak saha** — sözlü anlatı: 1950'lerdeki ilk maç (konusu Kemal'in).
 - **Bağcılık** — adada 2000 sonrası başladı; öncesinde şarap yok.
 
+## Madde soru turu (8 Ekim 2026)
+
+Ayrıntı: `docs/soru-cevap/madde-1.md`.
+
+- **Küçükçetmi Sürek Kulübü** — kuruluş 1950–1980 arası. Kuruluştan av
+  bırakılana (1990–2000'ler) dek sürek avı; cemiyet ve hayırseverler
+  kulübü. Sonra nişancılık, doğa yürüyüşleri, Kangal, buluşma yeri.
+- **Eskibey Ailesi** — zeytincilik.
+- **Merkez Pazarı** — köy döneminden beri. **Jandarma karakolu** köy
+  döneminden; **eczane** 1980 sonrası.
+- **Okul** — maddesi "Düzada İlkokulu" (ilk ve ortaokul), 1920–1940'lar.
+- **Eski Kilise** — maddenin adı; gerçek adı bilinmiyor.
+- **Kemsköy Caddesi** — Kems Company dükkânı, Sade Meze, Eski Kilise,
+  barlar ve meyhaneler bu caddede.
+- **Otel** — Sahil Merdiveni otelden uçurum boyunca inen taş merdiven;
+  dipte otelin kum cebi ve tahta iskele; Otel Yolu otele çıkar. Yanındaki
+  kırmızı çatılı, teraslı yapı otelin restoranı.
+- **Adların kökeni** — Çetmi Sırtı ← Küçükçetmi; Fener Burnu ← Deniz
+  Feneri; Kuzey Sırtı ← yön.
+- **Sahil Yolu** — adayı dolanan halka (vikide maddesi bu adla).
+
 ## The Imperial Kemsköy
 
 Bütün projenin başlangıç noktası. Haydarpaşa Gar binasının küçüğü gibi

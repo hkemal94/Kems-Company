@@ -1955,3 +1955,13 @@ yazar adı ve kitap notu; PDF A5; düğme kitap kartında.
 - Görseller: `docs/gorseller/kitap-indir.png`, `kitap-pdf.png`.
 
 **7 Ekim planı (7 gece) bu paketle bitti.**
+
+## 8 Ekim — madde soru turu (8 tur; uygulamada kart)
+
+Cevaplar `docs/soru-cevap/madde-1.md`'de, kanona girenler
+`03-duzada-kunyesi.md` → "Madde soru turu". Durum → Eksikler → **Soru
+turu** kartı (`src/lib/maddeSoruTuru.ts`): kanonda olup maddesi olmayan
+25'e yakın yer boş metinle açılır (künyesi kanondan ve cevaplardan), eski
+yanlış alanlar düzeltilir; var olan aynı adlı maddede yalnız boş alan dolar.
+Çevre yolu maddesinin adı Sahil Yolu olur (kanondaki ad). Açık: otel
+merdiveni ve iskelesi haritada (H); mahalle derlemesi Kemal'in yedeğiyle.

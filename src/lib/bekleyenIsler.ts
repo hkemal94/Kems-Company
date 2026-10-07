@@ -3,6 +3,7 @@ import { boslukDoldurma } from './boslukDoldurma';
 import { silinecekler } from './temizlik';
 import { mahalleAdDuzeltmeleri } from './vikiTemizligi';
 import { galeridenEksikler } from '../components/GaleriYedegiKarti';
+import { maddeSoruTuruIsVar } from './maddeSoruTuru';
 import { adaMaddesiEksik, cevreYoluVar, mahalleTekrarlari, tasinacaklar } from './yerTurleri';
 
 /**
@@ -26,5 +27,6 @@ export function bekleyenDugmeler(items: Item[], haritaEskiKoordinatta = false): 
   // 8 Ekim: yer kartları ve mahalle derlemesi
   if (tasinacaklar(items).length || adaMaddesiEksik(items) || !cevreYoluVar(items)) is.push('yer kartları');
   if (mahalleTekrarlari(items).length) is.push('mahalle derlemesi');
+  if (maddeSoruTuruIsVar(items)) is.push('soru turu maddeleri');
   return is;
 }
