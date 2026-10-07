@@ -1,5 +1,6 @@
 import { TYPE_LABELS } from './wiki/wikiSchema';
 import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { takmaAdlar } from '../lib/alanSablonu';
 import { 
   Bold, Italic, Heading2, Quote, Sparkles, Check, 
   Eye, EyeOff, BookOpen, Link, Plus, HelpCircle, X, Maximize2, Minimize2 
@@ -238,11 +239,12 @@ export default function SharedEditor({
         if (isLinked) return;
         if (isDismissed(ent.title)) return;
 
-        const titleEscaped = ent.title.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-        // Support Turkish characters in word boundaries
-        const regex = new RegExp(`(?<![\\wğüşıöçĞÜŞİÖÇ])${titleEscaped}(?![\\wğüşıöçĞÜŞİÖÇ])`, 'gi');
+        // Başlık ve takma adlar (4. gece, metinde tanıma)
+        const adlar = [ent.title, ...takmaAdlar(ent)].map(a => a.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'));
+        const regex = new RegExp(`(?<![\\wğüşıöçĞÜŞİÖÇ])(?:${adlar.join('|')})(?![\\wğüşıöçĞÜŞİÖÇ])`, 'gi');
 
         if (regex.test(strippedText) || localText.includes(`[${ent.title}]`)) {
+          regex.lastIndex = 0;
           const originalMatch = localText.match(regex);
           const nameInText = originalMatch ? originalMatch[0] : ent.title;
           

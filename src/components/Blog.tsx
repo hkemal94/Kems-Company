@@ -443,7 +443,7 @@ export default function Blog({
       {/* VIEW 2: MASAÜSTÜ EDİTÖR (Section 4D) */}
       {/* Fanzin (yapisal-4): kendi ekranı — dergi görünümü, bölüm tonları, çıktılar */}
       {activeTab === 'editor' && activePost && fanzinBilgisi(activePost) && (
-        <Fanzin yazi={activePost} onUpdateItem={onUpdateItem} />
+        <Fanzin yazi={activePost} onUpdateItem={onUpdateItem} items={items} onMaddeAc={onSelectItem} />
       )}
 
       {activeTab === 'editor' && activePost && !fanzinBilgisi(activePost) && (

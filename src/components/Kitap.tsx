@@ -1,6 +1,7 @@
 import { KanonPaneli } from './wiki/KanonPaneli';
 import { TYPE_LABELS } from './wiki/wikiSchema';
 import React, { useState, useMemo } from 'react';
+import { anilanKimlikler, buildLinkIndex } from './wiki/autoLink';
 import { Book, FileText, Trash2, Compass, ListTodo, RefreshCw } from 'lucide-react';
 import { StudyodaAc } from './studyo/StudyodaAc';
 import { Item, ItemType, AreaType } from '../types';
@@ -76,6 +77,7 @@ export default function Kitap({
   const books = useMemo(() => items.filter(i => i.area === 'kitap' && i.type === 'kitap_proje' && !i.archived), [items]);
   const chapters = useMemo(() => items.filter(i => i.area === 'kitap' && i.type === 'kitap_bolum' && !i.archived), [items]);
   const entities = useMemo(() => items.filter(i => i.area === 'duzada' && !i.archived && !i.isProposal), [items]);
+  const linkIndex = useMemo(() => buildLinkIndex(entities), [entities]);
 
   // Handle active chapter
   const activeChapter = useMemo(() => {
@@ -98,19 +100,13 @@ export default function Kitap({
       return dismissed.some((dn: string) => dn.toLowerCase() === name.toLowerCase());
     };
 
-    entities.forEach(ent => {
-      const titleEscaped = ent.title.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-      // Whole-word matching with Turkish characters
-      const regex = new RegExp(`(?<![\\wğüşıöçĞÜŞİÖÇ])${titleEscaped}(?![\\wğüşıöçĞÜŞİÖÇ])`, 'gi');
-      if (regex.test(strippedText) || text.toLowerCase().includes(`[${ent.title.toLowerCase()}]`)) {
-        if (links.includes(ent.id) || !isDismissed(ent.title)) {
-          resultIds.add(ent.id);
-        }
-      }
-    });
-    
+    // Metinde tanıma (4. gece): başlık ve takma adlarla, viki bağlantı kurallarıyla
+    for (const id of anilanKimlikler(strippedText + ' ' + text, linkIndex)) {
+      const ent = entities.find(e => e.id === id);
+      if (ent && (links.includes(ent.id) || !isDismissed(ent.title))) resultIds.add(ent.id);
+    }
     return Array.from(resultIds);
-  }, [activeChapter?.notes, activeChapter?.links, activeChapter?.metadata?.dismissedSuggestions, entities]);
+  }, [activeChapter?.notes, activeChapter?.links, activeChapter?.metadata?.dismissedSuggestions, entities, linkIndex]);
 
   // If no book selected, select first book automatically
   React.useEffect(() => {

@@ -10,6 +10,8 @@ import { WIKI_TYPES, TYPE_LABELS, isStub, mahalleEslesir, eslesmeBasligi } from 
 import { OYUN_VAKA_IDLERI } from '../../lib/temizlik';
 import { etkinSablon, sablonKaydi, takmaAdlar, type VikiSablonu } from '../../lib/alanSablonu';
 import { AlanSablonlari } from './AlanSablonlari';
+import { MaddeOnerileri } from './MaddeOnerileri';
+import { maddeOnerileri, reddedilenler } from '../../lib/maddeOnerileri';
 
 interface WikiShellProps {
   items: Item[];
@@ -55,6 +57,8 @@ export const WikiShell: React.FC<WikiShellProps> = ({
   const [yeniAcik, setYeniAcik] = useState(false);
   /** Alan şablonları sayfası (3. gece) */
   const [sablonAcik, setSablonAcik] = useState(false);
+  /** Madde önerileri sayfası (4. gece) */
+  const [onerilerAcik, setOnerilerAcik] = useState(false);
   const [yeniAd, setYeniAd] = useState('');
   const [yeniTur, setYeniTur] = useState<ItemType>('kisi');
   const [internalId, setInternalId] = useState<string | null>(null);
@@ -71,6 +75,7 @@ export const WikiShell: React.FC<WikiShellProps> = ({
   const selectedId = controlledId !== undefined ? controlledId : internalId;
   const navigate = (id: string | null) => {
     setSablonAcik(false);
+    setOnerilerAcik(false);
     setInternalId(id);
     onSelect?.(id);
   };
@@ -189,6 +194,7 @@ export const WikiShell: React.FC<WikiShellProps> = ({
   }, [wikiItems, items]);
 
   const admin = mode === 'yonetim';
+  const oneriSayisi = useMemo(() => (readOnly ? 0 : maddeOnerileri(items, reddedilenler(items)).length), [items, readOnly]);
   /** Şablonu kkm_ayar kaydına yazar (yalnız "Kaydet" ile) */
   const sablonuYaz = onUpdateItem && onAddItem ? async (sb: VikiSablonu) => {
     const r = sablonKaydi(items, sb);
@@ -244,6 +250,16 @@ export const WikiShell: React.FC<WikiShellProps> = ({
             </button>
           )}
 
+          {!readOnly && onAddItem && onUpdateItem && mode === 'yonetim' && (
+            <button
+              type="button"
+              onClick={() => { navigate(null); setOnerilerAcik(true); }}
+              className="flex items-center gap-1.5 text-[11px] font-mono px-2.5 py-1.5 rounded border border-bej/55 dark:border-lacivert-600/55 hover:bg-bej/15 dark:hover:bg-lacivert-600/30 transition-colors"
+              title="Yazılarında geçen ama maddesi olmayan adlar"
+            >
+              madde önerileri{oneriSayisi ? ` · ${oneriSayisi}` : ''}
+            </button>
+          )}
           {!readOnly && sablonuYaz && mode === 'yonetim' && (
             <button
               type="button"
@@ -299,7 +315,9 @@ export const WikiShell: React.FC<WikiShellProps> = ({
       </div>
 
       <div className="max-w-5xl mx-auto px-4 py-8">
-        {sablonAcik && sablonuYaz ? (
+        {onerilerAcik && onAddItem && onUpdateItem ? (
+          <MaddeOnerileri items={items} onAddItem={onAddItem} onUpdateItem={onUpdateItem} onNavigate={navigate} onKapat={() => setOnerilerAcik(false)} />
+        ) : sablonAcik && sablonuYaz ? (
           <AlanSablonlari sablon={etkinSablon()} onKaydet={sablonuYaz} onKapat={() => setSablonAcik(false)} />
         ) : selected ? (
           <WikiArticle
