@@ -1620,3 +1620,18 @@ katlanır listede. Plan `src/lib/yolHaritasi.ts`'te; her PR kendi paketini
 - Düzeltme: Kurucu'da taşınan yapıların yeri üreteçte kuzey–güney yönünde
   binde 3,4 kayıktı (844 m taşınan Sade Meze'de 3 m).
 - Görseller: `docs/gorseller/ev-*.png`, `docs/gorseller/bahce-*.png`.
+
+**2. gece, 3. paket (uygulamada): PDF'ler.**
+- Bütün PDF'lere Poppins gömülü (`public/fontlar/`, OFL lisansı yanında);
+  ğ, ş, ı, İ, ö, ü, ç olduğu gibi çıkar. Ortak yazıcı `src/lib/pdfYazici.ts`.
+- Evren Raporu kayıtlardan üretilir (Kemal, 7 Ekim: "kayıtlardan üret").
+  6 Ekim'deki rapordaki elle yazılmış cümleler kalktı (sabit "94 kişi",
+  kanonda olmayan nüfus ve göç bilgileri, eski otel simülasyonunun kişileri,
+  "Kemskoy" yazımı). Ada künyesi, mahalle maddeleri, kurum / mekân / aile /
+  olay / kişi maddeleri, künyedeki tarihlerden tarihçe; boş olan "boş".
+  Ekran, .md ve PDF aynı içerik (`src/lib/evrenRaporu.ts`, `raporPdf.ts`).
+- Oyun PDF'i: künye ve konsept, mekanikler ve notlar, Düzada özeti (ölçüler
+  + mahallelerin ilk paragrafı). Oyun sayfasındaki indirme düğmesi artık PDF
+  veriyor; .md çıktısı kalktı.
+- Oyun → "Yapım aşaması ve işler" bölümünün başında ne işe yaradığı yazıyor.
+- Görseller: `docs/gorseller/pdf-*.png`.
