@@ -294,17 +294,18 @@ export function kunyeCompleteness(item: Item): { filled: number; total: number; 
  * burada yalnızca gerçek düzyazı kalır — '* Fizik: ...' satırları gövdeyi
  * artık şişirmez.
  */
-export function getArticleBody(item: Item): { heading?: string; text: string; status?: string }[] {
-  const blocks: { heading?: string; text: string; status?: string }[] = [];
+export function getArticleBody(item: Item): { heading?: string; text: string; status?: string; anahtar?: string }[] {
+  const blocks: { heading?: string; text: string; status?: string; anahtar?: string }[] = [];
 
+  // anahtar: sitede bölüm gizleme için (6. gece) — giriş metni 'giris', bölüm kendi kimliği
   const notes = parseKunye(item).body.trim();
-  if (notes) blocks.push({ text: notes });
+  if (notes) blocks.push({ text: notes, anahtar: 'giris' });
 
   const sections = item.metadata?.wikiSections;
   if (Array.isArray(sections)) {
     sections.forEach(s => {
       const text = (s?.content || '').trim();
-      if (text) blocks.push({ heading: s.title, text, status: s.status });
+      if (text) blocks.push({ heading: s.title, text, status: s.status, ...(s.id ? { anahtar: String(s.id) } : {}) });
     });
   }
 

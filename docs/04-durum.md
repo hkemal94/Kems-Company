@@ -1827,3 +1827,18 @@ katlanır listede. Plan `src/lib/yolHaritasi.ts`'te; her PR kendi paketini
   yeni PR'ı yaz" dedi. Dal: `claude/nifty-goodall-nl52ue-tuval`.
 - `src/lib/tuval.ts`, `src/components/atolye/Tuval.tsx`. Görseller:
   `docs/gorseller/tuval-*.png` ("Deneme notu / çerçevesi" yalnız önizleme).
+
+**6. gece, 3. paket (uygulamada): sitede alan bazında gizleme.**
+- İki düzey (Kemal'in seçimi): **Alan şablonları**'nda her alanın yanında
+  "sitede gizli" (o türün bütün maddelerinde sitede görünmez; şablon
+  `sitedeGizli`), ve madde sayfasında (yönetim yüzü) **Sitede görünenler**
+  listesi: her parça göz düğmesiyle gizlenir / açılır
+  (`metadata.sitedeGizli`: `alan:<id>`, `bolum:<id>` — giriş metni
+  `bolum:giris` —, `takma`, `gorsel`).
+- Gizlenebilenler (Kemal'in seçimi): künye alanları, metin bölümleri,
+  diğer adları, görsel. Şablonda gizli olan alan listede "şablonda gizli"
+  yazar, maddeden açılmaz (şablondan açılır).
+- Yalnız site etkilenir; vikide, düzenleyicide, PDF'lerde hepsi görünür.
+  Görseli gizlenen madde sitenin her yerinde görselsiz görünür.
+- `src/lib/siteGizleme.ts`; site `SiteSayfalari.tsx`. Görseller:
+  `docs/gorseller/gizleme-*.png`.

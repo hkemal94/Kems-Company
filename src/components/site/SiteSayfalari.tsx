@@ -4,8 +4,8 @@ import type { Item } from '../../types';
 import { DuzadaHarita } from '../harita/DuzadaHarita';
 import type { HaritaDuzeni } from '../harita/duzenTipi';
 import { ATMOSFER_ACIK } from '../harita/atmosfer';
-import { TYPE_LABELS, getKunyeFields, getArticleBody } from '../wiki/wikiSchema';
-import { takmaAdlar } from '../../lib/alanSablonu';
+import { TYPE_LABELS } from '../wiki/wikiSchema';
+import { sitedeGorselVar, sitedeGovde, sitedeKunye, sitedeTakmaAdlar } from '../../lib/siteGizleme';
 import { fanzinBilgisi } from '../../lib/studyo';
 import { DergiGorunumu } from '../fanzin/Fanzin';
 
@@ -84,7 +84,8 @@ const Bolum: React.FC<{ ton: SayfaTonu; baslik: string; sag?: React.ReactNode; c
   </section>
 );
 
-const gorsel = (i: Item) => i.images?.find(s => typeof s === 'string' && s) || '';
+// Görseli sitede gizlenen madde görselsiz görünür (6. gece)
+const gorsel = (i: Item) => (sitedeGorselVar(i) ? i.images?.find(s => typeof s === 'string' && s) || '' : '');
 
 // ---- Düzada: tıklanabilir harita -------------------------------------------
 
@@ -166,13 +167,14 @@ export const VikiSayfasi: React.FC<{ items: Item[]; onMadde: (id: string) => voi
 };
 
 export const MaddeSayfasi: React.FC<{ madde: Item; onViki: () => void }> = ({ madde, onViki }) => {
-  const kunye = getKunyeFields(madde);
-  // Öneri durumundaki bölümler kanon değil; sitede görünmez
-  const govde = getArticleBody(madde).filter(b => b.status !== 'öneri');
+  // Sitede gizlenen alanlar ve bölümler çıkar (6. gece); öneri bölümleri kanon değil, zaten görünmez
+  const kunye = sitedeKunye(madde);
+  const govde = sitedeGovde(madde);
+  const takma = sitedeTakmaAdlar(madde);
   return (
     <SayfaKabugu ton="krem" ust={TYPE_LABELS[madde.type] || 'Madde'} baslik={madde.title} genis>
       <button type="button" onClick={onViki} className="mb-6 inline-flex items-center gap-1 text-[12px] font-semibold text-[#6A5E4C] hover:text-[#D6484C] cursor-pointer">← Viki</button>
-      {takmaAdlar(madde).length > 0 && <p className="-mt-3 mb-6 text-[14px] text-[#6A5E4C]">Diğer adları: {takmaAdlar(madde).join(', ')}</p>}
+      {takma.length > 0 && <p className="-mt-3 mb-6 text-[14px] text-[#6A5E4C]">Diğer adları: {takma.join(', ')}</p>}
       <div className="grid gap-8 lg:grid-cols-[1fr_320px] items-start">
         <article className="space-y-6">
           {govde.length ? govde.map((b, k) => (
