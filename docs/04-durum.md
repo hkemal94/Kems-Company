@@ -1556,3 +1556,18 @@ Geceye göre gruplu; H/W/M/K ve Senden / Claude'dan süzgeci; ekrandan iş
 ekleme (`kkm_ayar` → `isler`), "tamam", kendi eklediğini silme; bitenler
 katlanır listede. Plan `src/lib/yolHaritasi.ts`'te; her PR kendi paketini
 `bitti: true` yapar.
+
+**1. gece, 2. paket (uygulamada): gezinme ve menü.**
+- Telefonun geri tuşu bir önceki ekrana döner (sayfa, açık madde, Durum
+  sekmesi, açık "Diğer" listesi); üst çubukta solda geri oku. Kaydedilmemiş
+  yazı varsa önce sorulur. Geçmiş yoksa ok ana sayfaya gider.
+- Telefonda alt çubuk 4 düğme: Ana sayfa · Viki · Merch · Diğer. Harita
+  "Diğer → Evren"de.
+- Fanzin Yazı'nın sekmesi; Takvim ve Yol haritası Durum'un sekmesi; Galeri
+  Markalar'ın içinde (rayda ve sol sütunda). "Bütün araçlar" ekranı silindi.
+  Eski adla gelen istekler (`galeri`, `takvim`…) yeni yerine yönlenir.
+- Durum'da Künye, Kitap, Harita yüzdesine basınca o yüzdenin maddeleri
+  listelenir, eksikler önde; satıra basınca madde açılır (Harita listesinde
+  "Haritada aç"). Ana sayfanın yüzde şeridi de aynı listeyi açar. Harita
+  yüzdesi artık haritaya sonradan bağlanan kayıtları da sayar (Eksikler'le aynı).
+- Görseller: `docs/gorseller/gezinme-*.png`.

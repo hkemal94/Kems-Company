@@ -12,13 +12,14 @@ import {
   X,
   Upload,
   Layers,
+  Images,
   Search,
 } from 'lucide-react';
 import { StudyodaAc } from './studyo/StudyodaAc';
 import { Item, ItemType, BrandKit, AreaType, WikiSection } from '../types';
 import { compressImageBase64 } from '../lib/imageCompressor';
 import { resolveAllRelations, cleanupRelationsOnDelete } from '../utils/relations';
-import { SayfaBasi } from './kabuk/SayfaBasi';
+import { GomuluSayfa, SayfaBasi } from './kabuk/SayfaBasi';
 import { KatlanirBolum } from './kabuk/KatlanirBolum';
 import {
   MARKA_KUNYELERI, markayiBul, kunyeyiBirlestir, kunyedenYeni
@@ -37,7 +38,14 @@ interface MarkalarProps {
   onDeleteItem: (itemId: string) => Promise<void>;
   onAddItem: (item: Omit<Item, 'id' | 'createdAt' | 'updatedAt' | 'userId'>) => Promise<void>;
   onSelectArea: (area: AreaType, itemId?: string) => void;
+  /** 7 Ekim: Galeri Markalar'ın sekmesi; içeriği App çizer */
+  galeri?: React.ReactNode;
+  galeriAcik?: boolean;
+  onGaleri?: (acik: boolean) => void;
 }
+
+/** Raydaki Galeri satırının kimliği (marka kimlikleriyle karışmasın) */
+const GALERI_SEKMESI = '__galeri';
 
 export default function Markalar({
   items,
@@ -45,7 +53,10 @@ export default function Markalar({
   onUpdateItem,
   onDeleteItem,
   onAddItem,
-  onSelectArea
+  onSelectArea,
+  galeri,
+  galeriAcik = false,
+  onGaleri
 }: MarkalarProps) {
   const [selectedBrandId, setSelectedBrandId] = useState<string | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
@@ -464,6 +475,7 @@ export default function Markalar({
       
       {/* Sade başlık (1 Ekim, K-2); tutarlılık denetimi stüdyoda */}
       <SayfaBasi baslik="Markalar">
+          {!galeriAcik && (<>
           {/* M1 · Canva'daki gerçek künyeleri uygulamaya birleştir */}
           <button
             onClick={kunyeleriUygula}
@@ -483,6 +495,7 @@ export default function Markalar({
             <Plus className="w-4 h-4" />
             <span>Yeni Marka Oluştur</span>
           </button>
+          </>)}
       </SayfaBasi>
 
       {/*
@@ -492,10 +505,16 @@ export default function Markalar({
       */}
       <SayfaRayi
         baslik="Markalar"
-        bolumler={brands.map(b => ({ id: b.id, label: b.title }))}
-        aktifId={activeBrandId ?? undefined}
-        onSec={id => setSelectedBrandId(id)}
+        bolumler={[...brands.map(b => ({ id: b.id, label: b.title })), ...(galeri ? [{ id: GALERI_SEKMESI, label: 'Galeri' }] : [])]}
+        aktifId={galeriAcik ? GALERI_SEKMESI : activeBrandId ?? undefined}
+        onSec={id => {
+          if (id === GALERI_SEKMESI) { onGaleri?.(true); return; }
+          onGaleri?.(false);
+          setSelectedBrandId(id);
+        }}
       />
+
+      {galeriAcik ? <GomuluSayfa.Provider value={true}>{galeri}</GomuluSayfa.Provider> : (<>
 
       {kunyeDurumu === 'bitti' && kunyeRaporu.length > 0 && (
         <div className="mb-5 flex items-start gap-3 px-4 py-3 rounded-lg border border-[#CFC5B4] dark:border-[#2C3C72] bg-[#FAF8F5] dark:bg-[#13204A]">
@@ -588,6 +607,14 @@ export default function Markalar({
                 {items.filter(i => !i.archived && (i.type === 'kisi' || i.type === 'karakter' || i.type === 'mekân' || i.type === 'dükkân' || i.type === 'olay') && !i.metadata?.brandId).length}
               </span>
             </div>
+            {/* 7 Ekim: Galeri Markalar'ın içinde */}
+            {galeri && (
+              <button type="button" onClick={() => onGaleri?.(true)}
+                className="mt-1.5 w-full p-2.5 rounded-lg border border-transparent bg-white dark:bg-[#112440] hover:bg-stone-50 dark:hover:bg-[#17345A] cursor-pointer flex items-center gap-2 text-left">
+                <Images className="w-4 h-4 text-stone-500 dark:text-stone-400" />
+                <span className="text-xs text-[#0E1C4F] dark:text-[#F3EFE8]">Galeri</span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -2002,6 +2029,7 @@ export default function Markalar({
         </div>
       )}
 
+      </>)}
     </div>
   );
 }

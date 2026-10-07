@@ -26,7 +26,7 @@ export const YOL_HARITASI: YolIsi[] = [
   // 1. gece
   { id: 'yol-haritasi-ekrani', gece: 1, paket: 'K', kimde: 'claude', nereden: '7 Ekim', bitti: true,
     ad: 'Yol haritası: açık işlerin tek yeri, ekrandan iş ekleme' },
-  { id: 'gezinme-menu', gece: 1, paket: 'K', kimde: 'claude', nereden: '7 Ekim',
+  { id: 'gezinme-menu', gece: 1, paket: 'K', kimde: 'claude', nereden: '7 Ekim', bitti: true,
     ad: 'Gezinme ve menü: geri tuşu ve ok, alt çubukta 4 düğme, menü birleştirmeleri, Durum yüzdesi → madde listesi' },
   { id: 'otel-teras', gece: 1, paket: 'H', kimde: 'claude', nereden: '7 Ekim',
     ad: 'Otel: uçurum kenarında ince seyir terası (gerekirse kaide), bahçenin altından geçen yol' },

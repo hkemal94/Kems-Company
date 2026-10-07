@@ -57,7 +57,8 @@ export function durumOranlari(items: Item[]): DurumOranlari {
 
   // Harita: maddesi olması gereken yapılardan kaçının maddesi açılmış
   const beklenen = haritaBeklentisi();
-  const kimlikler = new Set(items.filter(canli).map(i => i.id));
+  // Haritadaki yapıya sonradan bağlanan kayıtlar da sayılır (Durum listesiyle aynı)
+  const kimlikler = new Set(items.filter(canli).flatMap(i => [i.id, String(i.metadata?.haritaWikiId || '')]).filter(Boolean));
   const haritaDolu = beklenen.filter(b => kimlikler.has(b.wikiId)).length;
 
   const b = boslukOrani(items);

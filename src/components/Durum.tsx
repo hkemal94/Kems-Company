@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { SayfaBasi } from './kabuk/SayfaBasi';
+import React, { useEffect, useMemo, useState } from 'react';
+import { GomuluSayfa, SayfaBasi } from './kabuk/SayfaBasi';
 import type { AreaType, Item } from '../types';
 import { durumOranlari } from '../lib/durumOranlari';
 import { eksikleriCikar } from '../lib/eksikler';
@@ -7,14 +7,20 @@ import { YuzdeSeridi, type SeritHedefi } from './anasayfa/YuzdeSeridi';
 import { Bosluklar } from './Bosluklar';
 import { Eksikler } from './Eksikler';
 import { SayfaRayi } from './SayfaRayi';
+import { DurumListesi, LISTELI_HEDEFLER } from './anasayfa/DurumListesi';
 
-export type DurumSekmesi = 'yuzdeler' | 'eksikler' | 'bosluklar';
+export type DurumSekmesi = 'yuzdeler' | 'eksikler' | 'bosluklar' | 'takvim' | 'yolharitasi';
 
 /**
  * Durum (29 Eylül; 1 Ekim'de Neyin Eksik de buraya katıldı). Kemal:
  * "Durum ile Neyin Eksik birleşsin, adı Durum." Üç sekme: Yüzdeler ·
  * Eksikler · Boşluklar. Aynı anda yalnız biri çizilir; sayfa kısa kalır.
  * Tek seferlik düğmeler (Temizlik, aktarımlar) Eksikler sekmesinde.
+ *
+ * 7 Ekim (Kemal: "çok fazla buton var, daha az başlık"): Takvim ve Yol
+ * haritası da Durum'un sekmesi. Yüzdeye basınca o yüzdenin maddeleri
+ * listelenir, eksikler önde (Kemal: "haritaya değil maddelerin listesine
+ * gitmem lazım").
  */
 export const Durum: React.FC<{
   items: Item[];
@@ -30,13 +36,25 @@ export const Durum: React.FC<{
   eksikAcik?: string | null;
   /** Haftalık özetin gideceği adres: Kemal'in kendi Google hesabı */
   eposta?: string | null;
-}> = ({ items, sekme, onSekme, onSec, onSelectArea, onUpdateItem, onAddItem, onDeleteItem, onAlanSil, eksikAcik }) => {
+  /** Durum'un sekmesi olarak çizilen sayfalar */
+  takvim?: React.ReactNode;
+  yolHaritasi?: React.ReactNode;
+  /** Listedeki maddeyi aç */
+  onMaddeAc?: (item: Item) => void;
+  /** Ana sayfanın yüzde şeridinden gelince açık gelecek liste */
+  listeIstegi?: { h: SeritHedefi; n: number } | null;
+}> = ({ items, sekme, onSekme, onSec, onSelectArea, onUpdateItem, onAddItem, onDeleteItem, onAlanSil, eksikAcik, takvim, yolHaritasi, onMaddeAc, listeIstegi }) => {
   const oranlar = useMemo(() => durumOranlari(items), [items]);
+  /** Yüzde şeridinde açık liste */
+  const [liste, setListe] = useState<SeritHedefi | null>(listeIstegi?.h ?? null);
+  useEffect(() => { if (listeIstegi) setListe(listeIstegi.h); }, [listeIstegi?.n]);
   const eksikSayisi = useMemo(() => eksikleriCikar(items).length, [items]);
   const bolumler = [
     { id: 'yuzdeler', label: 'Yüzdeler' },
     { id: 'eksikler', label: eksikSayisi ? `Eksikler · ${eksikSayisi}` : 'Eksikler' },
-    { id: 'bosluklar', label: 'Boşluklar' }
+    { id: 'bosluklar', label: 'Boşluklar' },
+    { id: 'takvim', label: 'Takvim' },
+    { id: 'yolharitasi', label: 'Yol haritası' }
   ];
   return (
     <div className="space-y-5 animate-in fade-in duration-300">
@@ -44,7 +62,8 @@ export const Durum: React.FC<{
       <SayfaRayi baslik="Durum" bolumler={bolumler} aktifId={sekme} onSec={id => onSekme(id as DurumSekmesi)} />
       {sekme === 'yuzdeler' && (
         <section id="durum-yuzdeler">
-          <YuzdeSeridi oranlar={oranlar} onSec={onSec} ayrintili />
+          <YuzdeSeridi oranlar={oranlar} onSec={h => (LISTELI_HEDEFLER.includes(h) ? setListe(l => (l === h ? null : h)) : onSec(h))} ayrintili />
+          {liste && <DurumListesi items={items} hedef={liste} onKapat={() => setListe(null)} onMaddeAc={onMaddeAc} onHarita={() => onSec('harita')} />}
         </section>
       )}
       {sekme === 'eksikler' && (
@@ -59,6 +78,10 @@ export const Durum: React.FC<{
         />
       )}
       {sekme === 'bosluklar' && <Bosluklar items={items} onUpdateItem={onUpdateItem} gomulu />}
+      <GomuluSayfa.Provider value={true}>
+        {sekme === 'takvim' && takvim}
+        {sekme === 'yolharitasi' && yolHaritasi}
+      </GomuluSayfa.Provider>
     </div>
   );
 };

@@ -18,11 +18,9 @@ import { Item, UserSettings, AreaType, ItemType } from './types';
 import { maddeGorseli } from './lib/maddeGorseli';
 import {
   ShoppingBag,
-  BookOpen,
   Search,
   Compass,
   PenTool,
-  Image as ImageIcon,
   Shield,
   Menu,
   Gamepad2,
@@ -37,10 +35,7 @@ import {
   LogOut,
   Megaphone,
   Globe,
-  CalendarDays,
-  Newspaper,
-  Milestone,
-  LayoutGrid,
+  ArrowLeft,
 } from 'lucide-react';
 import { SAYFA_RAYI_YUVASI } from './components/SayfaRayi';
 import { Studyo, StudyoPaneli } from './components/studyo/Studyo';
@@ -88,6 +83,7 @@ function lazyYukle<T extends React.ComponentType<any>>(
  */
 const Durum = lazyYukle(() => import('./components/Durum'));
 import type { DurumSekmesi } from './components/Durum';
+import type { SeritHedefi } from './components/anasayfa/YuzdeSeridi';
 const Duzada = lazyYukle(() => import('./components/Duzada'));
 const Merch = lazyYukle(() => import('./components/Merch'));
 const YaziAtolyesi = lazyYukle(() => import('./components/YaziAtolyesi'));
@@ -96,7 +92,6 @@ const Sosyal = lazyYukle(() => import('./components/sosyal/Sosyal'));
 const Site = lazyYukle(() => import('./components/site/Site'));
 const SiteYonetimi = lazyYukle(() => import('./components/site/SiteYonetimi'));
 const Takvim = lazyYukle(() => import('./components/takvim/Takvim'));
-const Araclar = lazyYukle(() => import('./components/araclar/Araclar'));
 const FanzinSayfasi = lazyYukle(() => import('./components/fanzin/FanzinSayfasi'));
 const YolHaritasiSayfasi = lazyYukle(() => import('./components/anasayfa/YolHaritasiSayfasi'));
 const OyunEkrani = lazyYukle(() => import('./components/oyun/OyunEkrani'));
@@ -116,7 +111,9 @@ import { Zil } from './components/kabuk/Zil';
 import { useBildirimler, KANON_YOKSAY, type Bildirim, type KanonSatiri } from './lib/bildirimler';
 
 /** Uygulamanın sayfaları. 'komuta' ana sayfa; eski Komuta Merkezi 'durum'. */
-type Sayfa = 'komuta' | 'durum' | 'markalar' | 'duzada' | 'merch' | 'yazi' | 'oyun' | 'galeri' | 'studyo' | 'sosyal' | 'site' | 'takvim' | 'fanzin' | 'yolharitasi' | 'araclar';
+type Sayfa = 'komuta' | 'durum' | 'markalar' | 'duzada' | 'merch' | 'yazi' | 'oyun' | 'studyo' | 'sosyal' | 'site';
+/** 7 Ekim'de başka sayfanın sekmesi olanlar: eski adla gelen istek oraya yönlenir */
+const SEKMEYE_GECENLER = ['fanzin', 'takvim', 'yolharitasi', 'galeri'];
 
 export interface WorkspaceUser {
   uid: string;
@@ -139,11 +136,15 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<Sayfa>('komuta');
   /** Paket 4: alt sekmeye doğrudan gitme istekleri (telefonda Harita, Kurucu, Kitap) */
   const [duzadaIstek, setDuzadaIstek] = useState<{ sekme: 'wiki' | 'harita' | 'kurucu'; n: number } | null>(null);
-  const [yaziIstek, setYaziIstek] = useState<{ sekme: 'blog' | 'kitap'; n: number } | null>(null);
+  const [yaziIstek, setYaziIstek] = useState<{ sekme: 'blog' | 'kitap' | 'fanzin'; n: number } | null>(null);
   /** Neyin Eksik sayfası açılırken açık gelecek başlık */
   const [eksikAcik, setEksikAcik] = useState<string | null>(null);
   /** Durum'un sekmesi (1 Ekim: Neyin Eksik Durum'a katıldı) */
   const [durumSekme, setDurumSekme] = useState<DurumSekmesi>('yuzdeler');
+  /** Ana sayfanın yüzde şeridinden Durum'a gelince açılacak madde listesi (7 Ekim) */
+  const [durumListe, setDurumListe] = useState<{ h: SeritHedefi; n: number } | null>(null);
+  /** Markalar'da Galeri sekmesi açık mı (7 Ekim: Galeri Markalar'ın sekmesi) */
+  const [markaGaleri, setMarkaGaleri] = useState(false);
   /** Telefonda ana sayfa sekmesi; açılışta Bugün */
   const [telSekme, setTelSekme] = useState<TelSekmesi>('bugun');
   /** Telefonda "Diğer" listesi */
@@ -582,6 +583,7 @@ export default function App() {
     if (item.type === 'drop' || item.type === 'merch_urun') {
       setActiveTab('merch');
     } else if (item.type === 'marka') {
+      setMarkaGaleri(false);
       setActiveTab('markalar');
     } else if (item.type === 'blog_post') {
       setYaziIstek({ sekme: 'blog', n: Date.now() });
@@ -593,7 +595,8 @@ export default function App() {
       // "Son dokunulanlar"dan gönderiye basınca vikiye düşüyordu (30 Eylül)
       setActiveTab('sosyal');
     } else if (item.type === 'ilham_gorsel' || item.type === 'ilham_kaynak') {
-      setActiveTab('galeri');
+      setMarkaGaleri(true);
+      setActiveTab('markalar');
     } else if (item.type === 'oyun_is' || item.type === 'gdd_bolum' || item.type === 'oyun_tanitim' || item.type === 'oyun_fikir') {
       setActiveTab('oyun');
     } else if (item.type === 'aday') {
@@ -646,6 +649,7 @@ export default function App() {
     setDigerAcik(false);
     setActiveItemId(null);
     const n = Date.now();
+    if (!hedef.startsWith('durum-')) setDurumListe(null);
     switch (hedef) {
       case 'harita': setDuzadaIstek({ sekme: 'harita', n }); setActiveTab('duzada'); break;
       case 'kurucu': setDuzadaIstek({ sekme: 'kurucu', n }); setActiveTab('duzada'); break;
@@ -655,6 +659,14 @@ export default function App() {
       case 'bosluk': case 'bosluklar': setDurumSekme('bosluklar'); setActiveTab('durum'); break;
       case 'eksikler': setEksikAcik(ayrinti ?? null); setDurumSekme('eksikler'); setActiveTab('durum'); break;
       case 'durum': setDurumSekme('yuzdeler'); setActiveTab('durum'); break;
+      // 7 Ekim: Fanzin Yazı'da; Takvim ve Yol haritası Durum'da; Galeri Markalar'da
+      case 'fanzin': setYaziIstek({ sekme: 'fanzin', n }); setActiveTab('yazi'); break;
+      case 'takvim': setDurumSekme('takvim'); setActiveTab('durum'); break;
+      case 'yolharitasi': setDurumSekme('yolharitasi'); setActiveTab('durum'); break;
+      case 'galeri': setMarkaGaleri(true); setActiveTab('markalar'); break;
+      case 'markalar': setMarkaGaleri(false); setActiveTab('markalar'); break;
+      case 'durum-kunye': case 'durum-kitap': case 'durum-harita':
+        setDurumListe({ h: hedef.slice(6) as SeritHedefi, n }); setDurumSekme('yuzdeler'); setActiveTab('durum'); break;
       case 'site-onizleme': location.hash = 'site'; return;
       default: setActiveTab(hedef as Sayfa);
     }
@@ -662,6 +674,67 @@ export default function App() {
   };
 
   const maddeyiAc = (item: Item) => { handleSelectResult(item); };
+
+  /* Eski adla gelen sayfa isteği (ör. bir alt ekrandan 'galeri') yeni yerine gider */
+  useEffect(() => {
+    if (SEKMEYE_GECENLER.includes(activeTab as string)) git(activeTab as string);
+    else if ((activeTab as string) === 'araclar') setActiveTab('komuta');
+  }, [activeTab]);
+
+  /*
+   * Geri tuşu (7 Ekim, Kemal: "telefonda geri tuşu yok, direkt uygulamadan
+   * çıkıyor"). Her ekran değişimi tarayıcı geçmişine bir adım yazılır;
+   * telefonun geri tuşu bir önceki ekrana döner, açık "Diğer" listesini
+   * kapatır. Kaydedilmemiş yazı varsa önce sorulur. Site önizlemesi ayrı.
+   */
+  const sonEkran = useRef<Record<string, unknown> | null>(null);
+  useEffect(() => {
+    if (siteAcik) return;
+    const yeni: Record<string, unknown> = {
+      kkm: true, tab: activeTab, item: activeItemId ?? null, durum: durumSekme,
+      duzada: activeTab === 'duzada' ? (duzadaIstek?.sekme ?? 'wiki') : null,
+      diger: digerAcik, galeri: activeTab === 'markalar' && markaGaleri
+    };
+    const eski = history.state as Record<string, unknown> | null;
+    const ayni = !!eski?.kkm && ['tab', 'item', 'durum', 'duzada', 'diger', 'galeri'].every(k => (eski[k] ?? null) === (yeni[k] ?? null));
+    if (ayni) { sonEkran.current = eski; return; }
+    const kayit = { ...yeni, derinlik: eski?.kkm ? Number(eski.derinlik ?? 0) + 1 : 0 };
+    if (eski?.kkm) history.pushState(kayit, '', location.pathname + location.search);
+    else history.replaceState(kayit, '');
+    sonEkran.current = kayit;
+  }, [activeTab, activeItemId, durumSekme, duzadaIstek?.sekme, digerAcik, markaGaleri, siteAcik]);
+  useEffect(() => {
+    const geri = (e: PopStateEvent) => {
+      const d = e.state as Record<string, any> | null;
+      if (!d?.kkm) return;
+      if (!ayrilmayaIzinVar()) {
+        // Kaldığı ekranda kalsın: geri alınan adımı yeniden yaz
+        if (sonEkran.current) history.pushState(sonEkran.current, '', location.pathname + location.search);
+        return;
+      }
+      sonEkran.current = d;
+      setActiveTab(d.tab as Sayfa);
+      setActiveItemId(d.item ?? null);
+      setDurumSekme((d.durum as DurumSekmesi) ?? 'yuzdeler');
+      setDigerAcik(!!d.diger);
+      setMarkaGaleri(!!d.galeri);
+      if (d.tab === 'duzada' && d.duzada) setDuzadaIstek({ sekme: d.duzada, n: Date.now() });
+    };
+    window.addEventListener('popstate', geri);
+    return () => window.removeEventListener('popstate', geri);
+  }, []);
+  /** "Diğer"i kapatmak geçmişte bir adım geri gitmek demek (yeni adım yazılmaz) */
+  const digeriKapat = () => {
+    const d = history.state as Record<string, unknown> | null;
+    if (d?.kkm && d.diger && Number(d.derinlik ?? 0) > 0) history.back();
+    else setDigerAcik(false);
+  };
+  /** Ekrandaki geri oku: geçmişte KKM adımı varsa geri, yoksa ana sayfa */
+  const geriGit = () => {
+    const d = history.state as Record<string, unknown> | null;
+    if (d?.kkm && Number(d.derinlik ?? 0) > 0) history.back();
+    else git('komuta');
+  };
 
   /** Kanon uyarısında "Yanlış alarm": anahtar maddeye yazılır (Kemal'in düğmesiyle) */
   const kanonYoksay = (k: KanonSatiri) => {
@@ -816,23 +889,18 @@ export default function App() {
     ] },
     { grup: 'Evren', satirlar: [
       { id: 'duzada', ad: 'Düzada', alt: 'viki ve harita', simge: Compass, nokta: bildirimVar('kanon') },
-      { id: 'yazi', ad: 'Yazı', alt: 'kitap ve blog', simge: PenTool },
+      { id: 'yazi', ad: 'Yazı', alt: 'kitap, blog, fanzin', simge: PenTool },
       { id: 'oyun', ad: 'Oyun', simge: Gamepad2 }
     ] },
     { grup: 'Marka', satirlar: [
-      { id: 'markalar', ad: 'Markalar', simge: Shield },
-      { id: 'merch', ad: 'Merch', alt: 'droplar ve ürünler', simge: ShoppingBag },
-      { id: 'galeri', ad: 'Galeri', simge: ImageIcon }
+      { id: 'markalar', ad: 'Markalar', alt: 'markalar ve galeri', simge: Shield },
+      { id: 'merch', ad: 'Merch', alt: 'droplar ve ürünler', simge: ShoppingBag }
     ] },
     { grup: 'Araçlar', satirlar: [
-      { id: 'araclar', ad: 'Bütün araçlar', alt: 'hepsi tek ekranda', simge: LayoutGrid },
       { id: 'studyo', ad: 'Yapay zekâ', alt: 'stüdyo ve öneri tepsisi', simge: Sparkles, nokta: bildirimVar('aday') },
-      { id: 'fanzin', ad: 'Fanzin', alt: 'aylık dergi', simge: Newspaper },
-      { id: 'takvim', ad: 'Takvim', alt: 'drop, gönderi, fanzin', simge: CalendarDays },
-      { id: 'yolharitasi', ad: 'Yol haritası', alt: 'sıradaki işler, hedefler', simge: Milestone },
       { id: 'sosyal', ad: 'Sosyal medya', alt: 'fikirler, seriler, ızgara', simge: Megaphone },
       { id: 'site', ad: 'Site', alt: 'kems.company önizlemesi', simge: Globe },
-      { id: 'durum', ad: 'Durum', alt: 'yüzdeler, eksikler, boşluklar', simge: Percent, nokta: bildirimVar('dugme') }
+      { id: 'durum', ad: 'Durum', alt: 'yüzdeler, eksikler, takvim, yol haritası', simge: Percent, nokta: bildirimVar('dugme') }
     ] }
   ];
 
@@ -840,48 +908,44 @@ export default function App() {
   const RAY_ADI = 'min-w-0 whitespace-nowrap opacity-0 group-hover/ray:opacity-100 group-has-[:focus-visible]/ray:opacity-100 transition-opacity duration-150';
 
   /**
-   * Telefonda "Diğer" (30 Eylül, Kemal: "büyük şeyler çok derine saklanmış"):
-   * en çok kullanılan araçlar en üstte; Fanzin, Takvim, Yol
-   * haritası kendi satırlarında.
+   * Telefonda "Diğer" (30 Eylül, Kemal: "büyük şeyler çok derine saklanmış").
+   * 7 Ekim (Kemal: "çok fazla buton var, daha az başlık"; "Harita'yı Diğer'in
+   * içine al, elim çarpıyor"): Harita buraya geldi; Fanzin Yazı'da, Takvim ve
+   * Yol haritası Durum'da, Galeri Markalar'da. Arama sekme adlarını da bulur.
    */
-  const DIGER: Array<{ grup: string; satirlar: Array<{ hedef: string; ad: string; simge: React.ElementType; nokta?: boolean }> }> = [
-    { grup: 'Araçlar', satirlar: [
-      { hedef: 'studyo', ad: 'Yapay zekâ', simge: Sparkles, nokta: bildirimVar('aday') },
-      { hedef: 'fanzin', ad: 'Fanzin', simge: Newspaper },
-      { hedef: 'takvim', ad: 'Takvim', simge: CalendarDays },
-      { hedef: 'yolharitasi', ad: 'Yol haritası', simge: Milestone },
-      { hedef: 'sosyal', ad: 'Sosyal medya', simge: Megaphone },
-      { hedef: 'site', ad: 'Site', simge: Globe },
-      { hedef: 'durum', ad: 'Durum', simge: Percent, nokta: bildirimVar('dugme') },
-      { hedef: 'araclar', ad: 'Bütün araçlar', simge: LayoutGrid }
-    ] },
+  const DIGER: Array<{ grup: string; satirlar: Array<{ hedef: string; ad: string; alt?: string; simge: React.ElementType; nokta?: boolean }> }> = [
     { grup: 'Evren', satirlar: [
-      { hedef: 'kitap', ad: 'Kitap', simge: BookOpen },
-      { hedef: 'blog', ad: 'Blog', simge: PenTool },
+      { hedef: 'harita', ad: 'Harita', alt: 'harita ve Kurucu', simge: MapIcon },
+      { hedef: 'yazi', ad: 'Yazı', alt: 'kitap, blog, fanzin', simge: PenTool },
       { hedef: 'oyun', ad: 'Oyun', simge: Gamepad2 }
     ] },
+    { grup: 'Araçlar', satirlar: [
+      { hedef: 'studyo', ad: 'Yapay zekâ', simge: Sparkles, nokta: bildirimVar('aday') },
+      { hedef: 'sosyal', ad: 'Sosyal medya', simge: Megaphone },
+      { hedef: 'site', ad: 'Site', simge: Globe },
+      { hedef: 'durum', ad: 'Durum', alt: 'yüzdeler, eksikler, takvim, yol haritası', simge: Percent, nokta: bildirimVar('dugme') }
+    ] },
     { grup: 'Marka', satirlar: [
-      { hedef: 'markalar', ad: 'Markalar', simge: Shield },
-      { hedef: 'galeri', ad: 'Galeri', simge: ImageIcon }
+      { hedef: 'markalar', ad: 'Markalar', alt: 'markalar ve galeri', simge: Shield }
     ] }
   ];
-  /** Diğer'deki arama kutusu (1 Ekim): yazınca gruplar süzülür */
+  /** Diğer'deki arama kutusu (1 Ekim): yazınca gruplar süzülür; alt yazı da aranır */
+  const aranan = digerAra.trim().toLocaleLowerCase('tr');
   const digerSuzulmus = DIGER
-    .map(g => ({ ...g, satirlar: g.satirlar.filter(r => !digerAra.trim() || r.ad.toLocaleLowerCase('tr').includes(digerAra.trim().toLocaleLowerCase('tr'))) }))
+    .map(g => ({ ...g, satirlar: g.satirlar.filter(r => !aranan || `${r.ad} ${r.alt ?? ''}`.toLocaleLowerCase('tr').includes(aranan)) }))
     .filter(g => g.satirlar.length > 0);
 
   const haritada = activeTab === 'duzada' && duzadaIstek?.sekme === 'harita';
   const ALT: Array<{ id: string; ad: string; simge: React.ElementType; aktif: boolean; nokta?: boolean }> = [
     { id: 'komuta', ad: 'Ana sayfa', simge: Home, aktif: activeTab === 'komuta', nokta: bildirimVar('aday') || bildirimVar('soru') },
     { id: 'viki', ad: 'Viki', simge: Compass, aktif: activeTab === 'duzada' && !haritada, nokta: bildirimVar('kanon') },
-    { id: 'harita', ad: 'Harita', simge: MapIcon, aktif: haritada },
     { id: 'merch', ad: 'Merch', simge: ShoppingBag, aktif: activeTab === 'merch' },
-    { id: 'diger', ad: 'Diğer', simge: Menu, aktif: digerAcik || !['komuta', 'duzada', 'merch'].includes(activeTab), nokta: bildirimVar('dugme') || bildirimVar('aday') }
+    { id: 'diger', ad: 'Diğer', simge: Menu, aktif: digerAcik || haritada || !['komuta', 'duzada', 'merch'].includes(activeTab), nokta: bildirimVar('dugme') || bildirimVar('aday') }
   ];
 
   const SAYFA_ADI: Record<Sayfa, string> = {
     komuta: 'Ana sayfa', duzada: 'Düzada', markalar: 'Markalar', merch: 'Merch', yazi: 'Yazı',
-    oyun: 'Oyun', galeri: 'Galeri', durum: 'Durum', studyo: 'Yapay zekâ', sosyal: 'Sosyal medya', site: 'Site', takvim: 'Takvim', fanzin: 'Fanzin', yolharitasi: 'Yol haritası', araclar: 'Araçlar'
+    oyun: 'Oyun', durum: 'Durum', studyo: 'Yapay zekâ', sosyal: 'Sosyal medya', site: 'Site'
   };
 
   const logo = hasKemsLogo ? (
@@ -996,6 +1060,9 @@ export default function App() {
         {/* TELEFON: ana sayfa dışında ince üst çubuk */}
         {activeTab !== 'komuta' && (
           <header className="lg:hidden sticky top-0 z-30 flex items-center gap-2 px-4 py-2 bg-[#F3EFE8]/95 dark:bg-[#13204A]/95 backdrop-blur-xs border-b border-[#CFC5B4] dark:border-[#2C3C72]">
+            <button type="button" onClick={geriGit} aria-label="Geri" className="-ml-2 w-11 h-11 rounded-full flex items-center justify-center text-[#0E1C4F] dark:text-[#F3EFE8] cursor-pointer active:bg-[#E4DCCD] dark:active:bg-[#17345A]">
+              <ArrowLeft className="w-5 h-5" />
+            </button>
             <button type="button" onClick={() => git('komuta')} aria-label="Ana sayfa" className="mr-1 cursor-pointer">{logo}</button>
             <span className="flex-1 min-w-0 leading-tight">
               <span className="block text-[12px] font-bold uppercase tracking-[0.1em] text-[#6A5E4C] dark:text-[#A6B0C9] truncate">Komuta Merkezi</span>
@@ -1069,6 +1136,23 @@ export default function App() {
                 onAlanSil={handleAlanSil}
                 eksikAcik={eksikAcik}
                 eposta={girisli ? user?.email : null}
+                onMaddeAc={maddeyiAc}
+                listeIstegi={durumListe}
+                takvim={
+                  <Takvim
+                    items={items}
+                    onAc={o => {
+                      if (o.tur === 'fanzin') { git('fanzin'); return; }
+                      const k = items.find(i => i.id === o.id);
+                      if (k) handleSelectResult(k);
+                    }}
+                    onAddItem={handleAddItem}
+                    onUpdateItem={handleUpdateItem}
+                    onDeleteItem={handleDeleteItem}
+                    seriIstegi={takvimSeri}
+                  />
+                }
+                yolHaritasi={<YolHaritasiSayfasi items={items} eposta={girisli ? user?.email : null} onUpdateItem={handleUpdateItem} onAddItem={handleAddItem} />}
               />
             )}
 
@@ -1080,6 +1164,20 @@ export default function App() {
                 onDeleteItem={handleDeleteItem}
                 onAddItem={handleAddItem}
                 onSelectArea={handleSelectArea}
+                galeriAcik={markaGaleri}
+                onGaleri={setMarkaGaleri}
+                galeri={
+                  <Galeri
+                    items={items}
+                    onAddItem={handleAddItem}
+                    onUpdateItem={handleUpdateItem}
+                    onDeleteItem={handleDeleteItem}
+                    onSelectItem={(id) => {
+                      const it = items.find(i => i.id === id);
+                      if (it) handleSelectResult(it);
+                    }}
+                  />
+                }
               />
             )}
 
@@ -1116,6 +1214,7 @@ export default function App() {
                 onDeleteItem={handleDeleteItem}
                 onAddItem={handleAddItem}
                 istek={yaziIstek}
+                fanzin={<FanzinSayfasi items={items} onUpdateItem={handleUpdateItem} onStudyo={() => git('studyo')} />}
               />
             )}
 
@@ -1146,24 +1245,6 @@ export default function App() {
               <SiteYonetimi items={items} onUpdateItem={handleUpdateItem} onAddItem={handleAddItem} onOnizleme={() => git('site-onizleme')} onMaddeyiAc={maddeyiAc} />
             )}
 
-            {activeTab === 'araclar' && <Araclar onGit={id => git(id)} />}
-            {activeTab === 'fanzin' && <FanzinSayfasi items={items} onUpdateItem={handleUpdateItem} onStudyo={() => git('studyo')} />}
-            {activeTab === 'yolharitasi' && <YolHaritasiSayfasi items={items} eposta={girisli ? user?.email : null} onUpdateItem={handleUpdateItem} onAddItem={handleAddItem} />}
-
-            {activeTab === 'takvim' && (
-              <Takvim
-                items={items}
-                onAc={o => {
-                  if (o.tur === 'fanzin') { git('fanzin'); return; }
-                  const k = items.find(i => i.id === o.id);
-                  if (k) handleSelectResult(k);
-                }}
-                onAddItem={handleAddItem}
-                onUpdateItem={handleUpdateItem}
-                onDeleteItem={handleDeleteItem}
-                seriIstegi={takvimSeri}
-              />
-            )}
 
             {activeTab === 'sosyal' && (
               <Sosyal
@@ -1176,18 +1257,6 @@ export default function App() {
               />
             )}
 
-            {activeTab === 'galeri' && (
-              <Galeri
-                items={items}
-                onAddItem={handleAddItem}
-                onUpdateItem={handleUpdateItem}
-                onDeleteItem={handleDeleteItem}
-                onSelectItem={(id) => {
-                  const it = items.find(i => i.id === id);
-                  if (it) handleSelectResult(it);
-                }}
-              />
-            )}
             </Suspense>
             </HataKapsayici>
 
@@ -1203,7 +1272,7 @@ export default function App() {
             <button
               key={a.id}
               type="button"
-              onClick={() => (a.id === 'diger' ? (setDigerAra(''), setDigerAcik(d => !d)) : git(a.id))}
+              onClick={() => (a.id === 'diger' ? (setDigerAra(''), digerAcik ? digeriKapat() : setDigerAcik(true)) : git(a.id))}
               className={`relative flex-1 my-1.5 mx-0.5 rounded-xl flex flex-col items-center justify-center gap-0.5 text-[10px] cursor-pointer ${a.aktif ? 'bg-[#F26B6F] text-white' : 'text-[#A6B0C9]'}`}
             >
               <Simge className="w-5 h-5" />
@@ -1216,7 +1285,7 @@ export default function App() {
 
       {/* TELEFON: "Diğer" listesi — işe göre gruplu */}
       {digerAcik && (
-        <div className="lg:hidden fixed inset-0 z-30 bg-black/40" onClick={() => setDigerAcik(false)}>
+        <div className="lg:hidden fixed inset-0 z-30 bg-black/40" onClick={digeriKapat}>
           <div
             className="absolute inset-x-0 bottom-16 max-h-[75vh] overflow-y-auto rounded-t-2xl bg-[#FAF8F5] dark:bg-[#13204A] p-4 pb-5 space-y-4"
             onClick={e => e.stopPropagation()}
