@@ -1194,8 +1194,33 @@ if _OTEL_DUZENI:
     _yeni_merkez = _otel_tasi(Point(ox, oy))
     OTEL_SAHANLIK["x"], OTEL_SAHANLIK["y"] = _yeni_merkez.x, _yeni_merkez.y
     OTEL_SAHANLIK["yon"] = OTEL_YON - math.degrees(_OTEL_DUZENI.get("aci", 0.0))
+    OTEL_SAHANLIK["kot"] = round(float(yukselti(_yeni_merkez.x, _yeni_merkez.y)), 1)
     print(f"  Sahanlık         : Kurucu'daki otelle taşındı "
           f"({_yeni_merkez.x - ox:+.0f}, {_yeni_merkez.y - oy:+.0f}) m")
+
+# --- seyir terası (7 Ekim) ---
+# Kemal: "otelin ön terası aşağıya kayan şekilde, bu doğru değil; gerekirse
+# terası incelt, uçurumun kenarında seyir terası gibi görünsün; gerekirse
+# altına kaide koy." Otel taşındığı yerde uçurum değil yumuşak bir yamaç
+# var; eski geniş teras sahanlığı denize doğru 26 m dolguyla uzatıyordu.
+# Artık teras binanın önünde dar bir şerit; sahanlık terasın ön kenarında
+# biter ve önü dik bir kaide duvarıyla iner (gen/dem.py → "etek_on").
+_S = OTEL_SAHANLIK
+_sa = math.radians(_S["yon"])
+ON_KIYI_YENI = ON_KIYI
+for _adim in range(10, 1200, 2):
+    if not ada.contains(Point(_S["x"] + math.cos(_sa) * _adim, _S["y"] + math.sin(_sa) * _adim)):
+        ON_KIYI_YENI = float(_adim)
+        break
+TERAS_ARKA = 30.0                                   # binanın ön yüzü 27 m'de
+# Arazi 20 m'lik karelerle çiziliyor ve sahanlık kıyıya 24 m kala alçalmaya
+# başlıyor (dem.py); teras o inişin bir kare gerisinde kalmalı ki kaymasın
+TERAS_ON_YENI = max(TERAS_ARKA + 6.0, min(TERAS_ARKA + 10.0, ON_KIYI_YENI - 30.0))
+OTEL_SAHANLIK["ileri_max"] = ON_KIYI_YENI          # düzlük kıyıya dek; önü uçurum gibi iner
+OTEL_SAHANLIK["etek_on"] = 4.0
+_on_kot = float(yukselti(_S["x"] + math.cos(_sa) * (TERAS_ON_YENI + 6), _S["y"] + math.sin(_sa) * (TERAS_ON_YENI + 6)))
+print(f"  Seyir terası     : {TERAS_ARKA:.0f}–{TERAS_ON_YENI:.0f} m önde; kıyı {ON_KIYI_YENI:.0f} m; "
+      f"kaide ~{_S['kot'] - _on_kot:.0f} m")
 
 
 def _sahanlik_dortgeni(s_):
@@ -1256,10 +1281,11 @@ for _yan_isaret, _kid, _kad in ((-1, "bati", "Batı Kulesi"), (1, "dogu", "Doğu
 # --- teras ve bahçe: bina değil, zemin öğeleri ---
 zemin = []
 
-# taş korkuluklu teras — uçurum alnının 20 metre gerisinde biter
+# taş korkuluklu seyir terası — binanın önünde dar şerit, kaidenin üstünde
+_TERAS_EN = 70.0
 zemin.append({
     "id": "zemin_teras", "ad": "Otel Terası", "tur": "teras",
-    "geom": yerlesim_dikdortgen((30 + TERAS_ON) / 2, 0, TERAS_ON - 30, 74),
+    "geom": yerlesim_dikdortgen((TERAS_ARKA + TERAS_ON_YENI) / 2, 0, TERAS_ON_YENI - TERAS_ARKA, _TERAS_EN),
 })
 
 # otel bahçesi — arkada, ağaçlıklı
@@ -1268,11 +1294,24 @@ zemin.append({
     "geom": yerlesim_dikdortgen(-56, 6, 40, 92),
 })
 
+# Kemal'in Kurucu'da çizdiği yollar (7 Ekim: "otel bahçesinin altından hâlâ
+# yol geçiyor"). Otel taşınınca bahçe yolların üstüne gelmişti; bahçe ve
+# teras artık bu yolların bir buçuk metre gerisinde biter.
+_kur_yol_alani = unary_union([
+    LineString([_dm(q) for q in _y["n"]]).buffer({"ana": 4.5, "patika": 1.2}.get(_y["tur"], 3.0) + 1.5)
+    for _y in _KURUCU.get("yollar", []) if len(_y.get("n", [])) >= 2
+])
+
 for z in zemin:
     if _OTEL_DUZENI:
         # otelle birlikte taşınır; uçurumun ötesine taşan kısmı kırpılır
         _g = _otel_tasi(z["geom"]).intersection(ada.buffer(-6))
         z["geom"] = max(_parcala(_g) if _g.geom_type != "Polygon" else [_g], key=lambda p: p.area)
+    if not _kur_yol_alani.is_empty and z["geom"].intersects(_kur_yol_alani):
+        _once = z["geom"].area
+        _g = z["geom"].difference(_kur_yol_alani)
+        z["geom"] = max(_parcala(_g), key=lambda p: p.area)
+        print(f"  {z['ad']:<16} : yollardan geri çekildi ({_once:.0f} → {z['geom'].area:.0f} m²)")
     if not ada.contains(z["geom"]):
         raise SystemExit(f"HATA: {z['ad']} karada değil")
     _c = z["geom"].centroid
@@ -2430,6 +2469,17 @@ EV_AYARI = {
 _ev_sayisi = {}
 _ek_sayisi = {"bahçe": 0, "aralik": 0, "bolme": 0, "parsel": 0}
 duvarlar = []           # bahçe duvarları: (kimlik, çizgi)
+# Seyir terasının korkuluğu (7 Ekim): binaya bakan arka kenar açık, öteki
+# kenarlar kaidenin üstünde taş korkuluk
+for _z in zemin:
+    if _z["id"] != "zemin_teras":
+        continue
+    _k = list(_z["geom"].exterior.coords)
+    _kenar = [LineString([_k[_i], _k[_i + 1]]) for _i in range(len(_k) - 1)]
+    _uz = [_c.interpolate(0.5, normalized=True).distance(Point(OTEL_SAHANLIK["x"], OTEL_SAHANLIK["y"])) for _c in _kenar]
+    _korkuluk = [_c for _c, _d in zip(_kenar, _uz) if _d > min(_uz) + 3.0]
+    if _korkuluk:
+        duvarlar.append(("duvar_otel_teras", unary_union(_korkuluk)))
 for _mid, _A in EV_AYARI.items():
     _rnd = _random.Random(_mid + "-ev")
     _mpoly = mahalle_geom[_mid][2]

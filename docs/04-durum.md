@@ -1571,3 +1571,15 @@ katlanır listede. Plan `src/lib/yolHaritasi.ts`'te; her PR kendi paketini
   "Haritada aç"). Ana sayfanın yüzde şeridi de aynı listeyi açar. Harita
   yüzdesi artık haritaya sonradan bağlanan kayıtları da sayar (Eksikler'le aynı).
 - Görseller: `docs/gorseller/gezinme-*.png`.
+
+**1. gece, 3. paket (uygulamada): otel.**
+- Teras dar bir seyir terası (binanın önünde 10 m × 70 m), deniz tarafında
+  taş korkuluk. Sahanlık kıyıya dek düz; önü kısa etekle (`etek_on`, dem.py)
+  dik bir kaide gibi iner. Arazi 20 m karelerle çizildiği için teras inişin
+  bir kare gerisinde duruyor; eski geniş teras yamaçtan aşağı akıyordu.
+- Taşınan otelin sahanlık kotu yeni yerin arazisinden alınır.
+- Otel bahçesi Kemal'in Kurucu yollarının 1,5 m gerisinde biter (bir ana
+  yol ve iki sokak altından geçiyordu); bahçe 3.680 → 1.931 m².
+- `gen/kurucu-yollari.json` Kemal'in 3 Ekim harita kaydından yeniden
+  aktarıldı (72 yol); evler o yollara göre yeniden dizildi.
+- Görseller: `docs/gorseller/otel-3d-*.png`.
