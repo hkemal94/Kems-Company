@@ -1665,3 +1665,14 @@ katlanır listede. Plan `src/lib/yolHaritasi.ts`'te; her PR kendi paketini
   (adada kıyıdan uzaklaştıkça yükselinir); kıyıdan 800 m'den uzak alanda
   iki yana da dizer. `src/components/kurucu/mahalleDoldur.ts`.
 - Görseller: `docs/gorseller/doku-*.png`.
+
+**3. gece, 3. paket (uygulamada): Boyut ve hız.**
+- Durum → "Boyut ve hız" sekmesi (Kemal, 7 Ekim: kayıt boyutları, uygulama
+  parçaları, açılış hızı; yazma kotası istenmedi).
+- Kayıt boyutları: türe göre kayıt sayısı ve boyutu; en büyük 10 kayıt ve
+  harita düzeni kaydı, 1 MB kayıt sınırının yüzdesiyle (%70 üstü kiremit).
+- Uygulama parçaları: bu açılışta indirilen dosyalar bölüm bölüm
+  (tarayıcının indirme kaydından; açılmamış bölüm listede yok).
+- Açılış hızı: ilk ekran, kayıtların gelmesi, Harita ve Kurucu'nun çizilmesi;
+  son 10 açılış bu tarayıcıda tutulur (kayda yazılmaz). `src/lib/olcumler.ts`.
+- Görsel: `docs/gorseller/boyut-hiz.png`.

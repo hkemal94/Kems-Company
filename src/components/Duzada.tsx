@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, lazy, Suspense } from 'react';
+import { isaretle } from '../lib/olcumler';
 import type { HaritaBakisi } from './harita/DuzadaHarita';
 import { AlertTriangle, Maximize2, Minimize2, Car, Moon, Snowflake } from 'lucide-react';
 import { ATMOSFER_KAPALI, type AtmosferAyari } from './harita/atmosfer';
@@ -126,6 +127,8 @@ export default function Duzada({
   // Kurucu artık haritanın kendisi (29 Eylül): 'kurucu' isteği haritayı açar
   const [activeTab, setActiveTab] = useState<'wiki' | 'harita' | 'rapor'>(istek?.sekme === 'kurucu' ? 'harita' : istek?.sekme ?? 'wiki');
   useEffect(() => { if (istek) setActiveTab(istek.sekme === 'kurucu' ? 'harita' : istek.sekme); }, [istek?.n]);
+  // Açılış hızı (3. gece): Harita ve Kurucu'ya her girişte ölçüm baştan
+  useEffect(() => { if (activeTab === 'harita') isaretle('harita-basladi'); }, [activeTab]);
   
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;

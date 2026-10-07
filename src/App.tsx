@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback, lazy, Suspense } from 'react';
 import { sablonuOku, sablonuUygula } from './lib/alanSablonu';
+import { isaretle } from './lib/olcumler';
 import { 
   auth, 
   signInWithGoogle,
@@ -626,6 +627,9 @@ export default function App() {
    * Alan şablonu (3. gece): Kemal'in kkm_ayar kaydındaki şablonu künye
    * okuyan bütün saf fonksiyonlara verir. Kayıt yoksa başlangıç şablonu.
    */
+  // Açılış hızı (3. gece): kayıtların ekrana ilk geldiği an
+  useEffect(() => { if (items.length) isaretle('kayitlar'); }, [items.length]);
+
   useMemo(() => {
     sablonuUygula(sablonuOku(items.find(i => i.type === 'kkm_ayar')?.metadata?.vikiSablonu));
   }, [items]);
