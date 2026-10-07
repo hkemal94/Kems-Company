@@ -745,7 +745,7 @@ export default function App() {
 
   const bildirimSec = (b: Bildirim, madde?: Item) => {
     if (madde) { maddeyiAc(madde); return; }
-    if (b.tur === 'dugme') git('eksikler');
+    if (b.tur === 'dugme') { setTelSekme('bugun'); git('komuta'); }  // tek seferlik işler ana sayfanın üstünde
     else if (b.tur === 'kanon') { if (b.maddeler?.[0]) maddeyiAc(b.maddeler[0]); }
     else if (b.tur === 'aday') git('studyo');
     else if (b.tur === 'yedek') window.dispatchEvent(new Event('kems-yedek-ac', { cancelable: true }));

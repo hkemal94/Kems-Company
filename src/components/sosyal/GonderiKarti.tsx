@@ -5,7 +5,6 @@ import {
   ASAMALAR, BAG_TURLERI, BICIMLER, KANALLAR, TURLER, asamasi, gonderiBilgisi, gonderiGuncelle,
   kanalHesabi, seriBilgisi, seriler, type GonderiBilgisi
 } from '../../lib/sosyal';
-import { StudyodaAc } from '../studyo/StudyodaAc';
 import { DUGME_BOS, ETIKET, IKINCIL, YAZI } from '../anasayfa/stil';
 
 /**
@@ -181,7 +180,6 @@ export const GonderiKarti: React.FC<Props> = ({ item, items, onUpdateItem, onDel
         </div>
 
         <div className="flex flex-wrap gap-2 pt-1">
-          <StudyodaAc grup="sosyal" hedefId={taslak.id} />
           <button type="button" onClick={kopyala} className={`${DUGME_BOS} inline-flex items-center gap-1`}><Copy className="w-3 h-3" /> Metni kopyala</button>
           {gorsel && <a href={gorsel} download target="_blank" rel="noreferrer" className={`${DUGME_BOS} inline-flex items-center gap-1`}><Download className="w-3 h-3" /> Görseli indir</a>}
           <span title="İkinci adımda: Buffer hesabı ve anahtarı gerekiyor" className={`${DUGME_BOS} opacity-40 cursor-not-allowed`}>Buffer'a gönder · 2. adım</span>

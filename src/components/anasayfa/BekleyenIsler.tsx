@@ -2,7 +2,8 @@ import React, { useMemo, useState } from 'react';
 import { Check, Loader2, Play } from 'lucide-react';
 import type { Item } from '../../types';
 import { useHaritaDuzeni, haritaKaydiDurumu } from '../../lib/haritaDuzeni';
-import { silinecekler, eskiAlanlar } from '../../lib/temizlik';
+import { silinecekler, eskiAlanlar, silmeOzeti } from '../../lib/temizlik';
+import { mahalleAdDuzeltmeleri } from '../../lib/vikiTemizligi';
 import { boslukDoldurma } from '../../lib/boslukDoldurma';
 import { GaleriYedegiKarti, galeridenEksikler } from '../GaleriYedegiKarti';
 
@@ -34,6 +35,7 @@ export const BekleyenIsler: React.FC<Props> = ({ items, onUpdateItem, onAddItem,
   const silinecek = useMemo(() => (onDeleteItem ? silinecekler(items) : []), [items, onDeleteItem]);
   const eskiAlan = useMemo(() => (onAlanSil ? eskiAlanlar(items) : []), [items, onAlanSil]);
   const bosluk = useMemo(() => boslukDoldurma(items), [items]);
+  const adDuzeltme = useMemo(() => mahalleAdDuzeltmeleri(items), [items]);
   const galeri = useMemo(() => galeridenEksikler(items), [items]);
 
   const [calisan, setCalisan] = useState<string | null>(null);
@@ -58,6 +60,17 @@ export const BekleyenIsler: React.FC<Props> = ({ items, onUpdateItem, onAddItem,
       }
     });
   }
+  if (adDuzeltme.length) {
+    isler.push({
+      id: 'mahalle-adlari',
+      ad: `${adDuzeltme.length} mahalle adındaki parantezi kaldır`,
+      aciklama: adDuzeltme.map(a => `${a.item.title} → ${a.yeniAd}`).join(' · ') + '. Eski ad maddeye "Eski adı …" cümlesiyle yazılır.',
+      calistir: async () => {
+        for (const a of adDuzeltme) await onUpdateItem(a.guncel);
+        return `${adDuzeltme.length} mahalle adı kısaldı.`;
+      }
+    });
+  }
   if (eskiAlan.length && onAlanSil) {
     isler.push({
       id: 'eski-alan',
@@ -73,7 +86,7 @@ export const BekleyenIsler: React.FC<Props> = ({ items, onUpdateItem, onAddItem,
     isler.push({
       id: 'temizlik',
       ad: `${silinecek.length} kullanılmayan kaydı sil`,
-      aciklama: 'Arşivdeki ve kullanılmayan kayıtlar (Merch arşivi kalır). Silinen geri gelmez.',
+      aciklama: `${silmeOzeti(silinecek)}. Merch arşivi kalır; silinen geri gelmez. Yedek istersen önce Durum → Eksikler → Temizlik.`,
       calistir: async () => {
         for (const s of silinecek) await onDeleteItem(s.item.id);
         return `${silinecek.length} kayıt silindi.`;

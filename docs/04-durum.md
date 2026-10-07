@@ -1583,3 +1583,20 @@ katlanır listede. Plan `src/lib/yolHaritasi.ts`'te; her PR kendi paketini
 - `gen/kurucu-yollari.json` Kemal'in 3 Ekim harita kaydından yeniden
   aktarıldı (72 yol); evler o yollara göre yeniden dizildi.
 - Görseller: `docs/gorseller/otel-3d-*.png`.
+
+**2. gece, 1. paket (uygulamada): viki temizliği.**
+- Ana sayfa → Bekleyen işler'de "N mahalle adındaki parantezi kaldır":
+  "Merkez Mahallesi (Düzada Köyü)" → "Merkez Mahallesi"; metne "Eski adı
+  Düzada Köyü." cümlesi eklenir, eski ad `metadata.eskiAdlar`'da durur ve
+  mahalle eşleşmesi onu kullanır (`src/lib/vikiTemizligi.ts`).
+- Eski otel simülasyonunun kitap bölümü görünen günleri ve mekanikleri
+  Temizlik işinde "otel simülasyonu günü" olarak silinir (`temizlik.ts` →
+  `simulasyonKaydi`; yalnız simülasyonun izleriyle tanınır).
+- Stüdyoda sosyal medya kartları (hashtag, metin taslağı) ve gönderi
+  kartındaki "Stüdyoda aç" kalktı. Gece önerilerinin sosyal medya önerisi durur.
+- Silinen ölü kod: Düzada'daki ekranda çizilmeyen eski mahalle/sokak
+  düzenleyicisi (uydurma sokak adları ve özetlerle; 1170 → 375 satır) ve
+  hiçbir yerde kullanılmayan `DuzadaDirectory.tsx` (1000 satır).
+- **Kural ihlali düzeltildi:** Düzada sayfası her açılışta bütün viki
+  maddelerine "ada maddesi" bağını kendiliğinden yazıyordu; silindi.
+- Bildirimdeki tek seferlik düğme ana sayfaya (Bekleyen işler) götürür.

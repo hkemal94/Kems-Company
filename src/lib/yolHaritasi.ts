@@ -31,7 +31,7 @@ export const YOL_HARITASI: YolIsi[] = [
   { id: 'otel-teras', gece: 1, paket: 'H', kimde: 'claude', nereden: '7 Ekim', bitti: true,
     ad: 'Otel: uçurum kenarında ince seyir terası (gerekirse kaide), bahçenin altından geçen yol' },
   // 2. gece
-  { id: 'viki-temizligi', gece: 2, paket: 'W', kimde: 'claude', nereden: '7 Ekim',
+  { id: 'viki-temizligi', gece: 2, paket: 'W', kimde: 'claude', nereden: '7 Ekim', bitti: true,
     ad: 'Viki temizliği: mahalle adlarındaki parantezler, simülasyon günleri, sosyal medya kartları, uydurma sokak adları' },
   { id: 'ev-dokusu', gece: 2, paket: 'H', kimde: 'claude', nereden: '7 Ekim',
     ad: 'Ev dokusu: ilçelerde evler yarıya, arsalar büyük, çakışma yok, hafif Ege düzensizliği' },

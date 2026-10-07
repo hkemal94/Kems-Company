@@ -52,6 +52,24 @@ const ORNEK_ONEKLERI = [
 
 export interface SilmeNedeni { item: Item; neden: string }
 
+/**
+ * Kitap bölümü görünen eski otel simülasyonu günleri ve mekanikleri (7 Ekim,
+ * Kemal: "kitap bölümü olarak günler görünüyor… hepsi silinsin"). Yalnız
+ * simülasyonun bıraktığı izlerle tanınır; adı "Gün 3" olan gerçek bir
+ * bölüme dokunulmaz.
+ */
+const SIMULASYON_ETIKETLERI = ['oyun-tasarimi', 'kemskoy-oyun'];
+export function simulasyonKaydi(i: Item): boolean {
+  if (i.type !== 'kitap_bolum' && i.type !== 'kitap_proje') return false;
+  const m = (i.metadata || {}) as Record<string, unknown>;
+  return i.id.startsWith('kemskoy_day_')
+    || i.id.startsWith('kemskoy_mech_')
+    || i.id === 'kemskoy_game_project'
+    || String(m.bookId || '') === 'kemskoy_game_project'
+    || (i.tags || []).some(t => SIMULASYON_ETIKETLERI.includes(t))
+    || (i.type === 'kitap_bolum' && SIMULASYON_ALANLARI.some(a => a in m));
+}
+
 export function silinecekler(items: Item[]): SilmeNedeni[] {
   const cikti: SilmeNedeni[] = [];
   for (const i of items) {
@@ -63,6 +81,7 @@ export function silinecekler(items: Item[]): SilmeNedeni[] {
     const merchKaydi = i.type === 'drop' || i.type === 'merch_urun';
     if (i.archived && !merchKaydi) cikti.push({ item: i, neden: 'arşivde' });
     else if (i.isProposal) cikti.push({ item: i, neden: 'onaylanmamış eski öneri' });
+    else if (simulasyonKaydi(i)) cikti.push({ item: i, neden: 'otel simülasyonu günü' })
     else if (OYUN_VAKA_IDLERI.has(i.id) || /^kemskoy_(guest|companion)_/.test(i.id)) cikti.push({ item: i, neden: 'otel simülasyonu vakası' });
     else if (ORNEK_ONEKLERI.some(o => i.id.startsWith(o))) cikti.push({ item: i, neden: 'ilk günün örnek verisi' });
     else if (SILINECEK_ADLAR.some(r => r.test(i.title.trim()))) cikti.push({ item: i, neden: 'Kemal: sil' });
@@ -96,6 +115,8 @@ export interface EskiAlan { item: Item; alanlar: string[] }
 export function eskiAlanlar(items: Item[]): EskiAlan[] {
   const cikti: EskiAlan[] = [];
   for (const i of items) {
+    // Silinecek simülasyon günlerinin alanı ayrıca silinmez (kayıt gidiyor)
+    if (simulasyonKaydi(i)) continue;
     const m = (i.metadata || {}) as Record<string, unknown>;
     const adaylar = i.type === 'kitap_bolum' ? [...ESKI_ALANLAR, ...SIMULASYON_ALANLARI] : ESKI_ALANLAR;
     const alanlar = adaylar.filter(a => a in m);

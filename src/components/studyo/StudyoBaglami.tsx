@@ -10,7 +10,7 @@ import type { Bosluk } from '../Bosluklar';
 export interface StudyoIstegi {
   /** Açılacak araç; yoksa gruptaki araçlar listelenir */
   arac?: string;
-  grup?: 'viki' | 'yazi' | 'marka' | 'kanon' | 'sosyal';
+  grup?: 'viki' | 'yazi' | 'marka' | 'kanon';
   hedefId?: string;
   /** Serbest kutunun ilk yazısı (fanzin bölümü: "3 · Sade") */
   serbest?: string;
