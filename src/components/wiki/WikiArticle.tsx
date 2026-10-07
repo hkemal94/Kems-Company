@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { AlertCircle, Globe, Link2, PencilLine, Unlink } from 'lucide-react';
+import { AlertCircle, ChevronRight, Globe, Link2, PencilLine, Pin, Unlink } from 'lucide-react';
 import { StudyodaAc } from '../studyo/StudyodaAc';
 import { Item } from '../../types';
 import { MaddeDuzenleyici, AileUyeleri } from './MaddeDuzenleyici';
@@ -143,6 +143,21 @@ export const WikiArticle: React.FC<WikiArticleProps> = ({
   /** Künyeye girmeyen satırlar — gövdede "Bilgiler" bölümü */
   const ekBilgiler = useMemo(() => getEkBilgiler(item, { includeSecrets: admin }), [item, admin]);
   const govdeVar = body.length > 0 || ekBilgiler.length > 0;
+  /** Üst maddeler zinciri (en üstten bu maddeye) ve alt maddeler (4. gece) */
+  const ustZincir = useMemo(() => {
+    const z: Item[] = [];
+    const gorulen = new Set([item.id]);
+    let p = item.metadata?.placeId;
+    while (p && !gorulen.has(p)) {
+      const u = allItems.find(i => i.id === p && !i.archived);
+      if (!u) break;
+      z.unshift(u); gorulen.add(u.id); p = u.metadata?.placeId;
+    }
+    return z;
+  }, [item, allItems]);
+  const altMaddeler = useMemo(() => allItems
+    .filter(i => !i.archived && !i.isProposal && i.type !== 'oda' && i.metadata?.placeId === item.id)
+    .sort((a, b) => a.title.localeCompare(b.title, 'tr')), [allItems, item.id]);
   /** Şablondaki alanlar (bağ alanı mı?) ve bu maddeyi künyesinde ananlar */
   const semaAlani = useMemo(() => new Map(semaAlanlari(schemaKeyFor(item.type) || '').map(a => [a.id, a])), [item.type]);
   const adlar = useMemo(() => takmaAdlar(item), [item]);
@@ -300,6 +315,16 @@ export const WikiArticle: React.FC<WikiArticleProps> = ({
               <Globe size={12} /> {item.metadata?.sitede === true ? 'sitede ✓' : 'sitede göster'}
             </button>
           )}
+          {admin && onUpdateItem && (
+            <button
+              type="button"
+              onClick={() => void onUpdateItem({ ...item, metadata: { ...(item.metadata || {}), sabit: item.metadata?.sabit !== true } as Item['metadata'], updatedAt: Date.now() })}
+              title={item.metadata?.sabit === true ? 'Viki listesinde en üstte · basınca kalkar' : 'Viki listesinde en üste sabitle'}
+              className={`flex items-center gap-1.5 text-[11px] font-mono transition-colors cursor-pointer ${item.metadata?.sabit === true ? 'text-kiremit' : 'text-gri hover:text-lacivert dark:text-bej/85 dark:hover:text-krem'}`}
+            >
+              <Pin size={12} /> {item.metadata?.sabit === true ? 'sabit ✓' : 'sabitle'}
+            </button>
+          )}
           {admin && (onUpdateItem || onEdit) && (
             <button
               type="button"
@@ -311,6 +336,16 @@ export const WikiArticle: React.FC<WikiArticleProps> = ({
           )}
         </div>
 
+        {ustZincir.length > 0 && (
+          <nav aria-label="Üst maddeler" className="mb-1 flex flex-wrap items-center gap-1 text-[12px] text-gri dark:text-bej/85">
+            {ustZincir.map(u => (
+              <React.Fragment key={u.id}>
+                <button type="button" onClick={() => onNavigate(u.id)} className="hover:text-lacivert dark:hover:text-krem hover:underline underline-offset-2">{u.title}</button>
+                <ChevronRight size={12} className="shrink-0" />
+              </React.Fragment>
+            ))}
+          </nav>
+        )}
         <h1 className="font-sans text-3xl sm:text-4xl text-lacivert dark:text-krem leading-tight tracking-tight">
           {item.title}
         </h1>
@@ -456,6 +491,23 @@ export const WikiArticle: React.FC<WikiArticleProps> = ({
           />
 
           <WikiRooms rooms={rooms} onNavigate={onNavigate} />
+
+          {/* --- Alt maddeler (4. gece, üst–alt madde) --- */}
+          {altMaddeler.length > 0 && (
+            <section className="mt-8">
+              <h2 className="font-sans text-xl text-lacivert dark:text-krem mb-3 tracking-tight">Alt maddeler</h2>
+              <ul className="flex flex-wrap gap-1.5">
+                {altMaddeler.map(a => (
+                  <li key={a.id}>
+                    <button type="button" onClick={() => onNavigate(a.id)}
+                      className="text-[13px] px-2.5 py-1 rounded border border-bej/50 dark:border-lacivert-600/50 text-lacivert dark:text-krem hover:border-lacivert/50 dark:hover:border-bej/50">
+                      {a.title}<span className="ml-1.5 text-[9px] font-mono text-gri dark:text-bej/85">{TYPE_LABELS[a.type] || a.type}</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
 
           {/* --- Künyelerde anılıyor (3. gece, bağ alanları) --- */}
           {ananlar.length > 0 && (

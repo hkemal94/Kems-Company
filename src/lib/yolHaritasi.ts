@@ -47,7 +47,7 @@ export const YOL_HARITASI: YolIsi[] = [
   // 4. gece
   { id: 'madde-onerileri', gece: 4, paket: 'W', kimde: 'claude', nereden: '7 Ekim', bitti: true,
     ad: 'Künyeden ve yazılarından madde önerileri; vikide metinde anılanı tanıma' },
-  { id: 'ust-alt-tablo', gece: 4, paket: 'W', kimde: 'claude', nereden: '7 Ekim · vvd',
+  { id: 'ust-alt-tablo', gece: 4, paket: 'W', kimde: 'claude', nereden: '7 Ekim · vvd', bitti: true,
     ad: 'Üst–alt madde, sabitleme, maddeler tablo olarak' },
   { id: 'atolye', gece: 4, paket: 'K', kimde: 'claude', nereden: '7 Ekim · vvd',
     ad: 'Atölye bölümü: Harita ve Kurucu birlikte' },
