@@ -167,3 +167,25 @@ export function reddiYaz(items: Item[], ad: string): { guncel?: Item; yeni?: Omi
   };
 }
 
+
+/**
+ * Yazım paneli (7. gece, 8 Ekim): tek bir metinde geçen, türünü söyleyen
+ * ama vikide maddesi olmayan adlar ("Kemal'in yazısında Zeytin Koyu var,
+ * maddesi yok"). Ad metinden olduğu gibi alınır; "Önerme" denenler gelmez.
+ */
+export function metindekiYeniAdlar(metin: string, items: Item[]): Array<{ ad: string; tur: OneriTuru }> {
+  if (!metin.trim()) return [];
+  const maddeler = items.filter(i => !i.archived && WIKI_TYPES.includes(i.type));
+  const red = new Set(reddedilenler(items).map(trKucuk));
+  const bulunan = new Map<string, { ad: string; tur: OneriTuru }>();
+  for (const m of metin.matchAll(AD_RE)) {
+    let sozler = `${m[1]}${m[2]}`.replace(/\s+/g, ' ').trim().split(' ');
+    while (sozler.length > 1 && BAS_SOZLER.has(sozler[0])) sozler = sozler.slice(1);
+    if (sozler.length < 2) continue;
+    const ad = sozler.join(' ').replace(/['’]$/, '');
+    const k = trKucuk(ad);
+    if (!k || red.has(k) || bulunan.has(k) || adiCoz(ad, maddeler)) continue;
+    bulunan.set(k, { ad, tur: SOZ_TURU.get(m[2])! });
+  }
+  return Array.from(bulunan.values()).sort((a, b) => a.ad.localeCompare(b.ad, 'tr'));
+}

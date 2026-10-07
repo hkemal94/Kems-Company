@@ -1,4 +1,4 @@
-import { KanonPaneli } from './wiki/KanonPaneli';
+import { YazimPaneli } from './wiki/YazimPaneli';
 import { TYPE_LABELS } from './wiki/wikiSchema';
 import { Fanzin } from './fanzin/Fanzin';
 import { fanzinBilgisi } from '../lib/studyo';
@@ -17,6 +17,8 @@ interface BlogProps {
   onUpdateItem: (item: Item) => Promise<void>;
   onDeleteItem: (itemId: string) => Promise<void>;
   onAddItem: (item: Omit<Item, 'id' | 'createdAt' | 'updatedAt' | 'userId'>) => Promise<void>;
+  /** Yazım panelinden maddeyi vikide açar (7. gece) */
+  onMaddeAc?: (id: string) => void;
 }
 
 export default function Blog({
@@ -25,7 +27,8 @@ export default function Blog({
   onSelectItem,
   onUpdateItem,
   onDeleteItem,
-  onAddItem
+  onAddItem,
+  onMaddeAc
 }: BlogProps) {
   const [activeTab, setActiveTab] = useState<'home' | 'editor'>(
     () => (activeItemId && items.some(i => i.id === activeItemId && i.type === 'blog_post') ? 'editor' : 'home'));
@@ -443,7 +446,7 @@ export default function Blog({
       {/* VIEW 2: MASAÜSTÜ EDİTÖR (Section 4D) */}
       {/* Fanzin (yapisal-4): kendi ekranı — dergi görünümü, bölüm tonları, çıktılar */}
       {activeTab === 'editor' && activePost && fanzinBilgisi(activePost) && (
-        <Fanzin yazi={activePost} onUpdateItem={onUpdateItem} items={items} onMaddeAc={onSelectItem} />
+        <Fanzin yazi={activePost} onUpdateItem={onUpdateItem} items={items} onMaddeAc={onMaddeAc} onAddItem={onAddItem} />
       )}
 
       {activeTab === 'editor' && activePost && !fanzinBilgisi(activePost) && (
@@ -644,7 +647,7 @@ export default function Blog({
           <div className="space-y-6">
 
             {/* Kanon: yazıda geçen maddeler ve tarih uyarıları (29 Eylül) */}
-            <KanonPaneli metin={activePost.notes || ''} items={items} />
+            <YazimPaneli metin={activePost.notes || ''} items={items} onMaddeAc={onMaddeAc} onAddItem={onAddItem} kaynakId={activePost.id} className="lg:sticky lg:top-4" />
             
             {/* Yapay zekâ işleri stüdyoda (29 Eylül akşamı) */}
             <div className="bg-[#F3EFE8] dark:bg-[#13204A] border border-[#CFC5B4] dark:border-[#2C3C72] p-5 rounded-xl space-y-2">

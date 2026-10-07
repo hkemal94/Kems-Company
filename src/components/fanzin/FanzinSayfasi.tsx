@@ -20,7 +20,8 @@ export const FanzinSayfasi: React.FC<{
   onUpdateItem: (item: Item) => Promise<void>;
   onStudyo: () => void;
   onMaddeAc?: (id: string) => void;
-}> = ({ items, onUpdateItem, onStudyo, onMaddeAc }) => {
+  onAddItem?: (item: Omit<Item, 'id' | 'createdAt' | 'updatedAt' | 'userId'>) => Promise<void>;
+}> = ({ items, onUpdateItem, onStudyo, onMaddeAc, onAddItem }) => {
   const fanzinler = items.filter(i => i.type === 'blog_post' && !i.archived && fanzinBilgisi(i)).sort((a, b) => b.createdAt - a.createdAt);
   const bekleyen = items.filter(i => i.type === 'aday' && !i.archived && (i.metadata?.aday as { arac?: string } | undefined)?.arac === 'fanzin');
   const [acik, setAcik] = useState<string | null>(null);
@@ -30,7 +31,7 @@ export const FanzinSayfasi: React.FC<{
     return (
       <div className="space-y-3 animate-in fade-in duration-300">
         <button type="button" onClick={() => setAcik(null)} className={`${DUGME_BOS} inline-flex items-center gap-1`}><ArrowLeft className="w-3.5 h-3.5" /> Fanzinler</button>
-        <Fanzin yazi={secili} onUpdateItem={onUpdateItem} items={items} onMaddeAc={onMaddeAc} />
+        <Fanzin yazi={secili} onUpdateItem={onUpdateItem} items={items} onMaddeAc={onMaddeAc} onAddItem={onAddItem} />
       </div>
     );
   }

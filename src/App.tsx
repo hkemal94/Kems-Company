@@ -1271,8 +1271,9 @@ export default function App() {
                 onUpdateItem={handleUpdateItem}
                 onDeleteItem={handleDeleteItem}
                 onAddItem={handleAddItem}
+                onMaddeAc={id => { const k = items.find(i => i.id === id); if (k) maddeyiAc(k); }}
                 istek={yaziIstek}
-                fanzin={<FanzinSayfasi items={items} onUpdateItem={handleUpdateItem} onStudyo={() => git('studyo')} onMaddeAc={id => { const k = items.find(i => i.id === id); if (k) maddeyiAc(k); }} />}
+                fanzin={<FanzinSayfasi items={items} onUpdateItem={handleUpdateItem} onAddItem={handleAddItem} onStudyo={() => git('studyo')} onMaddeAc={id => { const k = items.find(i => i.id === id); if (k) maddeyiAc(k); }} />}
               />
             )}
 
