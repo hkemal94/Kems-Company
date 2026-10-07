@@ -88,6 +88,7 @@ import type { DurumSekmesi } from './components/Durum';
 import type { SeritHedefi } from './components/anasayfa/YuzdeSeridi';
 const Duzada = lazyYukle(() => import('./components/Duzada'));
 import type { DuzadaSekmesi } from './components/Duzada';
+import type { AtolyeSekmesi } from './components/Atolye';
 const Merch = lazyYukle(() => import('./components/Merch'));
 const Atolye = lazyYukle(() => import('./components/Atolye'));
 const YaziAtolyesi = lazyYukle(() => import('./components/YaziAtolyesi'));
@@ -140,6 +141,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<Sayfa>('komuta');
   /** Paket 4: alt sekmeye doğrudan gitme istekleri (telefonda Harita, Kurucu, Kitap) */
   const [duzadaIstek, setDuzadaIstek] = useState<{ sekme: DuzadaSekmesi; n: number } | null>(null);
+  const [atolyeIstek, setAtolyeIstek] = useState<{ sekme: AtolyeSekmesi; n: number } | null>(null);
   const [yaziIstek, setYaziIstek] = useState<{ sekme: 'blog' | 'kitap' | 'fanzin'; n: number } | null>(null);
   /** Neyin Eksik sayfası açılırken açık gelecek başlık */
   const [eksikAcik, setEksikAcik] = useState<string | null>(null);
@@ -667,7 +669,8 @@ export default function App() {
     if (!hedef.startsWith('durum-')) setDurumListe(null);
     switch (hedef) {
       // 4. gece: Harita ve Kurucu Atölye'de
-      case 'harita': case 'kurucu': setActiveTab('atolye'); break;
+      case 'harita': case 'kurucu': case 'atolye': setAtolyeIstek({ sekme: 'harita', n }); setActiveTab('atolye'); break;
+      case 'bagagi': setAtolyeIstek({ sekme: 'ag', n }); setActiveTab('atolye'); break;
       case 'viki': case 'kunye': case 'duzada': setDuzadaIstek({ sekme: 'wiki', n }); setActiveTab('duzada'); break;
       case 'kitap': setYaziIstek({ sekme: 'kitap', n }); setActiveTab('yazi'); break;
       case 'blog': setYaziIstek({ sekme: 'blog', n }); setActiveTab('yazi'); break;
@@ -904,7 +907,7 @@ export default function App() {
     ] },
     { grup: 'Evren', satirlar: [
       { id: 'duzada', ad: 'Düzada', alt: 'viki ve Evren Raporu', simge: Compass, nokta: bildirimVar('kanon') },
-      { id: 'atolye', ad: 'Atölye', alt: 'harita ve Kurucu', simge: Hammer },
+      { id: 'atolye', ad: 'Atölye', alt: 'harita, Kurucu, bağ ağı', simge: Hammer },
       { id: 'yazi', ad: 'Yazı', alt: 'kitap, blog, fanzin', simge: PenTool },
       { id: 'oyun', ad: 'Oyun', simge: Gamepad2 }
     ] },
@@ -931,7 +934,7 @@ export default function App() {
    */
   const DIGER: Array<{ grup: string; satirlar: Array<{ hedef: string; ad: string; alt?: string; simge: React.ElementType; nokta?: boolean }> }> = [
     { grup: 'Evren', satirlar: [
-      { hedef: 'atolye', ad: 'Atölye', alt: 'harita ve Kurucu', simge: Hammer },
+      { hedef: 'atolye', ad: 'Atölye', alt: 'harita, Kurucu, bağ ağı', simge: Hammer },
       { hedef: 'yazi', ad: 'Yazı', alt: 'kitap, blog, fanzin', simge: PenTool },
       { hedef: 'oyun', ad: 'Oyun', simge: Gamepad2 }
     ] },
@@ -1214,6 +1217,8 @@ export default function App() {
               <Atolye
                 items={items}
                 onAddItem={handleAddItem}
+                onUpdateItem={handleUpdateItem}
+                istek={atolyeIstek}
                 onMaddeAc={id => { setDuzadaIstek({ sekme: 'wiki', n: Date.now() }); setActiveItemId(id); setActiveTab('duzada'); }}
               />
             )}

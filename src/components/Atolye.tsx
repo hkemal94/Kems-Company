@@ -11,13 +11,18 @@ import { useHaritaMaddesi } from './duzada/HaritaMaddesi';
 
 /**
  * Atölye (4. gece, 7 Ekim; vvd'den): evrenin çalışma araçları tek bölümde.
- * Şimdilik Harita ve Kurucu (29 Eylül'den beri tek ekran: 2D kur, 3D bak);
- * bağ ağı, soy ağacı ve tuval geldikleri gece raya eklenir (Kemal:
+ * Harita ve Kurucu (29 Eylül'den beri tek ekran: 2D kur, 3D bak) ve bağ
+ * ağı (5. gece); soy ağacı ve tuval geldikleri gece raya eklenir (Kemal:
  * "görünmesin"). Düzada viki ve Evren Raporu olarak kaldı.
  */
 const RAY_BOLUMLERI: RayBolumu[] = [
-  { id: 'harita', label: 'Harita ve Kurucu' }
+  { id: 'harita', label: 'Harita ve Kurucu' },
+  { id: 'ag', label: 'Bağ ağı' }
 ];
+export type AtolyeSekmesi = 'harita' | 'ag';
+
+// Bağ ağı (5. gece): sekme açılınca yüklenir
+const BagAgi = lazy(() => import('./atolye/BagAgi').then(m => ({ default: m.BagAgi })));
 
 // MapLibre haritası ~1 MB'lık bir paket (motor + arazi verisi); 3D'ye geçince indirilir
 const DuzadaHarita = lazy(() =>
@@ -31,11 +36,17 @@ const Kurucu = lazy(() =>
 interface AtolyeProps {
   items: Item[];
   onAddItem: (itemData: Omit<Item, 'id' | 'createdAt' | 'updatedAt' | 'userId'> & { id?: string }) => Promise<void>;
+  /** Bağ ağında "Bağla" ve "Yerleşimi kaydet" */
+  onUpdateItem: (item: Item) => Promise<void>;
+  /** Menüden doğrudan bir sekmeye gelmek için */
+  istek?: { sekme: AtolyeSekmesi; n: number } | null;
   /** Haritadan seçilen maddeyi Düzada vikisinde açar */
   onMaddeAc: (id: string) => void;
 }
 
-export default function Atolye({ items, onAddItem, onMaddeAc }: AtolyeProps) {
+export default function Atolye({ items, onAddItem, onUpdateItem, istek = null, onMaddeAc }: AtolyeProps) {
+  const [sekme, setSekme] = useState<AtolyeSekmesi>(istek?.sekme ?? 'harita');
+  useEffect(() => { if (istek) setSekme(istek.sekme); }, [istek?.n]);
   const haritaDuzeni = useHaritaDuzeni();
   const haritaMaddesi = useHaritaMaddesi({ items, onAddItem, onMaddeAc });
   // 2D çalışma, 3D bakış (29 Eylül)
@@ -44,7 +55,7 @@ export default function Atolye({ items, onAddItem, onMaddeAc }: AtolyeProps) {
   const haritaBakisi = useRef<HaritaBakisi | null>(null);
   const bakisiTut = useCallback((b: HaritaBakisi) => { haritaBakisi.current = b; }, []);
   // Açılış hızı (3. gece): Atölye'ye her girişte ölçüm baştan
-  useEffect(() => { isaretle('harita-basladi'); }, []);
+  useEffect(() => { if (sekme === 'harita') isaretle('harita-basladi'); }, [sekme]);
 
   /**
    * Tam ekran (30 Eylül, Kemal: "tam ekrana geçiremiyorum"). Tarayıcı
@@ -106,7 +117,13 @@ export default function Atolye({ items, onAddItem, onMaddeAc }: AtolyeProps) {
   return (
     <div className="space-y-6">
       <SayfaBasi baslik="Atölye" />
-      <SayfaRayi baslik="Atölye" bolumler={RAY_BOLUMLERI} aktifId="harita" onSec={() => { /* tek bölüm */ }} />
+      <SayfaRayi baslik="Atölye" bolumler={RAY_BOLUMLERI} aktifId={sekme} onSec={id => setSekme(id as AtolyeSekmesi)} />
+
+      {sekme === 'ag' && (
+        <Suspense fallback={<div className="h-48 flex items-center justify-center font-mono text-xs text-[#6A5E4C] dark:text-[#A6B0C9] animate-pulse">Ağ kuruluyor…</div>}>
+          <BagAgi items={items} onUpdateItem={onUpdateItem} onAddItem={onAddItem} onMaddeAc={onMaddeAc} />
+        </Suspense>
+      )}
 
       {/*
         HARİTA VE KURUCU (H, 29 Eylül) — tek ekran. Kemal: "Düzada Haritası
@@ -114,7 +131,7 @@ export default function Atolye({ items, onAddItem, onMaddeAc }: AtolyeProps) {
         kontrol edebileceğim bir şey." 2D: çalışma ekranı (araçlar altta).
         3D: aynı ada eğik bakışla, yapılar kat sayısıyla yükselir.
       */}
-      {haritaDuzeni.ilkYukleme ? (
+      {sekme === 'harita' && (haritaDuzeni.ilkYukleme ? (
         <div ref={haritaKabi} className={tamEkran ? 'fixed inset-0 z-[80] bg-[#1C4E8C]' : ''}>
           <Suspense fallback={<div className="h-[80vh] flex items-center justify-center rounded-2xl bg-[#1C4E8C] font-mono text-xs text-[#F3EFE8]">Harita yükleniyor…</div>}>
             {haritaUc ? (
@@ -158,7 +175,7 @@ export default function Atolye({ items, onAddItem, onMaddeAc }: AtolyeProps) {
         </div>
       ) : (
         <div className="h-[80vh] flex items-center justify-center rounded-2xl bg-[#1C4E8C] font-mono text-xs text-[#F3EFE8]">Kayıtlı düzen okunuyor…</div>
-      )}
+      ))}
 
       {haritaMaddesi.kutu}
     </div>

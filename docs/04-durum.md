@@ -1718,3 +1718,20 @@ katlanır listede. Plan `src/lib/yolHaritasi.ts`'te; her PR kendi paketini
   silinmişti (yukarıda "3B stüdyo kaldırıldı"); taşınacak bir şey yok.
 - `src/components/Atolye.tsx`; ortak "haritadan maddeyi aç" kutusu
   `src/components/duzada/HaritaMaddesi.tsx`. Görseller: `docs/gorseller/atolye-*.png`.
+
+**5. gece, 1. paket (uygulamada): bağ ağı.**
+- Atölye → **Bağ ağı**: maddeler nokta, bağlar çizgi. Renk türe göre
+  (mahalle lacivert, mekân kiremit, kurum hardal…); nokta ne kadar büyükse
+  o kadar çok bağı var. Tür ve bağ türü çipleriyle süzülür (Oda baştan
+  kapalı); "Ağda madde bul" maddeyi ortaya alır.
+- Bağlar dört yerden: düzenleyicideki bağlar, üst madde, kurum, eski
+  bağlantılar ve künyedeki bağ alanları (noktalı çizgi, "Künye · Kurucu").
+- Noktaya basınca komşuları öne çıkar; kartta bağları, "Maddeyi aç" ve
+  **Bağ kur** (Kemal'in seçimi: ağdan da bağ kurulur). Başka maddeye bas
+  ya da listeden seç → tür → "Bağla": bağ ilk maddeye yazılır, düzenleyicide
+  de görünür.
+- Noktalar sürüklenir; **Yerleşimi kaydet** (Kemal'in seçimi: kayda)
+  `kkm_ayar` → `bagAgiYerlesim`'e yazar ({madde: {x, y}}, yuvarlanmış).
+  "Yeniden diz" ağı baştan dizer; kaydedilene kadar kayda yazılmaz.
+- `src/lib/bagAgi.ts`, `src/components/atolye/BagAgi.tsx`. Görseller:
+  `docs/gorseller/bagagi-*.png`.
