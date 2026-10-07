@@ -1513,3 +1513,46 @@ nokta), kayıt 740 KB'a çıktı ve Kurucu her değişiklikte hepsini yazıyordu
   eski alanları sil, kullanılmayan kayıtları sil, boşlukları künyeden
   doldur, galeriye görseller. Her birinin "Yap" düğmesi, üstte "Hepsini
   yap". İş kalmayınca kart kaybolur (`src/components/anasayfa/BekleyenIsler.tsx`).
+
+## 7 Ekim — Soru turu, vvd incelemesi ve 7 gecelik yol haritası
+
+Kemal Drive'a "Claude Limit Sonrası Yapılacaklar" listesini yazdı; uzun bir
+tıklamalı soru turu yapıldı, vvd.world'ün sitesi ve yenilik günlüğü okundu.
+Plan (her gece en fazla üç paket, her paket bir PR):
+
+| Gece | Paketler |
+|---|---|
+| 1 | K Yol haritası ekranı · K Gezinme ve menü · H Otel terası ve bahçedeki yol |
+| 2 | W Viki temizliği · H Ev dokusu (evler yarıya, arsalar büyük) · K PDF'ler |
+| 3 | W Alan şablonları, bağlar, takma adlar · H Yeni dokular · K Boyut ve hız |
+| 4 | W Madde önerileri ve tanıma · W Üst–alt madde, sabitleme, tablo · K Atölye |
+| 5 | W Bağ ağı · W Zaman çizgisi ve dönemler · H Harita işaretleri |
+| 6 | W Soy ağacı · K Tuval · W Sitede alan bazında gizleme |
+| 7 | W Yazım (kitap, fanzin) · K Kitabı PDF ve EPUB indirme |
+
+Kararlar:
+- Oyun PDF'i: künye ve konsept, mekanikler ve notlar, Düzada özeti; Evren
+  Raporu'yla aynı görünüm, ayrı dosya. PDF'lere Poppins gömülür (Türkçe
+  harfler). "Yapım Aşaması ve İşler" kalır, ne işe yaradığı yazılır.
+- Telefonda alt çubuk 4 düğme (Ana sayfa · Viki · Merch · Diğer). Fanzin →
+  Yazı; Takvim ve Yol haritası → Durum; Galeri → Markalar; "Bütün araçlar"
+  kalkar. Geri: telefonun tuşu + ekranda ok. Durum yüzdesi → maddelerin listesi.
+- Madde önerileri: yapılar ve yerler, kurumlar, aileler; künyeden ve
+  Kemal'in yazılarından. Simülasyon günleri silinir. Stüdyoda sosyal medya
+  kartları kalkar.
+- Harita: ilçelerde evler yarıya, arsalar büyük, hafif Ege düzensizliği;
+  yeni dokular: balıkçı köyü, yamaç teras, sahil şeridi, zeytinlik evleri.
+  Otel: ince seyir terası, gerekirse kaide.
+- vvd'den: alan şablonu (başlangıcı Claude önerir), bağ alanları, üst–alt
+  madde, sabitleme (yalnız viki listesinde), bağ ağı, soy ağacı (aile, iş,
+  arkadaşlık ve rekabet, dönem sürümleri), tuval, harita katman ve
+  işaretleri, metinde tanıma (viki, kitap, fanzin), yan panel, kitap PDF +
+  EPUB, zaman çizgisi ve dönemler, maddeler tablo olarak, alan bazında
+  gizleme. Atölye: Harita ve Kurucu birlikte + ağ, soy ağacı, tuval.
+- Kaydedilemeyen düzenlemeyi tarayıcıda bekletme: istenmedi.
+
+**1. gece, 1. paket (uygulamada):** Yol haritası açık işlerin tek yeri.
+Geceye göre gruplu; H/W/M/K ve Senden / Claude'dan süzgeci; ekrandan iş
+ekleme (`kkm_ayar` → `isler`), "tamam", kendi eklediğini silme; bitenler
+katlanır listede. Plan `src/lib/yolHaritasi.ts`'te; her PR kendi paketini
+`bitti: true` yapar.

@@ -160,9 +160,12 @@ bağlantısı 2. adım.
 
 **Tek kayıtlık ayarlar** (30 Eylül): `site_ayar` (sitenin taslağı ve
 yayındaki hâli), `gece_hazirlik` (gece önerilerinin defteri), `kkm_ayar`
-(Durum hedefleri, yol haritasında bitenler). Temizlik bunlara dokunmaz.
-Yol haritası `src/lib/yolHaritasi.ts`'te: karar verilip uygulamada henüz
-olmayan iş oraya yazılır, bitince silinir.
+(Durum hedefleri, yol haritasında bitenler, Kemal'in ekrandan eklediği
+işler). Temizlik bunlara dokunmaz.
+**Yol haritası açık işlerin tek yeridir** (7 Ekim): plan `src/lib/yolHaritasi.ts`'te
+(paket H/W/M/K, gece, kimde). Her PR kendi paketini `bitti: true` yapar;
+Kemal birleştirince ekranda "bitti" olur. Kemal'in eklediği işler `kkm_ayar`'da.
+7 Ekim planı ve kararlar: `docs/04-durum.md`.
 
 ## Açık işler (29 Eylül itibarıyla)
 
