@@ -1,7 +1,21 @@
 import { BekleyenIsler } from './BekleyenIsler';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { CalendarDays, ChevronDown, Globe, Milestone, Newspaper, Search, Sparkles } from 'lucide-react';
 import { useMasaustu } from '../kabuk/KatlanirBolum';
+import type { Item } from '../../types';
+import { durumOranlari } from '../../lib/durumOranlari';
+import { adayKaydi, soruyuErtele, sorulacaklar } from '../../lib/adaylar';
+import { gununSorusuBitti } from '../../lib/bildirimler';
+import { eksikleriCikar } from '../../lib/eksikler';
+import { YuzdeSeridi, type SeritHedefi } from './YuzdeSeridi';
+import { SoruKarti } from './SoruKarti';
+import { OneriTepsisi } from '../studyo/OneriTepsisi';
+import type { StudyoIslemleri } from '../studyo/StudyoBaglami';
+import { EksikOzeti } from './EksikOzeti';
+import { NotDefteri } from './NotDefteri';
+import { DuzadaKarti } from './DuzadaKarti';
+import { AdaKarti } from './AdaKarti';
+import { ETIKET, KART, IKINCIL, YAZI } from './stil';
 
 /**
  * Ana sayfadaki kısayollar (30 Eylül, Kemal: "büyük şeyler çok derinlere
@@ -17,20 +31,6 @@ const KISAYOLLAR: Array<{ id: 'fanzin' | 'takvim' | 'yolharitasi' | 'studyo' | '
 ];
 /** Listesi olan yüzdeler Durum'da maddelerin listesini açar (7 Ekim) */
 const seritHedefi = (h: SeritHedefi): Hedef => (h === 'kunye' || h === 'kitap' || h === 'harita' ? `durum-${h}` : h);
-import type { Item } from '../../types';
-import { durumOranlari } from '../../lib/durumOranlari';
-import { adayKaydi, soruyuErtele, sorulacaklar } from '../../lib/adaylar';
-import { gununSorusuBitti } from '../../lib/bildirimler';
-import { eksikleriCikar } from '../../lib/eksikler';
-import { YuzdeSeridi, type SeritHedefi } from './YuzdeSeridi';
-import { SoruKarti } from './SoruKarti';
-import { OneriTepsisi } from '../studyo/OneriTepsisi';
-import type { StudyoIslemleri } from '../studyo/StudyoBaglami';
-import { EksikOzeti } from './EksikOzeti';
-import { NotDefteri } from './NotDefteri';
-import { DuzadaKarti } from './DuzadaKarti';
-import { AdaKarti } from './AdaKarti';
-import { ETIKET, KART, IKINCIL, YAZI } from './stil';
 
 /**
  * Ana sayfa (Paket 4). Kemal onayladı, 29 Eylül:
@@ -92,35 +92,41 @@ export const Anasayfa: React.FC<Props> = ({
   const eksikler = useMemo(() => eksikleriCikar(items), [items]);
   const sorular = useMemo(() => sorulacaklar(items, 40), [items, nabiz]); // eslint-disable-line react-hooks/exhaustive-deps
   const gununSorusu = sorular[0];
-  const adaySayisi = items.filter(i => i.type === 'aday' && !i.archived).length;
-  const cevapla = (gunun: boolean) => async (b: NonNullable<typeof gununSorusu>, cevap: string, secenektenMi: boolean) => {
+  const adaySayisi = useMemo(() => items.filter(i => i.type === 'aday' && !i.archived).length, [items]);
+  const cevapla = useCallback((gunun: boolean) => async (b: NonNullable<typeof gununSorusu>, cevap: string, secenektenMi: boolean) => {
     await onAddItem(adayKaydi(b, cevap, secenektenMi));
     if (gunun) { gununSorusuBitti(); onBildirimYenile(); }
-  };
-  const ertele = (gunun: boolean, anahtar: string) => {
+  }, [onAddItem, onBildirimYenile]);
+  const ertele = useCallback((gunun: boolean, anahtar: string) => {
     soruyuErtele(anahtar);
     if (gunun) { gununSorusuBitti(); onBildirimYenile(); }
     setNabiz(n => n + 1);
-  };
+  }, [onBildirimYenile]);
 
   // Telefonda açık bölümler; "+ Not" gibi dışarıdan gelen istek o bölümü açar
   const masa = useMasaustu();
   const [acik, setAcik] = useState<Set<TelSekmesi>>(() => new Set<TelSekmesi>(['bugun', sekme]));
   useEffect(() => { setAcik(a => (a.has(sekme) ? a : new Set([...a, sekme]))); }, [sekme]);
-  const cevir = (s: TelSekmesi) => setAcik(a => {
-    const y = new Set(a);
-    if (y.has(s)) y.delete(s); else { y.add(s); onSekme(s); }
-    return y;
-  });
+  const cevir = useCallback((s: TelSekmesi) => {
+    const aciliyor = !acik.has(s);
+    setAcik(a => {
+      const y = new Set(a);
+      if (y.has(s)) y.delete(s); else y.add(s);
+      return y;
+    });
+    if (aciliyor) {
+      onSekme(s);
+    }
+  }, [acik, onSekme]);
 
-  const tarih = new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', weekday: 'long' });
+  const tarih = useMemo(() => new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', weekday: 'long' }), []);
 
-  const TEL_SEKMELERI: Array<{ id: TelSekmesi; ad: string; rozet?: number }> = [
+  const TEL_SEKMELERI: Array<{ id: TelSekmesi; ad: string; rozet?: number }> = useMemo(() => [
     { id: 'bugun', ad: 'Bugün', rozet: adaySayisi || undefined },
     { id: 'atolye', ad: 'Ada' },
     { id: 'notlar', ad: 'Notlar' },
     { id: 'durum', ad: 'Durum' }
-  ];
+  ], [adaySayisi]);
 
   const gununSorusuKarti = (
     <section className={`${KART} p-4`}>

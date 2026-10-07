@@ -860,6 +860,24 @@ export default function App() {
     });
   };
 
+  /** "+" menüsünün iki yolu (1 Ekim): Not → not defterinde yeni sayfa; Fikir → fikir kutusu */
+  const yeniNot = () => { setTelSekme('notlar'); setYeniNotBekliyor(true); git('komuta'); };
+  const bekleyenFikir = useMemo(
+    () => items.filter(i => i.type === 'fikir' && !i.archived && !(i.metadata as any)?.donusenId && !(i.tags || []).includes('gunluk-not')).length,
+    [items]
+  );
+
+  /** Stüdyonun işlemleri: sayfa, yan panel ve öneri tepsisi aynı işlemleri kullanır */
+  const studyoIslemleri: StudyoIslemleri = useMemo(() => ({
+    items,
+    onAddItem: handleAddItem,
+    onUpdateItem: handleUpdateItem,
+    onDeleteItem: handleDeleteItem,
+    onAcceptProposal: handleAcceptProposal,
+    onMaddeyiAc: maddeyiAc,
+    onStudyoSayfasi: () => git('studyo')
+  }), [items]);
+
   if (girisGerekli && !user) {
     return (
       <div className="min-h-screen bg-[#F3EFE8] dark:bg-[#0B132B] flex items-center justify-center p-6">
@@ -914,9 +932,6 @@ export default function App() {
    * aynı gruplar. Kapalıyken yalnız simgeler; üstüne gelince çubuk açılır,
    * grup başlıkları ve adlar görünür.
    */
-  /** "+" menüsünün iki yolu (1 Ekim): Not → not defterinde yeni sayfa; Fikir → fikir kutusu */
-  const yeniNot = () => { setTelSekme('notlar'); setYeniNotBekliyor(true); git('komuta'); };
-  const bekleyenFikir = items.filter(i => i.type === 'fikir' && !i.archived && !(i.metadata as any)?.donusenId && !(i.tags || []).includes('gunluk-not')).length;
   const arti = (ek?: Partial<React.ComponentProps<typeof ArtiMenu>>) => (
     <ArtiMenu onNot={yeniNot} onFikir={() => setFikirAcik(true)} fikirSayisi={bekleyenFikir} {...ek} />
   );
@@ -1001,17 +1016,6 @@ export default function App() {
       <span className="mt-0.5 px-0.5 bg-[#F26B6F] text-white font-bold text-[4.5px] tracking-wider">COMPANY</span>
     </span>
   );
-
-  /** Stüdyonun işlemleri: sayfa, yan panel ve öneri tepsisi aynı işlemleri kullanır */
-  const studyoIslemleri: StudyoIslemleri = {
-    items,
-    onAddItem: handleAddItem,
-    onUpdateItem: handleUpdateItem,
-    onDeleteItem: handleDeleteItem,
-    onAcceptProposal: handleAcceptProposal,
-    onMaddeyiAc: maddeyiAc,
-    onStudyoSayfasi: () => git('studyo')
-  };
 
   const temaSimgesi = settings.theme === 'dark' ? Sun : Moon;
   const TemaSimgesi = temaSimgesi;

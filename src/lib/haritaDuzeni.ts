@@ -245,10 +245,17 @@ const belgedenHam = (v: Partial<Belge>): HaritaDuzeni => {
   };
 };
 
+let bellekHam: string | null = null;
+let bellekDuzen: HaritaDuzeni | null = null;
+
 function yereldenOku(): HaritaDuzeni | null {
   try {
     const ham = localStorage.getItem(YEREL_ANAHTAR);
-    return ham ? belgeden(JSON.parse(ham)) : null;
+    if (!ham) return null;
+    if (ham === bellekHam && bellekDuzen) return bellekDuzen;
+    bellekHam = ham;
+    bellekDuzen = belgeden(JSON.parse(ham));
+    return bellekDuzen;
   } catch {
     return null;
   }
@@ -256,7 +263,10 @@ function yereldenOku(): HaritaDuzeni | null {
 
 function yereleYaz(d: HaritaDuzeni) {
   try {
-    localStorage.setItem(YEREL_ANAHTAR, JSON.stringify(belgeye(d)));
+    const str = JSON.stringify(belgeye(d));
+    bellekHam = str;
+    bellekDuzen = d;
+    localStorage.setItem(YEREL_ANAHTAR, str);
   } catch { /* depolama kapalıysa bulut yine dener */ }
 }
 
