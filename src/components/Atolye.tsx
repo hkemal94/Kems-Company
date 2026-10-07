@@ -19,13 +19,16 @@ import { KATMANLAR, haritaIsaretleri, katmanOku, katmanYaz, type KatmanAyari, ty
 const RAY_BOLUMLERI: RayBolumu[] = [
   { id: 'harita', label: 'Harita ve Kurucu' },
   { id: 'ag', label: 'Bağ ağı' },
-  { id: 'zaman', label: 'Zaman çizgisi' }
+  { id: 'zaman', label: 'Zaman çizgisi' },
+  { id: 'soy', label: 'Soy ağacı' }
 ];
-export type AtolyeSekmesi = 'harita' | 'ag' | 'zaman';
+export type AtolyeSekmesi = 'harita' | 'ag' | 'zaman' | 'soy';
 
 // Bağ ağı (5. gece): sekme açılınca yüklenir
 const BagAgi = lazy(() => import('./atolye/BagAgi').then(m => ({ default: m.BagAgi })));
 // Zaman çizgisi ve dönemler (5. gece)
+// Soy ağacı (6. gece)
+const SoyAgaci = lazy(() => import('./atolye/SoyAgaci').then(m => ({ default: m.SoyAgaci })));
 const ZamanCizgisi = lazy(() => import('./atolye/ZamanCizgisi').then(m => ({ default: m.ZamanCizgisi })));
 
 // MapLibre haritası ~1 MB'lık bir paket (motor + arazi verisi); 3D'ye geçince indirilir
@@ -45,7 +48,7 @@ interface AtolyeProps {
   /** Haritadaki notu silmek (yalnız "Evet, sil" ile) */
   onDeleteItem: (id: string) => Promise<void>;
   /** Menüden doğrudan bir sekmeye gelmek için */
-  istek?: { sekme: AtolyeSekmesi; n: number } | null;
+  istek?: { sekme: AtolyeSekmesi; n: number; aile?: string } | null;
   /** Haritadan seçilen maddeyi Düzada vikisinde açar */
   onMaddeAc: (id: string) => void;
 }
@@ -156,6 +159,11 @@ export default function Atolye({ items, onAddItem, onUpdateItem, onDeleteItem, i
       {sekme === 'ag' && (
         <Suspense fallback={<div className="h-48 flex items-center justify-center font-mono text-xs text-[#6A5E4C] dark:text-[#A6B0C9] animate-pulse">Ağ kuruluyor…</div>}>
           <BagAgi items={items} onUpdateItem={onUpdateItem} onAddItem={onAddItem} onMaddeAc={onMaddeAc} />
+        </Suspense>
+      )}
+      {sekme === 'soy' && (
+        <Suspense fallback={<div className="h-48 flex items-center justify-center font-mono text-xs text-[#6A5E4C] dark:text-[#A6B0C9] animate-pulse">Soy ağacı hazırlanıyor…</div>}>
+          <SoyAgaci items={items} onMaddeAc={onMaddeAc} ilkAile={istek?.sekme === 'soy' ? istek.aile ?? null : null} />
         </Suspense>
       )}
       {sekme === 'zaman' && (

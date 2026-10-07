@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { AlertCircle, ChevronRight, Globe, Link2, PencilLine, Pin, Unlink } from 'lucide-react';
+import { AlertCircle, ChevronRight, Globe, Link2, PencilLine, Pin, Unlink, GitFork } from 'lucide-react';
 import { StudyodaAc } from '../studyo/StudyodaAc';
 import { Item } from '../../types';
 import { MaddeDuzenleyici, AileUyeleri } from './MaddeDuzenleyici';
@@ -109,6 +109,8 @@ interface WikiArticleProps {
   onEdit?: (id: string) => void;
   /** W3 · "Haritada göster" — verilmezse düğme çıkmaz */
   onHaritayaGit?: (binaId: string) => void;
+  /** Aile maddesinde "Soy ağacında aç" (6. gece) */
+  onSoyAgaci?: (aileId: string) => void;
   /** Site (29 Eylül gece): verilmezse düğme çıkmaz */
   onSitede?: (item: Item, acik: boolean) => void;
   /** Madde düzenleyici (yapisal-4): verilirse "düzenle" onu açar */
@@ -125,6 +127,7 @@ export const WikiArticle: React.FC<WikiArticleProps> = ({
   mode,
   onEdit,
   onHaritayaGit,
+  onSoyAgaci,
   onSitede,
   onUpdateItem,
   onSablonYaz
@@ -313,6 +316,12 @@ export const WikiArticle: React.FC<WikiArticleProps> = ({
               className={`flex items-center gap-1.5 text-[11px] font-mono transition-colors cursor-pointer ${item.metadata?.sitede === true ? 'text-[#2F7A45] dark:text-[#9FD3A9]' : 'text-gri hover:text-lacivert dark:text-bej/85 dark:hover:text-krem'}`}
             >
               <Globe size={12} /> {item.metadata?.sitede === true ? 'sitede ✓' : 'sitede göster'}
+            </button>
+          )}
+          {item.type === 'aile' && onSoyAgaci && (
+            <button type="button" onClick={() => onSoyAgaci(item.id)} title="Bu ailenin soy ağacı (Atölye)"
+              className="flex items-center gap-1.5 text-[11px] font-mono transition-colors cursor-pointer text-gri hover:text-lacivert dark:text-bej/85 dark:hover:text-krem">
+              <GitFork size={12} /> soy ağacında aç
             </button>
           )}
           {admin && onUpdateItem && (

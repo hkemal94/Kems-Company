@@ -10,6 +10,15 @@ export const BAG_TURLERI = [
   { id: 'çalışanı', ad: 'Çalışır' },
   { id: 'üyesi', ad: 'Üyesi' },
   { id: 'akrabası', ad: 'Akrabası' },
+  // Soy ağacı (6. gece, Kemal): aile, iş, arkadaşlık ve rekabet.
+  // "A → ebeveyni → B": B, A'nın ebeveynidir (tersi: B'nin çocuğu A).
+  { id: 'ebeveyni', ad: 'Ebeveyni' },
+  { id: 'eşi', ad: 'Eşi' },
+  { id: 'kardeşi', ad: 'Kardeşi' },
+  { id: 'patronu', ad: 'Patronu' },
+  { id: 'iş ortağı', ad: 'İş ortağı' },
+  { id: 'arkadaşı', ad: 'Arkadaşı' },
+  { id: 'rakibi', ad: 'Rakibi' },
   { id: 'ait olduğu marka', ad: 'Ait olduğu kurum' },
   { id: 'ilgili olay', ad: 'İlgili olay' },
   { id: 'tanıdığı kişi', ad: 'Tanıdığı' },
@@ -20,6 +29,9 @@ export type BagTuru = typeof BAG_TURLERI[number]['id'];
 export interface Relation {
   targetId: string;
   type: BagTuru;
+  /** Bağın geçerli olduğu yıllar (6. gece, soy ağacının dönem sürümleri); bitişi yoksa açık uçlu */
+  bas?: number;
+  bit?: number;
   isProposal?: boolean;
   reason?: string;
 }
@@ -119,6 +131,20 @@ export function getRelationLabels(
         forward: 'Akrabaları',
         inverse: 'Akrabaları'
       };
+    case 'ebeveyni':
+      return { forward: 'Ebeveyni', inverse: 'Çocukları' };
+    case 'eşi':
+      return { forward: 'Eşi', inverse: 'Eşi' };
+    case 'kardeşi':
+      return { forward: 'Kardeşleri', inverse: 'Kardeşleri' };
+    case 'patronu':
+      return { forward: 'Patronu', inverse: 'Yanında çalışanlar' };
+    case 'iş ortağı':
+      return { forward: 'İş ortakları', inverse: 'İş ortakları' };
+    case 'arkadaşı':
+      return { forward: 'Arkadaşları', inverse: 'Arkadaşları' };
+    case 'rakibi':
+      return { forward: 'Rakipleri', inverse: 'Rakipleri' };
     case 'tanıdığı kişi':
       return {
         forward: 'Tanıdığı Kişi / Bağlantı',

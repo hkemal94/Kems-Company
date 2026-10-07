@@ -179,6 +179,8 @@ export function bagEkle(kaynak: Item, hedefId: string, tur: BagTuru): Item | nul
       const o: Record<string, unknown> = { targetId: r.targetId, type: r.type };
       if (r.isProposal) o.isProposal = true;
       if (r.reason) o.reason = r.reason;
+      if (typeof r.bas === 'number') o.bas = r.bas;
+      if (typeof r.bit === 'number') o.bit = r.bit;
       return o;
     }),
     { targetId: hedefId, type: tur }

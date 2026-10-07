@@ -1777,3 +1777,30 @@ katlanır listede. Plan `src/lib/yolHaritasi.ts`'te; her PR kendi paketini
 - Telefonda maddeler listesi kapalı başlar, başlığa basınca açılır.
 - `src/lib/haritaIsaretleri.ts`. Görseller: `docs/gorseller/isaret-*.png`
   ("Deneme notu" yalnız önizleme denemesi).
+
+**6. gece, 1. paket (uygulamada): soy ağacı.**
+- Yeni bağ türleri (Kemal'in seçimi, hepsi): Ebeveyni, Eşi, Kardeşi
+  (aile); Patronu, İş ortağı (iş); Arkadaşı, Rakibi. "A → Ebeveyni → B":
+  B, A'nın ebeveyni; ağaç tersini (Çocuğu) kendisi okur. Eski "Akrabası"
+  kaldı. Düzenleyicide, bağ ağında ve madde sayfasında seçilebilir.
+- Bağa isteğe bağlı yıl (Kemal'in seçimi): düzenleyicide her bağın
+  yanında "yıllar" kutusu ("1950–1975", "1950–" sürüyor);
+  `relations[].bas/bit`. Bağ ağının "Bağla"sı yılları korur.
+- Kişi künyesine **Yaşam** alanı (`metadata.profile.yasam`, aralık:
+  "1920–1987"; tek yıl doğum sayılır). Not: alan şablonunda kişi için
+  kayıtlı bir liste varsa yeni alan orada görünmez; "Bu türe alan ekle"
+  ya da Alan şablonları'ndan eklenir.
+- Atölye → **Soy ağacı** (Kemal'in seçimi): kişiler kutu, kuşaklar
+  yukarıdan aşağı (ebeveyni bağından); eşler çift çizgi, çocuklar
+  ebeveynlerin altında; ortak ebeveyni olmayan kardeş ve akraba noktalı;
+  iş hardal, arkadaşlık yeşil, rekabet kiremit eğri. Aile bağı olmayan
+  kişi doğum yılına en yakın kuşağa konur. Aile süzgeci (ailenin
+  kişileri + aile bağıyla bağlı olanlar), yan bağ çipleri, yıl
+  kaydırıcısı ve zaman çizgisinin dönemleri: seçilen yılda/dönemde
+  geçerli bağlar ve yaşayanlar; yılı yazılmamış her zaman görünür.
+  Kişiye basınca kart: bağları (yıllarıyla), "Maddeyi aç".
+- Aile maddesinde "soy ağacında aç": Atölye'de o aile seçili açılır.
+- Bu ekran kayda bir şey yazmaz. Önizleme yedeğinde kişi maddesi yoktu;
+  "Deneme Kişi 1–9", "Deneme A/B Ailesi" yalnız önizlemede denendi.
+- `src/lib/soyAgaci.ts`, `src/components/atolye/SoyAgaci.tsx`. Görseller:
+  `docs/gorseller/soy-*.png`.
