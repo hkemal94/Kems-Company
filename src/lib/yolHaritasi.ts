@@ -33,7 +33,7 @@ export const YOL_HARITASI: YolIsi[] = [
   // 2. gece
   { id: 'viki-temizligi', gece: 2, paket: 'W', kimde: 'claude', nereden: '7 Ekim', bitti: true,
     ad: 'Viki temizliği: mahalle adlarındaki parantezler, simülasyon günleri, sosyal medya kartları, uydurma sokak adları' },
-  { id: 'ev-dokusu', gece: 2, paket: 'H', kimde: 'claude', nereden: '7 Ekim',
+  { id: 'ev-dokusu', gece: 2, paket: 'H', kimde: 'claude', nereden: '7 Ekim', bitti: true,
     ad: 'Ev dokusu: ilçelerde evler yarıya, arsalar büyük, çakışma yok, hafif Ege düzensizliği' },
   { id: 'pdfler', gece: 2, paket: 'K', kimde: 'claude', nereden: '7 Ekim',
     ad: 'PDF\'ler: Poppins, Evren Raporu düzeltmesi, oyun PDF\'i, "Yapım Aşaması" açıklaması' },
