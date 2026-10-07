@@ -1735,3 +1735,22 @@ katlanır listede. Plan `src/lib/yolHaritasi.ts`'te; her PR kendi paketini
   "Yeniden diz" ağı baştan dizer; kaydedilene kadar kayda yazılmaz.
 - `src/lib/bagAgi.ts`, `src/components/atolye/BagAgi.tsx`. Görseller:
   `docs/gorseller/bagagi-*.png`.
+
+**5. gece, 2. paket (uygulamada): zaman çizgisi ve dönemler.**
+- Atölye → **Zaman çizgisi** (Kemal'in seçimi: Atölye'de). Her madde bir
+  satır; künyedeki tarih alanları (kuruluş, açılış, yapım, faaliyet,
+  köken…) yıl ekseninde: aralık çubuk, tek tarih nokta, "1954–" ya da
+  "2024 ve sonrası" sağa doğru solan açık uçlu çubuk; "1980'ler",
+  "19. yüzyıl" soluk (yaklaşık). Okunamayan tarih ("Antik") ayrı listede.
+  Tarih uydurulmaz; vikinin "şimdi"si olmadığı için açık uç bir yılda bitmez.
+- Satıra basınca madde açılır (Kemal'in seçimi); tarih maddeden değişir.
+- "Eksen" kutusu çizginin nereden başlayacağını seçer (yalnız ekranda):
+  tek bir eski tarih (Deniz Feneri, 19. yüzyıl) çizgiyi sıkıştırmasın diye.
+- **Dönemler** Kemal'in: ad + başlangıç + (isteğe bağlı) bitiş → "Ekle";
+  `kkm_ayar` → `donemler`. Çizginin arkasında renkli bant; × siler.
+- **Adaylar** (Kemal'in seçimi): yazılarda geçen "… dönemi / döneminde"
+  sözleri (ör. "Köy dönemi · 4 kez"), geçtiği cümleyle. "Bu adla başla"
+  adı forma koyar, yılları Kemal yazar; "Önerme" → `reddedilenDonemler`.
+- `src/lib/zamanCizgisi.ts`, `src/components/atolye/ZamanCizgisi.tsx`;
+  tür renkleri bağ ağıyla ortak (`atolye/turRenkleri.ts`). Görseller:
+  `docs/gorseller/zaman-*.png` ("Deneme dönemi A/B" yalnız önizleme denemesi).

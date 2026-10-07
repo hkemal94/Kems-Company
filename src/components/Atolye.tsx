@@ -11,18 +11,21 @@ import { useHaritaMaddesi } from './duzada/HaritaMaddesi';
 
 /**
  * Atölye (4. gece, 7 Ekim; vvd'den): evrenin çalışma araçları tek bölümde.
- * Harita ve Kurucu (29 Eylül'den beri tek ekran: 2D kur, 3D bak) ve bağ
- * ağı (5. gece); soy ağacı ve tuval geldikleri gece raya eklenir (Kemal:
+ * Harita ve Kurucu (29 Eylül'den beri tek ekran: 2D kur, 3D bak), bağ
+ * ağı ve zaman çizgisi (5. gece); soy ağacı ve tuval geldikleri gece raya eklenir (Kemal:
  * "görünmesin"). Düzada viki ve Evren Raporu olarak kaldı.
  */
 const RAY_BOLUMLERI: RayBolumu[] = [
   { id: 'harita', label: 'Harita ve Kurucu' },
-  { id: 'ag', label: 'Bağ ağı' }
+  { id: 'ag', label: 'Bağ ağı' },
+  { id: 'zaman', label: 'Zaman çizgisi' }
 ];
-export type AtolyeSekmesi = 'harita' | 'ag';
+export type AtolyeSekmesi = 'harita' | 'ag' | 'zaman';
 
 // Bağ ağı (5. gece): sekme açılınca yüklenir
 const BagAgi = lazy(() => import('./atolye/BagAgi').then(m => ({ default: m.BagAgi })));
+// Zaman çizgisi ve dönemler (5. gece)
+const ZamanCizgisi = lazy(() => import('./atolye/ZamanCizgisi').then(m => ({ default: m.ZamanCizgisi })));
 
 // MapLibre haritası ~1 MB'lık bir paket (motor + arazi verisi); 3D'ye geçince indirilir
 const DuzadaHarita = lazy(() =>
@@ -122,6 +125,11 @@ export default function Atolye({ items, onAddItem, onUpdateItem, istek = null, o
       {sekme === 'ag' && (
         <Suspense fallback={<div className="h-48 flex items-center justify-center font-mono text-xs text-[#6A5E4C] dark:text-[#A6B0C9] animate-pulse">Ağ kuruluyor…</div>}>
           <BagAgi items={items} onUpdateItem={onUpdateItem} onAddItem={onAddItem} onMaddeAc={onMaddeAc} />
+        </Suspense>
+      )}
+      {sekme === 'zaman' && (
+        <Suspense fallback={<div className="h-48 flex items-center justify-center font-mono text-xs text-[#6A5E4C] dark:text-[#A6B0C9] animate-pulse">Zaman çizgisi hazırlanıyor…</div>}>
+          <ZamanCizgisi items={items} onUpdateItem={onUpdateItem} onAddItem={onAddItem} onMaddeAc={onMaddeAc} />
         </Suspense>
       )}
 

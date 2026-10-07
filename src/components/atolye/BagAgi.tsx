@@ -3,6 +3,7 @@ import { Link2, LocateFixed, Minus, Plus, RotateCcw, Save, X } from 'lucide-reac
 import type { Item, ItemType } from '../../types';
 import { BAG_TURLERI, type BagTuru } from '../../utils/relations';
 import { TYPE_LABELS, schemaKeyFor, getKunyeFields } from '../wiki/wikiSchema';
+import { TUR_RENGI, TUR_NOKTASI } from './turRenkleri';
 import {
   agKur, bagEkle, diz, kenarAdi, yerlesimKaydi, yerlesimOku,
   type AgKenari, type KenarTuru, type Konum
@@ -23,27 +24,6 @@ interface Props {
   onMaddeAc: (id: string) => void;
 }
 
-/** Tür renkleri: lacivert, kiremit ve yanlarında sakin tonlar (açık / karanlık) */
-const TUR_RENGI: Partial<Record<ItemType, string>> = {
-  yer: 'fill-[#0E1C4F] dark:fill-[#8FA3D9]',
-  'mekân': 'fill-[#F26B6F]', 'dükkân': 'fill-[#F26B6F]',
-  kisi: 'fill-[#2F7D6D] dark:fill-[#5FB3A0]', karakter: 'fill-[#2F7D6D] dark:fill-[#5FB3A0]',
-  aile: 'fill-[#8A5A9E] dark:fill-[#B994C9]',
-  'kulüp': 'fill-[#C99A2E]', marka: 'fill-[#C99A2E]',
-  olay: 'fill-[#3E7CB1] dark:fill-[#7FB0DA]',
-  'ürün': 'fill-[#7A6F5E] dark:fill-[#B5A991]',
-  oda: 'fill-[#A6B0C9] dark:fill-[#56658F]'
-};
-const TUR_NOKTASI: Partial<Record<ItemType, string>> = {
-  yer: 'bg-[#0E1C4F] dark:bg-[#8FA3D9]',
-  'mekân': 'bg-[#F26B6F]', 'dükkân': 'bg-[#F26B6F]',
-  kisi: 'bg-[#2F7D6D] dark:bg-[#5FB3A0]', karakter: 'bg-[#2F7D6D] dark:bg-[#5FB3A0]',
-  aile: 'bg-[#8A5A9E] dark:bg-[#B994C9]',
-  'kulüp': 'bg-[#C99A2E]', marka: 'bg-[#C99A2E]',
-  olay: 'bg-[#3E7CB1] dark:bg-[#7FB0DA]',
-  'ürün': 'bg-[#7A6F5E] dark:bg-[#B5A991]',
-  oda: 'bg-[#A6B0C9] dark:bg-[#56658F]'
-};
 /** Süzgeç çipleri: kişi ve karakter tek çip */
 const CIP_TURLERI: ItemType[] = ['yer', 'mekân', 'dükkân', 'kulüp', 'marka', 'kisi', 'aile', 'olay', 'ürün', 'oda'];
 const turAnahtari = (t: ItemType): ItemType => (t === 'karakter' ? 'kisi' : t);
