@@ -8,6 +8,8 @@ import { WikiGiris } from './WikiGiris';
 import { parseKunye } from './kunyeParser';
 import { WIKI_TYPES, TYPE_LABELS, isStub, mahalleEslesir, eslesmeBasligi } from './wikiSchema';
 import { OYUN_VAKA_IDLERI } from '../../lib/temizlik';
+import { etkinSablon, sablonKaydi, takmaAdlar, type VikiSablonu } from '../../lib/alanSablonu';
+import { AlanSablonlari } from './AlanSablonlari';
 
 interface WikiShellProps {
   items: Item[];
@@ -51,6 +53,8 @@ export const WikiShell: React.FC<WikiShellProps> = ({
   onRaporAc
 }) => {
   const [yeniAcik, setYeniAcik] = useState(false);
+  /** Alan şablonları sayfası (3. gece) */
+  const [sablonAcik, setSablonAcik] = useState(false);
   const [yeniAd, setYeniAd] = useState('');
   const [yeniTur, setYeniTur] = useState<ItemType>('kisi');
   const [internalId, setInternalId] = useState<string | null>(null);
@@ -66,6 +70,7 @@ export const WikiShell: React.FC<WikiShellProps> = ({
    */
   const selectedId = controlledId !== undefined ? controlledId : internalId;
   const navigate = (id: string | null) => {
+    setSablonAcik(false);
     setInternalId(id);
     onSelect?.(id);
   };
@@ -158,6 +163,7 @@ export const WikiShell: React.FC<WikiShellProps> = ({
       .filter(i =>
         needle
           ? i.title.toLocaleLowerCase('tr').includes(needle) ||
+            takmaAdlar(i).some(t => t.toLocaleLowerCase('tr').includes(needle)) ||
             (i.notes || '').toLocaleLowerCase('tr').includes(needle) ||
             i.tags.some(t => t.toLocaleLowerCase('tr').includes(needle))
           : true
@@ -183,6 +189,12 @@ export const WikiShell: React.FC<WikiShellProps> = ({
   }, [wikiItems, items]);
 
   const admin = mode === 'yonetim';
+  /** Şablonu kkm_ayar kaydına yazar (yalnız "Kaydet" ile) */
+  const sablonuYaz = onUpdateItem && onAddItem ? async (sb: VikiSablonu) => {
+    const r = sablonKaydi(items, sb);
+    if (r.guncel) await onUpdateItem(r.guncel);
+    else if (r.yeni) await onAddItem(r.yeni);
+  } : undefined;
   /** Arama yazıldıysa ya da bir tip seçildiyse liste görünümü açılır */
   const listeGorunumu = q.trim().length > 0 || typeFilter !== null;
 
@@ -232,6 +244,16 @@ export const WikiShell: React.FC<WikiShellProps> = ({
             </button>
           )}
 
+          {!readOnly && sablonuYaz && mode === 'yonetim' && (
+            <button
+              type="button"
+              onClick={() => { navigate(null); setSablonAcik(true); }}
+              className="flex items-center gap-1.5 text-[11px] font-mono px-2.5 py-1.5 rounded border border-bej/55 dark:border-lacivert-600/55 hover:bg-bej/15 dark:hover:bg-lacivert-600/30 transition-colors"
+              title="Her türün künyesinde hangi alanlar olacağı"
+            >
+              alan şablonları
+            </button>
+          )}
           {!readOnly && onAddItem && mode === 'yonetim' && (
             <button
               type="button"
@@ -277,7 +299,9 @@ export const WikiShell: React.FC<WikiShellProps> = ({
       </div>
 
       <div className="max-w-5xl mx-auto px-4 py-8">
-        {selected ? (
+        {sablonAcik && sablonuYaz ? (
+          <AlanSablonlari sablon={etkinSablon()} onKaydet={sablonuYaz} onKapat={() => setSablonAcik(false)} />
+        ) : selected ? (
           <WikiArticle
             item={selected}
             allItems={items}
@@ -288,6 +312,7 @@ export const WikiShell: React.FC<WikiShellProps> = ({
             onHaritayaGit={onHaritayaGit}
             onSitede={onSitede}
             onUpdateItem={readOnly ? undefined : onUpdateItem}
+            onSablonYaz={readOnly ? undefined : sablonuYaz}
           />
         ) : (
           <>

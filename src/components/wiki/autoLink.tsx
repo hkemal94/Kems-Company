@@ -1,5 +1,6 @@
 import React from 'react';
 import { Item } from '../../types';
+import { takmaAdlar } from '../../lib/alanSablonu';
 
 /**
  * Otomatik bağlantı motoru.
@@ -46,9 +47,8 @@ export function buildLinkIndex(items: Item[]): LinkIndexEntry[] {
     const title = (item.title || '').trim();
     if (title.length < 3) return; // "01" gibi başlıklar metni kirletir
 
-    const aliases: string[] = Array.isArray(item.metadata?.aliases)
-      ? item.metadata!.aliases.filter((a: unknown): a is string => typeof a === 'string')
-      : [];
+    // Takma adlar ve eski adlar (3. gece, alanSablonu.takmaAdlar)
+    const aliases = takmaAdlar(item);
 
     const names = Array.from(new Set([title, ...aliases]))
       .map(n => n.trim())

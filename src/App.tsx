@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback, lazy, Suspense } from 'react';
+import { sablonuOku, sablonuUygula } from './lib/alanSablonu';
 import { 
   auth, 
   signInWithGoogle,
@@ -621,6 +622,14 @@ export default function App() {
    * "varlık" olanlar. Harita ayarı, kanal kaydı ve günlük not varlık değil —
    * bunlar uygulamanın kendi iç kayıtları.
    */
+  /**
+   * Alan şablonu (3. gece): Kemal'in kkm_ayar kaydındaki şablonu künye
+   * okuyan bütün saf fonksiyonlara verir. Kayıt yoksa başlangıç şablonu.
+   */
+  useMemo(() => {
+    sablonuUygula(sablonuOku(items.find(i => i.type === 'kkm_ayar')?.metadata?.vikiSablonu));
+  }, [items]);
+
   const SAYILMAZ_TIP = new Set(['map_settings', 'channel', 'aday']);
   const varlikSayisi = useMemo(
     () => items.filter(

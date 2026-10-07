@@ -5,6 +5,7 @@ import { DuzadaHarita } from '../harita/DuzadaHarita';
 import type { HaritaDuzeni } from '../harita/duzenTipi';
 import { ATMOSFER_ACIK } from '../harita/atmosfer';
 import { TYPE_LABELS, getKunyeFields, getArticleBody } from '../wiki/wikiSchema';
+import { takmaAdlar } from '../../lib/alanSablonu';
 import { fanzinBilgisi } from '../../lib/studyo';
 import { DergiGorunumu } from '../fanzin/Fanzin';
 
@@ -171,6 +172,7 @@ export const MaddeSayfasi: React.FC<{ madde: Item; onViki: () => void }> = ({ ma
   return (
     <SayfaKabugu ton="krem" ust={TYPE_LABELS[madde.type] || 'Madde'} baslik={madde.title} genis>
       <button type="button" onClick={onViki} className="mb-6 inline-flex items-center gap-1 text-[12px] font-semibold text-[#6A5E4C] hover:text-[#D6484C] cursor-pointer">← Viki</button>
+      {takmaAdlar(madde).length > 0 && <p className="-mt-3 mb-6 text-[14px] text-[#6A5E4C]">Diğer adları: {takmaAdlar(madde).join(', ')}</p>}
       <div className="grid gap-8 lg:grid-cols-[1fr_320px] items-start">
         <article className="space-y-6">
           {govde.length ? govde.map((b, k) => (
