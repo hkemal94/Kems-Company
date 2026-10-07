@@ -1,34 +1,107 @@
 import type { Item } from '../types';
 
 /**
- * Yol haritası (yapisal-4, 39): karar verilmiş ama uygulamada henüz olmayan
- * işler. Belge ile uygulama ayrı (CLAUDE.md, 30 Eylül): burada yalnız
- * "henüz yok" olanlar durur; iş bitince bu listeden silinir.
- * Sıra, kararlaştırılan sıradır; "Sıradaki 3 iş" baştaki açık üçüdür.
+ * Yol haritası: açık işlerin tek yeri (7 Ekim, Kemal: "açık işlerin tek yeri
+ * olsun, ekrandan iş ekleyeyim"). İki kaynak:
  *
+ *   - `YOL_HARITASI` (bu dosya): kararlaştırılan paketler. Her PR kendi
+ *     paketini `bitti: true` yapar; Kemal birleştirince ekranda "bitti" olur.
+ *   - Kemal'in ekrandan eklediği işler: `kkm_ayar` kaydında (`isler`).
+ *
+ * `paket`: H harita · W viki · M marka · K küçük işler.
  * `kimde`: 'claude' → kodla yapılacak; 'kemal' → Kemal'in kararı ya da işi.
+ * `gece`: 7 Ekim planındaki sıra; yoksa "sırası belli değil".
  */
-export interface YolIsi { id: string; ad: string; nereden: string; kimde: 'claude' | 'kemal'; not?: string }
+export type PaketKodu = 'H' | 'W' | 'M' | 'K';
+export const PAKET_ADLARI: Record<PaketKodu, string> = { H: 'Harita', W: 'Viki', M: 'Marka', K: 'Küçük işler' };
+
+export interface YolIsi {
+  id: string; ad: string; paket: PaketKodu; kimde: 'claude' | 'kemal';
+  nereden: string; gece?: number; not?: string; bitti?: boolean;
+  /** Kemal'in ekrandan eklediği iş */
+  kendi?: boolean;
+}
 
 export const YOL_HARITASI: YolIsi[] = [
-  { id: 'teknik-foy', ad: 'Ürünlere teknik föy (tech pack): ölçü tablosu, malzeme, renk, etiket', nereden: '1 Ekim', kimde: 'kemal', not: 'Kemal isterse; 3B stüdyo kaldırıldı (1 Ekim gece).' },
-  { id: 'atolyeler', ad: '"Atölyeler" bölümü (Kurucu vb. tek yerde)', nereden: 'yapisal-5', kimde: 'kemal', not: 'Sonra karar (1 Ekim).' },
-  { id: 'yardimci', ad: 'Yardımcı erişimi: düzenler ama silemez', nereden: 'yapisal-2, 26', kimde: 'claude', not: 'İhtiyaç olunca.' },
-  { id: 'buffer', ad: 'Sosyal medyada Buffer bağlantısı (ücretli plan)', nereden: '1 Ekim', kimde: 'kemal', not: 'Kemal planı alınca bağlantı kurulur.' },
-  { id: 'site-ingilizce', ad: 'Sitenin İngilizcesi', nereden: 'yapisal-4, 19', kimde: 'claude', not: 'Yayından sonra.' },
-  { id: 'site-adres', ad: 'Kendi adrese taşıma (kems.company)', nereden: 'yapisal-2, 1', kimde: 'kemal', not: 'Şimdilik Google\'da (1 Ekim).' },
-  { id: 'magaza', ad: 'Mağaza: Shopify (sitedeki Dükkân bağlanır)', nereden: '1 Ekim', kimde: 'claude', not: 'Karar verildi; sırası gelince.' },
-  { id: 'ikinci-drop', ad: 'İkinci drop', nereden: 'yapisal-2, 9', kimde: 'kemal', not: 'Henüz erken (1 Ekim).' },
-  { id: 'sokak-adlari', ad: 'Sokak adları (şimdilik numara)', nereden: 'yapisal-2, 21', kimde: 'kemal' },
-  { id: 'kitap', ad: 'Kitap', nereden: 'yapisal-2, 29', kimde: 'kemal', not: 'Bekliyor (1 Ekim).' },
-  { id: 'metin-soru-turu', ad: 'Mahalle Tarihçeleri, Merkez Çarşı, Liman Deniz Feneri, Stadyum Dirlik Stadı: iskeletten stüdyo taslağı', nereden: '1 Ekim', kimde: 'kemal', not: 'Yapay zekâ → Mahalle metinleri: tek basışta 8 öneri; Kemal düzeltip ekler.' },
-  { id: 'dirlik-forma', ad: 'Dirlik forması: Merch\'te Dirlik kurumu altında Konsept ürün', nereden: '1 Ekim', kimde: 'kemal' },
-  { id: 'ciftlik-yeri', ad: 'Küçükçetmi Çiftliği\'ni Kurucuda yerleştirmek (yol temizliğinden sonra)', nereden: '1 Ekim', kimde: 'kemal' },
-  { id: 'ibareler', ad: 'İngilizce / Türkçe ibareler', nereden: 'yapisal-2, 14', kimde: 'kemal', not: 'Sonra (1 Ekim).' },
+  // 1. gece
+  { id: 'yol-haritasi-ekrani', gece: 1, paket: 'K', kimde: 'claude', nereden: '7 Ekim', bitti: true,
+    ad: 'Yol haritası: açık işlerin tek yeri, ekrandan iş ekleme' },
+  { id: 'gezinme-menu', gece: 1, paket: 'K', kimde: 'claude', nereden: '7 Ekim',
+    ad: 'Gezinme ve menü: geri tuşu ve ok, alt çubukta 4 düğme, menü birleştirmeleri, Durum yüzdesi → madde listesi' },
+  { id: 'otel-teras', gece: 1, paket: 'H', kimde: 'claude', nereden: '7 Ekim',
+    ad: 'Otel: uçurum kenarında ince seyir terası (gerekirse kaide), bahçenin altından geçen yol' },
+  // 2. gece
+  { id: 'viki-temizligi', gece: 2, paket: 'W', kimde: 'claude', nereden: '7 Ekim',
+    ad: 'Viki temizliği: mahalle adlarındaki parantezler, simülasyon günleri, sosyal medya kartları, uydurma sokak adları' },
+  { id: 'ev-dokusu', gece: 2, paket: 'H', kimde: 'claude', nereden: '7 Ekim',
+    ad: 'Ev dokusu: ilçelerde evler yarıya, arsalar büyük, çakışma yok, hafif Ege düzensizliği' },
+  { id: 'pdfler', gece: 2, paket: 'K', kimde: 'claude', nereden: '7 Ekim',
+    ad: 'PDF\'ler: Poppins, Evren Raporu düzeltmesi, oyun PDF\'i, "Yapım Aşaması" açıklaması' },
+  // 3. gece
+  { id: 'alan-sablonlari', gece: 3, paket: 'W', kimde: 'claude', nereden: '7 Ekim · vvd',
+    ad: 'Alan şablonları, maddeler arası bağlar, takma adlar' },
+  { id: 'yeni-dokular', gece: 3, paket: 'H', kimde: 'claude', nereden: '7 Ekim',
+    ad: 'Mahalle doldur\'a 4 doku: balıkçı köyü, yamaç teras, sahil şeridi, zeytinlik evleri' },
+  { id: 'boyut-hiz', gece: 3, paket: 'K', kimde: 'claude', nereden: '7 Ekim',
+    ad: 'Boyut ve hız sayfası: kayıt boyutları, uygulama parçaları, açılış hızı' },
+  // 4. gece
+  { id: 'madde-onerileri', gece: 4, paket: 'W', kimde: 'claude', nereden: '7 Ekim',
+    ad: 'Künyeden ve yazılarından madde önerileri; vikide metinde anılanı tanıma' },
+  { id: 'ust-alt-tablo', gece: 4, paket: 'W', kimde: 'claude', nereden: '7 Ekim · vvd',
+    ad: 'Üst–alt madde, sabitleme, maddeler tablo olarak' },
+  { id: 'atolye', gece: 4, paket: 'K', kimde: 'claude', nereden: '7 Ekim · vvd',
+    ad: 'Atölye bölümü: Harita ve Kurucu birlikte' },
+  // 5. gece
+  { id: 'bag-agi', gece: 5, paket: 'W', kimde: 'claude', nereden: '7 Ekim · vvd', ad: 'Bağ ağı' },
+  { id: 'zaman-cizgisi', gece: 5, paket: 'W', kimde: 'claude', nereden: '7 Ekim · vvd', ad: 'Evren zaman çizgisi ve dönemler' },
+  { id: 'harita-isaretleri', gece: 5, paket: 'H', kimde: 'claude', nereden: '7 Ekim · vvd',
+    ad: 'Harita: katmanları aç/kapa, serbest not işareti, maddeyi sürükle-bırak' },
+  // 6. gece
+  { id: 'soy-agaci', gece: 6, paket: 'W', kimde: 'claude', nereden: '7 Ekim · vvd',
+    ad: 'Soy ağacı: aile, iş, arkadaşlık ve rekabet; dönem sürümleri' },
+  { id: 'tuval', gece: 6, paket: 'K', kimde: 'claude', nereden: '7 Ekim · vvd',
+    ad: 'Tuval: mahalle esini, drop panosu, kitap planı' },
+  { id: 'alan-gizleme', gece: 6, paket: 'W', kimde: 'claude', nereden: '7 Ekim · vvd',
+    ad: 'Sitede alan bazında gizleme' },
+  // 7. gece
+  { id: 'yazim', gece: 7, paket: 'W', kimde: 'claude', nereden: '7 Ekim · vvd',
+    ad: 'Yazım: kitap ve fanzinde metinde tanıma, yazarken yan panel' },
+  { id: 'kitap-disa', gece: 7, paket: 'K', kimde: 'claude', nereden: '7 Ekim · vvd',
+    ad: 'Kitabı PDF ve EPUB olarak indirme' },
+  // sırası belli değil
+  { id: 'teknik-foy', paket: 'M', ad: 'Ürünlere teknik föy (tech pack): ölçü tablosu, malzeme, renk, etiket', nereden: '1 Ekim', kimde: 'kemal', not: 'Kemal isterse; 3B stüdyo kaldırıldı (1 Ekim gece).' },
+  { id: 'yardimci', paket: 'K', ad: 'Yardımcı erişimi: düzenler ama silemez', nereden: 'yapisal-2, 26', kimde: 'claude', not: 'İhtiyaç olunca.' },
+  { id: 'buffer', paket: 'M', ad: 'Sosyal medyada Buffer bağlantısı (ücretli plan)', nereden: '1 Ekim', kimde: 'kemal', not: 'Kemal planı alınca bağlantı kurulur.' },
+  { id: 'site-ingilizce', paket: 'K', ad: 'Sitenin İngilizcesi', nereden: 'yapisal-4, 19', kimde: 'claude', not: 'Yayından sonra.' },
+  { id: 'site-adres', paket: 'K', ad: 'Kendi adrese taşıma (kems.company)', nereden: 'yapisal-2, 1', kimde: 'kemal', not: 'Şimdilik Google\'da (1 Ekim).' },
+  { id: 'magaza', paket: 'M', ad: 'Mağaza: Shopify (sitedeki Dükkân bağlanır)', nereden: '1 Ekim', kimde: 'claude', not: 'Karar verildi; sırası gelince.' },
+  { id: 'ikinci-drop', paket: 'M', ad: 'İkinci drop', nereden: 'yapisal-2, 9', kimde: 'kemal', not: 'Henüz erken (1 Ekim).' },
+  { id: 'sokak-adlari', paket: 'H', ad: 'Sokak adları (şimdilik numara)', nereden: 'yapisal-2, 21', kimde: 'kemal' },
+  { id: 'kitap', paket: 'W', ad: 'Kitap', nereden: 'yapisal-2, 29', kimde: 'kemal', not: 'Bekliyor (1 Ekim).' },
+  { id: 'metin-soru-turu', paket: 'W', ad: 'Mahalle Tarihçeleri, Merkez Çarşı, Liman Deniz Feneri, Stadyum Dirlik Stadı: iskeletten stüdyo taslağı', nereden: '1 Ekim', kimde: 'kemal', not: 'Yapay zekâ → Mahalle metinleri: tek basışta 8 öneri; Kemal düzeltip ekler.' },
+  { id: 'dirlik-forma', paket: 'M', ad: 'Dirlik forması: Merch\'te Dirlik kurumu altında Konsept ürün', nereden: '1 Ekim', kimde: 'kemal' },
+  { id: 'ciftlik-yeri', paket: 'H', ad: 'Küçükçetmi Çiftliği\'ni Kurucuda yerleştirmek (yol temizliğinden sonra)', nereden: '1 Ekim', kimde: 'kemal' },
+  { id: 'ibareler', paket: 'M', ad: 'İngilizce / Türkçe ibareler', nereden: 'yapisal-2, 14', kimde: 'kemal', not: 'Sonra (1 Ekim).' },
 ];
 
-/** Kemal'in "yapıldı" dediği işler (KKM ayarında) düşer */
-export const acikIsler = (bitenler: string[]) => YOL_HARITASI.filter(i => !bitenler.includes(i.id));
+/** Kemal'in ekrandan eklediği iş (kkm_ayar → isler) */
+export interface KendiIsi { id: string; ad: string; paket: PaketKodu; kimde: 'claude' | 'kemal'; eklendi: number; not?: string }
+
+/** Bütün işler: plan + Kemal'in ekledikleri; bitenler işaretli */
+export function butunIsler(a: KkmAyari): YolIsi[] {
+  const kendi: YolIsi[] = a.isler.map(i => ({
+    id: i.id, ad: i.ad, paket: i.paket, kimde: i.kimde, kendi: true,
+    nereden: new Date(i.eklendi).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' }),
+    ...(i.not ? { not: i.not } : {})
+  }));
+  return [...YOL_HARITASI, ...kendi].map(i => (a.bitenler.includes(i.id) ? { ...i, bitti: true } : i));
+}
+
+/** Açık işler, sırayla: önce gecesi olanlar, sonra gerisi */
+export const acikIsler = (a: KkmAyari) => {
+  const acik = butunIsler(a).filter(i => !i.bitti);
+  return [...acik.filter(i => i.gece).sort((x, y) => x.gece! - y.gece!), ...acik.filter(i => !i.gece)];
+};
 
 // ---------------------------------------------------------------- KKM ayarı
 
@@ -39,18 +112,26 @@ export interface KkmAyari {
   hedefler: Record<string, number>;
   /** Yol haritasında Kemal'in "tamam" dediği işler */
   bitenler: string[];
+  /** Kemal'in ekrandan eklediği işler */
+  isler: KendiIsi[];
 }
 
 export const kkmKaydi = (items: Item[]) => items.find(i => i.type === KKM_AYAR_TURU) || null;
 export const kkmAyari = (items: Item[]): KkmAyari => {
   const m = (kkmKaydi(items)?.metadata || {}) as Partial<KkmAyari>;
-  return { hedefler: { ...(m.hedefler || {}) }, bitenler: Array.isArray(m.bitenler) ? m.bitenler : [] };
+  return {
+    hedefler: { ...(m.hedefler || {}) },
+    bitenler: Array.isArray(m.bitenler) ? m.bitenler : [],
+    isler: Array.isArray(m.isler) ? m.isler : []
+  };
 };
 
 type YeniKayit = Omit<Item, 'id' | 'createdAt' | 'updatedAt' | 'userId'>;
 export function kkmAyariniYaz(items: Item[], a: KkmAyari): { guncel?: Item; yeni?: YeniKayit } {
   const k = kkmKaydi(items);
-  const metadata = { hedefler: a.hedefler, bitenler: a.bitenler };
+  // Firestore undefined kabul etmez: boş not alanı kayda girmez
+  const isler = a.isler.map(i => ({ id: i.id, ad: i.ad, paket: i.paket, kimde: i.kimde, eklendi: i.eklendi, ...(i.not ? { not: i.not } : {}) }));
+  const metadata = { hedefler: a.hedefler, bitenler: a.bitenler, isler };
   if (k) return { guncel: { ...k, metadata: { ...(k.metadata || {}), ...metadata }, updatedAt: Date.now() } };
   return {
     yeni: {
@@ -89,7 +170,7 @@ export function haftalikOzet(items: Item[], simdi = Date.now()): { konu: string;
     `• Öneri tepsisinde bekleyen: ${bekleyen}`,
     '',
     'Açık işler (yol haritası, ilk üç):',
-    ...acikIsler(kkmAyari(items).bitenler).slice(0, 3).map(i => `• ${i.ad}`)
+    ...acikIsler(kkmAyari(items)).slice(0, 3).map(i => `• ${i.ad}`)
   ].filter(s => s !== '').join('\n');
   return { konu: `KKM haftalık özet · ${tarih}`, metin };
 }

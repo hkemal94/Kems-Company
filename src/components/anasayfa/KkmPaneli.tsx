@@ -1,16 +1,17 @@
 import React, { useMemo, useState } from 'react';
-import { Check, Mail, Save } from 'lucide-react';
+import { Mail, Save } from 'lucide-react';
 import type { Item } from '../../types';
 import type { DurumOranlari } from '../../lib/durumOranlari';
 import { yuzde } from '../../lib/durumOranlari';
-import { YOL_HARITASI, acikIsler, gmailBaglantisi, haftalikOzet, kkmAyari, kkmAyariniYaz, type KkmAyari } from '../../lib/yolHaritasi';
+import { acikIsler, gmailBaglantisi, haftalikOzet, kkmAyari, kkmAyariniYaz, type KkmAyari } from '../../lib/yolHaritasi';
 import { DUGME_BOS, DUGME_LAC, ETIKET, IKINCIL, KART, YAZI } from './stil';
+import { YolHaritasiListesi } from './YolHaritasiListesi';
 
 /**
  * Durum'un üst kısmı (yapisal-4, 39 ve küçükler):
  *   - Sıradaki 3 iş: yol haritasının baştaki açık üçü
  *   - Hedefler: her yüzde için Kemal'in hedefi (kaydedince durur)
- *   - Yol haritası: karar verilmiş, uygulamada henüz olmayan işler
+ *   - Yol haritası: açık işlerin tek yeri (YolHaritasiListesi)
  *   - Haftalık özet: Kemal'in Gmail'inde hazır ileti
  */
 
@@ -26,7 +27,7 @@ export const KkmPaneli: React.FC<Props> = ({ items, oranlar: o, eposta, onUpdate
   const kayitli = useMemo(() => kkmAyari(items), [items]);
   const [hedef, setHedef] = useState<Record<string, number>>(kayitli.hedefler);
   const [ozetAcik, setOzetAcik] = useState(false);
-  const acik = acikIsler(kayitli.bitenler);
+  const acik = useMemo(() => acikIsler(kayitli), [kayitli]);
 
   const yaz = async (a: KkmAyari) => {
     const s = kkmAyariniYaz(items, a);
@@ -51,7 +52,7 @@ export const KkmPaneli: React.FC<Props> = ({ items, oranlar: o, eposta, onUpdate
           {acik.slice(0, 3).map((i, n) => (
             <li key={i.id} className="flex gap-2">
               <b className="font-mono text-[#F26B6F] text-[13px]">{n + 1}</b>
-              <span className={`text-[13px] leading-snug ${YAZI}`}>{i.ad}<span className={`block text-[11px] ${IKINCIL}`}>{i.kimde === 'kemal' ? 'senin kararın' : 'kodla yapılacak'} · {i.nereden}</span></span>
+              <span className={`text-[13px] leading-snug ${YAZI}`}>{i.ad}<span className={`block text-[11px] ${IKINCIL}`}>{i.paket} · {i.gece ? `${i.gece}. gece` : i.nereden} · {i.kimde === 'kemal' ? 'senden' : "Claude'dan"}</span></span>
             </li>
           ))}
           {acik.length === 0 && <li className={`text-[12px] ${IKINCIL}`}>Yol haritası boş.</li>}
@@ -102,26 +103,7 @@ export const KkmPaneli: React.FC<Props> = ({ items, oranlar: o, eposta, onUpdate
         {ozetAcik && <pre className={`mt-2 max-h-56 overflow-y-auto whitespace-pre-wrap text-[11px] leading-relaxed font-sans rounded-lg bg-white dark:bg-[#17345A] p-2 ${YAZI}`}>{ozet.metin}</pre>}
       </section>
 
-      <section id="yol-haritasi" className={`${KART} p-4 lg:col-span-3 scroll-mt-24`}>
-        <div className="flex items-center justify-between">
-          <div className={ETIKET}>Yol haritası · karar verildi, uygulamada henüz yok</div>
-          <span className={`text-[11px] ${IKINCIL}`}>{acik.length}/{YOL_HARITASI.length} açık</span>
-        </div>
-        <ul className="mt-2 divide-y divide-[#E4DCCD] dark:divide-[#2C3C72]">
-          {acik.map(i => (
-            <li key={i.id} className="py-2 flex items-start gap-3">
-              <span className={`mt-0.5 shrink-0 px-1.5 py-0.5 rounded text-[9px] font-mono font-bold tracking-wider ${i.kimde === 'kemal' ? 'bg-[#F26B6F]/15 text-[#D6484C]' : 'bg-[#0E1C4F]/10 text-[#0E1C4F] dark:bg-[#2C3C72] dark:text-[#F3EFE8]'}`}>{i.kimde === 'kemal' ? 'SEN' : 'KOD'}</span>
-              <span className="flex-1 min-w-0">
-                <span className={`block text-[13px] ${YAZI}`}>{i.ad}</span>
-                <span className={`block text-[11px] ${IKINCIL}`}>{i.nereden}{i.not ? ` · ${i.not}` : ''}</span>
-              </span>
-              <button type="button" title="Bitti olarak işaretle" onClick={() => void yaz({ ...kayitli, bitenler: [...kayitli.bitenler, i.id] })} className={`${DUGME_BOS} inline-flex items-center gap-1 shrink-0`}>
-                <Check className="w-3 h-3" /> tamam
-              </button>
-            </li>
-          ))}
-        </ul>
-      </section>
+      <YolHaritasiListesi ayar={kayitli} yaz={yaz} />
     </div>
   );
 };
