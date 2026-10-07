@@ -32,6 +32,8 @@ export const DEFAULT_QUESTIONS_BY_CAT: Record<string, KunyeSorusu[]> = {
     { id: 'region', label: 'Mahalle', question: 'Hangi mahallede yaşar?', fieldPath: 'metadata.region' },
     { id: 'workplace', label: 'Çalıştığı yer', question: 'Hangi mekânda ya da kurumda çalışır?', fieldPath: 'metadata.profile.workplace' },
     { id: 'origin', label: 'Köken', question: 'Adalı mı, sonradan mı geldi? Nereden?', fieldPath: 'metadata.profile.origin', esAdlar: ['Nereli', 'Uyruk'] },
+    // Soy ağacı (6. gece): o yılda yaşayanlar süzülür
+    { id: 'yasam', label: 'Yaşam', question: 'Hangi yıllar arasında yaşadı? (aralık olarak: 1920–1987)', fieldPath: 'metadata.profile.yasam' },
     // Kişi ↔ Aile (yapisal-4, 26): aile sayfasında üyeler buradan listelenir
     { id: 'aile', label: 'Aile', question: 'Hangi aileden?', fieldPath: 'metadata.profile.aile' }
   ],

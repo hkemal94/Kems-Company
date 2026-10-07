@@ -32,6 +32,8 @@ interface DuzadaProps {
   istek?: { sekme: DuzadaSekmesi; n: number } | null;
   /** "Haritada gör": Atölye'deki Harita ve Kurucu */
   onAtolye: () => void;
+  /** Aile maddesinden "Soy ağacında aç" (6. gece) */
+  onSoyAgaci?: (aileId: string) => void;
 }
 
 export default function Duzada({
@@ -41,7 +43,8 @@ export default function Duzada({
   onUpdateItem,
   onAddItem,
   istek = null,
-  onAtolye
+  onAtolye,
+  onSoyAgaci
 }: DuzadaProps) {
   const [activeTab, setActiveTab] = useState<DuzadaSekmesi>(istek?.sekme ?? 'wiki');
   useEffect(() => { if (istek) setActiveTab(istek.sekme); }, [istek?.n]);
@@ -75,6 +78,7 @@ export default function Duzada({
             onSelectItem(id);
           }}
           onHaritayaGit={onAtolye}
+          onSoyAgaci={onSoyAgaci}
           onUpdateItem={onUpdateItem}
           onAddItem={onAddItem}
           onRaporAc={() => setActiveTab('rapor')}

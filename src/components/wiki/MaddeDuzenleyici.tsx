@@ -30,7 +30,16 @@ interface Props {
   onKapat: () => void;
 }
 
-interface Bag { targetId: string; type: BagTuru; isProposal?: boolean; reason?: string }
+interface Bag { targetId: string; type: BagTuru; isProposal?: boolean; reason?: string; bas?: number; bit?: number; /** ekranda yazılan yıllar ("1950–1975") */ yil?: string }
+
+/** Bağın yılları (6. gece): "1950–1975", "1950–" (açık uçlu) ya da "1950" */
+const bagYili = (b: Bag) => (typeof b.bas === 'number' ? `${b.bas}–${typeof b.bit === 'number' ? b.bit : ''}` : '');
+function yilOku(s: string): { bas?: number; bit?: number } {
+  const m = s.trim().match(/^(\d{3,4})\s*(?:[–—-]\s*(\d{3,4})?)?$/);
+  if (!m) return {};
+  const bas = Number(m[1]), bit = m[2] ? Number(m[2]) : undefined;
+  return bit !== undefined && bit >= bas ? { bas, bit } : { bas };
+}
 
 const yolOku = (item: Item, yol: string): string => {
   const v = yol.split('.').reduce<unknown>((o, k) => (o && typeof o === 'object' ? (o as Record<string, unknown>)[k] : undefined), item);
@@ -130,6 +139,9 @@ export const MaddeDuzenleyici: React.FC<Props> = ({ item, allItems, onKaydet, on
         const o: Record<string, unknown> = { targetId: b.targetId, type: b.type };
         if (b.isProposal) o.isProposal = true;
         if (b.reason) o.reason = b.reason;
+        const y = b.yil !== undefined ? yilOku(b.yil) : { bas: b.bas, bit: b.bit };
+        if (typeof y.bas === 'number') o.bas = y.bas;
+        if (typeof y.bit === 'number') o.bit = y.bit;
         return o;
       });
       metadata.esin = esin.trim();
@@ -263,6 +275,9 @@ export const MaddeDuzenleyici: React.FC<Props> = ({ item, allItems, onKaydet, on
                   {BAG_TURLERI.map(t => <option key={t.id} value={t.id}>{t.ad}</option>)}
                 </select>
                 <span className="flex-1 min-w-0 truncate">{h?.title || 'silinmiş madde'}{b.isProposal ? ' · öneri' : ''}</span>
+                <input value={b.yil ?? bagYili(b)} onChange={e => setBaglar(bs => bs.map((x, k) => (k === n ? { ...x, yil: e.target.value } : x)))}
+                  placeholder="yıllar" aria-label="Bağın yılları" title="İsteğe bağlı: 1950–1975 ya da 1950– (sürüyor)"
+                  className={`${secim} w-28 ${b.yil && b.yil.trim() && yilOku(b.yil).bas === undefined ? 'border-kiremit' : ''}`} />
                 <button type="button" aria-label="Bağı kaldır" onClick={() => setBaglar(bs => bs.filter((_, k) => k !== n))} className="p-1 text-gri hover:text-kiremit"><Trash2 size={14} /></button>
               </li>
             );

@@ -31,7 +31,8 @@ const turAnahtari = (t: ItemType): ItemType => (t === 'karakter' ? 'kisi' : t);
 /** Bağ türü → çizgi biçimi */
 const CIZGI: Record<KenarTuru, string> = {
   'bulunduğu yer': '', sahibi: '', 'çalışanı': '', 'üyesi': '', 'akrabası': '',
-  'ait olduğu marka': '', 'ilgili olay': '6 4', 'tanıdığı kişi': '6 4', 'genel bağlantı': '2 4', 'künye': '1 3'
+  'ait olduğu marka': '', 'ilgili olay': '6 4', 'tanıdığı kişi': '6 4', 'genel bağlantı': '2 4', 'künye': '1 3',
+  ebeveyni: '', 'eşi': '', 'kardeşi': '', patronu: '', 'iş ortağı': '', 'arkadaşı': '6 4', rakibi: '6 4'
 };
 const KENAR_TURLERI: KenarTuru[] = [...BAG_TURLERI.map(b => b.id), 'künye'];
 

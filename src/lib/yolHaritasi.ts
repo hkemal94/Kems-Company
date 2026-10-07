@@ -57,7 +57,7 @@ export const YOL_HARITASI: YolIsi[] = [
   { id: 'harita-isaretleri', gece: 5, paket: 'H', kimde: 'claude', nereden: '7 Ekim · vvd', bitti: true,
     ad: 'Harita: katmanları aç/kapa, serbest not işareti, maddeyi sürükle-bırak' },
   // 6. gece
-  { id: 'soy-agaci', gece: 6, paket: 'W', kimde: 'claude', nereden: '7 Ekim · vvd',
+  { id: 'soy-agaci', gece: 6, paket: 'W', kimde: 'claude', nereden: '7 Ekim · vvd', bitti: true,
     ad: 'Soy ağacı: aile, iş, arkadaşlık ve rekabet; dönem sürümleri' },
   { id: 'tuval', gece: 6, paket: 'K', kimde: 'claude', nereden: '7 Ekim · vvd',
     ad: 'Tuval: mahalle esini, drop panosu, kitap planı' },

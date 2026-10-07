@@ -141,7 +141,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<Sayfa>('komuta');
   /** Paket 4: alt sekmeye doğrudan gitme istekleri (telefonda Harita, Kurucu, Kitap) */
   const [duzadaIstek, setDuzadaIstek] = useState<{ sekme: DuzadaSekmesi; n: number } | null>(null);
-  const [atolyeIstek, setAtolyeIstek] = useState<{ sekme: AtolyeSekmesi; n: number } | null>(null);
+  const [atolyeIstek, setAtolyeIstek] = useState<{ sekme: AtolyeSekmesi; n: number; aile?: string } | null>(null);
   const [yaziIstek, setYaziIstek] = useState<{ sekme: 'blog' | 'kitap' | 'fanzin'; n: number } | null>(null);
   /** Neyin Eksik sayfası açılırken açık gelecek başlık */
   const [eksikAcik, setEksikAcik] = useState<string | null>(null);
@@ -676,6 +676,7 @@ export default function App() {
       case 'harita': case 'kurucu': case 'atolye': setAtolyeIstek({ sekme: 'harita', n }); setActiveTab('atolye'); break;
       case 'bagagi': setAtolyeIstek({ sekme: 'ag', n }); setActiveTab('atolye'); break;
       case 'zaman': setAtolyeIstek({ sekme: 'zaman', n }); setActiveTab('atolye'); break;
+      case 'soyagaci': setAtolyeIstek({ sekme: 'soy', n, ...(ayrinti ? { aile: ayrinti } : {}) }); setActiveTab('atolye'); break;
       case 'viki': case 'kunye': case 'duzada': setDuzadaIstek({ sekme: 'wiki', n }); setActiveTab('duzada'); break;
       case 'kitap': setYaziIstek({ sekme: 'kitap', n }); setActiveTab('yazi'); break;
       case 'blog': setYaziIstek({ sekme: 'blog', n }); setActiveTab('yazi'); break;
@@ -912,7 +913,7 @@ export default function App() {
     ] },
     { grup: 'Evren', satirlar: [
       { id: 'duzada', ad: 'Düzada', alt: 'viki ve Evren Raporu', simge: Compass, nokta: bildirimVar('kanon') },
-      { id: 'atolye', ad: 'Atölye', alt: 'harita, bağ ağı, zaman çizgisi', simge: Hammer },
+      { id: 'atolye', ad: 'Atölye', alt: 'harita, bağ ağı, zaman, soy ağacı', simge: Hammer },
       { id: 'yazi', ad: 'Yazı', alt: 'kitap, blog, fanzin', simge: PenTool },
       { id: 'oyun', ad: 'Oyun', simge: Gamepad2 }
     ] },
@@ -939,7 +940,7 @@ export default function App() {
    */
   const DIGER: Array<{ grup: string; satirlar: Array<{ hedef: string; ad: string; alt?: string; simge: React.ElementType; nokta?: boolean }> }> = [
     { grup: 'Evren', satirlar: [
-      { hedef: 'atolye', ad: 'Atölye', alt: 'harita, bağ ağı, zaman çizgisi', simge: Hammer },
+      { hedef: 'atolye', ad: 'Atölye', alt: 'harita, bağ ağı, zaman, soy ağacı', simge: Hammer },
       { hedef: 'yazi', ad: 'Yazı', alt: 'kitap, blog, fanzin', simge: PenTool },
       { hedef: 'oyun', ad: 'Oyun', simge: Gamepad2 }
     ] },
@@ -1215,6 +1216,7 @@ export default function App() {
                 onAddItem={handleAddItem}
                 istek={duzadaIstek}
                 onAtolye={() => git('atolye')}
+                onSoyAgaci={aileId => git('soyagaci', aileId)}
               />
             )}
 
