@@ -109,9 +109,14 @@ def _duzle(Z, S):
     du = np.maximum(S["ileri_min"] - u, u - S["ileri_max"])
     dv = np.abs(v) - S["yan_yari"]
     dis = np.hypot(np.maximum(du, 0.0), np.maximum(dv, 0.0))
+    # Ön yüzde ayrı, kısa etek (7 Ekim, otelin seyir terası): sahanlık denize
+    # doğru uzun bir dolguyla kaymasın, dik bir kaide duvarıyla insin
+    etek = np.full_like(dis, float(S["etek"]))
+    if "etek_on" in S:
+        etek = np.where(u > S["ileri_max"], float(S["etek_on"]), etek)
     # Seki yalnızca KARADA geçerli ve kıyıya da taşmıyor: yoksa etek denizin
     # üstünü de 59 metreye kaldırıyor ve teras havada bir çıkma gibi duruyordu.
-    a = np.clip(1.0 - dis / S["etek"], 0.0, 1.0) ** 2
+    a = np.clip(1.0 - dis / etek, 0.0, 1.0) ** 2
     a = a * kara_mi * np.clip((kiyiya - 6.0) / 18.0, 0.0, 1.0)
     return Z * (1.0 - a) + S["kot"] * a
 
