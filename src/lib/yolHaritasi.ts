@@ -66,7 +66,7 @@ export const YOL_HARITASI: YolIsi[] = [
   // 7. gece (8 Ekim, Kemal: "bunu ilk pakete hazırla")
   { id: 'yer-kartlari', gece: 7, paket: 'W', kimde: 'claude', nereden: '8 Ekim', bitti: true,
     ad: 'Yer kartları (cadde, meydan, yer adı, ada), Düzada ve çevre yolu maddeleri, tekrar eden tarihçe ve mahalle bilgilerinin derlenmesi' },
-  { id: 'yer-soru-turu', gece: 7, paket: 'W', kimde: 'kemal', nereden: '8 Ekim',
+  { id: 'yer-soru-turu', gece: 7, paket: 'W', kimde: 'claude', nereden: '8 Ekim', bitti: true,
     ad: 'Soru turu: yeni kartların (ve Kişi\'nin) künye alanları, bölüm başlıkları, mahalle bölüm sırası' },
   { id: 'yazim', gece: 7, paket: 'W', kimde: 'claude', nereden: '7 Ekim · vvd',
     ad: 'Yazım: kitap ve fanzinde metinde tanıma, yazarken yan panel' },

@@ -35,7 +35,9 @@ export const DEFAULT_QUESTIONS_BY_CAT: Record<string, KunyeSorusu[]> = {
     // Soy ağacı (6. gece): o yılda yaşayanlar süzülür
     { id: 'yasam', label: 'Yaşam', question: 'Hangi yıllar arasında yaşadı? (aralık olarak: 1920–1987)', fieldPath: 'metadata.profile.yasam' },
     // Kişi ↔ Aile (yapisal-4, 26): aile sayfasında üyeler buradan listelenir
-    { id: 'aile', label: 'Aile', question: 'Hangi aileden?', fieldPath: 'metadata.profile.aile' }
+    { id: 'aile', label: 'Aile', question: 'Hangi aileden?', fieldPath: 'metadata.profile.aile' },
+    // Soru turu (8 Ekim): evi bir cadde ya da meydana bağlanabilir
+    { id: 'evi', label: 'Evi', question: 'Hangi evde, hangi sokakta oturur?', fieldPath: 'metadata.profile.evi' }
   ],
   // Aile (yapisal-2, 19; yapisal-4, 26–27). Üyeler kişilerin "Aile" alanından gelir.
   aile: [
@@ -93,27 +95,25 @@ export const DEFAULT_QUESTIONS_BY_CAT: Record<string, KunyeSorusu[]> = {
     { id: 'landmarks', label: 'Simgeler', question: 'Mahallenin simge yapıları neler?', fieldPath: 'metadata.profile.landmarks' },
     { id: 'sakinler', label: 'Sakinler', question: 'Kimler yaşar?', fieldPath: 'metadata.profile.sakinler' }
   ],
-  // Yeni yer kartları (8 Ekim). Alanlar başlangıç önerisi; soru turunda Kemal belirler.
+  // Yeni yer kartları (8 Ekim). Alanlar Kemal'in soru turundaki seçimi.
   cadde: [
     { id: 'title', label: 'Ad', question: 'Caddenin ya da sokağın adı.', fieldPath: 'title' },
     { id: 'notes', label: 'Tarihçe', question: 'Caddenin tarihçesi (sayfa metni).', fieldPath: 'notes' },
-    { id: 'region', label: 'Mahalle', question: 'Hangi mahallelerden geçer?', fieldPath: 'metadata.region' },
-    { id: 'uclar', label: 'Nereden nereye', question: 'Nerede başlar, nerede biter?', fieldPath: 'metadata.profile.uclar' },
+    { id: 'region', label: 'Mahalleler', question: 'Hangi mahallelerden geçer?', fieldPath: 'metadata.region' },
     { id: 'uzerindekiler', label: 'Üstündekiler', question: 'Üstünde hangi mekânlar var?', fieldPath: 'metadata.profile.uzerindekiler' }
   ],
   meydan: [
     { id: 'title', label: 'Ad', question: 'Meydanın adı.', fieldPath: 'title' },
     { id: 'notes', label: 'Tarihçe', question: 'Meydanın tarihçesi (sayfa metni).', fieldPath: 'notes' },
     { id: 'region', label: 'Mahalle', question: 'Hangi mahallede?', fieldPath: 'metadata.region' },
-    { id: 'cevresi', label: 'Çevresindekiler', question: 'Çevresinde hangi yapılar var?', fieldPath: 'metadata.profile.cevresi' },
-    { id: 'caddeler', label: 'Açılan yollar', question: 'Hangi caddeler meydana açılır?', fieldPath: 'metadata.profile.caddeler' }
+    { id: 'cevresi', label: 'Çevresindekiler', question: 'Çevresinde hangi yapılar var?', fieldPath: 'metadata.profile.cevresi' }
   ],
   yer_adi: [
     { id: 'title', label: 'Ad', question: 'Yerin adı.', fieldPath: 'title' },
     { id: 'notes', label: 'Anlatım', question: 'Yerin anlatımı (sayfa metni).', fieldPath: 'notes' },
     { id: 'yerTuru', label: 'Tür', question: 'Ne tür bir yer? (tepe, burun, koy, plaj, dere…)', fieldPath: 'metadata.profile.yerTuru' },
     { id: 'region', label: 'Mahalle', question: 'Hangi mahallede ya da yakınında?', fieldPath: 'metadata.region' },
-    { id: 'rakim', label: 'Yükseklik', question: 'Yüksekliği ne kadar? (tepe için)', fieldPath: 'metadata.profile.rakim' }
+    { id: 'adinKokeni', label: 'Adın kökeni', question: 'Bu adı nereden aldı?', fieldPath: 'metadata.profile.adinKokeni' }
   ],
   ada: [
     { id: 'title', label: 'Ad', question: 'Adanın adı.', fieldPath: 'title' },
