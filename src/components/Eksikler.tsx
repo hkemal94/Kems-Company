@@ -5,7 +5,7 @@ import { TemizlikKarti, EskiAlanKarti } from './TemizlikKarti';
 import { OrtakAlanKarti } from './OrtakAlanKarti';
 import { GaleriYedegiKarti } from './GaleriYedegiKarti';
 import { KanonKarti } from './KanonKarti';
-import { YerKartlariKarti, MahalleDerlemeKarti } from './YerKartlari';
+import { YerKartlariKarti, MahalleDerlemeKarti, MaddeSoruTuruKarti } from './YerKartlari';
 import { boslukDoldurma } from '../lib/boslukDoldurma';
 import { haritadaAra, maddeTohumu } from '../lib/haritaMaddesi';
 import { eksikleriCikar, type Cozum, type Eksik } from '../lib/eksikler';
@@ -81,6 +81,10 @@ export const Eksikler: React.FC<EksiklerProps> = ({
           onAddItem={onAddItem as ((i: Omit<Item, 'id' | 'createdAt' | 'updatedAt' | 'userId'> & { id?: string }) => Promise<void>) | undefined} />
       )}
       <MahalleDerlemeKarti items={items} onAc={id => onSelectArea('duzada', id)} />
+      {onUpdateItem && onAddItem && (
+        <MaddeSoruTuruKarti items={items} onUpdateItem={onUpdateItem}
+          onAddItem={onAddItem as (i: Omit<Item, 'id' | 'createdAt' | 'updatedAt' | 'userId'>) => Promise<void>} />
+      )}
 
       {/* Boşlukları künyedeki cevaplarla doldur (yeni boşluk çıktıkça yine görünür) */}
       {onUpdateItem && (

@@ -104,9 +104,9 @@ export const adaMaddesiKaydi = (): YeniKayit => ({
 
 export const cevreYoluVar = (items: Item[]) => items.some(i => i.metadata?.cevreYolu === true);
 
-/** Adayı çevreleyen yol: boş cadde maddesi, ad geçici (Kemal koyacak) */
+/** Adayı çevreleyen yol: boş cadde maddesi; adı kanondan, Sahil Yolu (8 Ekim) */
 export const cevreYoluKaydi = (): YeniKayit => ({
-  title: 'Çevre yolu (geçici ad)', area: 'duzada', type: 'cadde', status: 'Fikir', priority: 'orta',
+  title: 'Sahil Yolu', area: 'duzada', type: 'cadde', status: 'Fikir', priority: 'orta',
   tags: [], links: [], notes: '', images: [], isProposal: false, archived: false,
   metadata: { cevreYolu: true, wikiSections: eksikBolumler('cadde', [], `cevre_yolu`) }
 });
