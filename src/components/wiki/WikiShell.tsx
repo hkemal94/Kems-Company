@@ -35,7 +35,8 @@ interface WikiShellProps {
 /** Yeni maddede seçilebilen türler. Karakter yok (Kişi ile birleşti). */
 const YENI_TURLER: Array<{ id: ItemType; ad: string }> = [
   { id: 'kisi', ad: 'Kişi' }, { id: 'aile', ad: 'Aile' }, { id: 'mekân', ad: 'Mekân' }, { id: 'dükkân', ad: 'Dükkân' },
-  { id: 'yer', ad: 'Yer / mahalle' }, { id: 'kulüp', ad: 'Kurum / kulüp' }, { id: 'olay', ad: 'Olay' }, { id: 'ürün', ad: 'Eşya' }
+  { id: 'yer', ad: 'Mahalle' }, { id: 'cadde', ad: 'Cadde / sokak' }, { id: 'meydan', ad: 'Meydan' }, { id: 'yer_adi', ad: 'Yer adı (tepe, koy…)' },
+  { id: 'kulüp', ad: 'Kurum / kulüp' }, { id: 'olay', ad: 'Olay' }, { id: 'ürün', ad: 'Eşya' }
 ];
 
 /** Odalar dizinde ayrı satır işgal etmez; mekânlarının altında yaşarlar */
@@ -43,6 +44,8 @@ const INDEX_TYPES: ItemType[] = WIKI_TYPES.filter(t => t !== 'oda');
 
 /** Mekân sayılan tipler — mahallenin altında listelenirler */
 const MEKAN_TIPLERI: ItemType[] = ['mekân', 'dükkân', 'kulüp'];
+/** Mahallenin içinde listelenen yer kartları (8 Ekim): cadde, meydan, doğa adı */
+const ALT_YERLER: ItemType[] = ['cadde', 'meydan', 'yer_adi'];
 
 export const WikiShell: React.FC<WikiShellProps> = ({
   items,
@@ -94,8 +97,9 @@ export const WikiShell: React.FC<WikiShellProps> = ({
     () =>
       items.filter(
         i => !i.archived && WIKI_TYPES.includes(i.type) && !OYUN_VAKA_IDLERI.has(i.id)
-             // Adanın çatı kaydı bir madde değil, kapsayıcı
-             && i.id !== 'duzada_world_details'
+             // Adanın eski çatı kaydı ('yer' türünde) mahalle sanılmasın; Ada kartına
+             // taşınınca (8 Ekim) kendi maddesi olarak görünür
+             && !(i.id === 'duzada_world_details' && i.type !== 'ada')
       ),
     [items]
   );
@@ -139,7 +143,7 @@ export const WikiShell: React.FC<WikiShellProps> = ({
       .map(yer => {
         const icindekiler = wikiItems.filter(i => {
           if (i.id === yer.id) return false;
-          const mekanSayilir = MEKAN_TIPLERI.includes(i.type) || i.type === 'yer';
+          const mekanSayilir = MEKAN_TIPLERI.includes(i.type) || ALT_YERLER.includes(i.type) || i.type === 'yer';
           if (!mekanSayilir) return false;
           if (i.type === 'yer' && ustDuzeyMi(i)) return false; // başka bir mahalle
           return aitMi(i, yer);
@@ -154,11 +158,14 @@ export const WikiShell: React.FC<WikiShellProps> = ({
    * o otele bağlıdır ve otelin sayfasında yaşar; burada yalnızca gerçekten
    * sahipsiz kalanlar listelenir.
    */
+  /** Adanın kendi maddesi (Ada kartı) */
+  const adaMaddesi = useMemo(() => wikiItems.find(i => i.type === 'ada') || null, [wikiItems]);
+
   const yersizMekanlar = useMemo(() => {
     const bagli = new Set(mahalleler.flatMap(m => m.icindekiler.map(i => i.id)));
     const mahalleIds = new Set(mahalleler.map(m => m.yer.id));
     return wikiItems.filter(i => {
-      if (!MEKAN_TIPLERI.includes(i.type) && i.type !== 'yer') return false;
+      if (!MEKAN_TIPLERI.includes(i.type) && !ALT_YERLER.includes(i.type) && i.type !== 'yer') return false;
       if (bagli.has(i.id) || mahalleIds.has(i.id)) return false;
       const p = i.metadata?.placeId;
       if (p && idSet.has(p)) return false; // bir üst mekâna bağlı
@@ -421,6 +428,19 @@ export const WikiShell: React.FC<WikiShellProps> = ({
                   onNavigate={navigate}
                   onTipSec={t => setTypeFilter(t)}
                 />
+                {adaMaddesi && (
+                  <button
+                    type="button"
+                    onClick={() => navigate(adaMaddesi.id)}
+                    className="w-full text-left border border-bej/45 dark:border-lacivert-600/45 rounded-lg bg-krem-acik/60 dark:bg-lacivert-800/35 px-4 py-3.5 archive-shadow hover:bg-bej/12 dark:hover:bg-lacivert-600/25 transition-colors group"
+                  >
+                    <span className="block font-mono text-[10px] uppercase tracking-[0.14em] text-gri dark:text-bej/85">Ada</span>
+                    <span className="mt-1 flex items-center gap-2">
+                      <MapPin size={13} className="text-kiremit shrink-0" />
+                      <span className="font-serif text-lg group-hover:underline decoration-lacivert/30 dark:decoration-bej/40 underline-offset-2">{adaMaddesi.title}</span>
+                    </span>
+                  </button>
+                )}
                 <section>
                   <h2 className="font-mono text-[10px] uppercase tracking-[0.14em] text-gri dark:text-bej/85 mb-3">
                     Mahalleler
@@ -474,7 +494,7 @@ export const WikiShell: React.FC<WikiShellProps> = ({
                 {yersizMekanlar.length > 0 && (
                   <section>
                     <h2 className="font-mono text-[10px] uppercase tracking-[0.14em] text-gri dark:text-bej/85 mb-3">
-                      Mahallesi belirtilmemiş mekânlar
+                      Mahallesi belirtilmemiş yerler ve mekânlar
                     </h2>
                     <ul className="flex flex-wrap gap-1.5">
                       {yersizMekanlar.map(m => (

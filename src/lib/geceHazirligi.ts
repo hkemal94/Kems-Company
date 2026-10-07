@@ -78,14 +78,31 @@ export function yapilacaklar(items: Item[], simdi = new Date()): { oneriler: boo
 
 const canli = (items: Item[]) => items.filter(i => !i.archived && !i.isProposal);
 const kisa = (s = '', n = 240) => (s.length > n ? s.slice(0, n) + '…' : s);
-const VIKI = ['yer', 'mekân', 'dükkân', 'kulüp', 'marka', 'kisi', 'karakter', 'aile', 'olay'];
+const VIKI = ['yer', 'cadde', 'meydan', 'yer_adi', 'ada', 'mekân', 'dükkân', 'kulüp', 'marka', 'kisi', 'karakter', 'aile', 'olay'];
+
+/**
+ * Gece önerilerine giden viki maddeleri (8 Ekim, Kemal: "sürekli aynı yerlere
+ * öneri verdiği için Merkez'de bir sürü tarihçe oldu"). Eskiden en son
+ * dokunulan 40 madde gidiyordu; öneri eklenince madde yine en son dokunulan
+ * oluyor, ertesi gece yine seçiliyordu. Artık tepside bekleyen önerisi olan
+ * maddeler sona, uzun süredir dokunulmamışlar öne gelir.
+ */
+export function vikiSirasi(items: Item[]): Item[] {
+  const bekleyen = new Set(items
+    .filter(i => i.type === 'aday' && !i.archived)
+    .map(i => (i.metadata?.aday as { hedefId?: string } | undefined)?.hedefId)
+    .filter((x): x is string => !!x));
+  return canli(items)
+    .filter(i => VIKI.includes(i.type))
+    .sort((a, b) => Number(bekleyen.has(a.id)) - Number(bekleyen.has(b.id)) || a.updatedAt - b.updatedAt);
+}
 
 /** Yapay zekâya giden özet: yalnız adlar ve kısa notlar */
 export function geceBaglami(items: Item[]) {
   const c = canli(items);
   const son = (a: Item, b: Item) => b.updatedAt - a.updatedAt;
   return {
-    viki: c.filter(i => VIKI.includes(i.type)).sort(son).slice(0, 40).map(i => ({ ad: i.title, tur: i.type, not: kisa(i.notes) })),
+    viki: vikiSirasi(items).slice(0, 40).map(i => ({ ad: i.title, tur: i.type, not: kisa(i.notes) })),
     droplar: c.filter(i => i.type === 'drop').map(i => ({ ad: i.title, asama: i.status, not: kisa(i.notes, 160) })),
     urunler: c.filter(i => i.type === 'merch_urun').slice(0, 20).map(i => ({ ad: i.title, asama: i.status })),
     gonderiler: gonderiler(c).sort(son).slice(0, 10).map(i => ({ ad: i.title, asama: i.status })),

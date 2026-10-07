@@ -16,8 +16,10 @@ import { adiCoz, bagParcalari, semaAlanlari, type BagGrubu } from './alanSablonu
  * yalnız "Madde aç" ya da "Önerme" ile yazılır.
  */
 
-export type OneriTuru = 'mekân' | 'yer' | 'kulüp' | 'aile';
-export const ONERI_TURU_ADI: Record<OneriTuru, string> = { 'mekân': 'Yapı / mekân', yer: 'Yer', 'kulüp': 'Kurum', aile: 'Aile' };
+export type OneriTuru = 'mekân' | 'yer' | 'cadde' | 'meydan' | 'yer_adi' | 'kulüp' | 'aile';
+export const ONERI_TURU_ADI: Record<OneriTuru, string> = {
+  'mekân': 'Yapı / mekân', yer: 'Mahalle', cadde: 'Cadde / sokak', meydan: 'Meydan', yer_adi: 'Yer adı', 'kulüp': 'Kurum', aile: 'Aile'
+};
 
 /** Adın son sözü → tür */
 const SON_SOZ: Array<[OneriTuru, string[]]> = [
@@ -26,8 +28,11 @@ const SON_SOZ: Array<[OneriTuru, string[]]> = [
   ['mekân', ['Kahvehanesi', 'Kahvesi', 'Lokantası', 'Meyhanesi', 'Birahanesi', 'Fırını', 'Bakkalı', 'Pansiyonu', 'Oteli', 'Kilisesi',
     'Camii', 'Çeşmesi', 'Okulu', 'İlkokulu', 'Fabrikası', 'Değirmeni', 'Feneri', 'Deposu', 'Atölyesi', 'Dükkânı', 'Dükkanı', 'Hamamı',
     'Mezarlığı', 'Kulesi', 'Konağı', 'Köşkü', 'Binası', 'Postanesi', 'Ocağı', 'Halı', 'Hali', 'Çiftliği', 'Mağazası', 'Stadı']],
-  ['yer', ['Koyu', 'Burnu', 'Tepesi', 'Plajı', 'Caddesi', 'Sokağı', 'Meydanı', 'Limanı', 'İskelesi', 'Mahallesi', 'Köyü',
-    'Zeytinliği', 'Ormanı', 'Deresi', 'Adası', 'Mevkii', 'Yokuşu', 'Koyağı', 'Pınarı']]
+  // 8 Ekim: cadde, meydan ve doğa adları mahalle kartından ayrıldı
+  ['cadde', ['Caddesi', 'Sokağı', 'Yokuşu', 'Yolu']],
+  ['meydan', ['Meydanı']],
+  ['yer_adi', ['Koyu', 'Burnu', 'Tepesi', 'Plajı', 'Zeytinliği', 'Ormanı', 'Deresi', 'Adası', 'Mevkii', 'Koyağı', 'Pınarı']],
+  ['yer', ['Limanı', 'İskelesi', 'Mahallesi', 'Köyü']]
 ];
 const SOZ_TURU = new Map(SON_SOZ.flatMap(([t, l]) => l.map(s => [s, t] as const)));
 
@@ -68,7 +73,7 @@ function metinleri(i: Item): string[] {
 const adGibi = (s: string) => s.length >= 3 && s.length <= 40 && /^\p{Lu}/u.test(s) && s.split(/\s+/).length <= 5 && !/[.!?;:()]/.test(s);
 
 const grupTuru = (g: BagGrubu): OneriTuru | null =>
-  g === 'aile' ? 'aile' : g === 'kurum' ? 'kulüp' : g === 'mekan' ? 'mekân' : g === 'mahalle' ? 'yer' : null;
+  g === 'aile' ? 'aile' : g === 'kurum' ? 'kulüp' : g === 'mekan' ? 'mekân' : g === 'mahalle' ? 'yer' : g === 'yol' ? 'cadde' : g === 'doga' ? 'yer_adi' : null;
 
 export function maddeOnerileri(items: Item[], reddedilen: string[] = []): MaddeOnerisi[] {
   const canli = items.filter(i => !i.archived);

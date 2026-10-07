@@ -3,7 +3,7 @@ import { AlertCircle, ChevronRight, Globe, Link2, PencilLine, Pin, Unlink, GitFo
 import { maddeninTuvalleri, tuvaldeAc } from '../../lib/tuval';
 import { gizlemeDegistir, gizlenebilenler } from '../../lib/siteGizleme';
 import { StudyodaAc } from '../studyo/StudyodaAc';
-import { Item } from '../../types';
+import { Item, WikiSection } from '../../types';
 import { MaddeDuzenleyici, AileUyeleri } from './MaddeDuzenleyici';
 import { maddeyiAnanNotlar } from '../../lib/notBaglari';
 import { resolveAllRelations, getRelationLabels, isEntityUnlinked } from '../../utils/relations';
@@ -145,6 +145,21 @@ export const WikiArticle: React.FC<WikiArticleProps> = ({
     [item, admin]
   );
   const body = useMemo(() => getArticleBody(item), [item]);
+  /** Aynı başlıkta gelen, bölümün altında bekleyen öneriler (8 Ekim) */
+  const bekleyenler = useMemo(() => new Map(((item.metadata?.wikiSections as WikiSection[] | undefined) || [])
+    .filter(b => b.id && String(b.bekleyenOneri || '').trim()).map(b => [String(b.id), String(b.bekleyenOneri)])), [item]);
+  /** Yerine koy / altına ekle / at: kayıt yalnız Kemal'in düğmesiyle yazılır */
+  const bekleyeniIsle = async (id: string, is: 'yerine' | 'alta' | 'at') => {
+    if (!onUpdateItem) return;
+    const bolumler = ((item.metadata?.wikiSections as WikiSection[] | undefined) || []).map(b => {
+      if (String(b.id) !== id || !b.bekleyenOneri) return b;
+      const { bekleyenOneri, ...kalan } = b;
+      if (is === 'yerine') return { ...kalan, content: bekleyenOneri, status: 'öneri' as const };
+      if (is === 'alta') return { ...kalan, content: `${kalan.content.trim()}\n\n${bekleyenOneri.trim()}`, status: 'öneri' as const };
+      return kalan;
+    });
+    await onUpdateItem({ ...item, metadata: { ...item.metadata, wikiSections: bolumler }, updatedAt: Date.now() });
+  };
   /** Künyeye girmeyen satırlar — gövdede "Bilgiler" bölümü */
   const ekBilgiler = useMemo(() => getEkBilgiler(item, { includeSecrets: admin }), [item, admin]);
   const govdeVar = body.length > 0 || ekBilgiler.length > 0;
@@ -528,6 +543,20 @@ export const WikiArticle: React.FC<WikiArticleProps> = ({
                     seen={linkedOnce}
                   />
                 </div>
+                {admin && onUpdateItem && block.anahtar && bekleyenler.get(block.anahtar) && (
+                  <div className="mt-3 rounded-lg border border-dashed border-kiremit/60 bg-krem-acik/60 dark:bg-lacivert-800/35 p-3 space-y-2">
+                    <div className="text-[10px] font-mono uppercase tracking-[0.12em] text-kiremit">Bu bölüm için yeni öneri bekliyor</div>
+                    <p className="text-[13px] whitespace-pre-line text-lacivert dark:text-krem/85">{bekleyenler.get(block.anahtar)}</p>
+                    <div className="flex flex-wrap gap-2">
+                      {([['yerine', 'Yerine koy'], ['alta', 'Altına ekle'], ['at', 'At']] as const).map(([is, ad]) => (
+                        <button key={is} type="button" onClick={() => bekleyeniIsle(block.anahtar!, is)}
+                          className={is === 'at' ? 'min-h-9 px-3 rounded-lg border border-bej dark:border-lacivert-600 text-[12px] cursor-pointer' : 'min-h-9 px-3 rounded-lg bg-[#0E1C4F] dark:bg-[#2C3C72] text-[#F3EFE8] text-[12px] font-bold cursor-pointer'}>
+                          {ad}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </section>
             ))
           )}

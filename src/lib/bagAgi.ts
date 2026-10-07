@@ -11,7 +11,7 @@ import { BAG_GRUPLARI, adiCoz, bagParcalari, semaAlanlari } from './alanSablonu'
  */
 
 /** Ağda görünen türler (Atölye → Bağ ağı) */
-export const AG_TURLERI: ItemType[] = ['yer', 'mekân', 'dükkân', 'kulüp', 'marka', 'kisi', 'karakter', 'aile', 'olay', 'ürün', 'oda'];
+export const AG_TURLERI: ItemType[] = ['yer', 'cadde', 'meydan', 'yer_adi', 'ada', 'mekân', 'dükkân', 'kulüp', 'marka', 'kisi', 'karakter', 'aile', 'olay', 'ürün', 'oda'];
 
 export type KenarTuru = BagTuru | 'künye';
 

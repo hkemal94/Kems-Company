@@ -18,7 +18,7 @@ import { yapayZekaOnerisi } from '../../lib/studyo';
  * Atölyedeki üç kanon sorusu kalktı; günün sorusu tek soru olarak duruyor.
  */
 
-const VIKI = ['yer', 'mekân', 'dükkân', 'kulüp', 'marka', 'kisi', 'karakter', 'aile', 'olay'];
+const VIKI = ['yer', 'cadde', 'meydan', 'yer_adi', 'ada', 'mekân', 'dükkân', 'kulüp', 'marka', 'kisi', 'karakter', 'aile', 'olay'];
 
 /** Gün → sabit sayı (aynı gün hep aynı madde) */
 const gunSayisi = (gun: string) => Array.from(gun).reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7);

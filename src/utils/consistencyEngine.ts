@@ -507,7 +507,7 @@ export function checkDuzadaConsistency(items: Item[]): ConsistencyIssue[] {
     }
   }
 
-  issues.push(...tarihSorunlari(items.filter(i => !i.archived && ['yer', 'mekân', 'dükkân', 'kulüp', 'marka', 'kisi', 'karakter', 'olay'].includes(i.type)), 'duzada'));
+  issues.push(...tarihSorunlari(items.filter(i => !i.archived && ['yer', 'cadde', 'meydan', 'yer_adi', 'ada', 'mekân', 'dükkân', 'kulüp', 'marka', 'kisi', 'karakter', 'olay'].includes(i.type)), 'duzada'));
   return issues;
 }
 

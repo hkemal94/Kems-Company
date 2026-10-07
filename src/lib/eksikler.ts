@@ -107,7 +107,7 @@ export function eksikleriCikar(items: Item[]): Eksik[] {
   }
 
   // --- Wiki: açılmış ama içi boş maddeler
-  const wikiTipleri = new Set(['mekân', 'dükkân', 'kulüp', 'yer', 'kisi', 'karakter']);
+  const wikiTipleri = new Set(['mekân', 'dükkân', 'kulüp', 'yer', 'cadde', 'meydan', 'yer_adi', 'ada', 'kisi', 'karakter']);
   const taslaklar = canli.filter(
     i => wikiTipleri.has(i.type) && !i.isProposal && isStub(i)
   );

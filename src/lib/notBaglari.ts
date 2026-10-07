@@ -6,7 +6,7 @@ import type { Item } from '../types';
  * notun metninden her seferinde okunur.
  */
 
-const VIKI = new Set(['yer', 'mekân', 'dükkân', 'kulüp', 'marka', 'kisi', 'karakter', 'aile', 'olay', 'ürün']);
+const VIKI = new Set(['yer', 'cadde', 'meydan', 'yer_adi', 'ada', 'mekân', 'dükkân', 'kulüp', 'marka', 'kisi', 'karakter', 'aile', 'olay', 'ürün']);
 const kucuk = (s: string) => s.toLocaleLowerCase('tr');
 
 /** Metinde #ad olarak geçen maddeler (uzun ad önce eşleşir) */

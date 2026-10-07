@@ -92,6 +92,37 @@ export const DEFAULT_QUESTIONS_BY_CAT: Record<string, KunyeSorusu[]> = {
     { id: 'komsular', label: 'Sınır komşuları', question: 'Hangi mahallelerle komşu?', fieldPath: 'metadata.profile.komsular' },
     { id: 'landmarks', label: 'Simgeler', question: 'Mahallenin simge yapıları neler?', fieldPath: 'metadata.profile.landmarks' },
     { id: 'sakinler', label: 'Sakinler', question: 'Kimler yaşar?', fieldPath: 'metadata.profile.sakinler' }
+  ],
+  // Yeni yer kartları (8 Ekim). Alanlar başlangıç önerisi; soru turunda Kemal belirler.
+  cadde: [
+    { id: 'title', label: 'Ad', question: 'Caddenin ya da sokağın adı.', fieldPath: 'title' },
+    { id: 'notes', label: 'Tarihçe', question: 'Caddenin tarihçesi (sayfa metni).', fieldPath: 'notes' },
+    { id: 'region', label: 'Mahalle', question: 'Hangi mahallelerden geçer?', fieldPath: 'metadata.region' },
+    { id: 'uclar', label: 'Nereden nereye', question: 'Nerede başlar, nerede biter?', fieldPath: 'metadata.profile.uclar' },
+    { id: 'uzerindekiler', label: 'Üstündekiler', question: 'Üstünde hangi mekânlar var?', fieldPath: 'metadata.profile.uzerindekiler' }
+  ],
+  meydan: [
+    { id: 'title', label: 'Ad', question: 'Meydanın adı.', fieldPath: 'title' },
+    { id: 'notes', label: 'Tarihçe', question: 'Meydanın tarihçesi (sayfa metni).', fieldPath: 'notes' },
+    { id: 'region', label: 'Mahalle', question: 'Hangi mahallede?', fieldPath: 'metadata.region' },
+    { id: 'cevresi', label: 'Çevresindekiler', question: 'Çevresinde hangi yapılar var?', fieldPath: 'metadata.profile.cevresi' },
+    { id: 'caddeler', label: 'Açılan yollar', question: 'Hangi caddeler meydana açılır?', fieldPath: 'metadata.profile.caddeler' }
+  ],
+  yer_adi: [
+    { id: 'title', label: 'Ad', question: 'Yerin adı.', fieldPath: 'title' },
+    { id: 'notes', label: 'Anlatım', question: 'Yerin anlatımı (sayfa metni).', fieldPath: 'notes' },
+    { id: 'yerTuru', label: 'Tür', question: 'Ne tür bir yer? (tepe, burun, koy, plaj, dere…)', fieldPath: 'metadata.profile.yerTuru' },
+    { id: 'region', label: 'Mahalle', question: 'Hangi mahallede ya da yakınında?', fieldPath: 'metadata.region' },
+    { id: 'rakim', label: 'Yükseklik', question: 'Yüksekliği ne kadar? (tepe için)', fieldPath: 'metadata.profile.rakim' }
+  ],
+  ada: [
+    { id: 'title', label: 'Ad', question: 'Adanın adı.', fieldPath: 'title' },
+    { id: 'notes', label: 'Genel bakış', question: 'Adanın genel anlatımı (sayfa metni).', fieldPath: 'notes' },
+    { id: 'konum', label: 'Konum', question: 'Ege\'nin neresinde?', fieldPath: 'metadata.profile.konum' },
+    { id: 'olcek', label: 'Ölçek', question: 'Ne büyüklükte bir ada?', fieldPath: 'metadata.profile.olcek' },
+    { id: 'iklim', label: 'İklim', question: 'İklimi nasıl?', fieldPath: 'metadata.climate' },
+    { id: 'mahalleler', label: 'Mahalleler', question: 'Hangi mahallelerden oluşur?', fieldPath: 'metadata.profile.mahalleler' },
+    { id: 'ulasim', label: 'Ulaşım', question: 'Adaya nasıl gidilir?', fieldPath: 'metadata.profile.ulasim' }
   ]
 };
 
@@ -113,5 +144,10 @@ export const ESKI_ALAN_ADLARI: Record<string, string> = {
   rarity: 'Nadirlik',
   function: 'İşlev',
   population: 'Nüfus',
-  vibe: 'Atmosfer'
+  vibe: 'Atmosfer',
+  // Mahalle kartından başka bir yer kartına taşınan maddelerde (8 Ekim)
+  konum: 'Konum',
+  komsular: 'Sınır komşuları',
+  landmarks: 'Simgeler',
+  sakinler: 'Sakinler'
 };

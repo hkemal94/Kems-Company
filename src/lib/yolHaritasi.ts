@@ -63,7 +63,11 @@ export const YOL_HARITASI: YolIsi[] = [
     ad: 'Tuval: mahalle esini, drop panosu, kitap planı' },
   { id: 'alan-gizleme', gece: 6, paket: 'W', kimde: 'claude', nereden: '7 Ekim · vvd', bitti: true,
     ad: 'Sitede alan bazında gizleme' },
-  // 7. gece
+  // 7. gece (8 Ekim, Kemal: "bunu ilk pakete hazırla")
+  { id: 'yer-kartlari', gece: 7, paket: 'W', kimde: 'claude', nereden: '8 Ekim', bitti: true,
+    ad: 'Yer kartları (cadde, meydan, yer adı, ada), Düzada ve çevre yolu maddeleri, tekrar eden tarihçe ve mahalle bilgilerinin derlenmesi' },
+  { id: 'yer-soru-turu', gece: 7, paket: 'W', kimde: 'kemal', nereden: '8 Ekim',
+    ad: 'Soru turu: yeni kartların (ve Kişi\'nin) künye alanları, bölüm başlıkları, mahalle bölüm sırası' },
   { id: 'yazim', gece: 7, paket: 'W', kimde: 'claude', nereden: '7 Ekim · vvd',
     ad: 'Yazım: kitap ve fanzinde metinde tanıma, yazarken yan panel' },
   { id: 'kitap-disa', gece: 7, paket: 'K', kimde: 'claude', nereden: '7 Ekim · vvd',
@@ -154,7 +158,7 @@ export function haftalikOzet(items: Item[], simdi = Date.now()): { konu: string;
   const degisen = canli.filter(i => i.updatedAt >= hafta);
   const yeni = canli.filter(i => i.createdAt >= hafta);
   const say = (t: string[]) => degisen.filter(i => t.includes(i.type));
-  const VIKI = ['yer', 'mekân', 'dükkân', 'kulüp', 'marka', 'kisi', 'karakter', 'aile', 'olay', 'ürün'];
+  const VIKI = ['yer', 'cadde', 'meydan', 'yer_adi', 'ada', 'mekân', 'dükkân', 'kulüp', 'marka', 'kisi', 'karakter', 'aile', 'olay', 'ürün'];
   const satir = (ad: string, l: Item[]) => (l.length ? `• ${ad}: ${l.length} (${l.slice(0, 5).map(i => i.title).join(', ')}${l.length > 5 ? '…' : ''})` : '');
   const bekleyen = canli.filter(i => i.type === 'aday').length;
   const tarih = new Date(simdi).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });

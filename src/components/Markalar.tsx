@@ -220,7 +220,7 @@ export default function Markalar({
     if (showAddEntityForm === 'kisi') {
       candidateTypes = ['kisi', 'karakter'];
     } else if (showAddEntityForm === 'yer') {
-      candidateTypes = ['yer', 'mekân', 'dükkân', 'oda'];
+      candidateTypes = ['yer', 'cadde', 'meydan', 'yer_adi', 'mekân', 'dükkân', 'oda'];
     } else {
       candidateTypes = [showAddEntityForm];
     }

@@ -46,11 +46,11 @@ export const AracCalistirici: React.FC<Props> = ({ arac, hedefId: ilkHedef, serb
     try {
       const sonuc = await araciCalistir(arac, hedef, serbest, items);
       if (arac.dagit) {
-        const { oneriler, eksik } = arac.dagit(sonuc, items);
+        const { oneriler, eksik } = arac.dagit(sonuc, items, hedef);
         // Başlıkta bölüm de yazar: aynı maddenin iki önerisi karışmasın
         for (const o of oneriler) {
           const kayit = oneriKaydi(arac, o.hedef, o.sonuc);
-          const bolum = o.sonuc.bolumler?.[0]?.title;
+          const bolum = o.sonuc.derle ? '' : o.sonuc.bolumler?.[0]?.title;
           await onAddItem(bolum ? { ...kayit, title: `${kayit.title} · ${bolum}` } : kayit);
         }
         setDagilim({ sayi: oneriler.length, eksik });

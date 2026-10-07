@@ -457,7 +457,7 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
   };
   /** Bağlanabilecek viki maddeleri: yerler, mekânlar, kurumlar */
   const baglanabilir = useMemo(() => items.filter(i => !i.archived && !i.isProposal
-    && ['yer', 'mekân', 'dükkân', 'kulüp', 'marka', 'oda'].includes(i.type)), [items]);
+    && ['yer', 'cadde', 'meydan', 'yer_adi', 'mekân', 'dükkân', 'kulüp', 'marka', 'oda'].includes(i.type)), [items]);
   const maddeAdi = (id?: string | null) => (id ? items.find(i => i.id === id)?.title : undefined);
 
   /** Mıknatısın yakalama yarıçapı (metre): parmakta geniş, farede dar */

@@ -25,7 +25,7 @@ interface Props {
 }
 
 /** Süzgeç çipleri: kişi ve karakter tek çip */
-const CIP_TURLERI: ItemType[] = ['yer', 'mekân', 'dükkân', 'kulüp', 'marka', 'kisi', 'aile', 'olay', 'ürün', 'oda'];
+const CIP_TURLERI: ItemType[] = ['yer', 'cadde', 'meydan', 'yer_adi', 'ada', 'mekân', 'dükkân', 'kulüp', 'marka', 'kisi', 'aile', 'olay', 'ürün', 'oda'];
 const turAnahtari = (t: ItemType): ItemType => (t === 'karakter' ? 'kisi' : t);
 
 /** Bağ türü → çizgi biçimi */

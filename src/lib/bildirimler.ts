@@ -42,7 +42,7 @@ function gununSorusuBittiMi(): boolean {
   try { return localStorage.getItem(CEVAP_ANAHTARI) === bugun(); } catch { return false; }
 }
 
-const KANON_TURLERI = new Set(['yer', 'mekân', 'dükkân', 'kulüp', 'marka', 'kisi', 'karakter', 'olay', 'kitap_bolum', 'blog_post']);
+const KANON_TURLERI = new Set(['yer', 'cadde', 'meydan', 'yer_adi', 'ada', 'mekân', 'dükkân', 'kulüp', 'marka', 'kisi', 'karakter', 'olay', 'kitap_bolum', 'blog_post']);
 
 /** Son yedekten bu yana geçen gün (Yedekleme penceresi yazar); hiç yoksa null */
 function sonYedekGunu(): number | null {

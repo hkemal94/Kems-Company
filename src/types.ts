@@ -15,6 +15,8 @@ export type ItemType =
   // Düzada types
   | 'kulüp' | 'dükkân' | 'karakter' | 'mekân' | 'ürün' | 'olay' | 'map_settings' | 'map_pin'
   | 'marka' | 'kisi' | 'yer' | 'oda' | 'aile'
+  // Yer türleri (8 Ekim): 'yer' yalnız mahalle; cadde, meydan, doğa adı ve ada ayrı kart
+  | 'cadde' | 'meydan' | 'yer_adi' | 'ada'
   // Merch types
   | 'drop' | 'merch_urun'
   // Blog types
@@ -51,6 +53,11 @@ export interface WikiSection {
   title: string;
   content: string;
   status: 'resmi' | 'öneri' | 'boş';
+  /**
+   * Aynı başlıkta gelen yapay zekâ önerisi (8 Ekim). Yeni bölüm açılmaz;
+   * bölümün altında bekler, Kemal "yerine koy / altına ekle / at" der.
+   */
+  bekleyenOneri?: string;
 }
 
 export interface BrandKit {

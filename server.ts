@@ -327,6 +327,26 @@ Yanıtı saf JSON dizisi olarak döndür, her bölüm için bir nesne ve "anahta
         systemInstruction = "Bir ada vikisinin titiz editörüsün. Yalnız verilen bilgilerle, ansiklopedik ve sade Türkçe yazıyorsun. Sadece saf bir JSON dizisi döndür.";
         break;
 
+      case "mahalle-derle":
+        prompt = `Düzada vikisindeki "${data.mahalle || ""}" mahallesinin maddesi zamanla tekrar eden önerilerle doldu. Aşağıdaki "oneriler" bölümlerini tek, düzenli bir hâle getir.
+Kurallar:
+- Yalnız verilen metinlerdeki bilgileri kullan. Yeni bilgi, olay, özel ad, sayı ya da tarih ekleme; adı yazılmayanın adını koyma.
+- Her bilgi bir kez geçsin. Künyede, giriş metninde ya da "resmi" bölümlerde zaten yazan bilgiyi tekrar etme (resmi bölümler Kemal'in onayladığı metindir, onlara dokunma ve onları yeniden yazma).
+- Aynı başlık iki kez olmasın. Başlıklar mümkünse "sira" listesinden olsun ve o sırayla gelsin; listede karşılığı olmayan konu için kısa, sade bir başlık kullan.
+- Bir bilgi mahalleden çok "altYerler" listesindeki bir cadde, meydan ya da yer adıyla ilgiliyse ve uzunsa, o bölümü ayrı ver ve "madde" alanına o yerin adını aynen yaz; mahalle metninde o yer için en fazla tek cümlelik anım kalsın.
+- Ton ansiklopedik: sade, nesnel, süssüz. Türkçe; "Kemsköy" yazımını koru.
+- Vikinin bir "şimdi"si yok: "hâlâ", "şu anda", "günümüzde", "bugün", "artık" yazma. Tarihleri aralık olarak yaz.
+- Söylenti, efsane ya da rivayet ancak verilen metinde varsa ve yalnız bir kez geçer.
+Künye: ${JSON.stringify(data.kunye || [])}
+Giriş metni: ${JSON.stringify(data.giris || "")}
+Resmi bölümler (dokunma): ${JSON.stringify(data.resmi || [])}
+Derlenecek öneri bölümleri: ${JSON.stringify(data.oneriler || [])}
+Bölüm sırası: ${JSON.stringify(data.sira || [])}
+Alt yerler: ${JSON.stringify(data.altYerler || [])}
+Yanıtı saf JSON dizisi olarak döndür: [{"title": "Tarihçe", "content": "Bölüm metni"}, {"title": "Tarihçe", "content": "…", "madde": "Ada Tepesi"}]`;
+        systemInstruction = "Bir ada vikisinin titiz editörüsün. Tekrarları ayıklıyor, yalnız verilen bilgilerle sade Türkçe yazıyorsun. Sadece saf bir JSON dizisi döndür.";
+        break;
+
       case "fanzin-bolum":
         prompt = `Aşağıdaki fanzin bölümünü "${data.ton || "Sade"}" tonunda yeniden yaz. Anlamı ve adları koru; yeni özel ad, sayı, tarih ekleme. "Hâlâ", "şu anda", "günümüzde" yazma. Uzunluk aşağı yukarı aynı kalsın. Yalnız yeni metni döndür.
 Bölüm başlığı: "${data.baslik || ""}"

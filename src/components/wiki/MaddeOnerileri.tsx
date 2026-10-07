@@ -17,7 +17,7 @@ interface Props {
   onKapat: () => void;
 }
 
-const TURLER: OneriTuru[] = ['mekân', 'yer', 'kulüp', 'aile'];
+const TURLER: OneriTuru[] = ['mekân', 'yer', 'cadde', 'meydan', 'yer_adi', 'kulüp', 'aile'];
 const CIP = (secili: boolean) => `min-h-8 px-2.5 py-0.5 rounded-full text-[11px] border cursor-pointer ${secili
   ? 'bg-lacivert text-krem border-transparent dark:bg-[#2C3C72]'
   : 'border-bej/80 dark:border-lacivert-600 text-gri dark:text-bej/85 hover:border-kiremit'}`;

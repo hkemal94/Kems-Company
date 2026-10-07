@@ -62,7 +62,7 @@ export const AY_ADLARI = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran'
 /** Gönderinin bağlanabileceği kayıtlar */
 export const BAG_TURLERI: Array<{ ad: string; turler: ItemType[] }> = [
   { ad: 'Drop / ürün', turler: ['drop', 'merch_urun'] },
-  { ad: 'Viki', turler: ['yer', 'mekân', 'dükkân', 'kulüp', 'marka', 'kisi', 'karakter', 'olay'] },
+  { ad: 'Viki', turler: ['yer', 'cadde', 'meydan', 'yer_adi', 'ada', 'mekân', 'dükkân', 'kulüp', 'marka', 'kisi', 'karakter', 'olay'] },
   { ad: 'Blog', turler: ['blog_post'] },
   { ad: 'Kitap', turler: ['kitap_bolum'] },
   { ad: 'Oyun', turler: ['oyun_tanitim'] }
