@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef, useCallback, lazy, Suspense } from 'react';
-import { Maximize2, Minimize2, Car, Moon, Snowflake } from 'lucide-react';
+import React, { useState, useEffect, useRef, useCallback, useMemo, lazy, Suspense } from 'react';
+import { Maximize2, Minimize2, Car, Moon, Snowflake, Layers, Check } from 'lucide-react';
 import { isaretle } from '../lib/olcumler';
 import type { HaritaBakisi } from './harita/DuzadaHarita';
 import { ATMOSFER_KAPALI, type AtmosferAyari } from './harita/atmosfer';
@@ -8,6 +8,7 @@ import { SayfaBasi } from './kabuk/SayfaBasi';
 import { SayfaRayi, type RayBolumu } from './SayfaRayi';
 import { useHaritaDuzeni } from '../lib/haritaDuzeni';
 import { useHaritaMaddesi } from './duzada/HaritaMaddesi';
+import { KATMANLAR, haritaIsaretleri, katmanOku, katmanYaz, type KatmanAyari, type KatmanId } from '../lib/haritaIsaretleri';
 
 /**
  * Atölye (4. gece, 7 Ekim; vvd'den): evrenin çalışma araçları tek bölümde.
@@ -41,13 +42,20 @@ interface AtolyeProps {
   onAddItem: (itemData: Omit<Item, 'id' | 'createdAt' | 'updatedAt' | 'userId'> & { id?: string }) => Promise<void>;
   /** Bağ ağında "Bağla" ve "Yerleşimi kaydet" */
   onUpdateItem: (item: Item) => Promise<void>;
+  /** Haritadaki notu silmek (yalnız "Evet, sil" ile) */
+  onDeleteItem: (id: string) => Promise<void>;
   /** Menüden doğrudan bir sekmeye gelmek için */
   istek?: { sekme: AtolyeSekmesi; n: number } | null;
   /** Haritadan seçilen maddeyi Düzada vikisinde açar */
   onMaddeAc: (id: string) => void;
 }
 
-export default function Atolye({ items, onAddItem, onUpdateItem, istek = null, onMaddeAc }: AtolyeProps) {
+export default function Atolye({ items, onAddItem, onUpdateItem, onDeleteItem, istek = null, onMaddeAc }: AtolyeProps) {
+  // Katmanlar ve işaretler (5. gece): 2D ve 3D ortak; katman seçimi bu tarayıcıda hatırlanır
+  const [katmanlar, setKatmanlar] = useState<KatmanAyari>(katmanOku);
+  const [katmanMenusu, setKatmanMenusu] = useState(false);
+  const katmanDegistir = (id: KatmanId) => setKatmanlar(k => { const y = { ...k, [id]: !k[id] }; katmanYaz(y); return y; });
+  const isaretler = useMemo(() => haritaIsaretleri(items), [items]);
   const [sekme, setSekme] = useState<AtolyeSekmesi>(istek?.sekme ?? 'harita');
   useEffect(() => { if (istek) setSekme(istek.sekme); }, [istek?.n]);
   const haritaDuzeni = useHaritaDuzeni();
@@ -114,6 +122,29 @@ export default function Atolye({ items, onAddItem, onUpdateItem, istek = null, o
         {tamEkran ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
         <span className="hidden sm:inline">{tamEkran ? 'Küçült' : 'Tam ekran'}</span>
       </button>
+      <span className="relative">
+        <button type="button" onClick={() => setKatmanMenusu(a => !a)} aria-expanded={katmanMenusu} title="Katmanları aç / kapa"
+          className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[12px] font-semibold cursor-pointer ${katmanMenusu ? 'bg-[#F3EFE8] dark:bg-[#17345A] text-[#0E1C4F] dark:text-[#F3EFE8]' : 'text-[#6A5E4C] dark:text-[#A6B0C9] hover:bg-[#F3EFE8] dark:hover:bg-[#17345A]'}`}>
+          <Layers className="w-3.5 h-3.5" /><span className="hidden sm:inline">Katmanlar</span>
+          {KATMANLAR.some(k => !katmanlar[k.id]) && <span className="w-1.5 h-1.5 rounded-full bg-[#F26B6F]" />}
+        </button>
+        {katmanMenusu && (
+          <span className="absolute left-0 top-full mt-1.5 z-30 w-48 p-1.5 rounded-xl bg-[#FAF8F5] dark:bg-[#13204A] border border-[#CFC5B4] dark:border-[#2C3C72] shadow-[0_8px_24px_-12px_rgba(14,28,79,0.5)] flex flex-col">
+            {KATMANLAR.map(k => (
+              <button key={k.id} type="button" role="menuitemcheckbox" aria-checked={katmanlar[k.id]} onClick={() => katmanDegistir(k.id)}
+                className="flex items-center gap-2 px-2 py-1.5 rounded-lg text-[12px] text-left text-[#0E1C4F] dark:text-[#F3EFE8] hover:bg-[#F3EFE8] dark:hover:bg-[#17345A] cursor-pointer">
+                <span className={`w-4 h-4 rounded border flex items-center justify-center ${katmanlar[k.id] ? 'bg-[#0E1C4F] dark:bg-[#2C3C72] border-transparent text-white' : 'border-[#CFC5B4] dark:border-[#2C3C72]'}`}>
+                  {katmanlar[k.id] && <Check className="w-3 h-3" />}
+                </span>
+                {k.ad}
+                {k.id === 'notlar' && <span className="ml-auto w-2 h-2 rounded-full bg-[#C99A2E]" />}
+                {k.id === 'maddeler' && <span className="ml-auto w-2 h-2 rounded-full bg-[#F26B6F]" />}
+              </button>
+            ))}
+            <span className="px-2 pt-1 text-[10px] text-[#6A5E4C] dark:text-[#A6B0C9]">Yalnız görünüm; kayda yazılmaz.</span>
+          </span>
+        )}
+      </span>
     </div>
   );
 
@@ -151,6 +182,8 @@ export default function Atolye({ items, onAddItem, onUpdateItem, istek = null, o
                   bakis={haritaBakisi.current}
                   onBakis={bakisiTut}
                   atmosfer={atmosfer}
+                  isaretler={isaretler}
+                  katmanlar={katmanlar}
                 />
                 <div className="absolute left-3 top-3 z-10">{gorunumDugmesi}</div>
                 {/* Atmosfer düğmeleri sol altta: üstteki ada kartıyla çakışmasın */}
@@ -177,6 +210,11 @@ export default function Atolye({ items, onAddItem, onUpdateItem, istek = null, o
                 ustSol={gorunumDugmesi}
                 bakis={haritaBakisi.current}
                 onBakis={bakisiTut}
+                katmanlar={katmanlar}
+                isaretler={isaretler}
+                onAddItem={onAddItem}
+                onUpdateItem={onUpdateItem}
+                onDeleteItem={onDeleteItem}
               />
             )}
           </Suspense>

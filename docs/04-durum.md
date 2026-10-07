@@ -1754,3 +1754,26 @@ katlanır listede. Plan `src/lib/yolHaritasi.ts`'te; her PR kendi paketini
 - `src/lib/zamanCizgisi.ts`, `src/components/atolye/ZamanCizgisi.tsx`;
   tür renkleri bağ ağıyla ortak (`atolye/turRenkleri.ts`). Görseller:
   `docs/gorseller/zaman-*.png` ("Deneme dönemi A/B" yalnız önizleme denemesi).
+
+**5. gece, 3. paket (uygulamada): harita işaretleri ve katmanlar.**
+- Atölye → Harita: üstteki çubukta **Katmanlar**: Yollar, Yapılar, Doğa,
+  Adlar, Notlar, Madde işaretleri aç/kapa. 2D ve 3D ortak; seçim bu
+  tarayıcıda hatırlanır, kayda yazılmaz. Kapalı katman varken düğmede
+  kiremit nokta.
+- 2D'de yeni **Not** aracı: haritaya dokun, başlık + not yaz, "Kaydet".
+  Her not ayrı küçük kayıt (`type: 'map_pin'`, `metadata.konum`; Kemal'in
+  seçimi), büyük harita kaydına dokunmaz. Not iğnesi hardal. İğneye
+  basınca kart: Düzenle, Taşı, Sil (iki adımlı "Evet, sil").
+- **Madde bağla** aracında solda maddeler listesi ("haritada" olanlar
+  altta, yeşil noktayla). Maddeyi haritaya **sürükle** ya da maddeye, sonra
+  haritaya **dokun** (telefon): bir yapının üstüne bırakılırsa yapıya
+  bağlanır (Kurucu taslağı, öteki işler gibi), boş yere bırakılırsa
+  maddenin işareti olur (`metadata.haritaIsareti` {lng, lat}). Madde
+  iğnesi kiremit; kart: Maddeyi aç, Taşı, İşareti kaldır. Yapıya bağlanan
+  maddenin ayrı iğnesi kalkar.
+- 3D'de iğneler görünür (Kemal'in seçimi); basınca seçim kartı (madde
+  işaretinde "Viki maddesini aç"). 3D'de katmanlar MapLibre katmanlarını
+  gizler, adlar sınıfla saklanır.
+- Telefonda maddeler listesi kapalı başlar, başlığa basınca açılır.
+- `src/lib/haritaIsaretleri.ts`. Görseller: `docs/gorseller/isaret-*.png`
+  ("Deneme notu" yalnız önizleme denemesi).

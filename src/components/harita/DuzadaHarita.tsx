@@ -18,6 +18,7 @@ import type { FeatureCollection } from 'geojson';
 import { yolEtiketleri } from './yolEtiketleri';
 import { DEM_SINIR } from '../../data/duzadaDem';
 import { Atmosfer, atmosferVerisi, ATMOSFER_KAPALI, type AtmosferAyari } from './atmosfer';
+import { KATMANLAR_ACIK, type KatmanAyari, type HaritaIsareti } from '../../lib/haritaIsaretleri';
 
 /**
  * Düzada haritası.
@@ -82,6 +83,10 @@ interface DuzadaHaritaProps {
    * düğmeyle. Verilmezse kapalı.
    */
   atmosfer?: AtmosferAyari;
+  /** Not ve madde işaretleri (5. gece; 2D'de konur, burada iğne olarak görünür) */
+  isaretler?: HaritaIsareti[];
+  /** Görünen katmanlar (5. gece; Atölye tutar, 2D ile ortak) */
+  katmanlar?: KatmanAyari;
 }
 
 /** Haritanın baktığı yer: merkez (boylam, enlem) ve MapLibre yakınlığı */
@@ -133,7 +138,7 @@ function etiketElemani(p: Record<string, unknown>): {
   return { kok, ic };
 }
 
-export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className, duzen, bakis, onBakis, vitrin, atmosfer = ATMOSFER_KAPALI }) => {
+export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className, duzen, bakis, onBakis, vitrin, atmosfer = ATMOSFER_KAPALI, isaretler, katmanlar }) => {
   const kapsayici = useRef<HTMLDivElement | null>(null);
   const harita = useRef<MLMap | null>(null);
   /** Düzen değişince etiketleri yeniden kuran işlev — kurulum sırasında dolar */
@@ -793,6 +798,46 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
     atmosferNesnesi.current?.ayarla(atmosfer);
   }, [atmosfer.trafik, atmosfer.saat, atmosfer.mevsim]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Katmanlar (5. gece): yollar, yapılar, doğa açılıp kapanır; adlar sınıfla gizlenir
+  const katman = katmanlar ?? KATMANLAR_ACIK;
+  useEffect(() => {
+    const map = harita.current;
+    if (!map || !hazir) return;
+    const gruplar: Array<[boolean, string[]]> = [
+      [katman.yollar, ['yol-kaplama', 'yol-dolgu', 'merdiven', 'toprak-yol', 'patika']],
+      [katman.binalar, ['binalar', 'bina-golge', 'ayrinti-yapi', 'zemin-plaka', 'zemin-kenar', 'bahce-duvari']],
+      [katman.doga, ['ayrinti-agac']]
+    ];
+    for (const [acik, kimlikler] of gruplar) {
+      for (const id of kimlikler) if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', acik ? 'visible' : 'none');
+    }
+  }, [hazir, katman.yollar, katman.binalar, katman.doga]);
+
+  // İşaretler (5. gece): not hardal, madde kiremit iğne; basınca seçim kartı
+  useEffect(() => {
+    const map = harita.current;
+    if (!map || !hazir || vitrin) return;
+    const konanlar: maplibregl.Marker[] = [];
+    for (const i of isaretler || []) {
+      if (i.tur === 'not' ? !katman.notlar : !katman.maddeler) continue;
+      const el = document.createElement('div');
+      el.style.cssText = 'display:flex;flex-direction:column;align-items:center;cursor:pointer;';
+      const ad = document.createElement('span');
+      ad.textContent = i.ad;
+      ad.style.cssText = 'font:600 11px Poppins,sans-serif;color:#FAF8F5;text-shadow:0 0 3px rgba(14,28,79,.9),0 0 2px rgba(14,28,79,.9);white-space:nowrap;margin-bottom:2px;';
+      el.appendChild(ad);
+      const renk = i.tur === 'not' ? '#C99A2E' : '#F26B6F';
+      el.insertAdjacentHTML('beforeend', `<svg width="22" height="30" viewBox="-11 -29 22 30" aria-hidden="true"><path d="M0,0 C-4.5,-9 -10,-13 -10,-20 A10,10 0 1 1 10,-20 C10,-13 4.5,-9 0,0Z" fill="${renk}" stroke="#0E1C4F" stroke-width="1.4"/><circle cy="-20" r="3.8" fill="#FAF8F5"/></svg>`);
+      el.title = i.metin ? `${i.ad} — ${i.metin}` : i.ad;
+      el.addEventListener('click', ev => {
+        ev.stopPropagation();
+        setSecim({ wikiId: i.maddeId || '', ad: i.ad, tur: i.tur === 'not' ? 'Not' : 'Madde işareti', detay: i.metin || undefined });
+      });
+      konanlar.push(new maplibregl.Marker({ element: el, anchor: 'bottom' }).setLngLat(i.konum).addTo(map));
+    }
+    return () => konanlar.forEach(m => m.remove());
+  }, [hazir, vitrin, isaretler, katman.notlar, katman.maddeler]);
+
   const gorunumuSifirla = () => {
     harita.current?.easeTo({ center: DUZADA_MERKEZ, ...BASLANGIC, duration: 1000 });
   };
@@ -804,7 +849,7 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
     <div className={`relative ${className ?? 'w-full h-full min-h-[520px]'}`}>
       <div
         ref={kapsayici}
-        className={`w-full h-full overflow-hidden duzada-harita ${vitrin ? '' : 'rounded-lg'}`}
+        className={`w-full h-full overflow-hidden duzada-harita ${vitrin ? '' : 'rounded-lg'} ${katman.adlar ? '' : '[&_.duzada-etiket]:!opacity-0 [&_.duzada-etiket]:!pointer-events-none'}`}
       />
 
 

@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { isaretle } from '../../lib/olcumler';
-import { Eraser, Hand, MousePointer2, PenLine, Redo2, Undo2, Check, X, Eye, EyeOff, Home, LayoutGrid, RotateCcw, RotateCw, MapPinned, Pentagon, TreePine, Link2, Minus, Plus, ExternalLink, Blocks, Shuffle } from 'lucide-react';
+import { Eraser, Hand, MousePointer2, PenLine, Redo2, Undo2, Check, X, Eye, EyeOff, Home, LayoutGrid, RotateCcw, RotateCw, MapPinned, Pentagon, TreePine, Link2, Minus, Plus, ExternalLink, Blocks, Shuffle, StickyNote, Trash2, Move } from 'lucide-react';
 import type { Item } from '../../types';
 import { DEM_SINIR } from '../../data/duzadaDem';
 import { ANIT_KALIPLARI, kalipBul, kalibiYerlestir, alan, merkez as cokgenMerkezi, yolCokgeneBiniyor } from './anitKaliplari';
@@ -13,6 +13,7 @@ import { duzeniUygula, bosDuzen, type HaritaDuzeni } from '../harita/duzenKatman
 import { catmullRom, type Nokta } from '../harita/sinirBolgeleri';
 import { MAHALLE_TONU } from '../harita/haritaStili';
 import type { KayitDurumu } from '../../lib/haritaDuzeni';
+import { KATMANLAR_ACIK, notKaydi, notGuncelle, maddeIsareti, type KatmanAyari, type HaritaIsareti } from '../../lib/haritaIsaretleri';
 import {
   YOL_TURLERI, turBilgisi, bosTaslak, belgedenTaslak, taslaktanBelge, taslakBosMu,
   zeminCikar, yollariKur, yapistir, yeniYolId, derceye, metreye, uzunluk, karadaMi, DOGA_TURLERI, sadelestir,
@@ -43,7 +44,7 @@ import {
  * Geri al / yinele: düğmeler ya da Ctrl+Z / Ctrl+Y.
  */
 
-type Arac = 'gez' | 'sec' | 'ciz' | 'bina' | 'sablon' | 'doldur' | 'ozel' | 'doga' | 'bagla' | 'sil';
+type Arac = 'gez' | 'sec' | 'ciz' | 'bina' | 'sablon' | 'doldur' | 'ozel' | 'doga' | 'bagla' | 'not' | 'sil';
 
 interface KurucuProps {
   duzen: HaritaDuzeni | null;
@@ -64,6 +65,14 @@ interface KurucuProps {
   /** 2D ↔ 3D geçişinde aynı yere bakmak için (Düzada tutar) */
   bakis?: HaritaBakisi | null;
   onBakis?: (b: HaritaBakisi) => void;
+  /** Görünen katmanlar (5. gece; Atölye tutar, 3D ile ortak) */
+  katmanlar?: KatmanAyari;
+  /** Not ve madde işaretleri (5. gece) */
+  isaretler?: HaritaIsareti[];
+  /** Not kaydı açmak, notu / maddenin işaretini değiştirmek, notu silmek (yalnız düğmeyle) */
+  onAddItem?: (item: Omit<Item, 'id' | 'createdAt' | 'updatedAt' | 'userId'> & { id?: string }) => Promise<void>;
+  onUpdateItem?: (item: Item) => Promise<void>;
+  onDeleteItem?: (id: string) => Promise<void>;
 }
 
 interface Gorunum { x: number; y: number; w: number }
@@ -81,7 +90,8 @@ const halkaYolu = (h: Nokta[][]) =>
 
 const km = (m: number) => (m >= 1000 ? `${(m / 1000).toFixed(1)} km` : `${Math.round(m)} m`);
 
-export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], onMaddeAc, ustSol, bakis, onBakis }: KurucuProps) {
+export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], onMaddeAc, ustSol, bakis, onBakis, katmanlar, isaretler = [], onAddItem, onUpdateItem, onDeleteItem }: KurucuProps) {
+  const katman = katmanlar ?? KATMANLAR_ACIK;
   // ---- veri -------------------------------------------------------------------
   // Zemin bugünkü haritadır; Kurucu açıkken harita düzeni değişse bile zemin
   // açılıştaki hâlde kalır (çizerken altındaki yolların kaymaması için).
@@ -322,6 +332,20 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
   const [doldurAlani, setDoldurAlani] = useState<DoldurAlani | null>(null);
   const [doku, setDoku] = useState<DokuTuru>('bitisik');
   const [tohum, setTohum] = useState(1);
+  /**
+   * İşaretler (5. gece): Not aracıyla konan serbest not, listeden sürüklenen
+   * madde. `yerlestirilen`: dokun-bırak (telefonda sürükleme yok) ya da
+   * notu taşıma; sonraki dokunuşta yerine konur.
+   */
+  const [notTaslagi, setNotTaslagi] = useState<{ m: Nokta; baslik: string; metin: string } | null>(null);
+  const [seciliIsaret, setSeciliIsaret] = useState<string | null>(null);
+  const [isaretDuzen, setIsaretDuzen] = useState<{ baslik: string; metin: string } | null>(null);
+  const [silOnayi, setSilOnayi] = useState(false);
+  const [yerlestirilen, setYerlestirilen] = useState<{ maddeId?: string; notId?: string } | null>(null);
+  const [isaretYaziliyor, setIsaretYaziliyor] = useState(false);
+  const [maddeAra, setMaddeAra] = useState('');
+  // Telefonda liste haritayı örtmesin: kapalı başlar
+  const [maddeListesiAcik, setMaddeListesiAcik] = useState(() => typeof window === 'undefined' || window.innerWidth >= 1024);
   /** Sürüklenen yapı (30 Eylül, Kemal: "binaları taşıyabilmek isterim") */
   const [surukBina, setSurukBina] = useState<{ id: string; bas: Nokta; m: Nokta } | null>(null);
 
@@ -384,6 +408,53 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
     return { ...t, baglar: bg };
   });
 
+  // ---- işaretler (5. gece) ----------------------------------------------------
+  const isaretSec = (id: string | null) => {
+    setSeciliIsaret(id); setNotTaslagi(null); setIsaretDuzen(null); setSilOnayi(false); setSecili(null);
+  };
+  const isaretYaz = async (f: () => Promise<void>, tamam?: string) => {
+    setIsaretYaziliyor(true);
+    try { await f(); if (tamam) setUyari(tamam); } catch { setUyari('Kaydedilemedi; yeniden dene.'); }
+    finally { setIsaretYaziliyor(false); }
+  };
+  const notuKaydet = () => {
+    const n = notTaslagi;
+    if (!n || !onAddItem || (!n.baslik.trim() && !n.metin.trim())) return;
+    void isaretYaz(async () => { await onAddItem(notKaydi(derceye(n.m) as [number, number], n.baslik, n.metin)); setNotTaslagi(null); }, 'Not kaydedildi.');
+  };
+  /**
+   * Bırakma (sürükle-bırak ya da dokun-bırak): madde bir yapının üstüne
+   * bırakılırsa yapıya bağlanır (taslağa, Kurucu'nun öteki işleri gibi);
+   * boş yere bırakılırsa maddenin işareti olur (maddenin kaydına yazılır).
+   * Not taşınıyorsa notun yeri değişir.
+   */
+  const yerlestir = async (h: { maddeId?: string; notId?: string }, cx: number, cy: number) => {
+    setYerlestirilen(null);
+    const m = ekrandanMetre(cx, cy);
+    const altta = document.elementsFromPoint(cx, cy);
+    const oz = altta.map(el => el.closest('[data-ozel]')).find(Boolean);
+    const bn = altta.map(el => el.closest('[data-bina]')).find(Boolean);
+    const yapiId = oz ? oz.getAttribute('data-ozel') : bn ? bn.getAttribute('data-bina') : null;
+    if (h.notId) {
+      const not = items.find(i => i.id === h.notId);
+      if (!not || !onUpdateItem) return;
+      if (!karadaMi(m, zemin.ada)) { setUyari('Not denize konamaz.'); return; }
+      await isaretYaz(() => onUpdateItem(notGuncelle(not, { konum: derceye(m) as [number, number] })), 'Notun yeri değişti.');
+      return;
+    }
+    const madde = h.maddeId ? items.find(i => i.id === h.maddeId) : undefined;
+    if (!madde) return;
+    if (yapiId) {
+      bagla(yapiId, madde.id);
+      // Yapıya bağlanan maddenin ayrı iğnesi kalkar (iki yerde görünmesin)
+      if (madde.metadata?.haritaIsareti && onUpdateItem) await isaretYaz(() => onUpdateItem(maddeIsareti(madde, null)));
+      setUyari(`${madde.title} yapıya bağlandı.`);
+      return;
+    }
+    if (!karadaMi(m, zemin.ada)) { setUyari('İşaret denize konamaz — karada bir yere bırak.'); return; }
+    if (!onUpdateItem) return;
+    await isaretYaz(() => onUpdateItem(maddeIsareti(madde, derceye(m) as [number, number])), `${madde.title} haritaya işaretlendi.`);
+  };
   /** Bağlanabilecek viki maddeleri: yerler, mekânlar, kurumlar */
   const baglanabilir = useMemo(() => items.filter(i => !i.archived && !i.isProposal
     && ['yer', 'mekân', 'dükkân', 'kulüp', 'marka', 'oda'].includes(i.type)), [items]);
@@ -741,6 +812,18 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
     surukleme.current = null;
     if (!s || s.oynadi) return;
     // Tıklama
+    if (yerlestirilen) { void yerlestir(yerlestirilen, e.clientX, e.clientY); return; }
+    if (!['ciz', 'ozel', 'doga', 'bina', 'sablon', 'doldur', 'sil'].includes(arac)) {
+      const isr = document.elementsFromPoint(e.clientX, e.clientY).map(el => el.closest('[data-isaret]')).find(Boolean);
+      if (isr) { isaretSec(isr.getAttribute('data-isaret')); return; }
+    }
+    if (arac === 'not') {
+      const m = ekrandanMetre(e.clientX, e.clientY);
+      if (!karadaMi(m, zemin.ada)) { setUyari('Not denize konamaz — karada bir yere dokun.'); return; }
+      setSeciliIsaret(null);
+      setNotTaslagi(n => ({ m, baslik: n?.baslik ?? '', metin: n?.metin ?? '' }));
+      return;
+    }
     if (arac === 'ciz') {
       const m = ekrandanMetre(e.clientX, e.clientY);
       const y = yapistir(m, yollar, miknatisEsigi(), cizilen);
@@ -1260,6 +1343,7 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
     { id: 'ozel', ad: 'Özel yapı', Ikon: Pentagon },
     { id: 'doga', ad: 'Doğa', Ikon: TreePine },
     { id: 'bagla', ad: 'Madde bağla', Ikon: Link2 },
+    { id: 'not', ad: 'Not', Ikon: StickyNote },
     { id: 'sil', ad: 'Kaldır', Ikon: Eraser }
   ];
   /** Bekleyen şablonu / kalıbı yerine koyar */
@@ -1269,9 +1353,12 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
     else if (arac === 'ozel' && kalipId) kalibiKoy(bekleyen);
     setBekleyen(null);
   }
-  const aracSec = (id: Arac) => { setArac(id); setCizilen([]); setCokgen([]); setImlec(null); setBekleyen(null); setSilAlani(null); setCoklu(null); setDoldurAlani(null); if (id !== 'sec' && id !== 'bagla') setSecili(null); };
+  const aracSec = (id: Arac) => { setArac(id); setCizilen([]); setCokgen([]); setImlec(null); setBekleyen(null); setSilAlani(null); setCoklu(null); setDoldurAlani(null); if (id !== 'sec' && id !== 'bagla') setSecili(null); setNotTaslagi(null); setYerlestirilen(null); };
 
   const ipucu = (() => {
+    if (yerlestirilen?.notId) return 'Notun yeni yerine dokun.';
+    if (yerlestirilen?.maddeId) return `${maddeAdi(yerlestirilen.maddeId)}: bir yapıya dokun (bağlanır) ya da boş bir yere (işaret olur).`;
+    if (arac === 'not') return notTaslagi ? 'Notu yaz, "Kaydet"e bas. Başka yere dokunursan iğne oraya geçer.' : 'Not koymak istediğin yere dokun.';
     if (arac === 'ciz') return cizilen.length === 0
       ? `${turBilgisi(cizTur).ad}: ilk noktaya dokun. Yol ve kavşak yakınında nokta yapışır.`
       : `${cizilen.length} nokta · ${km(cizimUzunlugu)} — bitirmek için Enter, çift tık ya da "Bitir"`;
@@ -1279,7 +1366,7 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
     if (arac === 'ozel' || arac === 'doga') return cokgen.length === 0
       ? `${arac === 'ozel' ? 'Özel yapı' : DOGA_TURLERI.find(d => d.id === dogaTur)!.ad}: köşelere sırayla dokun. İlk köşeye dönünce kapanır.`
       : `${cokgen.length} köşe · ${cokgen.length >= 3 ? `${Math.round(alan(cokgen))} m² — ilk köşeye dokun ya da Enter` : 'devam et'} · ⌫ son köşeyi siler`;
-    if (arac === 'bagla') return 'Bağlamak istediğin yapıya dokun, sonra sağdan maddesini seç.';
+    if (arac === 'bagla') return 'Soldaki listeden bir maddeyi haritaya sürükle (ya da maddeye, sonra haritaya dokun). Yapıya dokunup sağdan da bağlayabilirsin.';
     if (arac === 'bina') return `${binaBilgisi(binaTur).ad}: dokun. Yola yakınsa yola dönük oturur.`;
     if (arac === 'sablon') return bekleyen ? `${SABLONLAR.find(x => x.id === sablonId)!.ad} bekliyor: yönünü ve boyutunu ayarla, başka yere dokunup taşı; sonra Yerleştir ya da Vazgeç.` : `${SABLONLAR.find(x => x.id === sablonId)!.ad}: koymak istediğin yere dokun.`;
     if (arac === 'doldur') return doldurAlani
@@ -1309,6 +1396,8 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
         onPointerLeave={() => { setImlec(null); setYapisma(null); }}
         onWheel={onWheel}
         onDoubleClick={() => { if (arac === 'ciz') bitir(); else if ((arac === 'ozel' || arac === 'doga') && cokgen.length >= 3) cokgeniBitir(); }}
+        onDragOver={e => { if (e.dataTransfer.types.includes('text/kems-madde')) { e.preventDefault(); e.dataTransfer.dropEffect = 'link'; } }}
+        onDrop={e => { const id = e.dataTransfer.getData('text/kems-madde'); if (id) { e.preventDefault(); void yerlestir({ maddeId: id }, e.clientX, e.clientY); } }}
         data-kurucu-alan
       >
         <svg width={boyut.w} height={boyut.h} viewBox={`${gorunum.x} ${gorunum.y} ${gorunum.w} ${h}`} className="block">
@@ -1327,7 +1416,7 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
             width={fiziki.w} height={fiziki.h} preserveAspectRatio="none" style={{ pointerEvents: 'none' }} />
 
           {/* Doğa alanları */}
-          {dogaAlanlari.map(d => {
+          {(katman.doga ? dogaAlanlari : []).map(d => {
             const bi = DOGA_TURLERI.find(x => x.id === d.tur)!;
             const sec = d.id === secili;
             return (
@@ -1339,14 +1428,14 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
           })}
 
           {/* Yollar: önce kenarlar, sonra dolgu */}
-          {gorunenYollar.map(y => {
+          {(katman.yollar ? gorunenYollar : []).map(y => {
             if (y.gizli && !gizliGoster) return null;
             const b = turBilgisi(y.tur);
             if (y.gizli || !b.kenar) return null;
             return <path key={`k-${y.id}`} d={parcaYolu(y)} fill="none" stroke={b.kenar}
               strokeWidth={yk(b.kalinlik + 2)} strokeLinecap="round" strokeLinejoin="round" />;
           })}
-          {gorunenYollar.map(y => {
+          {(katman.yollar ? gorunenYollar : []).map(y => {
             if (y.gizli && !gizliGoster) return null;
             const b = turBilgisi(y.tur);
             const sec = y.id === secili;
@@ -1365,7 +1454,7 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
           })}
 
           {/* Binalar */}
-          {binalar.map(bn => {
+          {(katman.binalar ? binalar : []).map(bn => {
             if (bn.gizli && !gizliGoster) return null;
             const bi = bn.tur ? binaBilgisi(bn.tur) : null;
             const sec = lider(bn.id) === secili;
@@ -1391,7 +1480,7 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
           })}
 
           {/* Özel yapılar: gölge + taban + kat yazısı */}
-          {ozelYapilar.map(o => {
+          {(katman.binalar ? ozelYapilar : []).map(o => {
             const k = ozelKoseleri(o);
             const sec = o.id === secili;
             const c = cokgenMerkezi(k);
@@ -1521,7 +1610,7 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
           })()}
 
           {/* Etiketler: yalnız ad (mahalle sınırı çizilmez) */}
-          {zemin.etiketler.map((et, i) => gorunenEtiketler.has(i) && (
+          {(katman.adlar ? zemin.etiketler : []).map((et, i) => gorunenEtiketler.has(i) && (
             <text key={i} x={et.m[0]} y={et.m[1]} textAnchor="middle"
               fontSize={px(et.tur === 'mahalle' ? 13 : 10)} fontWeight={et.tur === 'mahalle' ? 700 : 500}
               letterSpacing={et.tur === 'mahalle' ? px(2.5) : 0}
@@ -1529,6 +1618,26 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
               {et.tur === 'mahalle' ? et.ad.toLocaleUpperCase('tr') : et.ad}
             </text>
           ))}
+
+          {/* İşaretler (5. gece): not iğnesi hardal, madde iğnesi kiremit */}
+          {[...isaretler.filter(i => (i.tur === 'not' ? katman.notlar : katman.maddeler)),
+            ...(notTaslagi ? [{ id: '__yeni', tur: 'not' as const, ad: notTaslagi.baslik || 'Yeni not', konum: derceye(notTaslagi.m) as [number, number] }] : [])
+          ].map(i => {
+            const p = metreye(i.konum);
+            const sec = i.id === seciliIsaret || i.id === '__yeni';
+            const r0 = px(sec ? 8.5 : 7);
+            return (
+              <g key={i.id} data-isaret={i.id === '__yeni' ? undefined : i.id} transform={`translate(${p[0]} ${p[1]})`} style={{ cursor: 'pointer' }}>
+                <path d={`M0,0 C${-r0 * 0.45},${-r0 * 0.9} ${-r0},${-r0 * 1.3} ${-r0},${-r0 * 2} A${r0},${r0} 0 1 1 ${r0},${-r0 * 2} C${r0},${-r0 * 1.3} ${r0 * 0.45},${-r0 * 0.9} 0,0Z`}
+                  fill={i.tur === 'not' ? '#C99A2E' : '#F26B6F'} stroke={sec ? '#FAF8F5' : '#0E1C4F'} strokeWidth={px(sec ? 2 : 1.2)} />
+                <circle cy={-r0 * 2} r={r0 * 0.38} fill="#FAF8F5" />
+                <text y={-r0 * 3.3} textAnchor="middle" fontSize={px(10.5)} fontWeight={600}
+                  fill="#FAF8F5" stroke="rgba(14,28,79,0.7)" strokeWidth={px(3)} paintOrder="stroke">
+                  {i.ad}
+                </text>
+              </g>
+            );
+          })}
 
           {/* Çizilen yol */}
           {arac === 'ciz' && cizilen.length > 0 && (
@@ -1765,6 +1874,113 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
         </div>
       )}
 
+      {/* İşaret kartı (5. gece): yeni not ya da seçili iğne */}
+      {(notTaslagi || seciliIsaret) && !seciliVar && (() => {
+        const isr = seciliIsaret ? isaretler.find(i => i.id === seciliIsaret) : undefined;
+        const kayit = isr ? items.find(i => i.id === (isr.tur === 'not' ? isr.id : isr.maddeId)) : undefined;
+        const girdi = 'w-full text-[12px] rounded-lg border border-[#CFC5B4] dark:border-[#2C3C72] bg-white dark:bg-[#17345A] px-2 py-1.5 focus:outline-hidden focus:border-[#F26B6F]';
+        const kapat = () => { setNotTaslagi(null); isaretSec(null); };
+        return (
+          <div className={`${kart} absolute z-10 right-3 top-16 w-72 max-w-[calc(100%-1.5rem)] max-h-[calc(100%-13rem)] overflow-y-auto p-3 text-[12px] space-y-2`}>
+            <div className="flex items-start justify-between gap-2">
+              <div className={etiket}>{notTaslagi ? 'Yeni not' : isr?.tur === 'not' ? 'Not' : 'Madde işareti'}</div>
+              <button type="button" onClick={kapat} className="p-0.5 cursor-pointer text-[#6A5E4C] dark:text-[#A6B0C9]"><X className="w-3.5 h-3.5" /></button>
+            </div>
+            {notTaslagi && (
+              <>
+                <input value={notTaslagi.baslik} onChange={e => setNotTaslagi(n => n && { ...n, baslik: e.target.value })} placeholder="Başlık (isteğe bağlı)" className={girdi} />
+                <textarea value={notTaslagi.metin} onChange={e => setNotTaslagi(n => n && { ...n, metin: e.target.value })} rows={3} placeholder="Not" className={girdi} autoFocus />
+                <div className="flex gap-1.5">
+                  <button type="button" onClick={notuKaydet} disabled={isaretYaziliyor || !onAddItem || (!notTaslagi.baslik.trim() && !notTaslagi.metin.trim())}
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#0E1C4F] dark:bg-[#2C3C72] text-white text-[11px] font-semibold cursor-pointer disabled:opacity-40"><Check className="w-3.5 h-3.5" />Kaydet</button>
+                  <button type="button" onClick={() => setNotTaslagi(null)} className={dugmeBos}>Vazgeç</button>
+                </div>
+                <p className="text-[10.5px] text-[#6A5E4C] dark:text-[#A6B0C9]">Not ayrı küçük bir kayıt olur; maddeye bağlı değildir.</p>
+              </>
+            )}
+            {isr && isr.tur === 'not' && kayit && (
+              isaretDuzen ? (
+                <>
+                  <input value={isaretDuzen.baslik} onChange={e => setIsaretDuzen(d => d && { ...d, baslik: e.target.value })} className={girdi} />
+                  <textarea value={isaretDuzen.metin} onChange={e => setIsaretDuzen(d => d && { ...d, metin: e.target.value })} rows={4} className={girdi} />
+                  <div className="flex gap-1.5">
+                    <button type="button" disabled={isaretYaziliyor || !onUpdateItem}
+                      onClick={() => onUpdateItem && void isaretYaz(async () => { await onUpdateItem(notGuncelle(kayit, isaretDuzen)); setIsaretDuzen(null); }, 'Not kaydedildi.')}
+                      className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#0E1C4F] dark:bg-[#2C3C72] text-white text-[11px] font-semibold cursor-pointer disabled:opacity-40"><Check className="w-3.5 h-3.5" />Kaydet</button>
+                    <button type="button" onClick={() => setIsaretDuzen(null)} className={dugmeBos}>Vazgeç</button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="text-[13px] font-semibold">{isr.ad}</div>
+                  {isr.metin && <p className="whitespace-pre-line leading-relaxed">{isr.metin}</p>}
+                  <div className="flex flex-wrap gap-1.5">
+                    <button type="button" onClick={() => setIsaretDuzen({ baslik: kayit.title, metin: kayit.notes || '' })} className={dugmeBos}><PenLine className="w-3 h-3" />Düzenle</button>
+                    <button type="button" onClick={() => { setYerlestirilen({ notId: kayit.id }); isaretSec(null); }} className={dugmeBos}><Move className="w-3 h-3" />Taşı</button>
+                    {silOnayi ? (
+                      <button type="button" disabled={isaretYaziliyor || !onDeleteItem}
+                        onClick={() => onDeleteItem && void isaretYaz(async () => { await onDeleteItem(kayit.id); isaretSec(null); }, 'Not silindi.')}
+                        className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#F26B6F] text-white text-[11px] font-semibold cursor-pointer disabled:opacity-40">Evet, sil</button>
+                    ) : (
+                      <button type="button" onClick={() => setSilOnayi(true)} className={dugmeBos}><Trash2 className="w-3 h-3" />Sil</button>
+                    )}
+                  </div>
+                </>
+              )
+            )}
+            {isr && isr.tur === 'madde' && kayit && (
+              <>
+                <div className="text-[13px] font-semibold">{isr.ad}</div>
+                <div className="flex flex-wrap gap-1.5">
+                  {onMaddeAc && <button type="button" onClick={() => onMaddeAc(kayit.id)} className={dugmeBos}><ExternalLink className="w-3 h-3" />Maddeyi aç</button>}
+                  <button type="button" onClick={() => { setYerlestirilen({ maddeId: kayit.id }); isaretSec(null); }} className={dugmeBos}><Move className="w-3 h-3" />Taşı</button>
+                  <button type="button" disabled={isaretYaziliyor || !onUpdateItem}
+                    onClick={() => onUpdateItem && void isaretYaz(async () => { await onUpdateItem(maddeIsareti(kayit, null)); isaretSec(null); }, 'İşaret kaldırıldı.')}
+                    className={dugmeBos}><X className="w-3 h-3" />İşareti kaldır</button>
+                </div>
+                <p className="text-[10.5px] text-[#6A5E4C] dark:text-[#A6B0C9]">İşaret maddenin kaydında durur; madde silinmez.</p>
+              </>
+            )}
+          </div>
+        );
+      })()}
+
+      {/* Maddeler listesi (5. gece): Madde bağla aracında; sürükle ya da dokun-bırak */}
+      {arac === 'bagla' && (() => {
+        const q = maddeAra.trim().toLocaleLowerCase('tr');
+        const haritada = new Set([...Object.values(taslak.baglar), ...binalar.map(b => b.wikiId).filter(Boolean) as string[], ...isaretler.map(i => i.maddeId).filter(Boolean) as string[]]);
+        const liste = baglanabilir.filter(i => !q || i.title.toLocaleLowerCase('tr').includes(q))
+          .sort((a, b) => Number(haritada.has(a.id)) - Number(haritada.has(b.id)) || a.title.localeCompare(b.title, 'tr'));
+        return (
+          <div className={`${kart} absolute z-10 left-3 top-16 w-60 max-w-[calc(100%-1.5rem)] p-2.5 text-[12px] ${maddeListesiAcik ? 'max-h-[calc(100%-14rem)] flex flex-col' : ''}`}>
+            <button type="button" onClick={() => setMaddeListesiAcik(a => !a)} className={`${etiket} w-full text-left cursor-pointer`}>
+              Maddeler · {liste.length} {maddeListesiAcik ? '▾' : '▸'}
+            </button>
+            {maddeListesiAcik && (
+              <>
+                <input value={maddeAra} onChange={e => setMaddeAra(e.target.value)} placeholder="Madde ara…"
+                  className="mt-1.5 w-full text-[12px] rounded-lg border border-[#CFC5B4] dark:border-[#2C3C72] bg-white dark:bg-[#17345A] px-2 py-1.5 focus:outline-hidden focus:border-[#F26B6F]" />
+                <ul className="mt-1.5 overflow-y-auto min-h-0 space-y-0.5">
+                  {liste.map(i => (
+                    <li key={i.id}>
+                      <button type="button" draggable
+                        onDragStart={e => { e.dataTransfer.setData('text/kems-madde', i.id); e.dataTransfer.effectAllowed = 'link'; }}
+                        onClick={() => setYerlestirilen(y => (y?.maddeId === i.id ? null : { maddeId: i.id }))}
+                        title="Haritaya sürükle ya da dokun, sonra haritaya dokun"
+                        className={`w-full flex items-center gap-1.5 text-left px-2 py-1 rounded-md cursor-grab hover:bg-[#F3EFE8] dark:hover:bg-[#17345A] ${yerlestirilen?.maddeId === i.id ? 'ring-2 ring-[#F26B6F]' : ''}`}>
+                        <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${haritada.has(i.id) ? 'bg-[#2F7A45]' : 'bg-[#CFC5B4]'}`} />
+                        <span className="flex-1 min-w-0 truncate">{i.title}</span>
+                        {haritada.has(i.id) && <span className="text-[10px] text-[#2F7A45] dark:text-[#9FD3A9]">haritada</span>}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+          </div>
+        );
+      })()}
+
       {/* Alt: seçili aracın ayarları + araç çubuğu */}
       <div className="absolute left-1/2 -translate-x-1/2 bottom-3 z-10 flex flex-col items-center gap-2 w-[calc(100%-1.5rem)] max-w-max">
         {arac === 'ciz' && (
@@ -1894,7 +2110,7 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
       </div>
 
       {/* Ölçek */}
-      <div className="absolute left-3 top-16 z-10 hidden lg:block px-2 py-1 rounded-lg bg-[#FAF8F5]/90 text-[10px] font-mono text-[#6A5E4C] pointer-events-none">
+      <div className={`absolute left-3 top-16 z-10 hidden ${arac === 'bagla' ? '' : 'lg:block'} px-2 py-1 rounded-lg bg-[#FAF8F5]/90 text-[10px] font-mono text-[#6A5E4C] pointer-events-none`}>
         {(() => {
           const hedef = 100 / olcek;
           const adimlar = [10, 20, 50, 100, 200, 500, 1000, 2000, 5000];
