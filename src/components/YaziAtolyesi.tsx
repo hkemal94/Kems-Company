@@ -6,12 +6,14 @@ import { Item } from '../types';
 import {
   ORNEK_PROJE_ID, ornekProje, ornekBolumler
 } from '../data/hikayeOrnekleri';
-import { SayfaBasi } from './kabuk/SayfaBasi';
+import { GomuluSayfa, SayfaBasi } from './kabuk/SayfaBasi';
 import { SayfaRayi, type RayBolumu } from './SayfaRayi';
 
 const RAY_BOLUMLERI: RayBolumu[] = [
   { id: 'blog', label: 'Blog' },
-  { id: 'kitap', label: 'Kitap' }
+  { id: 'kitap', label: 'Kitap' },
+  // 7 Ekim: Fanzin Yazı'nın sekmesi (Kemal: "daha az başlık")
+  { id: 'fanzin', label: 'Fanzin' }
 ];
 
 interface YaziAtolyesiProps {
@@ -22,7 +24,9 @@ interface YaziAtolyesiProps {
   onDeleteItem: (itemId: string) => Promise<void>;
   onAddItem: (item: Omit<Item, 'id' | 'createdAt' | 'updatedAt' | 'userId'>) => Promise<void>;
   /** Menüden doğrudan Kitap ya da Blog'a gelmek için */
-  istek?: { sekme: 'blog' | 'kitap'; n: number } | null;
+  istek?: { sekme: 'blog' | 'kitap' | 'fanzin'; n: number } | null;
+  /** Fanzin sekmesinin içeriği (App çizer) */
+  fanzin?: React.ReactNode;
 }
 
 export default function YaziAtolyesi({
@@ -32,9 +36,10 @@ export default function YaziAtolyesi({
   onUpdateItem,
   onDeleteItem,
   onAddItem,
-  istek = null
+  istek = null,
+  fanzin
 }: YaziAtolyesiProps) {
-  const [subTab, setSubTab] = useState<'blog' | 'kitap'>(istek?.sekme ?? 'blog');
+  const [subTab, setSubTab] = useState<'blog' | 'kitap' | 'fanzin'>(istek?.sekme ?? 'blog');
   React.useEffect(() => { if (istek) setSubTab(istek.sekme); }, [istek?.n]);
 
   /**
@@ -76,7 +81,7 @@ export default function YaziAtolyesi({
 
       {/* Sade başlık (1 Ekim, K-2): Blog / Kitap seçimi yalnız sayfa rayında */}
       <SayfaBasi baslik="Yazı">
-        {!ornekVar && (
+        {!ornekVar && subTab !== 'fanzin' && (
           <button
             type="button"
             onClick={ornegiGetir}
@@ -94,7 +99,9 @@ export default function YaziAtolyesi({
 
       {/* Embedded active workspace view */}
       <div>
-        {subTab === 'blog' ? (
+        {subTab === 'fanzin' ? (
+          <GomuluSayfa.Provider value={true}>{fanzin}</GomuluSayfa.Provider>
+        ) : subTab === 'blog' ? (
           <Blog
             items={items}
             activeItemId={activeItemId}

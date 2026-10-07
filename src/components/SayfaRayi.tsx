@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useGomulu } from './kabuk/SayfaBasi';
 import { createPortal } from 'react-dom';
 
 /**
@@ -48,6 +49,7 @@ interface SayfaRayiProps {
 export const SayfaRayi: React.FC<SayfaRayiProps> = ({
   bolumler, baslik, aktifId, onSec
 }) => {
+  const gomulu = useGomulu();
   const sekmeKipi = typeof onSec === 'function';
   const [yuva, setYuva] = useState<HTMLElement | null>(null);
   const [aktif, setAktif] = useState<string | null>(bolumler[0]?.id ?? null);
@@ -99,7 +101,8 @@ export const SayfaRayi: React.FC<SayfaRayiProps> = ({
     return () => gozlemci.disconnect();
   }, [bolumler, sekmeKipi]);
 
-  if (!yuva || bolumler.length === 0) return null;
+  // Başka bir sayfanın sekmesiyken o sayfanın rayı yeter
+  if (gomulu || !yuva || bolumler.length === 0) return null;
 
   const secili = sekmeKipi ? aktifId : aktif;
 

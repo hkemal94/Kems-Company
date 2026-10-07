@@ -1,11 +1,22 @@
 import { BekleyenIsler } from './BekleyenIsler';
 import React, { useEffect, useMemo, useState } from 'react';
-import { ChevronDown, LayoutGrid, Search } from 'lucide-react';
+import { CalendarDays, ChevronDown, Globe, Milestone, Newspaper, Search, Sparkles } from 'lucide-react';
 import { useMasaustu } from '../kabuk/KatlanirBolum';
-import { ARACLAR } from '../araclar/Araclar';
 
-/** Ana sayfadaki kısayollar (sıra ARACLAR'daki gibi) */
-const KISAYOLLAR = ['fanzin', 'takvim', 'yolharitasi', 'studyo', 'site'];
+/**
+ * Ana sayfadaki kısayollar (30 Eylül, Kemal: "büyük şeyler çok derinlere
+ * saklanmış"). 7 Ekim: "Bütün araçlar" ekranı kalktı; Fanzin Yazı'da,
+ * Takvim ve Yol haritası Durum'da açılır.
+ */
+const KISAYOLLAR: Array<{ id: 'fanzin' | 'takvim' | 'yolharitasi' | 'studyo' | 'site'; ad: string; simge: React.ElementType }> = [
+  { id: 'fanzin', ad: 'Fanzin', simge: Newspaper },
+  { id: 'takvim', ad: 'Takvim', simge: CalendarDays },
+  { id: 'yolharitasi', ad: 'Yol haritası', simge: Milestone },
+  { id: 'studyo', ad: 'Yapay zekâ', simge: Sparkles },
+  { id: 'site', ad: 'Site', simge: Globe }
+];
+/** Listesi olan yüzdeler Durum'da maddelerin listesini açar (7 Ekim) */
+const seritHedefi = (h: SeritHedefi): Hedef => (h === 'kunye' || h === 'kitap' || h === 'harita' ? `durum-${h}` : h);
 import type { Item } from '../../types';
 import { durumOranlari } from '../../lib/durumOranlari';
 import { adayKaydi, soruyuErtele, sorulacaklar } from '../../lib/adaylar';
@@ -37,7 +48,7 @@ import { ETIKET, KART, IKINCIL, YAZI } from './stil';
 
 export type TelSekmesi = 'bugun' | 'atolye' | 'notlar' | 'durum';
 
-type Hedef = SeritHedefi | 'eksikler' | 'harita' | 'fanzin' | 'takvim' | 'yolharitasi' | 'studyo' | 'site' | 'araclar';
+type Hedef = SeritHedefi | 'eksikler' | 'harita' | 'fanzin' | 'takvim' | 'yolharitasi' | 'studyo' | 'site' | `durum-${'kunye' | 'kitap' | 'harita'}`;
 
 interface Props {
   items: Item[];
@@ -177,7 +188,7 @@ export const Anasayfa: React.FC<Props> = ({
                 )}
                 {ac && b.id === 'durum' && (
                   <>
-                    <YuzdeSeridi oranlar={oranlar} onSec={h => onGit(h)} />
+                    <YuzdeSeridi oranlar={oranlar} onSec={h => onGit(seritHedefi(h))} />
                     <DuzadaKarti items={items} onHarita={() => onGit('harita')} onMadde={onMaddeyiAc} />
                   </>
                 )}
@@ -195,24 +206,19 @@ export const Anasayfa: React.FC<Props> = ({
         Kısayollar (30 Eylül, Kemal: "büyük şeyler çok derinlere saklanmış"):
         büyük araçlar ana sayfadan tek dokunuşla. Yalnız masaüstünde.
       */}
-      <div className="grid grid-cols-7 gap-2">
-          {ARACLAR.filter(a => KISAYOLLAR.includes(a.id)).map(a => (
-            <button key={a.id} type="button" onClick={() => onGit(a.id as Hedef)}
+      <div className="grid grid-cols-5 gap-2">
+          {KISAYOLLAR.map(a => (
+            <button key={a.id} type="button" onClick={() => onGit(a.id)}
               className={`${KART} p-3 text-left hover:border-[#F26B6F] cursor-pointer`}>
               <a.simge className="w-5 h-5 text-[#F26B6F]" />
               <span className={`mt-2 block text-[13px] font-bold leading-tight ${YAZI}`}>{a.ad}</span>
             </button>
           ))}
-          <button type="button" onClick={() => onGit('araclar')}
-            className={`${KART} p-3 text-left hover:border-[#F26B6F] cursor-pointer`}>
-            <LayoutGrid className="w-5 h-5 text-[#6A5E4C] dark:text-[#A6B0C9]" />
-            <span className={`mt-2 block text-[13px] font-bold leading-tight ${YAZI}`}>Bütün araçlar</span>
-          </button>
       </div>
 
       {/* Yüzde şeridi */}
       <div>
-        <YuzdeSeridi oranlar={oranlar} onSec={h => onGit(h)} />
+        <YuzdeSeridi oranlar={oranlar} onSec={h => onGit(seritHedefi(h))} />
       </div>
 
       {/*
