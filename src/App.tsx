@@ -141,7 +141,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<Sayfa>('komuta');
   /** Paket 4: alt sekmeye doğrudan gitme istekleri (telefonda Harita, Kurucu, Kitap) */
   const [duzadaIstek, setDuzadaIstek] = useState<{ sekme: DuzadaSekmesi; n: number } | null>(null);
-  const [atolyeIstek, setAtolyeIstek] = useState<{ sekme: AtolyeSekmesi; n: number; aile?: string } | null>(null);
+  const [atolyeIstek, setAtolyeIstek] = useState<{ sekme: AtolyeSekmesi; n: number; aile?: string; madde?: string } | null>(null);
   const [yaziIstek, setYaziIstek] = useState<{ sekme: 'blog' | 'kitap' | 'fanzin'; n: number } | null>(null);
   /** Neyin Eksik sayfası açılırken açık gelecek başlık */
   const [eksikAcik, setEksikAcik] = useState<string | null>(null);
@@ -607,6 +607,10 @@ export default function App() {
       setActiveTab('oyun');
     } else if (item.type === 'aday') {
       setActiveTab('studyo');
+    } else if (item.type === 'tuval') {
+      // Tuval panosu (6. gece): Atölye'de
+      setAtolyeIstek({ sekme: 'tuval', n: Date.now(), madde: String(item.metadata?.bagliId || '') || undefined });
+      setActiveTab('atolye');
     } else if (item.type === 'map_pin') {
       // Harita notu (5. gece): Atölye'de haritada
       setAtolyeIstek({ sekme: 'harita', n: Date.now() });
@@ -642,7 +646,7 @@ export default function App() {
     sablonuUygula(sablonuOku(items.find(i => i.type === 'kkm_ayar')?.metadata?.vikiSablonu));
   }, [items]);
 
-  const SAYILMAZ_TIP = new Set(['map_settings', 'map_pin', 'channel', 'aday']);
+  const SAYILMAZ_TIP = new Set(['map_settings', 'map_pin', 'tuval', 'channel', 'aday']);
   const varlikSayisi = useMemo(
     () => items.filter(
       i => !i.archived && !i.isProposal
@@ -676,6 +680,7 @@ export default function App() {
       case 'harita': case 'kurucu': case 'atolye': setAtolyeIstek({ sekme: 'harita', n }); setActiveTab('atolye'); break;
       case 'bagagi': setAtolyeIstek({ sekme: 'ag', n }); setActiveTab('atolye'); break;
       case 'zaman': setAtolyeIstek({ sekme: 'zaman', n }); setActiveTab('atolye'); break;
+      case 'tuval': setAtolyeIstek({ sekme: 'tuval', n, ...(ayrinti ? { madde: ayrinti } : {}) }); setActiveTab('atolye'); break;
       case 'soyagaci': setAtolyeIstek({ sekme: 'soy', n, ...(ayrinti ? { aile: ayrinti } : {}) }); setActiveTab('atolye'); break;
       case 'viki': case 'kunye': case 'duzada': setDuzadaIstek({ sekme: 'wiki', n }); setActiveTab('duzada'); break;
       case 'kitap': setYaziIstek({ sekme: 'kitap', n }); setActiveTab('yazi'); break;
@@ -698,6 +703,15 @@ export default function App() {
   };
 
   const maddeyiAc = (item: Item) => { handleSelectResult(item); };
+
+  /** Bir maddenin "Tuvalde aç"ı (6. gece): lib/tuval → tuvaldeAc olayı */
+  const gitRef = useRef(git);
+  gitRef.current = git;
+  useEffect(() => {
+    const ac = (e: Event) => gitRef.current('tuval', (e as CustomEvent<{ maddeId?: string }>).detail?.maddeId ?? null);
+    window.addEventListener('kems-tuval-ac', ac);
+    return () => window.removeEventListener('kems-tuval-ac', ac);
+  }, []);
 
   /* Eski adla gelen sayfa isteği (ör. bir alt ekrandan 'galeri') yeni yerine gider */
   useEffect(() => {
@@ -913,7 +927,7 @@ export default function App() {
     ] },
     { grup: 'Evren', satirlar: [
       { id: 'duzada', ad: 'Düzada', alt: 'viki ve Evren Raporu', simge: Compass, nokta: bildirimVar('kanon') },
-      { id: 'atolye', ad: 'Atölye', alt: 'harita, bağ ağı, zaman, soy ağacı', simge: Hammer },
+      { id: 'atolye', ad: 'Atölye', alt: 'harita, bağ ağı, zaman, soy ağacı, tuval', simge: Hammer },
       { id: 'yazi', ad: 'Yazı', alt: 'kitap, blog, fanzin', simge: PenTool },
       { id: 'oyun', ad: 'Oyun', simge: Gamepad2 }
     ] },
@@ -940,7 +954,7 @@ export default function App() {
    */
   const DIGER: Array<{ grup: string; satirlar: Array<{ hedef: string; ad: string; alt?: string; simge: React.ElementType; nokta?: boolean }> }> = [
     { grup: 'Evren', satirlar: [
-      { hedef: 'atolye', ad: 'Atölye', alt: 'harita, bağ ağı, zaman, soy ağacı', simge: Hammer },
+      { hedef: 'atolye', ad: 'Atölye', alt: 'harita, bağ ağı, zaman, soy ağacı, tuval', simge: Hammer },
       { hedef: 'yazi', ad: 'Yazı', alt: 'kitap, blog, fanzin', simge: PenTool },
       { hedef: 'oyun', ad: 'Oyun', simge: Gamepad2 }
     ] },
@@ -1226,6 +1240,7 @@ export default function App() {
                 onAddItem={handleAddItem}
                 onUpdateItem={handleUpdateItem}
                 onDeleteItem={handleDeleteItem}
+                onKayitAc={maddeyiAc}
                 istek={atolyeIstek}
                 onMaddeAc={id => { setDuzadaIstek({ sekme: 'wiki', n: Date.now() }); setActiveItemId(id); setActiveTab('duzada'); }}
               />

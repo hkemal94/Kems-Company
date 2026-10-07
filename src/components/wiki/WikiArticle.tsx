@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { AlertCircle, ChevronRight, Globe, Link2, PencilLine, Pin, Unlink, GitFork } from 'lucide-react';
+import { AlertCircle, ChevronRight, Globe, Link2, PencilLine, Pin, Unlink, GitFork, Frame } from 'lucide-react';
+import { maddeninTuvalleri, tuvaldeAc } from '../../lib/tuval';
 import { StudyodaAc } from '../studyo/StudyodaAc';
 import { Item } from '../../types';
 import { MaddeDuzenleyici, AileUyeleri } from './MaddeDuzenleyici';
@@ -316,6 +317,12 @@ export const WikiArticle: React.FC<WikiArticleProps> = ({
               className={`flex items-center gap-1.5 text-[11px] font-mono transition-colors cursor-pointer ${item.metadata?.sitede === true ? 'text-[#2F7A45] dark:text-[#9FD3A9]' : 'text-gri hover:text-lacivert dark:text-bej/85 dark:hover:text-krem'}`}
             >
               <Globe size={12} /> {item.metadata?.sitede === true ? 'sitede ✓' : 'sitede göster'}
+            </button>
+          )}
+          {admin && (item.type === 'yer' || maddeninTuvalleri(allItems, item.id).length > 0) && (
+            <button type="button" onClick={() => tuvaldeAc(item.id)} title="Bu maddenin panosu (Atölye → Tuval)"
+              className="flex items-center gap-1.5 text-[11px] font-mono transition-colors cursor-pointer text-gri hover:text-lacivert dark:text-bej/85 dark:hover:text-krem">
+              <Frame size={12} /> tuvalde aç
             </button>
           )}
           {item.type === 'aile' && onSoyAgaci && (

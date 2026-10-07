@@ -5,6 +5,7 @@ import { Item, ItemType, AreaType } from '../types';
 import { hazirFotosuz, merchYedekGorseli } from '../lib/gorselSecimi';
 import { compressImageBase64 } from '../lib/imageCompressor';
 import { SayfaBasi } from './kabuk/SayfaBasi';
+import { tuvaldeAc } from '../lib/tuval';
 import { DropKunyesi } from './DropKunyesi';
 import { SayfaRayi, type RayBolumu } from './SayfaRayi';
 import { markaYapisi, KURUM_ALANI } from '../lib/markaYapisi';
@@ -1145,6 +1146,12 @@ export default function Merch({
                     <p className="text-xs font-mono text-[#6A5E4C] dark:text-[#A6B0C9]">
                       Marka Serisi: <span className="font-bold text-[#F26B6F]">{brandName}</span>
                     </p>
+                    {isDrop && (
+                      <button type="button" onClick={() => tuvaldeAc(activeItem.id)}
+                        className="text-[11px] font-mono underline underline-offset-2 decoration-[#0E1C4F]/30 text-[#6A5E4C] dark:text-[#A6B0C9] hover:text-[#F26B6F] cursor-pointer">
+                        drop panosu · tuvalde aç
+                      </button>
+                    )}
                   </div>
 
                   {/* Editorial Story Blockquote */}

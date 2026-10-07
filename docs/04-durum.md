@@ -1804,3 +1804,26 @@ katlanır listede. Plan `src/lib/yolHaritasi.ts`'te; her PR kendi paketini
   "Deneme Kişi 1–9", "Deneme A/B Ailesi" yalnız önizlemede denendi.
 - `src/lib/soyAgaci.ts`, `src/components/atolye/SoyAgaci.tsx`. Görseller:
   `docs/gorseller/soy-*.png`.
+
+**6. gece, 2. paket (uygulamada): tuval.**
+- Atölye → **Tuval**: solda panolar, "Yeni pano" (tür: Mahalle esini,
+  Drop panosu, Kitap planı, Serbest; isteğe bağlı bağlı kayıt; ad Kemal'in,
+  bağlı kaydın adı önerilir). Her pano ayrı küçük kayıt (`type: 'tuval'`,
+  `metadata.tur/bagliId/kartlar/oklar`).
+- Kartlar (Kemal'in seçimi, dördü): **Not** (5 renk), **Madde** (viki
+  maddesi, drop, ürün, kitap; "aç" kendi sayfasında açar), **Görsel**
+  (galeri görseli; panoya kopyalanmaz, galeri kaydının kimliği tutulur),
+  **Çerçeve** (başlıklı grup; taşınınca içindekiler de gelir). Kart
+  sürüklenir, köşesinden büyür; not ve çerçeve başlığı çift tıkla yazılır.
+  **Ok**: iki karta sırayla basınca ok. Delete seçileni siler.
+- Kayıt (Kemal'in seçimi): her işten 2 sn sonra kendiliğinden; çubukta
+  "kaydedildi ✓". Sayfa açılınca hiçbir şey yazılmaz. "Panoyu sil" iki
+  adımlı.
+- **Tuvalde aç**: mahalle maddesinde (ve panosu olan her maddede), drop
+  sayfasında ("drop panosu · tuvalde aç"), kitapta ("kitap planı · tuvalde
+  aç"). Panosu varsa açılır, yoksa o kayda bağlı yeni pano formu gelir.
+- Bu PR soy ağacının (PR #69) üstüne kuruldu: #69 GitHub'ın sunucu
+  hatası yüzünden birleştirilemedi (7 Ekim akşam); Kemal "PR'ın üzerine
+  yeni PR'ı yaz" dedi. Dal: `claude/nifty-goodall-nl52ue-tuval`.
+- `src/lib/tuval.ts`, `src/components/atolye/Tuval.tsx`. Görseller:
+  `docs/gorseller/tuval-*.png` ("Deneme notu / çerçevesi" yalnız önizleme).
