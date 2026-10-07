@@ -20,13 +20,16 @@ const RAY_BOLUMLERI: RayBolumu[] = [
   { id: 'harita', label: 'Harita ve Kurucu' },
   { id: 'ag', label: 'Bağ ağı' },
   { id: 'zaman', label: 'Zaman çizgisi' },
-  { id: 'soy', label: 'Soy ağacı' }
+  { id: 'soy', label: 'Soy ağacı' },
+  { id: 'tuval', label: 'Tuval' }
 ];
-export type AtolyeSekmesi = 'harita' | 'ag' | 'zaman' | 'soy';
+export type AtolyeSekmesi = 'harita' | 'ag' | 'zaman' | 'soy' | 'tuval';
 
 // Bağ ağı (5. gece): sekme açılınca yüklenir
 const BagAgi = lazy(() => import('./atolye/BagAgi').then(m => ({ default: m.BagAgi })));
 // Zaman çizgisi ve dönemler (5. gece)
+// Tuval (6. gece)
+const Tuval = lazy(() => import('./atolye/Tuval').then(m => ({ default: m.Tuval })));
 // Soy ağacı (6. gece)
 const SoyAgaci = lazy(() => import('./atolye/SoyAgaci').then(m => ({ default: m.SoyAgaci })));
 const ZamanCizgisi = lazy(() => import('./atolye/ZamanCizgisi').then(m => ({ default: m.ZamanCizgisi })));
@@ -48,12 +51,14 @@ interface AtolyeProps {
   /** Haritadaki notu silmek (yalnız "Evet, sil" ile) */
   onDeleteItem: (id: string) => Promise<void>;
   /** Menüden doğrudan bir sekmeye gelmek için */
-  istek?: { sekme: AtolyeSekmesi; n: number; aile?: string } | null;
+  istek?: { sekme: AtolyeSekmesi; n: number; aile?: string; madde?: string } | null;
+  /** Tuvaldeki madde kartının "aç"ı: kaydı kendi sayfasında açar */
+  onKayitAc: (item: Item) => void;
   /** Haritadan seçilen maddeyi Düzada vikisinde açar */
   onMaddeAc: (id: string) => void;
 }
 
-export default function Atolye({ items, onAddItem, onUpdateItem, onDeleteItem, istek = null, onMaddeAc }: AtolyeProps) {
+export default function Atolye({ items, onAddItem, onUpdateItem, onDeleteItem, istek = null, onMaddeAc, onKayitAc }: AtolyeProps) {
   // Katmanlar ve işaretler (5. gece): 2D ve 3D ortak; katman seçimi bu tarayıcıda hatırlanır
   const [katmanlar, setKatmanlar] = useState<KatmanAyari>(katmanOku);
   const [katmanMenusu, setKatmanMenusu] = useState(false);
@@ -159,6 +164,12 @@ export default function Atolye({ items, onAddItem, onUpdateItem, onDeleteItem, i
       {sekme === 'ag' && (
         <Suspense fallback={<div className="h-48 flex items-center justify-center font-mono text-xs text-[#6A5E4C] dark:text-[#A6B0C9] animate-pulse">Ağ kuruluyor…</div>}>
           <BagAgi items={items} onUpdateItem={onUpdateItem} onAddItem={onAddItem} onMaddeAc={onMaddeAc} />
+        </Suspense>
+      )}
+      {sekme === 'tuval' && (
+        <Suspense fallback={<div className="h-48 flex items-center justify-center font-mono text-xs text-[#6A5E4C] dark:text-[#A6B0C9] animate-pulse">Tuval hazırlanıyor…</div>}>
+          <Tuval items={items} onAddItem={onAddItem} onUpdateItem={onUpdateItem} onDeleteItem={onDeleteItem} onKayitAc={onKayitAc}
+            ilkMadde={istek?.sekme === 'tuval' ? istek.madde ?? null : null} />
         </Suspense>
       )}
       {sekme === 'soy' && (

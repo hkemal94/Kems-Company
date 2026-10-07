@@ -42,7 +42,9 @@ export type ItemType =
   // Gece hazırlığının defteri (30 Eylül): son yapılan gün, son fanzin ayı
   | 'gece_hazirlik'
   // KKM ayarları (30 Eylül): Durum hedefleri, yol haritasında bitenler
-  | 'kkm_ayar';
+  | 'kkm_ayar'
+  // Atölye → Tuval panosu (6. gece)
+  | 'tuval';
 
 export interface WikiSection {
   id: string;
