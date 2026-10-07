@@ -6,7 +6,7 @@ import { buildLinkIndex } from './autoLink';
 import { WikiArticle } from './WikiArticle';
 import { WikiGiris } from './WikiGiris';
 import { parseKunye } from './kunyeParser';
-import { WIKI_TYPES, TYPE_LABELS, isStub, mahalleEslesir } from './wikiSchema';
+import { WIKI_TYPES, TYPE_LABELS, isStub, mahalleEslesir, eslesmeBasligi } from './wikiSchema';
 import { OYUN_VAKA_IDLERI } from '../../lib/temizlik';
 
 interface WikiShellProps {
@@ -116,7 +116,7 @@ export const WikiShell: React.FC<WikiShellProps> = ({
       const satirlar = parseKunye(i).fields
         .filter(f => /^(mahalle|mahallesi|yer|yeri|konum)$/i.test(f.label.trim()))
         .map(f => f.value);
-      return [i.metadata?.region, i.metadata?.profile?.region, ...satirlar].some(r => mahalleEslesir(r, yer.title));
+      return [i.metadata?.region, i.metadata?.profile?.region, ...satirlar].some(r => mahalleEslesir(r, eslesmeBasligi(yer)));
     };
 
     return yerler

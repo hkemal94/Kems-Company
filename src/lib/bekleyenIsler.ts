@@ -1,6 +1,7 @@
 import type { Item } from '../types';
 import { boslukDoldurma } from './boslukDoldurma';
 import { silinecekler } from './temizlik';
+import { mahalleAdDuzeltmeleri } from './vikiTemizligi';
 import { galeridenEksikler } from '../components/GaleriYedegiKarti';
 
 /**
@@ -16,6 +17,7 @@ import { galeridenEksikler } from '../components/GaleriYedegiKarti';
 export function bekleyenDugmeler(items: Item[], haritaEskiKoordinatta = false): string[] {
   if (!items.length) return [];
   const is: string[] = [];
+  if (mahalleAdDuzeltmeleri(items).length) is.push('mahalle adlarındaki parantez');
   if (silinecekler(items).length) is.push('temizlik');
   if (galeridenEksikler(items).length) is.push('galeriye görseller');
   if (haritaEskiKoordinatta) is.push('harita düzeni yeni koordinata');

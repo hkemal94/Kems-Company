@@ -30,7 +30,7 @@ const DENETIMLER = [
  */
 
 const SORU_ARACI = 'kanon-secenek';
-const GRUPLAR: StudyoGrubu[] = ['viki', 'yazi', 'marka', 'kanon', 'sosyal'];
+const GRUPLAR: StudyoGrubu[] = ['viki', 'yazi', 'marka', 'kanon'];
 
 /** Kota satırı; bir çağrıdan sonra `nabiz` artınca yeniden okunur */
 function useKota(nabiz: number): [KotaHali, string | null] {

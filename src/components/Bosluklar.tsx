@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { Check, ChevronDown, ChevronRight, PenLine } from 'lucide-react';
 import type { Item, ItemType, WikiSection } from '../types';
 import { DEFAULT_QUESTIONS_BY_CAT } from './wiki/kunyeSorulari';
-import { schemaKeyFor, TYPE_LABELS, WIKI_TYPES, getKunyeFields, getArticleBody, mahalleEslesir } from './wiki/wikiSchema';
+import { schemaKeyFor, TYPE_LABELS, WIKI_TYPES, getKunyeFields, getArticleBody, mahalleEslesir, eslesmeBasligi } from './wiki/wikiSchema';
 import { parseKunye } from './wiki/kunyeParser';
 import { SayfaRayi, type RayBolumu } from './SayfaRayi';
 import { ADA_KIMLIGI } from '../lib/vikiSifirlama';
@@ -84,7 +84,7 @@ const mahalleBasliklari = (items: Item[]) => {
   const kimlik = new Set(items.map(i => i.id));
   return items
     .filter(i => !i.archived && !i.isProposal && i.type === 'yer' && i.id !== ADA_KIMLIGI && !(i.metadata?.placeId && kimlik.has(i.metadata.placeId)))
-    .map(i => i.title);
+    .map(i => ({ ad: i.title, eslesme: eslesmeBasligi(i) }));
 };
 
 /** Kayıtta yazılı mahalle (künye alanı ya da metindeki "* Mahalle:" satırı) */
@@ -106,7 +106,8 @@ const bolumeYaz = (id: string) => (item: Item, deger: string): Item => ({
 
 export function bosluklariCikar(items: Item[]): Bosluk[] {
   const cikti: Bosluk[] = [];
-  const mahalleler = mahalleBasliklari(items);
+  const mahalleListesi = mahalleBasliklari(items);
+  const mahalleler = mahalleListesi.map(m => m.ad);
   const kimlik = new Set(items.map(i => i.id));
   for (const item of items) {
     if (item.archived || item.isProposal) continue;
@@ -126,7 +127,7 @@ export function bosluklariCikar(items: Item[]): Bosluk[] {
       if (s.id === 'region' && MAHALLELI.has(item.type as ItemType) && mahalleler.length) {
         const yazili = yazilanMahalle(item);
         const ustuVar = !!(item.metadata?.placeId && kimlik.has(item.metadata.placeId));
-        if (yazili && !ustuVar && !mahalleler.some(m => mahalleEslesir(yazili, m))) {
+        if (yazili && !ustuVar && !mahalleListesi.some(m => mahalleEslesir(yazili, m.eslesme))) {
           cikti.push({ anahtar: `${item.id}::region`, item, alanId: 'region', etiket: s.label, soru: `"${yazili}" bir mahalleyle eşleşmiyor. Hangi mahallede? (${mahalleler.join(', ')})`, yol: s.fieldPath });
           continue;
         }

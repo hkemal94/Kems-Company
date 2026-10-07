@@ -269,14 +269,6 @@ Bölüm:
 "${data.text || ""}"`;
         break;
 
-      // Sosyal medya (29 Eylül gece): gönderi kartındaki stüdyo araçları
-      case "sosyal-hashtag":
-        prompt = `Kems Company'nin bir sosyal medya gönderisi için 8 hashtag öner. Kurgusal Düzada adasının özel adlarını ancak aşağıda geçiyorsa kullan; yeni ad uydurma. Türkçe ve İngilizce karışık olabilir. Yanıtı sade bir JSON dizi olarak ver, # işaretsiz. Örnek: ["ege", "vintage"]
-Başlık: "${data.baslik || ""}"
-Metin: "${data.metin || ""}"
-Bağlı kayıtlar: ${JSON.stringify(data.baglar || [])}`;
-        systemInstruction += " Sadece saf bir JSON dizisi döndür.";
-        break;
 
       // Gece hazırlığı (kural istisnası, yapisal-4): günde 3 üretim önerisi.
       // Yalnız öneri tepsisine düşer; Kemal "Ekle" demeden kayda girmez.
@@ -350,13 +342,6 @@ Kemal'in isteği: "${data.istek || ""}"
 Yalnız metni döndür.`;
         break;
 
-      case "sosyal-metin":
-        prompt = `Kems Company'nin bir sosyal medya gönderisi için kısa bir metin taslağı yaz (en fazla 4 cümle, sade, süssüz). Yeni özel ad (kişi, yer, ürün) uydurma; yalnız aşağıda geçen adları kullan. Fiyat, tarih ya da sayı uydurma. "Hâlâ", "şu anda", "günümüzde" yazma. Hashtag ekleme.
-Başlık: "${data.baslik || ""}"
-Mevcut metin: "${data.metin || ""}"
-İstek: "${data.istek || ""}"
-Bağlı kayıtlar: ${JSON.stringify(data.baglar || [])}`;
-        break;
 
       case "tutarlilik-kontrolu":
         prompt = `Aşağıdaki kitap bölümü metni ile mevcut dünya lore'u (wiki) arasında herhangi bir çelişki olup olmadığını denetle. Eğer bir çelişki varsa kibarca uyar ve düzeltme öner, her şey tutarlıysa takdir et.

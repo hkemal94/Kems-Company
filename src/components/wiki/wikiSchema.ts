@@ -111,6 +111,16 @@ export function mahalleAdlari(baslik: string): string[] {
   return Array.from(new Set(adlar.map(mahalleAnahtari).filter(Boolean)));
 }
 
+/**
+ * Eşleşmede kullanılan başlık: maddenin adı ve eski adları (7 Ekim: mahalle
+ * adlarındaki parantez kalktı, eski ad `metadata.eskiAdlar`'a geçti).
+ * "İskele Mahallesi" + ["Kemsköy"] → "İskele Mahallesi (Kemsköy)"
+ */
+export function eslesmeBasligi(item: Item): string {
+  const eski = Array.isArray(item.metadata?.eskiAdlar) ? (item.metadata!.eskiAdlar as unknown[]).filter((x): x is string => typeof x === 'string' && !!x.trim()) : [];
+  return [item.title, ...eski.map(e => `(${e})`)].join(' ');
+}
+
 /** Kayıttaki mahalle yazısı bu mahalleyi mi gösteriyor? */
 export function mahalleEslesir(bolge: unknown, mahalleBasligi: string): boolean {
   if (typeof bolge !== 'string' || !bolge.trim()) return false;

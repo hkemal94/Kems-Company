@@ -169,7 +169,7 @@ export const OneriTepsisi: React.FC<Props> = ({
                 : arac.uygulama === 'fanzin-olustur' ? 'Fanzin olarak aç (Yazı)'
                 : arac.uygulama === 'fanzin-bolum' ? 'Bölümün yerine koy'
                 : arac.uygulama === 'site-hakkinda' ? "Site taslağına koy (Hakkında)"
-                : arac.uygulama === 'metnin-yerine' ? 'Metnin yerine koy' : arac.uygulama === 'bolum-ekle' ? 'Maddeye ekle (öneri olarak)' : arac.uygulama === 'kunye-ekle' ? 'Boş künye alanlarına yaz' : arac.uygulama === 'renk-ekle' ? 'Paletine ekle' : arac.uygulama === 'hashtag-ekle' ? 'Hashtaglere ekle' : 'Metne ekle'}
+                : arac.uygulama === 'metnin-yerine' ? 'Metnin yerine koy' : arac.uygulama === 'bolum-ekle' ? 'Maddeye ekle (öneri olarak)' : arac.uygulama === 'kunye-ekle' ? 'Boş künye alanlarına yaz' : arac.uygulama === 'renk-ekle' ? 'Paletine ekle' : 'Metne ekle'}
             </button>
           )}
           {o.metin && <button type="button" onClick={() => kopyala(o.metin!)} className={`${DUGME_BOS} inline-flex items-center gap-1`}><Copy className="w-3 h-3" /> Kopyala</button>}
