@@ -10,6 +10,7 @@ import { WikiRooms } from './WikiRooms';
 import { WikiPeople } from './WikiPeople';
 import { WikiHarita, haritaKarsiligiVar } from './WikiHarita';
 import { KunyeDegeri } from './KunyeDegeri';
+import { BAG_GRUPLARI, adiCoz, bagParcalari, kunyeBaglari, semaAlanlari, takmaAdlar, type SemaAlani, type VikiSablonu } from '../../lib/alanSablonu';
 import { maddeGorseli } from '../../lib/maddeGorseli';
 import {
   getKunyeFields,
@@ -17,7 +18,8 @@ import {
   getArticleBody,
   kunyeCompleteness,
   isStub,
-  TYPE_LABELS
+  TYPE_LABELS,
+  schemaKeyFor
 } from './wikiSchema';
 
 /**
@@ -69,6 +71,34 @@ const RelationGroup: React.FC<{
   );
 };
 
+/**
+ * Künye değeri. Bağ alanıysa (3. gece) her ad, eşleşen maddeye bağlantı
+ * olur; eşleşmeyen ad düz yazı kalır (yönetim yüzünde noktalı altçizgi).
+ */
+const KunyeAlani: React.FC<{ value: string; alan?: SemaAlani; allItems: Item[]; selfId: string; admin: boolean; onNavigate: (id: string) => void }> = ({ value, alan, allItems, selfId, admin, onNavigate }) => {
+  if (!alan?.bag?.length) return <KunyeDegeri value={value} />;
+  const turler = new Set<string>(alan.bag.flatMap(g => BAG_GRUPLARI[g].turler));
+  const adaylar = allItems.filter(i => !i.archived && !i.isProposal && i.id !== selfId && turler.has(i.type));
+  const parcalar = bagParcalari(value, alan.coklu);
+  return (
+    <>
+      {parcalar.map((p, n) => {
+        const h = adiCoz(p, adaylar);
+        return (
+          <React.Fragment key={n}>
+            {n > 0 && ', '}
+            {h ? (
+              <button type="button" onClick={() => onNavigate(h.id)} className="underline decoration-lacivert/30 dark:decoration-bej/40 underline-offset-2 hover:decoration-lacivert dark:hover:decoration-bej text-left">{p}</button>
+            ) : admin ? (
+              <span className="underline decoration-dotted decoration-kiremit/60 cursor-help" title="Bu adla bir madde yok; madde açılınca bağlantı olur">{p}</span>
+            ) : p}
+          </React.Fragment>
+        );
+      })}
+    </>
+  );
+};
+
 interface WikiArticleProps {
   item: Item;
   allItems: Item[];
@@ -83,6 +113,8 @@ interface WikiArticleProps {
   onSitede?: (item: Item, acik: boolean) => void;
   /** Madde düzenleyici (yapisal-4): verilirse "düzenle" onu açar */
   onUpdateItem?: (item: Item) => Promise<void>;
+  /** Düzenleyicideki "bu türe alan ekle" (3. gece) şablonu buradan yazar */
+  onSablonYaz?: (s: VikiSablonu) => Promise<void>;
 }
 
 export const WikiArticle: React.FC<WikiArticleProps> = ({
@@ -94,7 +126,8 @@ export const WikiArticle: React.FC<WikiArticleProps> = ({
   onEdit,
   onHaritayaGit,
   onSitede,
-  onUpdateItem
+  onUpdateItem,
+  onSablonYaz
 }) => {
   const admin = mode === 'yonetim';
   const [duzenle, setDuzenle] = useState(false);
@@ -110,6 +143,18 @@ export const WikiArticle: React.FC<WikiArticleProps> = ({
   /** Künyeye girmeyen satırlar — gövdede "Bilgiler" bölümü */
   const ekBilgiler = useMemo(() => getEkBilgiler(item, { includeSecrets: admin }), [item, admin]);
   const govdeVar = body.length > 0 || ekBilgiler.length > 0;
+  /** Şablondaki alanlar (bağ alanı mı?) ve bu maddeyi künyesinde ananlar */
+  const semaAlani = useMemo(() => new Map(semaAlanlari(schemaKeyFor(item.type) || '').map(a => [a.id, a])), [item.type]);
+  const adlar = useMemo(() => takmaAdlar(item), [item]);
+  const ananlar = useMemo(() => {
+    const g = new Map<string, Item[]>();
+    for (const b of kunyeBaglari(item, allItems, i => schemaKeyFor(i.type),
+      (i, id) => getKunyeFields(i).find(f => f.id === id)?.value || '')) {
+      if (!g.has(b.alan)) g.set(b.alan, []);
+      if (!g.get(b.alan)!.some(x => x.id === b.kaynak.id)) g.get(b.alan)!.push(b.kaynak);
+    }
+    return Array.from(g.entries()).map(([alan, l]) => ({ alan, l: l.sort((a, b) => a.title.localeCompare(b.title, 'tr')) }));
+  }, [item, allItems]);
   const completeness = useMemo(() => kunyeCompleteness(item), [item]);
   /** W3: yan sütun künye boş olsa da harita kartı için açılabilir */
   const haritada = useMemo(() => haritaKarsiligiVar(item), [item]);
@@ -270,6 +315,10 @@ export const WikiArticle: React.FC<WikiArticleProps> = ({
           {item.title}
         </h1>
 
+        {adlar.length > 0 && (
+          <p className="mt-1 text-[13px] text-gri dark:text-bej/85">Diğer adları: {adlar.join(', ')}</p>
+        )}
+
         {item.tags.length > 0 && (
           <ul className="flex flex-wrap gap-1.5 mt-3">
             {item.tags.slice(0, 10).map(t => (
@@ -285,7 +334,7 @@ export const WikiArticle: React.FC<WikiArticleProps> = ({
       </header>
 
       {admin && duzenle && onUpdateItem && (
-        <MaddeDuzenleyici item={item} allItems={allItems} onKaydet={onUpdateItem} onKapat={() => setDuzenle(false)} />
+        <MaddeDuzenleyici item={item} allItems={allItems} onKaydet={onUpdateItem} onSablonYaz={onSablonYaz} onKapat={() => setDuzenle(false)} />
       )}
 
       {/* Esin notu (yapisal-4): yalnız yönetim yüzünde, sitede hiç yok */}
@@ -408,6 +457,33 @@ export const WikiArticle: React.FC<WikiArticleProps> = ({
 
           <WikiRooms rooms={rooms} onNavigate={onNavigate} />
 
+          {/* --- Künyelerde anılıyor (3. gece, bağ alanları) --- */}
+          {ananlar.length > 0 && (
+            <section className="mt-8 pt-6 border-t border-bej/40 dark:border-lacivert-600/40">
+              <h2 className="font-mono text-[10px] uppercase tracking-[0.14em] text-gri dark:text-bej/85 mb-4 flex items-center gap-1.5">
+                <Link2 size={12} /> Künyelerde anılıyor
+              </h2>
+              <div className="space-y-3">
+                {ananlar.map(g => (
+                  <div key={g.alan}>
+                    <div className="text-[12px] text-gri dark:text-bej/85 mb-1.5">{g.alan}</div>
+                    <ul className="flex flex-wrap gap-1.5">
+                      {g.l.map(k => (
+                        <li key={k.id}>
+                          <button type="button" onClick={() => onNavigate(k.id)}
+                            className="text-[13px] px-2.5 py-1 rounded border border-bej/50 dark:border-lacivert-600/50 text-lacivert dark:text-krem hover:border-lacivert/50 dark:hover:border-bej/50 hover:bg-lacivert/5 dark:hover:bg-bej/10">
+                            {k.title}
+                            <span className="ml-1.5 text-[9px] font-mono text-gri dark:text-bej/85">{TYPE_LABELS[k.type] || k.type}</span>
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
           {/* --- Geri bağlantılar --- */}
           {grouped.length > 0 && (
             <section className="mt-8 pt-6 border-t border-bej/40 dark:border-lacivert-600/40">
@@ -494,7 +570,7 @@ export const WikiArticle: React.FC<WikiArticleProps> = ({
                       {f.label}
                     </dt>
                     <dd className="text-[13px] text-lacivert dark:text-krem/90 leading-snug">
-                      <KunyeDegeri value={f.value} />
+                      <KunyeAlani value={f.value} alan={semaAlani.get(f.id)} allItems={allItems} selfId={item.id} admin={admin} onNavigate={onNavigate} />
                     </dd>
                   </div>
                 ))}

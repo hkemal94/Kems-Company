@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Check, ChevronDown, ChevronRight, PenLine } from 'lucide-react';
 import type { Item, ItemType, WikiSection } from '../types';
-import { DEFAULT_QUESTIONS_BY_CAT } from './wiki/kunyeSorulari';
+import { semaAlanlari } from '../lib/alanSablonu';
 import { schemaKeyFor, TYPE_LABELS, WIKI_TYPES, getKunyeFields, getArticleBody, mahalleEslesir, eslesmeBasligi } from './wiki/wikiSchema';
 import { parseKunye } from './wiki/kunyeParser';
 import { SayfaRayi, type RayBolumu } from './SayfaRayi';
@@ -117,7 +117,7 @@ export function bosluklariCikar(items: Item[]): Bosluk[] {
     if (item.id === ADA_KIMLIGI) continue;
     const anahtar = schemaKeyFor(item.type as ItemType);
     if (!anahtar) continue;
-    const sorular = DEFAULT_QUESTIONS_BY_CAT[anahtar] || [];
+    const sorular = semaAlanlari(anahtar);
     // Künye satırı notta yazılıysa ("* Kuruluş: 1957") alan dolu sayılır
     const kunye = new Map(getKunyeFields(item, { includeEmpty: true, includeSecrets: true }).map(f => [f.id, f.value]));
     const govdeDolu = getArticleBody(item).length > 0;
@@ -165,7 +165,7 @@ export function boslukOrani(items: Item[]): { toplam: number; bos: number } {
     if (item.id === ADA_KIMLIGI) continue;
     const anahtar = schemaKeyFor(item.type as ItemType);
     if (!anahtar) continue;
-    toplam += (DEFAULT_QUESTIONS_BY_CAT[anahtar] || []).filter(s => !ATLANAN_ALAN.has(s.id)).length;
+    toplam += semaAlanlari(anahtar).filter(s => !ATLANAN_ALAN.has(s.id)).length;
     toplam += ((item.metadata?.wikiSections as WikiSection[] | undefined) || []).filter(b => b?.title?.trim()).length;
   }
   return { toplam, bos: bosluklariCikar(items).length };

@@ -1635,3 +1635,23 @@ katlanır listede. Plan `src/lib/yolHaritasi.ts`'te; her PR kendi paketini
   veriyor; .md çıktısı kalktı.
 - Oyun → "Yapım aşaması ve işler" bölümünün başında ne işe yaradığı yazıyor.
 - Görseller: `docs/gorseller/pdf-*.png`.
+
+**3. gece, 1. paket (uygulamada): alan şablonları, bağ alanları, takma adlar.**
+- Viki → yönetim yüzü → "alan şablonları": her türün künye alanları. Alan
+  eklenir, adı değişir, gizlenir, sıralanır; bir alan bağ alanı yapılır
+  (hangi tür maddelere bağlandığı ve birden çok olup olmadığı seçilir).
+  Başlangıç şablonu bugünkü künye alanları. Şablon `kkm_ayar` kaydında
+  (`vikiSablonu`), yalnız "Kaydet" ile yazılır (`src/lib/alanSablonu.ts`).
+- Düzenleyicide kısa yol: "Bu türe alan ekle" (Kemal: "ikisi de"); yeni
+  alan madde kaydedilince şablona da yazılır.
+- Kemal'in eklediği alanların değeri `metadata.alanlar.<id>`'de.
+- Başlangıç bağ alanları (Kemal, 7 Ekim): Kişi → Aile, Çalıştığı yer;
+  Mekân → Sahibi; Aile → Bağlı mekânlar, Bağlı kişiler; Kurum → Kurucu;
+  Olay → Katılanlar; Eşya → Kimin. Değer düz yazı kalır (göç yok); ad bir
+  maddeyle eşleşirse künyede bağlantı olur, hedef maddede "Künyelerde
+  anılıyor" bölümünde görünür.
+- Takma adlar: düzenleyicide virgülle (`metadata.aliases`); mahallelerin
+  eski adları (`eskiAdlar`) da takma ad sayılır. Vikide geçince bağlantı,
+  aramada bulunur, mahalle eşleşmesinde kullanılır; madde sayfasında ve
+  sitede başlığın altında "Diğer adları".
+- Görseller: `docs/gorseller/sablon-*.png`.

@@ -4,7 +4,7 @@ import { ArrowDown, ArrowUp, Plus, Save, Trash2, X } from 'lucide-react';
 import type { Item, WikiSection } from '../../types';
 import { parseKunye, kendiMetniYaz } from './kunyeParser';
 import { useKaydedilmemis } from '../../lib/kaydedilmemis';
-import { DEFAULT_QUESTIONS_BY_CAT } from './kunyeSorulari';
+import { BAG_GRUPLARI, BAG_GRUP_SIRASI, bagAdaylari, etkinSablon, ozelAlanKimligi, semaAlanlari, takmaAdlar, type BagGrubu, type SablonAlani, type SemaAlani, type VikiSablonu } from '../../lib/alanSablonu';
 import { TYPE_LABELS, WIKI_TYPES, schemaKeyFor, getKunyeFields } from './wikiSchema';
 import { BAG_TURLERI, type BagTuru } from '../../utils/relations';
 
@@ -25,6 +25,8 @@ interface Props {
   item: Item;
   allItems: Item[];
   onKaydet: (item: Item) => Promise<void>;
+  /** "Bu türe alan ekle" (3. gece): verilirse yeni alan şablona da yazılır */
+  onSablonYaz?: (s: VikiSablonu) => Promise<void>;
   onKapat: () => void;
 }
 
@@ -35,9 +37,21 @@ const yolOku = (item: Item, yol: string): string => {
   return typeof v === 'string' ? v : typeof v === 'number' ? String(v) : '';
 };
 
-export const MaddeDuzenleyici: React.FC<Props> = ({ item, allItems, onKaydet, onKapat }) => {
-  const sema = (DEFAULT_QUESTIONS_BY_CAT[schemaKeyFor(item.type) || ''] || []).filter(f => f.fieldPath !== 'title' && f.fieldPath !== 'notes');
+export const MaddeDuzenleyici: React.FC<Props> = ({ item, allItems, onKaydet, onSablonYaz, onKapat }) => {
+  const sablonAnahtari = schemaKeyFor(item.type) || '';
+  /** Bu düzenleyicide eklenen, henüz şablona yazılmamış alanlar */
+  const [yeniAlanlar, setYeniAlanlar] = useState<SablonAlani[]>([]);
+  const [alanAdi, setAlanAdi] = useState('');
+  const [alanBagi, setAlanBagi] = useState<BagGrubu | ''>('');
+  const sema: SemaAlani[] = useMemo(() => {
+    const s = etkinSablon();
+    const taslak = yeniAlanlar.length ? { ...s, [sablonAnahtari]: [...(s[sablonAnahtari] || []), ...yeniAlanlar] } : s;
+    return semaAlanlari(sablonAnahtari, taslak).filter(f => f.fieldPath !== 'title' && f.fieldPath !== 'notes');
+  }, [sablonAnahtari, yeniAlanlar]);
   const [alanlar, setAlanlar] = useState<Record<string, string>>(() => Object.fromEntries(sema.map(f => [f.fieldPath, yolOku(item, f.fieldPath)])));
+  /** Takma adlar (3. gece): virgülle; eski adlar da burada görünür */
+  const ilkTakma = useMemo(() => takmaAdlar(item).join(', '), [item]);
+  const [takma, setTakma] = useState<string>(ilkTakma);
   const [baglar, setBaglar] = useState<Bag[]>(() => ((item.metadata?.relations as Bag[]) || []).filter(b => b && b.targetId));
   const [esin, setEsin] = useState<string>(String(item.metadata?.esin || ''));
   /** Alan boşsa metindeki künye satırından okunan değer — kutuda soluk görünür */
@@ -50,7 +64,7 @@ export const MaddeDuzenleyici: React.FC<Props> = ({ item, allItems, onKaydet, on
   const [giris, setGiris] = useState<string>(ilkGiris);
   const [bolumler, setBolumler] = useState<WikiSection[]>(() => ((item.metadata?.wikiSections as WikiSection[]) || []).map(b => ({ ...b })));
   // Metin değiştiyse kaydetmeden çıkarken sorulur
-  const metinDegisti = ad.trim() !== item.title.trim() || giris.trim() !== ilkGiris.trim() || JSON.stringify(bolumler) !== JSON.stringify((item.metadata?.wikiSections as WikiSection[]) || []);
+  const metinDegisti = yeniAlanlar.length > 0 || takma.trim() !== ilkTakma.trim() || ad.trim() !== item.title.trim() || giris.trim() !== ilkGiris.trim() || JSON.stringify(bolumler) !== JSON.stringify((item.metadata?.wikiSections as WikiSection[]) || []);
   useKaydedilmemis(metinDegisti);
   const bolumYaz = (n: number, d: Partial<WikiSection>) => setBolumler(bs => bs.map((b, k) => (k === n ? { ...b, ...d } : b)));
   const bolumTasi = (n: number, yon: -1 | 1) => setBolumler(bs => {
@@ -70,7 +84,6 @@ export const MaddeDuzenleyici: React.FC<Props> = ({ item, allItems, onKaydet, on
   const hedefler = useMemo(() => allItems
     .filter(i => i.id !== item.id && !i.archived && !i.isProposal && WIKI_TYPES.includes(i.type) && i.type !== 'oda')
     .sort((a, b) => a.title.localeCompare(b.title, 'tr')), [allItems, item.id]);
-  const aileler = hedefler.filter(i => i.type === 'aile');
   /** Mahalle alanı için seçenekler: üst düzey 'yer' kayıtları (mahalleler) */
   const mahalleSecenekleri = useMemo(() => hedefler.filter(i => i.type === 'yer' && !i.metadata?.placeId).map(i => i.title), [hedefler]);
 
@@ -79,12 +92,24 @@ export const MaddeDuzenleyici: React.FC<Props> = ({ item, allItems, onKaydet, on
     try {
       const metadata = { ...(item.metadata || {}) } as Record<string, unknown>;
       const profil = { ...((metadata.profile as Record<string, unknown>) || {}) };
+      const ozel = { ...((metadata.alanlar as Record<string, unknown>) || {}) };
       for (const f of sema) {
         const v = (alanlar[f.fieldPath] || '').trim();
         if (f.fieldPath.startsWith('metadata.profile.')) profil[f.fieldPath.slice('metadata.profile.'.length)] = v;
+        else if (f.fieldPath.startsWith('metadata.alanlar.')) ozel[f.fieldPath.slice('metadata.alanlar.'.length)] = v;
         else if (f.fieldPath.startsWith('metadata.')) metadata[f.fieldPath.slice('metadata.'.length)] = v;
       }
       metadata.profile = profil;
+      if (Object.keys(ozel).length) metadata.alanlar = ozel;
+      // Takma adlar: eski adlardan silinen de silinir
+      const takmaListe = Array.from(new Set(takma.split(/[,;]/).map(t => t.trim()).filter(Boolean)));
+      if (takmaListe.length || Array.isArray(metadata.aliases)) metadata.aliases = takmaListe;
+      if (Array.isArray(metadata.eskiAdlar)) metadata.eskiAdlar = (metadata.eskiAdlar as unknown[]).filter(e => typeof e === 'string' && takmaListe.includes(e));
+      // Yeni alanlar önce şablona (kayıt reddedilirse madde de yazılmaz)
+      if (yeniAlanlar.length && onSablonYaz) {
+        const s = etkinSablon();
+        await onSablonYaz({ ...s, [sablonAnahtari]: [...(s[sablonAnahtari] || []), ...yeniAlanlar] });
+      }
       // Firestore: undefined yazılmaz
       metadata.relations = baglar.map(b => {
         const o: Record<string, unknown> = { targetId: b.targetId, type: b.type };
@@ -134,10 +159,11 @@ export const MaddeDuzenleyici: React.FC<Props> = ({ item, allItems, onKaydet, on
             {sema.map(f => (
               <label key={f.id} className="block">
                 <span className="block text-[11px] text-gri dark:text-bej/85 mb-0.5">{f.label}</span>
-                {f.id === 'aile' ? (
+                {f.bag?.length ? (
                   <>
-                    <input list="aile-listesi" value={alanlar[f.fieldPath] || ''} onChange={e => setAlanlar(a => ({ ...a, [f.fieldPath]: e.target.value }))} placeholder={ipucu(f.id, f.question)} className={girdi} />
-                    <datalist id="aile-listesi">{aileler.map(a => <option key={a.id} value={a.title} />)}</datalist>
+                    <input list={`bag-${f.id}`} value={alanlar[f.fieldPath] || ''} onChange={e => setAlanlar(a => ({ ...a, [f.fieldPath]: e.target.value }))} placeholder={ipucu(f.id, f.coklu ? `${f.question} (virgülle birden çok)` : f.question)} className={girdi} />
+                    <datalist id={`bag-${f.id}`}>{bagAdaylari(allItems, f.bag, item.id).map(a => <option key={a.id} value={a.title} />)}</datalist>
+                    <span className="block mt-0.5 text-[10px] text-gri dark:text-bej/70">bağ alanı · {f.bag.map(g => BAG_GRUPLARI[g].ad).join(', ')}</span>
                   </>
                 ) : f.id === 'region' ? (
                   <>
@@ -151,8 +177,30 @@ export const MaddeDuzenleyici: React.FC<Props> = ({ item, allItems, onKaydet, on
             ))}
           </div>
           <p className="mt-1.5 text-[11px] text-gri dark:text-bej/70">Boş bırakılan alan, metindeki künye satırında yazıyorsa oradan okunur.</p>
+          {onSablonYaz && sablonAnahtari && (
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <input value={alanAdi} onChange={e => setAlanAdi(e.target.value)} placeholder="Bu türe yeni alan (ör. Lakabı)" className={`${girdi} flex-1 min-w-[160px]`} />
+              <select value={alanBagi} onChange={e => setAlanBagi(e.target.value as BagGrubu | '')} className={secim} aria-label="Bağ alanı mı">
+                <option value="">düz yazı</option>
+                {BAG_GRUP_SIRASI.map(g => <option key={g} value={g}>bağ · {BAG_GRUPLARI[g].ad}</option>)}
+              </select>
+              <button type="button" disabled={!alanAdi.trim()} onClick={() => {
+                const mevcut = [...(etkinSablon()[sablonAnahtari] || []), ...yeniAlanlar];
+                setYeniAlanlar(y => [...y, { id: ozelAlanKimligi(alanAdi.trim(), mevcut), label: alanAdi.trim(), ozel: true, ...(alanBagi ? { bag: [alanBagi] } : {}) }]);
+                setAlanAdi(''); setAlanBagi('');
+              }} className="inline-flex items-center gap-1 text-[12px] font-mono px-2.5 py-1.5 rounded border border-bej/70 hover:border-kiremit disabled:opacity-40">
+                <Plus size={13} /> Bu türe alan ekle
+              </button>
+              {yeniAlanlar.length > 0 && <span className="w-full text-[11px] text-kiremit">Yeni alan "Kaydet"e basınca bu türün bütün maddelerine gelir.</span>}
+            </div>
+          )}
         </div>
       )}
+
+      <label className="block">
+        <span className="block text-[11px] text-gri dark:text-bej/85 mb-0.5">Takma adlar · virgülle</span>
+        <input value={takma} onChange={e => setTakma(e.target.value)} placeholder="Başka adları (ör. Düzada Köyü). Vikide geçince bağlantı olur." className={girdi} />
+      </label>
 
       <div>
         <div className="postmark-label text-gri dark:text-bej/85 mb-1">Metin</div>

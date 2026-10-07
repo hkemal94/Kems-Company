@@ -1,5 +1,6 @@
 import { Item, ItemType } from '../../types';
-import { DEFAULT_QUESTIONS_BY_CAT, ESKI_ALAN_ADLARI } from './kunyeSorulari';
+import { ESKI_ALAN_ADLARI } from './kunyeSorulari';
+import { semaAlanlari, takmaAdlar } from '../../lib/alanSablonu';
 import { parseKunye } from './kunyeParser';
 
 /**
@@ -117,8 +118,8 @@ export function mahalleAdlari(baslik: string): string[] {
  * "İskele Mahallesi" + ["Kemsköy"] → "İskele Mahallesi (Kemsköy)"
  */
 export function eslesmeBasligi(item: Item): string {
-  const eski = Array.isArray(item.metadata?.eskiAdlar) ? (item.metadata!.eskiAdlar as unknown[]).filter((x): x is string => typeof x === 'string' && !!x.trim()) : [];
-  return [item.title, ...eski.map(e => `(${e})`)].join(' ');
+  // Takma adlar da (3. gece): eski adlar ve Kemal'in yazdığı takma adlar
+  return [item.title, ...takmaAdlar(item).map(e => `(${e})`)].join(' ');
 }
 
 /** Kayıttaki mahalle yazısı bu mahalleyi mi gösteriyor? */
@@ -175,7 +176,8 @@ function kunyeyiCoz(item: Item, includeSecrets: boolean): KunyeCozumu | null {
   const key = schemaKeyFor(item.type);
   if (!key) return null;
 
-  const schema = DEFAULT_QUESTIONS_BY_CAT[key] || [];
+  // Kemal'in alan şablonu (3. gece): gizli alan künyede yok, özel alan var
+  const schema = semaAlanlari(key);
   const parsed = parseKunye(item);
   const kullanilan = new Set<number>();
 
@@ -276,7 +278,7 @@ export function kunyeCompleteness(item: Item): { filled: number; total: number; 
   if (!key) return { filled: 0, total: 0, pct: 0 };
 
   const schemaIds = new Set(
-    (DEFAULT_QUESTIONS_BY_CAT[key] || [])
+    semaAlanlari(key)
       .filter(f => f.fieldPath !== 'title' && f.fieldPath !== 'notes')
       .map(f => f.id)
   );
