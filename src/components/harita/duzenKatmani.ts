@@ -71,53 +71,6 @@ export function birlesikHatlar(duzen: HaritaDuzeni | null): SinirHatlari {
   return { ...taban().hatlar, ...(duzen?.hatlar ?? {}) };
 }
 
-export function birlesikYollar(duzen: HaritaDuzeni | null): SinirHatlari {
-  const t = taban().yollar;
-  // Üreteçte artık olmayan bir yolun düzenini taşıma — çizecek yeri yok
-  const d = Object.fromEntries(
-    Object.entries(duzen?.yollar ?? {}).filter(([id]) => id in t)
-  );
-  return { ...t, ...d };
-}
-
-// ---- fark çıkarma ---------------------------------------------------------
-
-const ESIK = 1e-7; // ~1 cm
-
-function ayniHat(a: Nokta[] | undefined, b: Nokta[] | undefined): boolean {
-  if (!a || !b || a.length !== b.length) return false;
-  for (let i = 0; i < a.length; i++) {
-    if (Math.abs(a[i][0] - b[i][0]) > ESIK || Math.abs(a[i][1] - b[i][1]) > ESIK) {
-      return false;
-    }
-  }
-  return true;
-}
-
-function yuvarla(hat: Nokta[]): Nokta[] {
-  return hat.map(p => [Number(p[0].toFixed(7)), Number(p[1].toFixed(7))] as Nokta);
-}
-
-/** Düzenleyicideki tam hâlden yalnızca üreteçten farklı olanları ayırır */
-export function duzeniCikar(
-  hatlar: SinirHatlari, yollar: SinirHatlari, mekanlar: MekanDuzeni = {}
-): HaritaDuzeni {
-  const t = taban();
-  const fark = (hepsi: SinirHatlari, tabanHat: SinirHatlari) =>
-    Object.fromEntries(
-      (Object.entries(hepsi) as Array<[string, Nokta[]]>)
-        .filter(([id, n]) => !ayniHat(n, tabanHat[id]))
-        .map(([id, n]) => [id, yuvarla(n)])
-    );
-  return {
-    surum: DUZEN_SURUMU,
-    guncelleme: Date.now(),
-    hatlar: fark(hatlar, t.hatlar),
-    yollar: fark(yollar, t.yollar),
-    mekanlar
-  };
-}
-
 export function duzenBosMu(duzen: HaritaDuzeni | null): boolean {
   return !duzen
     || (Object.keys(duzen.hatlar).length === 0
@@ -152,13 +105,6 @@ export function mekanPoligonu(merkez: Nokta, yaricap: number): Nokta[] {
     [x - d, y - yaricap], [x + d, y - yaricap],
     [x + d, y + yaricap], [x - d, y + yaricap], [x - d, y - yaricap]
   ];
-}
-
-/** Elle eklenen mekânlar için çakışmayan kimlik */
-export function yeniMekanId(mevcut: MekanDuzeni): string {
-  let n = 1;
-  while (mevcut[`mekan_ek_${n}`]) n++;
-  return `mekan_ek_${n}`;
 }
 
 // ---- uygulama: üretilmiş veri + düzen → çizilecek veri --------------------

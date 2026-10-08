@@ -3,7 +3,7 @@ import { ArrowRight, ArrowUpRight, AtSign, Mail } from 'lucide-react';
 import type { Item } from '../../types';
 import { DuzadaHarita } from '../harita/DuzadaHarita';
 import type { HaritaDuzeni } from '../harita/duzenTipi';
-import { ATMOSFER_ACIK } from '../harita/atmosfer';
+import { ATMOSFER_ACIK } from '../harita/atmosferAyari';
 import { TYPE_LABELS } from '../wiki/wikiSchema';
 import { sitedeGorselVar, sitedeGovde, sitedeKunye, sitedeTakmaAdlar } from '../../lib/siteGizleme';
 import { fanzinBilgisi } from '../../lib/studyo';

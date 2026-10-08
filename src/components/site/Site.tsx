@@ -3,7 +3,7 @@ import { Menu, X, Globe, UserRound, Search, ShoppingBag, ArrowLeft, ArrowUpRight
 import type { Item } from '../../types';
 import { DuzadaHarita } from '../harita/DuzadaHarita';
 import { useHaritaDuzeni } from '../../lib/haritaDuzeni';
-import { ATMOSFER_ACIK } from '../harita/atmosfer';
+import { ATMOSFER_ACIK } from '../harita/atmosferAyari';
 import { TYPE_LABELS } from '../wiki/wikiSchema';
 import { SITE_SAYFALARI, sayfaGorseli, yayindakiAyar, BOS_AYAR, type SiteAyari } from '../../lib/siteAyari';
 import { TASLAK_ONIZLEME_ANAHTARI } from './SiteYonetimi';

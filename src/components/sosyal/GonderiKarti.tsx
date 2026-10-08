@@ -3,7 +3,7 @@ import { X, Copy, Download, Trash2, Image as ImageIcon, Link2 } from 'lucide-rea
 import type { Item } from '../../types';
 import {
   ASAMALAR, BAG_TURLERI, BICIMLER, KANALLAR, TURLER, asamasi, gonderiBilgisi, gonderiGuncelle,
-  kanalHesabi, seriBilgisi, seriler, type GonderiBilgisi
+  kanalHesabi, seriler, type GonderiBilgisi
 } from '../../lib/sosyal';
 import { DUGME_BOS, ETIKET, IKINCIL, YAZI } from '../anasayfa/stil';
 

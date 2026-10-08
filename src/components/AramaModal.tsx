@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { X, Search, Link2, Tag, ArrowRight } from 'lucide-react';
+import { X, Search, Tag, ArrowRight } from 'lucide-react';
 import { Item } from '../types';
 
 interface AramaModalProps {

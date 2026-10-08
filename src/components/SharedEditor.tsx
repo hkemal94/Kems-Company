@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { takmaAdlar } from '../lib/alanSablonu';
 import { 
   Bold, Italic, Heading2, Quote, Sparkles, Check, 
-  Eye, EyeOff, BookOpen, Link, Plus, HelpCircle, X, Maximize2, Minimize2 
+  Link, X, Maximize2, Minimize2 
 } from 'lucide-react';
 import { Item, ItemType } from '../types';
 

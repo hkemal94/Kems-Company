@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback, useMemo, lazy, Suspens
 import { Maximize2, Minimize2, Car, Moon, Snowflake, Layers, Check, Map as HaritaIkon, Share2, CalendarRange, GitBranch, LayoutDashboard } from 'lucide-react';
 import { isaretle } from '../lib/olcumler';
 import type { HaritaBakisi } from './harita/DuzadaHarita';
-import { ATMOSFER_KAPALI, type AtmosferAyari } from './harita/atmosfer';
+import { ATMOSFER_KAPALI, type AtmosferAyari } from './harita/atmosferAyari';
 import type { Item } from '../types';
 import { SayfaBasi } from './kabuk/SayfaBasi';
 import { SayfaRayi, type RayBolumu } from './SayfaRayi';

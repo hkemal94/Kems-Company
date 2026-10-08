@@ -7,32 +7,6 @@
  * krem tabandan bej üzerinden zeytin/taş tonlarına çıkar.
  */
 
-export const DENIZ = {
-  derin: '#0b1740',
-  orta: '#0e1c4f',
-  sig: '#16295f',
-  dalga: 'rgba(243, 239, 232, 0.20)'
-} as const;
-
-/**
- * Kıyıdan zirveye hipsometrik basamaklar. Eşik değerleri metredir ve
- * üreteçteki BANTLAR dizisiyle birebir eşleşmelidir. Alçak kotlarda sık:
- * kıyı sekisi (ilk 30 m) haritada okunabilsin diye.
- */
-export const YUKSELTI: Array<{ esik: number; renk: string }> = [
-  { esik: 0, renk: '#f1ece1' },
-  { esik: 10, renk: '#ece5d7' },
-  { esik: 25, renk: '#e5dcca' },
-  { esik: 50, renk: '#ddd2bd' },
-  { esik: 90, renk: '#d4c7ae' },
-  { esik: 150, renk: '#cabb9e' },
-  { esik: 230, renk: '#bfae8d' },
-  { esik: 330, renk: '#b2a07d' },
-  { esik: 450, renk: '#a4916e' },
-  { esik: 580, renk: '#948160' },
-  { esik: 690, renk: '#837155' }
-];
-
 /**
  * Gökyüzü. Arazi açıkken eğimli bakışta ufuk görünüyor; mavi bir gök
  * haritayı pencereye çevirirdi. Bunun yerine kâğıdın kendi tonları:
@@ -87,13 +61,6 @@ export const MAHALLE_TONU: Record<string, string> = {
   yer_ciftlik: '#b3986f'    // doğu ovası — anız
 };
 
-/**
- * Yıkamanın gücü. Fazlası kabartmayı boğuyor; markanın ham kiremiti
- * (#d35057) bu güçte pembe bir blok gibi duruyordu, o yüzden yukarıdaki
- * tonlar kırılmış hâlleriyle kullanılıyor.
- */
-export const MAHALLE_TON_GUCU = 0.115;
-
 /** Bina olmayan zemin öğeleri: teras, bahçe */
 export const ZEMIN = {
   teras: '#e6dcc6',
@@ -111,6 +78,3 @@ export const ZEMIN = {
   duvar: '#f6f0e3'
 } as const;
 
-/** MapLibre'nin `interpolate` ifadesi için düz dizi: [eşik, renk, ...] */
-export const yukseltiRampasi = (): (number | string)[] =>
-  YUKSELTI.flatMap(k => [k.esik, k.renk]);

@@ -33,13 +33,6 @@ export const Rozet: React.FC<{ children: React.ReactNode; renk?: DurumRengi }> =
   </span>
 );
 
-/** İnce ilerleme çubuğu (0–100) */
-export const IlerlemeCubugu: React.FC<{ yuzde: number; renk?: DurumRengi; className?: string }> = ({ yuzde, renk = 'bitti', className = '' }) => (
-  <div className={`h-1.5 rounded-full bg-[#E4DCCD] dark:bg-[#2C3C72] overflow-hidden ${className}`}>
-    <div className="h-full rounded-full transition-[width]" style={{ width: `${Math.max(0, Math.min(100, yuzde))}%`, background: DURUM_RENK[renk] }} />
-  </div>
-);
-
 /** İlerleme halkası (0–100); ortada yüzde yazar */
 export const IlerlemeHalkasi: React.FC<{ yuzde: number; boyut?: number; renk?: DurumRengi }> = ({ yuzde, boyut = 56, renk = 'bitti' }) => {
   const y = Math.max(0, Math.min(100, Math.round(yuzde)));

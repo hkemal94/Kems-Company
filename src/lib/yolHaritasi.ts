@@ -93,7 +93,7 @@ export const YOL_HARITASI: YolIsi[] = [
   { id: 'bag-yakin', paket: 'K', kimde: 'claude', nereden: '8 Ekim', bitti: true, ad: 'Bağ ağında bağsız maddeler daha yakın' },
   { id: 'toplu-bag', paket: 'K', kimde: 'claude', nereden: '8 Ekim', bitti: true, ad: 'Bağ ağında toplu seçim: birçok maddeyi tek seferde bir maddeye (mahalleye) bağla' },
   { id: 'atolye-giris', paket: 'K', kimde: 'claude', nereden: '8 Ekim', bitti: true, ad: 'Atölye\'de önce başlangıç ekranı, harita sonra' },
-  { id: 'denetim', paket: 'K', kimde: 'claude', nereden: '8 Ekim', ad: 'Büyük entegrasyon ve hız denetimi' },
+  { id: 'denetim', paket: 'K', kimde: 'claude', nereden: '8 Ekim', bitti: true, ad: 'Büyük entegrasyon ve hız denetimi' },
   { id: 'logolar', paket: 'M', kimde: 'claude', nereden: '8 Ekim', bitti: true,
     ad: 'Kemal\'in Canva logoları (KKM Logo, 12 sayfa, şeffaf PNG) ilgili marka ve viki maddelerine',
     not: 'Cevaplar docs/soru-cevap/logolar.md: Birlik Zeytin ve Birlik Birası kooperatifin ürünleri (1994 marka yılı), köpek Küçükçetmi Sürek Kulübü\'nün. Kemal Canva indirme iznini açınca.' },

@@ -138,12 +138,6 @@ export function kendiMetniYaz(item: Item, yeni: string): string {
   return [kalan, yeni.trim()].filter(Boolean).join('\n\n');
 }
 
-/** Bu maddede ayrıştırılabilir bir künye bloğu var mı */
-export function hasParsedKunye(item: Item): boolean {
-  const p = parseKunye(item);
-  return p.fields.length > 0 || !!p.rol;
-}
-
 /**
  * Kişinin rolünü bulur: önce yapılandırılmış alan, sonra künye başlığı,
  * sonra etiketler.
@@ -178,42 +172,3 @@ export const GRUP_BASLIK: Record<KisiGrubu, string> = {
   diğer: 'Diğer'
 };
 
-/**
- * Kalıcı taşıma. Bunu bir kez çalıştırırsan künye bilgisi notes'tan çıkıp
- * metadata.profile içine yazılır ve notes yalnızca gerçek metni tutar.
- *
- * Geri dönüşü olmadığı için çağırmadan önce dışa aktarma alman iyi olur.
- * Wiki bu taşıma yapılmadan da doğru çalışır — taşıma sadece veriyi
- * temizler ve düzenleme formlarının da alanları görmesini sağlar.
- */
-export function buildKunyeMigration(item: Item): Partial<Item> | null {
-  const p = parseKunye(item);
-  if (p.fields.length === 0 && !p.rol) return null;
-
-  const LABEL_TO_PATH: Record<string, string> = {
-    'kişilik': 'personality',
-    'fizik': 'physique',
-    'saç': 'hair',
-    'gözler': 'eyes',
-    'sevdikleri': 'likes',
-    'sevmedikleri': 'dislikes',
-    'hobiler': 'hobbies',
-    'ayrıntı': 'origin'
-  };
-
-  const profile: Record<string, unknown> = { ...(item.metadata?.profile || {}) };
-
-  if (p.rol && !profile.profession) profile.profession = p.rol;
-  if (p.yas && !profile.age) profile.age = p.yas;
-
-  p.fields.forEach(f => {
-    const path = LABEL_TO_PATH[norm(f.label)];
-    const key = path || norm(f.label);
-    if (!profile[key]) profile[key] = f.value;
-  });
-
-  return {
-    notes: p.body,
-    metadata: { ...(item.metadata || {}), profile }
-  };
-}

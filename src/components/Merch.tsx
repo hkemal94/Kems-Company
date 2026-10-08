@@ -337,22 +337,6 @@ export default function Merch({
     return mapped.filter(kurumaUyar);
   }, [items, dropIdMapping, seciliKurum]);
 
-  const archivedProducts = useMemo(() => {
-    const rawProducts = items.filter(i => i.area === 'merch' && i.type === 'merch_urun' && i.archived);
-    const mapped = rawProducts.map(p => {
-      const originalDropId = p.metadata?.dropId || '';
-      const primaryDropId = dropIdMapping[originalDropId] || originalDropId;
-      return {
-        ...p,
-        metadata: {
-          ...p.metadata,
-          dropId: primaryDropId
-        }
-      };
-    });
-    return mapped.filter(kurumaUyar);
-  }, [items, dropIdMapping, seciliKurum]);
-
   const activeItem = useMemo(() => {
     if (!activeItemId) return null;
     return items.find(i => i.id === activeItemId) || null;

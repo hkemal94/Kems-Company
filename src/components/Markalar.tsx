@@ -17,7 +17,7 @@ import {
   Search,
 } from 'lucide-react';
 import { StudyodaAc } from './studyo/StudyodaAc';
-import { Item, ItemType, BrandKit, AreaType, WikiSection } from '../types';
+import { Item, ItemType, AreaType } from '../types';
 import { compressImageBase64 } from '../lib/imageCompressor';
 import { resolveAllRelations, cleanupRelationsOnDelete } from '../utils/relations';
 import { GomuluSayfa, SayfaBasi } from './kabuk/SayfaBasi';
@@ -129,7 +129,6 @@ export default function Markalar({
   // Brand Kit input states
   const [newColor, setNewColor] = useState('#0E1C4F');
   const [newExemplar, setNewExemplar] = useState('');
-  const [newLogoDescription, setNewLogoDescription] = useState('');
 
   // Child entity creation modal/form
   const [showAddEntityForm, setShowAddEntityForm] = useState<ItemType | null>(null);
@@ -291,14 +290,6 @@ export default function Markalar({
     );
   }, [items, activeBrandId, isUnassignedSelected, activeBrand]);
 
-  const brandOlaylar = useMemo(() => {
-    return items.filter(i => 
-      !i.archived && 
-      i.type === 'olay' && 
-      (isUnassignedSelected ? !i.metadata?.brandId : i.metadata?.brandId === activeBrandId)
-    );
-  }, [items, activeBrandId, isUnassignedSelected]);
-
   // Merch items for this brand.
   // Tema katmanı kaldırıldı (34 cevabın 16. maddesi): droplar doğrudan
   // markaya bağlı, araya başka bir halka girmiyor.
@@ -368,7 +359,6 @@ export default function Markalar({
     e.preventDefault();
     if (!newEntityTitle.trim() || !showAddEntityForm || !activeBrandId) return;
 
-    const id = `${showAddEntityForm}_${Date.now()}`;
     const newItem: Omit<Item, 'id' | 'createdAt' | 'updatedAt' | 'userId'> = {
       title: newEntityTitle,
       area: 'duzada',

@@ -258,24 +258,3 @@ export function eksikleriCikar(items: Item[]): Eksik[] {
   return eksikler.sort((a, b) => b.sayi - a.sayi);
 }
 
-/**
- * İçi boş kitap projesi / serisi (34 cevabın 26. maddesi).
- *
- * Kemal: "The Imperial oyunun senaryosu olacaktı, şimdilik silebilirsin içi
- * boş çünkü." Silmiyoruz, arşivliyoruz — bu projede silinen geri gelmiyor,
- * arşivlenen geliyor. Kural tek bir kayda değil, içi boş her projeye işliyor:
- * bölümü olmayan ve gövdesi 120 harften kısa olan proje kaydı.
- */
-export function bosProjeler(items: Item[]): Item[] {
-  const canli = items.filter(i => !i.archived);
-  const bolumSahibi = new Set(
-    canli.filter(i => i.type === 'kitap_bolum')
-      .map(i => String((i.metadata as any)?.bookId || ''))
-  );
-  return canli.filter(
-    i => i.type === 'kitap_proje' && !i.isProposal
-      && !bolumSahibi.has(i.id)
-      && (i.notes || '').trim().length < 120
-  );
-}
-

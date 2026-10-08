@@ -3,9 +3,10 @@ import { TYPE_LABELS } from './wiki/wikiSchema';
 import { Fanzin } from './fanzin/Fanzin';
 import { fanzinBilgisi } from '../lib/studyo';
 import React, { useState, useMemo } from 'react';
-import { BookOpen, Send, Trash2, Compass, RefreshCw, FileText } from 'lucide-react';
+import { BeklemeliMetin } from './kabuk/BeklemeliMetin';
+import { BookOpen, Trash2, Compass, RefreshCw, FileText } from 'lucide-react';
 import { StudyodaAc } from './studyo/StudyodaAc';
-import { Item, AreaType, ItemType } from '../types';
+import { Item, ItemType } from '../types';
 import { getCachedAccessToken } from '../lib/firebase';
 import { createGoogleDoc } from '../lib/googleApi';
 import SharedEditor from './SharedEditor';
@@ -468,10 +469,9 @@ export default function Blog({
                 </div>
                 
                 {/* Editable Title */}
-                <input
-                  type="text"
-                  value={activePost.title}
-                  onChange={async (e) => await onUpdateItem({ ...activePost, title: e.target.value })}
+                <BeklemeliMetin
+                  deger={activePost.title}
+                  onKaydet={t => onUpdateItem({ ...activePost, title: t })}
                   className="font-serif font-bold text-2xl md:text-3xl text-[#0E1C4F] dark:text-[#F3EFE8] italic bg-transparent focus:outline-hidden border-b border-transparent focus:border-[#CFC5B4]"
                 />
               </div>

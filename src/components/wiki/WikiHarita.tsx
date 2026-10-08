@@ -1,7 +1,8 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import type { FeatureCollection } from 'geojson';
 import { Compass } from 'lucide-react';
 import type { Item } from '../../types';
-import { DUZADA_GEO } from '../../data/duzadaGeo';
+import { HARITA_YAPILARI } from '../../data/haritaYapilari';
 import { MAHALLE_ADI } from '../../lib/haritaMaddesi';
 
 /**
@@ -26,48 +27,53 @@ interface HaritaBilgisi {
   komsular: Array<{ wikiId: string; ad: string }>;
 }
 
-function haritaBilgisi(item: Item): HaritaBilgisi | null {
-  const binalar = DUZADA_GEO.features.filter(
-    f => (f.properties as Record<string, unknown> | null)?.katman === 'bina'
-  );
+/** Haritadaki yapının künye için gereken özellikleri */
+type YapiOzellik = { id: string; ad: string; mahalle: string | null; kat: number | null; yukseklik: number | null; taban: number | null; wikiId?: string | null };
 
-  const bina = binalar.find(f => {
-    const p = f.properties as Record<string, unknown>;
-    return p.wikiId === item.id
-      || p.id === item.metadata?.haritaBinaId;
-  });
-  if (!bina) return null;
-
-  const p = bina.properties as Record<string, unknown>;
-  const mahalleId = typeof p.mahalle === 'string' ? p.mahalle : null;
-
-  const komsular = binalar
-    .map(f => f.properties as Record<string, unknown>)
-    .filter(q =>
-      q.mahalle === mahalleId
-      && q.id !== p.id
-      && typeof q.wikiId === 'string'
-      && q.wikiId
-    )
-    .map(q => ({ wikiId: String(q.wikiId), ad: String(q.ad || '') }))
+function bilgiKur(yapi: YapiOzellik, hepsi: YapiOzellik[]): HaritaBilgisi {
+  const mahalleId = yapi.mahalle;
+  const komsular = hepsi
+    .filter(q => q.mahalle === mahalleId && q.id !== yapi.id && typeof q.wikiId === 'string' && q.wikiId)
+    .map(q => ({ wikiId: String(q.wikiId), ad: q.ad }))
     // Aynı maddeye bağlı birden çok kütle (otelin kuleleri) bir kez görünsün
-    .filter((k, i, hepsi) => hepsi.findIndex(x => x.wikiId === k.wikiId) === i)
+    .filter((k, i, h) => h.findIndex(x => x.wikiId === k.wikiId) === i)
     .slice(0, 8);
-
   return {
-    binaId: String(p.id),
-    ad: String(p.ad || ''),
+    binaId: yapi.id,
+    ad: yapi.ad,
     mahalleAdi: mahalleId ? MAHALLE_ADI[mahalleId] ?? null : null,
-    kat: typeof p.kat === 'number' ? p.kat : null,
-    yukseklik: typeof p.yukseklik === 'number' ? p.yukseklik : null,
-    rakim: typeof p.taban === 'number' && p.taban >= 1 ? Math.round(p.taban) : null,
+    kat: typeof yapi.kat === 'number' ? yapi.kat : null,
+    yukseklik: typeof yapi.yukseklik === 'number' ? yapi.yukseklik : null,
+    rakim: typeof yapi.taban === 'number' && yapi.taban >= 1 ? Math.round(yapi.taban) : null,
     komsular
   };
 }
 
+/**
+ * Önce maddesi olan yapıların kısa listesinden (`haritaYapilari.ts`, ~13 KB).
+ * 8 Ekim denetimi: önceden bütün harita verisi (2,8 MB) Düzada açılırken
+ * iniyordu. Haritadan açılıp sıradan bir eve bağlanan madde (`haritaBinaId`)
+ * listede yoksa bütün veri yalnız o maddede, sonradan indirilir.
+ */
+function haritaBilgisi(item: Item, geo: FeatureCollection | null): HaritaBilgisi | null {
+  const yapilar = HARITA_YAPILARI as YapiOzellik[];
+  const binaId = item.metadata?.haritaBinaId;
+  const kisa = yapilar.find(y => y.wikiId === item.id || y.id === binaId);
+  if (kisa) return bilgiKur(kisa, yapilar);
+  if (!binaId || !geo) return null;
+  const f = geo.features.find(x => (x.properties as Record<string, unknown> | null)?.katman === 'bina' && (x.properties as Record<string, unknown>).id === binaId);
+  if (!f) return null;
+  const p = f.properties as Record<string, unknown>;
+  return bilgiKur({
+    id: String(p.id), ad: String(p.ad || ''), mahalle: typeof p.mahalle === 'string' ? p.mahalle : null,
+    kat: typeof p.kat === 'number' ? p.kat : null, yukseklik: typeof p.yukseklik === 'number' ? p.yukseklik : null,
+    taban: typeof p.taban === 'number' ? p.taban : null
+  }, yapilar);
+}
+
 /** Bu maddenin haritada bir karşılığı var mı — yan sütunu açmaya değer mi */
 export function haritaKarsiligiVar(item: Item): boolean {
-  return haritaBilgisi(item) !== null;
+  return haritaBilgisi(item, null) !== null || !!item.metadata?.haritaBinaId;
 }
 
 interface WikiHaritaProps {
@@ -80,7 +86,16 @@ interface WikiHaritaProps {
 export const WikiHarita: React.FC<WikiHaritaProps> = ({
   item, onNavigate, onHaritayaGit
 }) => {
-  const bilgi = useMemo(() => haritaBilgisi(item), [item]);
+  // Kısa listede olmayan bağlı yapı için bütün harita verisi gerektiğinde iner
+  const [geo, setGeo] = useState<FeatureCollection | null>(null);
+  const gerek = !!item.metadata?.haritaBinaId && haritaBilgisi(item, null) === null;
+  useEffect(() => {
+    if (!gerek || geo) return;
+    let iptal = false;
+    void import('../../data/duzadaGeo').then(m => { if (!iptal) setGeo(m.DUZADA_GEO); });
+    return () => { iptal = true; };
+  }, [gerek, geo]);
+  const bilgi = useMemo(() => haritaBilgisi(item, geo), [item, geo]);
   if (!bilgi) return null;
 
   const satirlar: Array<[string, string]> = [];

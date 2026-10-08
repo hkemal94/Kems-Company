@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { X, Send, Lightbulb } from 'lucide-react';
-import { Item, AreaType, ItemType } from '../types';
+import { AreaType, ItemType } from '../types';
 
 interface HizliNotModalProps {
   isOpen: boolean;

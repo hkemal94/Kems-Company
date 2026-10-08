@@ -25,9 +25,8 @@ import { CEVRE_COGRAFYASI } from '../../data/cevreCografyasi';
  * Yalnız görüntüdür: hiçbir kayda yazmaz.
  */
 
-export interface AtmosferAyari { trafik: boolean; saat: boolean; mevsim: boolean }
-export const ATMOSFER_ACIK: AtmosferAyari = { trafik: true, saat: true, mevsim: true };
-export const ATMOSFER_KAPALI: AtmosferAyari = { trafik: false, saat: false, mevsim: false };
+import type { AtmosferAyari } from './atmosferAyari';
+export { ATMOSFER_ACIK, ATMOSFER_KAPALI, type AtmosferAyari } from './atmosferAyari';
 
 type Nokta = [number, number];
 

@@ -2155,3 +2155,33 @@ Cevaplar `docs/soru-cevap/logolar.md` (ikinci tur).
   yüklenmez; beş araç kart olarak görünür (Harita ve Kurucu, Bağ ağı, Zaman
   çizgisi, Soy ağacı, Tuval). Menüden doğrudan bir araca gelince (Harita,
   Bağ ağı…) o araç açılır.
+
+## 8 Ekim — K: büyük denetim (uygulamada; kart yok, ekranda değişen yok)
+
+Ölçüm: 12:35 yedeği, yayındaki gibi paketlenmiş önizleme, işlemci 4 kat
+yavaş. Sayfalar 0,4–0,7 sn'de açılıyor, hiçbir sayfada hata yok.
+
+- **Çift okuma kalktı.** Pencereye her dönüşte bütün kayıtlar iki kez
+  (odak + görünürlük) baştan okunuyordu: 2 × 149 okuma, ~7 MB. Açılışta da
+  önce tek seferlik okuma, ardından canlı dinleme. Artık yalnız canlı
+  dinleme (bağlantı koparsa kendini kurar); açılış onun ilk cevabını bekler.
+- **Kitap ve Blog başlığı** her harfte bütün kaydı yazıyordu (ve her harf ad
+  değişikliği sayılıp yarım adlar eski adlara giriyordu). Artık kutudan
+  çıkınca / Enter'da bir kez (`kabuk/BeklemeliMetin.tsx`).
+- **Harita motoru (MapLibre) ayrı pakette.** Atölye başlangıç ekranı 1,3 MB
+  → 18 KB. Sebep: Atölye ve Site atmosfer ayarını motoru içeren dosyadan
+  alıyordu (`harita/atmosferAyari.ts`'e ayrıldı).
+- **Viki harita kutusu** bütün harita verisi (2,8 MB) yerine üretecin kısa
+  yapı listesini (`haritaYapilari.ts`, 13 KB) kullanır. Düzada açılışı
+  2,9 MB → 93 KB. Haritadan açılıp sıradan bir eve bağlı madde olursa büyük
+  veri yalnız o maddede sonradan iner.
+- **Ölü kod:** ~30 kullanılmayan fonksiyon / sabit / içe aktarım silindi
+  (eski Drive/Takvim/Sheets çağrıları, künye ve marka göçü artıkları,
+  kâğıt doku, eski yükselti paleti…). `adaSakini.ts` kural gereği duruyor.
+- **Basılan tek seferlik kartlar silindi** (Kemal hepsine bastı): Harita
+  yenilendi / Uyarla (`merkezGocu.ts`, ana sayfadaki bekleyen iş dahil),
+  Haritadan kaybolan yol (`haritaOnarim.ts`), Logolar (`logoPaketi.ts`).
+  Büyük kayıtlar ve Ad değişikliği kartları kalıcı araç olduğu için duruyor
+  (yalnız iş varken görünürler).
+- Açık kalan: görseller kayıtların içinde (3,7 MB'ın yarısı Galeri). Kayıt
+  dışına taşımak ayrı, büyük iş; şimdilik önerilmedi.

@@ -39,8 +39,6 @@ const IZGARA_ANAHTARI = 'kems_sosyal_izgara';
 const izgaraOku = () => { try { return localStorage.getItem(IZGARA_ANAHTARI) !== 'kapali'; } catch { return true; } };
 const izgaraYaz = (acik: boolean) => { try { localStorage.setItem(IZGARA_ANAHTARI, acik ? 'acik' : 'kapali'); } catch { /* yok */ } };
 
-const cip = (on: boolean) => `shrink-0 px-2.5 py-1 rounded-full text-[11px] font-semibold border cursor-pointer whitespace-nowrap ${on ? 'bg-[#0E1C4F] dark:bg-[#2C3C72] text-white border-transparent' : `bg-white dark:bg-[#17345A] border-[#CFC5B4] dark:border-[#2C3C72] ${YAZI}`}`;
-
 const ASAMA_RENGI: Record<string, string> = {
   Fikir: 'bg-[#F3EFE8] text-[#6A5E4C] dark:bg-[#17345A] dark:text-[#A6B0C9]',
   Taslak: 'bg-[#F3EFE8] text-[#6A5E4C] dark:bg-[#17345A] dark:text-[#A6B0C9]',
