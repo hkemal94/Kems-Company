@@ -2138,3 +2138,20 @@ Cevaplar `docs/soru-cevap/logolar.md` (ikinci tur).
   şeridi. Hiçbir ev kalkmadı, kimlikler aynı; yalnız bahçe ve duvarların
   denize en yakın kısmı kuma bırakıldı (`gen/duzada.py` PLAJ_BANDI,
   `gen/ada_fiziki.py`). Liman'a dokunulmadı.
+
+## 8 Ekim — K-b: bağ ağı ve Atölye girişi (uygulamada; kart yok)
+
+- **Bağsız maddeler yakında.** Hiçbir şeye bağlı olmayan maddeler kuvvete
+  girmiyor (herkes itip ağın en dışına savuruyordu); ağın hemen sağında, türe
+  göre sıralı bir blokta dizilir. Kayıtlı yerleşimde ağdan çok uzağa düşmüş
+  bağsız madde de bloğa gelir; ağa yakın durana dokunulmaz.
+- **Toplu seçim** (Kemal: "aynı mahallede olanları yan yana alırım, tek
+  seferde seçer mahalleye bağlarım"): sağ üstteki kutu düğmesi (ya da Shift).
+  Boşlukta kutu çizilir ya da maddelere tek tek basılır; seçili grup
+  birlikte sürüklenir. Kartta "Hepsini şuna bağla" (mahalleler listenin
+  başında) + bağ türü (varsayılan "bulunduğu yer") → her maddenin kendi
+  kaydına bağ yazılır. Önizlemede 12 madde tek basışta Liman'a bağlandı.
+- **Atölye başlangıç ekranı.** Menüden Atölye'ye gelince harita hemen
+  yüklenmez; beş araç kart olarak görünür (Harita ve Kurucu, Bağ ağı, Zaman
+  çizgisi, Soy ağacı, Tuval). Menüden doğrudan bir araca gelince (Harita,
+  Bağ ağı…) o araç açılır.
