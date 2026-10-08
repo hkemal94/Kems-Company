@@ -1,7 +1,7 @@
 import type { FeatureCollection } from 'geojson';
 import { DUZADA_MERKEZ } from '../../data/duzadaGeo';
 import type { Nokta } from '../harita/sinirBolgeleri';
-import type { KurucuBelge } from '../harita/duzenTipi';
+import { HARITA_KUSAGI, type KurucuBelge } from '../harita/duzenTipi';
 import { BINA_TURLERI, type BinaTuru } from './kurucuSablonlari';
 import { hattiSadelestir } from '../../lib/hatSadelestir';
 
@@ -59,6 +59,8 @@ export function haritaTuru(tur: string): YolTuru {
 }
 
 export interface KurucuTaslak {
+  /** Okunduğu kaydın harita kuşağı (yoksa bugünkü) */
+  surum?: number;
   /** Kurucuda çizilen yeni yollar — [boylam, enlem] noktaları */
   yeniYollar: Record<string, { tur: YolTuru; noktalar: Nokta[] }>;
   /** Haritadan gelen yolun türü taslakta değiştiyse */
@@ -90,7 +92,7 @@ export const DOGA_TURLERI: Array<{ id: DogaTuru; ad: string; renk: string; kenar
   { id: 'kumsal', ad: 'Kumsal', renk: '#EBDDB0', kenar: '#C6B27E', aciklama: 'Kıyıda kum' }
 ];
 
-export const bosTaslak = (): KurucuTaslak => ({ yeniYollar: {}, turDegisikligi: {}, gizlenen: [], yeniBinalar: {}, ozelYapilar: {}, doga: {}, baglar: {}, yolDuzeni: {}, binaDuzeni: {} });
+export const bosTaslak = (): KurucuTaslak => ({ surum: HARITA_KUSAGI, yeniYollar: {}, turDegisikligi: {}, gizlenen: [], yeniBinalar: {}, ozelYapilar: {}, doga: {}, baglar: {}, yolDuzeni: {}, binaDuzeni: {} });
 
 const duz = (k: Nokta[]) => k.flatMap(p => [Math.round(p[0] * 1e6) / 1e6, Math.round(p[1] * 1e6) / 1e6]);
 const coz = (n: unknown): Nokta[] => {
@@ -116,7 +118,7 @@ export function sadelestir(k: Nokta[], pay = 0.3): Nokta[] {
 
 export function taslaktanBelge(t: KurucuTaslak): KurucuBelge {
   return {
-    surum: 1,
+    surum: t.surum ?? HARITA_KUSAGI,
     yeniYollar: Object.fromEntries(
       Object.entries(t.yeniYollar).map(([id, y]) => [id, { tur: y.tur, n: duz(sadelestir(y.noktalar)) }])
     ),
@@ -150,6 +152,7 @@ export function belgedenTaslak(ham: unknown): KurucuTaslak {
   const t = bosTaslak();
   if (!ham || typeof ham !== 'object') return t;
   const b = ham as Partial<KurucuBelge>;
+  t.surum = Number(b.surum) || 1;
   for (const [id, y] of Object.entries(b.yeniYollar ?? {})) {
     if (!y || !Array.isArray(y.n) || !TURLER.has(String(y.tur))) continue;
     const noktalar: Nokta[] = [];
@@ -254,13 +257,15 @@ export interface Zemin {
   ada: Nokta[][];
   mahalleler: Array<{ id: string; halka: Nokta[][] }>;
   binalar: Array<{ id: string; ad: string; halka: Nokta[]; wikiId?: string; kat?: number; tur?: string }>;
+  /** Evlerin arsaları (8 Ekim): metre, `ev` arsanın bağlı olduğu ev */
+  arsalar: Array<{ id: string; ev: string; halka: Nokta[] }>;
   etiketler: Array<{ ad: string; m: Nokta; tur: string }>;
   yollar: Array<{ id: string; ad: string; tur: string; noktalar: Nokta[] }>;
 }
 
 /** Harita verisinden (düzen uygulanmış) Kurucu'nun zemini */
 export function zeminCikar(geo: FeatureCollection): Zemin {
-  const z: Zemin = { ada: [], mahalleler: [], binalar: [], etiketler: [], yollar: [] };
+  const z: Zemin = { ada: [], mahalleler: [], binalar: [], arsalar: [], etiketler: [], yollar: [] };
   for (const f of geo.features) {
     const p = (f.properties ?? {}) as Record<string, unknown>;
     const g = f.geometry;
@@ -277,6 +282,8 @@ export function zeminCikar(geo: FeatureCollection): Zemin {
         ...(Number(p.kat) ? { kat: Number(p.kat) } : {}),
         ...(p.tur ? { tur: String(p.tur) } : {})
       });
+    } else if (katman === 'zemin' && p.ev && g.type === 'Polygon') {
+      z.arsalar.push({ id: String(p.id), ev: String(p.ev), halka: (g.coordinates as Nokta[][])[0].map(metreye) });
     } else if (katman === 'etiket' && g.type === 'Point' && (p.tur === 'mahalle' || p.tur === 'zirve')) {
       z.etiketler.push({ ad: String(p.ad ?? ''), m: metreye(g.coordinates as Nokta), tur: String(p.tur) });
     } else if (katman === 'yol' && g.type === 'LineString') {
@@ -422,10 +429,24 @@ export function kaydirDondur(k: Nokta[], dx: number, dy: number, aci: number): N
   ] as Nokta);
 }
 
-const merkezi = (k: Nokta[]): Nokta => [
+export const merkezi = (k: Nokta[]): Nokta => [
   k.reduce((t, p) => t + p[0], 0) / k.length,
   k.reduce((t, p) => t + p[1], 0) / k.length
 ];
+
+/**
+ * Evin arsası ve duvarı evle birlikte gider (8 Ekim): noktaları evin
+ * merkezi `c` etrafında döndürüp kaydırır (metre), evin kendisine
+ * uygulanan `kaydirDondur` ile aynı hareket.
+ */
+export function etrafindaTasi(k: Nokta[], c: Nokta, dx: number, dy: number, aci: number): Nokta[] {
+  if (!dx && !dy && !aci) return k;
+  const co = Math.cos(aci), si = Math.sin(aci);
+  return k.map(([x, y]) => [
+    c[0] + (x - c[0]) * co - (y - c[1]) * si + dx,
+    c[1] + (x - c[0]) * si + (y - c[1]) * co + dy
+  ] as Nokta);
+}
 
 /** Zemin binaları + taslaktaki yeni binalar */
 export function binalariKur(

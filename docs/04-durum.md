@@ -1,6 +1,6 @@
 # Durum
 
-**Son güncelleme: 30 Eylül 2026 (sabah listesi: ana sayfa, menü, Kurucu düzenleme)**
+**Son güncelleme: 8 Ekim 2026 (H: yeni Merkez, ev ve arsası tek yapı)**
 
 Bu belge sık değişir. Brief "bu proje nedir"i anlatır ve aylarca durur;
 burası "şu an neredeyiz"i söyler. Kısa tutulur.
@@ -1999,3 +1999,41 @@ dolar; "Sade Meze" → "Sade Meyhane" (kayıtlar, harita, kanon); bütün boş
 bölüm başlıkları silinir. Yeni maddelerde boş başlık açılmaz (7. gecedeki
 "bölüm başlıkları" soru turu cevabının yerini aldı). Kart aynı maddeye düşen
 birden çok düzeltmeyi sırayla uygular.
+
+## 8 Ekim — H: yeni Merkez, ev ve arsası tek yapı (uygulamada; kart var)
+
+Kemal'in toplu harita listesinden ilk paket (H-a). Kalanlar yol
+haritasında: uzak görünüm ve deniz (H-b), plajlar ve otelin sahili (H-c).
+
+- **Merkez dört yol ağzında.** Eski köyün yerindeki yuvarlak doku silindi.
+  Merkez kuzeydeki kavşakta yeniden kuruldu: Batı–Doğu sırt yolu, Kuzey
+  Sırtı Yolu ve Kemal'in Kurucu'da çizdiği ana yolun buluştuğu yer (171 m).
+  Kollar 300–460 m evlenir, sonra kır başlar. Kollardan kısa, kıvrımlı yan
+  sokaklar ayrılır. Evler kavşaktan uzaklaştıkça seyrelir, aralarda tarla,
+  bağ ve zeytinlik bölmeleri var. Belediye, pazar ve iki ev kavşağın
+  köşelerinde, okul bir kolun üstünde büyük bahçesiyle. Meydan kavşakta.
+  Kavşak 235 m eşyükseltisinin hemen dışındaydı; Merkez'in sınırı kavşağın
+  çevresini (720 m) içine alacak kadar genişledi.
+- Eski köyün yerinden Merkez Bağlantısı ve Kemal'in çizdiği ana yol hâlâ
+  geçiyor; orada artık ev yok.
+- Yeni sokaklar numaralı ve geçici: "Merkez 1. Sokak" vb.
+- **Ev ve arsası tek yapı.** Her evin arsası (bahçesi) ve bahçe duvarı
+  eve bağlı (`ev` alanı). Kurucu'da ev taşınınca, dönünce ya da kaldırılınca
+  arsası ve duvarı da gider. Ağaçlar harita açılırken arsanın içine konur,
+  onlar da arsayla gelir. Bitişik sıralardaki evsiz bahçe parselleri
+  bloğun ortak bahçesi olarak kalır.
+- **2D'de arsalar.** Kurucu'da evlerin arsası açık yeşil, duvarı ince çizgi.
+  Arsaya tıklamak evi seçer.
+- **Bir kereye mahsus:** evler yerleştirilirken bloklar artık sıradan
+  bağımsız (`shapely.normalize`). Böylece uzaktaki bir değişiklik bir
+  mahallenin evlerini kaydırmıyor. Bu yüzden İskele, Liman ve Stadyum'daki
+  üretilmiş evler bir kez yeniden dizildi (sayılar: İskele 618, Liman 874,
+  Stadyum 356, Merkez 124).
+- Üreteç Kemal'in son yol düzenlerini okuyor: `gen/kurucu-yollari.json` ve
+  `gen/sinir-duzenleme.json` (üç sırt yolu) 8 Ekim yedeğinden.
+- **Kart:** Durum → Eksikler → **Harita yenilendi: Kurucu kaydını uyarla**
+  (ana sayfada Bekleyen işler'de de var). Silinenler: eski Merkez'in
+  evlerine ve sokaklarına, eski ev dizilişine ait taşıma ve kaldırmalar;
+  belediye, okul ve pazarın eski köydeki konum ayarı; eski köyün yerinde
+  çizilmiş yol ve yapılar. Kayıt `surum: 2` olur, kart bir daha çıkmaz.
+  Kurucu açıksa önce kapatılmalı.

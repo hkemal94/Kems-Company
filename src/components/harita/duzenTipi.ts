@@ -13,6 +13,14 @@ import type { SinirHatlari } from './sinirBolgeleri';
 export const DUZEN_SURUMU = 2; // 2: yeni koordinat (39,60 K · 25,85 D) — koordinatGocu.ts
 
 /**
+ * Kurucu kaydının hangi harita üretimine göre yapıldığı (KurucuBelge.surum).
+ * 2: 8 Ekim — Merkez dört yol ağzında yeniden kuruldu, evler arsalarıyla
+ * yeniden dizildi. 1 olan kayıttaki ev taşımaları eski evlere aitti; Durum →
+ * Eksikler'deki "Harita yenilendi" kartı temizleyip 2 yapar (`lib/merkezGocu.ts`).
+ */
+export const HARITA_KUSAGI = 2;
+
+/**
  * Bir mekânın elle yapılmış düzeltmesi (H3).
  *
  * İki ayrı işi görür:
