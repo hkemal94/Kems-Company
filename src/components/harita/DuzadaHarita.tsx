@@ -5,8 +5,8 @@ import type { Map as MLMap, MapGeoJSONFeature, MapLayerMouseEvent } from 'maplib
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { DUZADA_GEO, DUZADA_MERKEZ, DUZADA_ALAN_KM2 } from '../../data/duzadaGeo';
 import {
-  DENIZ, GOK, KARA, YOL, YAPI, YUKSELTI, ZEMIN,
-  MAHALLE_TONU, MAHALLE_TON_GUCU
+  GOK, KARA, YOL, YAPI, ZEMIN,
+  MAHALLE_TONU
 } from './haritaStili';
 import { PusulaGulu, OlcekCubugu } from './haritaSusleri';
 import {

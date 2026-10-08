@@ -3,10 +3,11 @@ import { YazimPaneli } from './wiki/YazimPaneli';
 import { tuvaldeAc } from '../lib/tuval';
 import { TYPE_LABELS } from './wiki/wikiSchema';
 import React, { useState, useMemo } from 'react';
+import { BeklemeliMetin } from './kabuk/BeklemeliMetin';
 import { anilanKimlikler, buildLinkIndex } from './wiki/autoLink';
-import { Book, FileText, Trash2, Compass, ListTodo, RefreshCw } from 'lucide-react';
+import { FileText, Trash2, Compass, ListTodo, RefreshCw } from 'lucide-react';
 import { StudyodaAc } from './studyo/StudyodaAc';
-import { Item, ItemType, AreaType } from '../types';
+import { Item, ItemType } from '../types';
 import { getCachedAccessToken } from '../lib/firebase';
 import { createGoogleDoc } from '../lib/googleApi';
 import SharedEditor from './SharedEditor';
@@ -575,10 +576,11 @@ export default function Kitap({
                   BÖLÜM YAZIM MASASI
                 </span>
                 
-                <textarea
+                <BeklemeliMetin
+                  cokSatir
                   rows={2}
-                  value={activeChapter.title}
-                  onChange={async (e) => await onUpdateItem({ ...activeChapter, title: e.target.value })}
+                  deger={activeChapter.title}
+                  onKaydet={t => onUpdateItem({ ...activeChapter, title: t })}
                   className="font-serif font-bold text-xl md:text-2xl text-[#0E1C4F] dark:text-[#F3EFE8] italic bg-transparent focus:outline-hidden border-b border-transparent focus:border-[#CFC5B4] w-full resize-none leading-tight py-1 overflow-hidden"
                   placeholder="Bölüm Başlığı"
                 />

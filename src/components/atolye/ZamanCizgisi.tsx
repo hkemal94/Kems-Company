@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Plus, X } from 'lucide-react';
 import type { Item } from '../../types';
-import { TYPE_LABELS } from '../wiki/wikiSchema';
 import { TUR_NOKTASI } from './turRenkleri';
 import {
   donemAdaylari, donemKaydi, donemleriOku, reddedilenDonemler, zamanKayitlari,

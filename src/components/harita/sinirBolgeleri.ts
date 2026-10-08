@@ -324,18 +324,3 @@ export function bolgeleriKur(
   return bolgeler;
 }
 
-/** Bölgeleri haritaya verilebilecek GeoJSON'a çevirir */
-export function bolgeGeoJSON(bolgeler: Bolge[]): GeoJSON.FeatureCollection {
-  return {
-    type: 'FeatureCollection',
-    features: bolgeler.map(b => ({
-      type: 'Feature' as const,
-      id: b.id,
-      properties: { id: b.id },
-      geometry: {
-        type: 'Polygon' as const,
-        coordinates: [[...b.halka, b.halka[0]]]
-      }
-    }))
-  };
-}

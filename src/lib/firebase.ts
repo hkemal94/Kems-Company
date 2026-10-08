@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, User } from "firebase/auth";
-import { getFirestore, doc, collection, setDoc, updateDoc, deleteDoc, deleteField, onSnapshot, query, where, getDocs, writeBatch } from "firebase/firestore";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
+import { getFirestore, doc, collection, setDoc, updateDoc, deleteDoc, deleteField, onSnapshot, query } from "firebase/firestore";
 import firebaseConfig from "../../firebase-applet-config.json";
 import { Item, UserSettings } from "../types";
 
@@ -24,10 +24,6 @@ googleProvider.addScope('https://www.googleapis.com/auth/documents.readonly');
 let cachedAccessToken: string | null = null;
 
 export const getCachedAccessToken = () => cachedAccessToken;
-export const setCachedAccessToken = (token: string | null) => {
-  cachedAccessToken = token;
-};
-
 export enum OperationType {
   CREATE = 'create',
   UPDATE = 'update',
@@ -121,40 +117,6 @@ export const logoutUser = async () => {
 // Seed Example Data for new users
 /* Örnek veri tohumlama (seedUserData) silindi — 29 Eylül. Boş alan boş kalır. */
 
-export const subscribeToItems = (userId: string, callback: (items: Item[]) => void) => {
-  const path = `users/${userId}/items`;
-  const q = query(collection(db, "users", userId, "items"), where("archived", "==", false));
-  return onSnapshot(q, (snapshot) => {
-    const items: Item[] = [];
-    snapshot.forEach((doc) => {
-      items.push({ id: doc.id, ...doc.data() } as Item);
-    });
-    // Order by updatedAt desc
-    items.sort((a, b) => b.updatedAt - a.updatedAt);
-    callback(items);
-  }, (error) => {
-    console.error("Firestore abonelik hatası:", error);
-    handleFirestoreError(error, OperationType.GET, path);
-  });
-};
-
-export const fetchAllItemsDirect = async (userId: string): Promise<Item[]> => {
-  const path = `users/${userId}/items`;
-  try {
-    const q = query(collection(db, "users", userId, "items"));
-    const snapshot = await getDocs(q);
-    const items: Item[] = [];
-    snapshot.forEach((doc) => {
-      items.push({ id: doc.id, ...doc.data() } as Item);
-    });
-    items.sort((a, b) => b.updatedAt - a.updatedAt);
-    return items;
-  } catch (error) {
-    console.error("Firestore doğrudan çekim hatası:", error);
-    return [];
-  }
-};
-
 export const subscribeToAllItemsWithArchived = (userId: string, callback: (items: Item[]) => void) => {
   let isCancelled = false;
   let currentUnsubscribe: (() => void) | null = null;
@@ -238,19 +200,6 @@ export const saveItem = async (userId: string, item: Omit<Item, 'userId'>) => {
   });
   try {
     await setDoc(docRef, data, { merge: true });
-  } catch (error) {
-    handleFirestoreError(error, OperationType.WRITE, path);
-  }
-};
-
-export const updateItemFields = async (userId: string, itemId: string, fields: Partial<Item>) => {
-  const path = `users/${userId}/items/${itemId}`;
-  const docRef = doc(db, "users", userId, "items", itemId);
-  try {
-    await updateDoc(docRef, cleanUndefined({
-      ...fields,
-      updatedAt: Date.now()
-    }));
   } catch (error) {
     handleFirestoreError(error, OperationType.WRITE, path);
   }

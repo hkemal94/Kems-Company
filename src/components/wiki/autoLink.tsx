@@ -221,16 +221,6 @@ export const AutoLinkedText: React.FC<AutoLinkProps> = ({
   );
 };
 
-/** Metinde kaç ayrı maddeye bağlantı çıktığını sayar (yönetim yüzü için) */
-export function countOutgoingLinks(text: string, index: LinkIndexEntry[], selfId?: string): number {
-  const ids = new Set(
-    findMatches(text || '', index, selfId)
-      .map(m => m.id)
-      .filter(Boolean)
-  );
-  return ids.size;
-}
-
 /**
  * Metinde anılan maddelerin kimlikleri (4. gece, "metinde tanıma"): başlık
  * ve takma adlarla, bağlantı motorunun kurallarıyla (genel kelimeler yalnız

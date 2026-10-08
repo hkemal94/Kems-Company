@@ -11,11 +11,10 @@ import { DUZADA_GEO } from '../../data/duzadaGeo';
 import type { HaritaBakisi } from '../harita/DuzadaHarita';
 import { duzeniUygula, bosDuzen, type HaritaDuzeni } from '../harita/duzenKatmani';
 import { catmullRom, type Nokta } from '../harita/sinirBolgeleri';
-import { MAHALLE_TONU } from '../harita/haritaStili';
 import type { KayitDurumu } from '../../lib/haritaDuzeni';
 import { KATMANLAR_ACIK, notKaydi, notGuncelle, maddeIsareti, type KatmanAyari, type HaritaIsareti } from '../../lib/haritaIsaretleri';
 import {
-  YOL_TURLERI, turBilgisi, bosTaslak, belgedenTaslak, taslaktanBelge, taslakBosMu,
+  YOL_TURLERI, turBilgisi, belgedenTaslak, taslaktanBelge, 
   zeminCikar, yollariKur, yapistir, cakisanParcalariAyir, yeniEvArsalari, yeniYolId, derceye, metreye, uzunluk, karadaMi, DOGA_TURLERI, sadelestir,
   binalariKur, binaKonabilirMi, hattaUzaklik, parcaCikar, merkezi, etrafindaTasi,
   type KurucuTaslak, type KurucuYol, type KurucuBina, type Yapisma, type YolTuru, type Cati, type DogaTuru, type BinaDuzeltme

@@ -30,8 +30,6 @@ export const SITE_SAYFALARI = [
   { id: 'iletisim', ad: 'İletişim', alt: 'hesaplar, e-posta' }
 ] as const;
 
-export type SiteSayfaKimligi = typeof SITE_SAYFALARI[number]['id'];
-
 export interface SiteAyari {
   /** gizlenen sayfaların kimlikleri */
   gizli: string[];

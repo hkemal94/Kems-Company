@@ -49,12 +49,6 @@ export const WIKI_TYPES: ItemType[] = [
   'yer', 'cadde', 'meydan', 'yer_adi', 'ada', 'mekân', 'dükkân', 'kulüp', 'marka', 'kisi', 'karakter', 'aile', 'olay', 'ürün', 'oda'
 ];
 
-/**
- * Yer kartları (8 Ekim, Kemal: "cadde ve tepeyi mahalle kartı altında ele
- * alıyor, bu doğru değil"). 'yer' artık yalnız mahalle.
- */
-export const YER_TURLERI: ItemType[] = ['yer', 'cadde', 'meydan', 'yer_adi', 'ada'];
-
 export function schemaKeyFor(type: ItemType): string | undefined {
   return TYPE_TO_SCHEMA[type];
 }

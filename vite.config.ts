@@ -25,6 +25,16 @@ export default defineConfig(() => {
     optimizeDeps: {
       exclude: ['maplibre-gl'],
     },
+    // Harita motoru (MapLibre, ~1,3 MB) kendi paketinde (8 Ekim denetimi):
+    // yoksa küçük bir yardımcıyla aynı pakete düşüyor, Atölye'nin başlangıç
+    // ekranı ve Site bile onu indiriyordu. Artık yalnız 3D açılınca iner.
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: (id: string) => (id.includes('node_modules/maplibre-gl') ? 'maplibre' : undefined)
+        }
+      }
+    },
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),

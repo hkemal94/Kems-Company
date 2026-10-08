@@ -1,5 +1,5 @@
 import { kayitBoyutu } from './lib/buyukKayitlar';
-import React, { useState, useEffect, useRef, useMemo, useCallback, lazy, Suspense } from 'react';
+import React, { useState, useEffect, useRef, useMemo, lazy, Suspense } from 'react';
 import { sablonuOku, sablonuUygula } from './lib/alanSablonu';
 import { isaretle } from './lib/olcumler';
 import { 
@@ -7,7 +7,6 @@ import {
   signInWithGoogle,
   logoutUser,
   driveIzniniYenile,
-  fetchAllItemsDirect,
   subscribeToAllItemsWithArchived, 
   subscribeToSettings, 
   saveSettings, 
@@ -133,8 +132,6 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState<Item[]>([]);
   const [settings, setSettings] = useState<UserSettings>({ theme: 'arşiv' });
-  const [lastSyncTime, setLastSyncTime] = useState<Date>(() => new Date());
-  const [isSyncing, setIsSyncing] = useState<boolean>(false);
   
   // A ref lock to prevent infinite loops of room de-duplication on items real-time updates
   
@@ -243,21 +240,16 @@ export default function App() {
        */
 
       try {
-        // Doğrudan ilk çekim (snapshot ilk tetiklenene kadar beklemeden anında yükler)
-        const directItems = await fetchAllItemsDirect(activeUid);
-        if (directItems.length > 0) {
-          setItems(directItems);
-          setLastSyncTime(new Date());
-        }
-      } catch (err) {
-        console.warn("İlk doğrudan veri çekiminde hata:", err);
-      }
-
-      try {
-        // Listen to Firestore real-time items updates
-        unsubItems = subscribeToAllItemsWithArchived(activeUid, (fetchedItems) => {
-          setItems(fetchedItems);
-          setLastSyncTime(new Date());
+        // Canlı dinleme; açılış ilk cevabını bekler (8 Ekim denetimi: önceden
+        // kayıtlar önce bir kez tek seferde, hemen ardından dinlemeyle ikinci
+        // kez okunuyordu). Bağlantı yavaşsa 8 sn sonra yine de açılır.
+        await new Promise<void>(bitti => {
+          let ilk = true;
+          const zaman = setTimeout(bitti, 8000);
+          unsubItems = subscribeToAllItemsWithArchived(activeUid, (fetchedItems) => {
+            setItems(fetchedItems);
+            if (ilk) { ilk = false; clearTimeout(zaman); bitti(); }
+          });
         });
 
         // Listen to Firestore settings
@@ -317,55 +309,12 @@ export default function App() {
   }, []);
 
   // Manuel ve periyodik canlı veri çekimi
-  const handleRefreshLive = useCallback(async () => {
-    if (!user) return;
-    setIsSyncing(true);
-    try {
-      const fresh = await fetchAllItemsDirect(user.uid);
-      if (fresh && fresh.length > 0) {
-        setItems(fresh);
-      }
-      setLastSyncTime(new Date());
-    } catch (err) {
-      console.warn("Canlı veri çekimi sırasında hata:", err);
-    } finally {
-      setIsSyncing(false);
-    }
-  }, [user]);
-
   /*
-   * Otomatik canlı çekim (34 cevabın 29. maddesi: "saat başı").
-   *
-   * Önceden 15 saniyedeydi; tek kullanıcılı bir uygulamada bu, saatte 240
-   * gereksiz okuma demek. Sekmeye dönünce ve sekme görünür olunca zaten
-   * çekiliyor, o yüzden arka plandaki zamanlayıcının sık olmasına gerek yok.
-   * Elle "Şimdi Yenile" düğmesi de duruyor.
+   * Kayıtlar canlı dinleniyor (`subscribeToAllItemsWithArchived`, bağlantı
+   * koparsa kendini yeniden kurar). Pencereye her dönüşte bütün kayıtları
+   * baştan çekmek kalktı (8 Ekim denetimi): her dönüş iki kez 149 okuma ve
+   * ~7 MB indirme demekti, canlı dinleme zaten aynı veriyi getiriyor.
    */
-  const SAAT_BASI = 60 * 60 * 1000;
-  useEffect(() => {
-    if (!user) return;
-    const interval = setInterval(() => {
-      handleRefreshLive();
-    }, SAAT_BASI);
-
-    const onFocus = () => {
-      handleRefreshLive();
-    };
-
-    window.addEventListener('focus', onFocus);
-    const onVisibility = () => {
-      if (document.visibilityState === 'visible') {
-        handleRefreshLive();
-      }
-    };
-    document.addEventListener('visibilitychange', onVisibility);
-
-    return () => {
-      clearInterval(interval);
-      window.removeEventListener('focus', onFocus);
-      document.removeEventListener('visibilitychange', onVisibility);
-    };
-  }, [user, handleRefreshLive]);
 
   // Theme support
   useEffect(() => {
@@ -449,7 +398,6 @@ export default function App() {
     };
     // İyimser anlık güncelleme: Sayılar ve liste sunucu turunu beklemeden anında yenilenir
     setItems(prev => [newItem, ...prev.filter(i => i.id !== id)]);
-    setLastSyncTime(new Date());
     try {
       await saveItem(user.uid, newItem);
     } catch (e) {
@@ -486,7 +434,6 @@ export default function App() {
     }
     // İyimser anlık güncelleme
     setItems(prev => prev.map(i => i.id === updatedItem.id ? { ...updatedItem, updatedAt: Date.now() } : i));
-    setLastSyncTime(new Date());
     try {
       await saveItem(user.uid, updatedItem);
     } catch (e) {
@@ -682,10 +629,6 @@ export default function App() {
     ).length,
     [items]
   );
-  const oneriSayisi = useMemo(
-    () => items.filter(i => !i.archived && i.isProposal).length,
-    [items]
-  );
 
   /** Menüdeki kırmızı noktalar ve zil (Paket 4) */
   const bildirimler = useBildirimler(items, bildirimNabzi);
@@ -866,10 +809,6 @@ export default function App() {
         status: item.type === 'drop' ? 'Konsept' : 'Bitti'
       });
     }
-  };
-
-  const handleRejectProposal = async (itemId: string) => {
-    await handleDeleteItem(itemId);
   };
 
   const handleSaveHizliNot = async (title: string, notes: string, area: AreaType, type: ItemType) => {

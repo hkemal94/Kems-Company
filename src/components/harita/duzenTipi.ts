@@ -15,8 +15,8 @@ export const DUZEN_SURUMU = 2; // 2: yeni koordinat (39,60 K · 25,85 D) — koo
 /**
  * Kurucu kaydının hangi harita üretimine göre yapıldığı (KurucuBelge.surum).
  * 2: 8 Ekim — Merkez dört yol ağzında yeniden kuruldu, evler arsalarıyla
- * yeniden dizildi. 1 olan kayıttaki ev taşımaları eski evlere aitti; Durum →
- * Eksikler'deki "Harita yenilendi" kartı temizleyip 2 yapar (`lib/merkezGocu.ts`).
+ * yeniden dizildi. 1 olan kayıttaki ev taşımaları eski evlere aitti; Kemal
+ * 8 Ekim'de "Uyarla" kartıyla temizledi (kart ve kodu denetimde silindi).
  */
 export const HARITA_KUSAGI = 2;
 

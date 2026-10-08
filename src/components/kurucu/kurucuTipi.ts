@@ -203,12 +203,6 @@ export function belgedenTaslak(ham: unknown): KurucuTaslak {
   return t;
 }
 
-export const taslakBosMu = (t: KurucuTaslak) =>
-  !Object.keys(t.yeniYollar).length && !Object.keys(t.turDegisikligi).length && !t.gizlenen.length
-  && !Object.keys(t.yeniBinalar).length && !Object.keys(t.ozelYapilar).length
-  && !Object.keys(t.doga).length && !Object.keys(t.baglar).length
-  && !Object.keys(t.yolDuzeni).length && !Object.keys(t.binaDuzeni).length;
-
 // ---- izdüşüm: boylam/enlem ↔ metre (ada merkezinde düz) -------------------
 
 const [L0, A0] = DUZADA_MERKEZ;

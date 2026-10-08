@@ -1,5 +1,5 @@
 import { HARITA_YAPILARI } from '../data/haritaYapilari';
-import type { Item, WikiSection } from '../types';
+import type { Item } from '../types';
 
 /**
  * Haritadaki bir yapıdan wiki maddesi tohumu (W1).

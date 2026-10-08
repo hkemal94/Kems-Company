@@ -5,14 +5,12 @@ import { TemizlikKarti, EskiAlanKarti } from './TemizlikKarti';
 import { OrtakAlanKarti } from './OrtakAlanKarti';
 import { GaleriYedegiKarti } from './GaleriYedegiKarti';
 import { KanonKarti } from './KanonKarti';
-import { HaritaGocuKarti, HaritaOnarimKarti } from './HaritaGocuKarti';
 import { AdDegisikligiKarti } from './AdDegisikligiKarti';
 import { BuyukKayitKarti } from './BuyukKayitKarti';
-import { LogoKarti } from './LogoKarti';
 import { YerKartlariKarti, MahalleDerlemeKarti, MaddeSoruTuruKarti, ClaudeDerlemeKarti } from './YerKartlari';
 import { boslukDoldurma } from '../lib/boslukDoldurma';
 import { haritadaAra, maddeTohumu } from '../lib/haritaMaddesi';
-import { eksikleriCikar, type Cozum, type Eksik } from '../lib/eksikler';
+import { eksikleriCikar, type Cozum } from '../lib/eksikler';
 
 interface EksiklerProps {
   items: Item[];
@@ -79,14 +77,7 @@ export const Eksikler: React.FC<EksiklerProps> = ({
       {/* Galeri (29 Eylül): kullanılan görseller galeriye */}
       {onAddItem && <GaleriYedegiKarti items={items} onAddItem={onAddItem} />}
 
-      {/* Harita yenilendi (8 Ekim): eski Merkez'den kalan Kurucu kayıtları */}
-      <HaritaGocuKarti />
-      <HaritaOnarimKarti />
       {onUpdateItem && <BuyukKayitKarti items={items} onUpdateItem={onUpdateItem} />}
-      {onUpdateItem && onAddItem && (
-        <LogoKarti items={items} onUpdateItem={onUpdateItem}
-          onAddItem={onAddItem as (i: Omit<Item, 'id' | 'createdAt' | 'updatedAt' | 'userId'> & { id?: string }) => Promise<void>} />
-      )}
       {onUpdateItem && <AdDegisikligiKarti items={items} onUpdateItem={onUpdateItem} onDeleteItem={onDeleteItem} />}
 
       {/* Yer kartları ve mahalle derlemesi (8 Ekim) */}
