@@ -85,7 +85,7 @@ export const YOL_HARITASI: YolIsi[] = [
     ad: 'Plajlar yaşam alanlarına uzasın, önce İskele Mahallesi' },
   { id: 'logolar', paket: 'M', kimde: 'claude', nereden: '8 Ekim',
     ad: 'Kemal\'in Canva logoları (KKM Logo, 12 sayfa, şeffaf PNG) ilgili marka ve viki maddelerine',
-    not: 'Kemal PNG\'leri Drive\'a koyar ya da ortam Canva indirmesine izin verir. Sorulacak: "Düzada Ziraat İşletmeleri Kurumu, 1994" ile kanondaki kooperatif; köpek figürü kimin.' },
+    not: 'Cevaplar docs/soru-cevap/logolar.md: Birlik Zeytin ve Birlik Birası kooperatifin ürünleri (1994 marka yılı), köpek Küçükçetmi Sürek Kulübü\'nün. Kemal Canva indirme iznini açınca.' },
   { id: 'otel-merdiven', paket: 'H', kimde: 'claude', nereden: '8 Ekim',
     ad: 'Otel: Sahil Merdiveni, kum cebi ve tahta iskele haritada (görsel: Galeri → The Imperial Kemskoy)' },
   { id: 'mahalle-derleme-elle', paket: 'W', kimde: 'claude', nereden: '8 Ekim', bitti: true,
