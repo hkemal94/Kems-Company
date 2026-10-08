@@ -75,6 +75,8 @@ export const YOL_HARITASI: YolIsi[] = [
   // 8 Ekim: madde soru turu
   { id: 'madde-soru-turu', paket: 'W', kimde: 'claude', nereden: '8 Ekim', bitti: true,
     ad: 'Madde soru turu: kanondaki 25 yerin maddesi, eski alanların düzeltilmesi (Eksikler → Soru turu kartı)' },
+  { id: 'bosluk-soru-turu', paket: 'W', kimde: 'claude', nereden: '8 Ekim', bitti: true,
+    ad: 'Boşluk soru turu: sezon, sahibi, yıllar, mahalle; Sade Meyhane; Güney Burnu; boş başlıklar silindi' },
   { id: 'otel-merdiven', paket: 'H', kimde: 'claude', nereden: '8 Ekim',
     ad: 'Otel: Sahil Merdiveni, kum cebi ve tahta iskele haritada (görsel: Galeri → The Imperial Kemskoy)' },
   { id: 'mahalle-derleme-elle', paket: 'W', kimde: 'claude', nereden: '8 Ekim', bitti: true,

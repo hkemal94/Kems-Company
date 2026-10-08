@@ -52,7 +52,7 @@ const ETIKET_ARALIK: Record<string, [number, number]> = {
   su: [10.8, 14.4],
   zirve: [10.9, 15.6],
   yapi: [13.2, 22],
-  // maddesi olan küçük mekânlar: Sade Meze, Dondurmacı Kızlar, Belediye…
+  // maddesi olan küçük mekânlar: Sade Meyhane, Dondurmacı Kızlar, Belediye…
   // Mahalle adları söndükten (15.2) hemen sonra açılır.
   mekan: [15.2, 22],
   // otel yerleşkesindeki ikincil yapılar en son açılır

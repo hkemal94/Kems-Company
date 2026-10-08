@@ -93,32 +93,6 @@ export function kunyeSatiri(k: HaritaKunyesi): string {
   ].filter(Boolean).join(' · ');
 }
 
-/**
- * Yeni bir mekân maddesi için bölümler.
- *
- * Bilerek BOŞ: "Henüz bir içerik yazılmadı." diye doldurmak, sonradan
- * "dolu mu boş mu" ayrımını imkânsız kılıyor. status='boş' olan bölüm
- * arayüzde soluk görünür ve doluluk sayımına girmez.
- */
-export function yeniBolumler(k: HaritaKunyesi): WikiSection[] {
-  // "Bugün" bölümü yok: vikinin bir "şimdi"si olmaz (CLAUDE.md, kanon)
-  const taban: Array<[string, string]> = [
-    ['genel', 'Genel bakış'],
-    ['tarihce', 'Tarihçe']
-  ];
-  if (k.tur === 'kafe' || k.tur === 'meyhane') {
-    taban.push(['mudavimler', 'Müdavimler']);
-  }
-  if (k.tur === 'yapı' || k.tur === 'kulüp' || k.tur === 'stadyum') {
-    taban.push(['islev', 'İşlevi']);
-  }
-  return taban.map(([id, title]) => ({
-    id: `wiki_${k.wikiId}_${id}`,
-    title,
-    content: '',
-    status: 'boş' as const
-  }));
-}
 
 /**
  * Haritadan madde tohumu. `onAddItem`e verilecek hâli.
@@ -145,7 +119,6 @@ export function maddeTohumu(
     metadata: {
       region: k.mahalleAdi ? k.mahalleAdi.toLocaleLowerCase('tr') : undefined,
       haritaKonum: k.konum,
-      wikiSections: yeniBolumler(k),
       haritaBinaId: k.binaId,
       haritaTur: k.tur,
       kat: k.kat ?? undefined,

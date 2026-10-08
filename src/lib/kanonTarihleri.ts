@@ -29,7 +29,7 @@ export const TARIH_KURALLARI: TarihKurali[] = [
   { ad: 'Dirlik Stadı', desen: /Dirlik Stad|\bstat(ta|tan|ın)?\b/i, baslangic: 1980, not: "Dirlik Stadı 1980'lerde yapıldı; öncesinde toprak saha vardı." },
   { ad: 'Belediye', desen: /\bbelediye/i, baslangic: 1980, not: 'Belediye 1980 sonrası kuruldu; öncesinde Düzada Köyü muhtarlıktı.' },
   { ad: 'Sağlık ocağı', desen: /sağlık ocağ/i, baslangic: 1980, not: 'Sağlık ocağı 1980 sonrası açıldı.' },
-  { ad: 'Sade Meze', desen: /Sade Meze/i, baslangic: 1980, not: "Eski fabrika binası 1980–1990'larda meyhane (Sade Meze) oldu." },
+  { ad: 'Sade Meyhane', desen: /Sade (Meyhane|Meze)/i, baslangic: 1980, not: "Eski fabrika binası 1980–1990'larda meyhane (Sade Meyhane) oldu." },
   { ad: 'Dondurmacı Kızlar', desen: /Dondurmacı Kızlar/i, baslangic: 2000, not: 'Dondurmacı Kızlar 2000 sonrası açıldı.' },
   { ad: 'Butik şaraphaneler', desen: /şaraphane/i, baslangic: 2000, not: 'Çiftlik\'teki butik şaraphaneler 2000 sonrası.' },
   { ad: 'Kems Company dükkânı', desen: /Kems Company('nin)? dükkân/i, baslangic: 2024, not: 'Kemsköy Caddesi\'ndeki dükkân 2024 ve sonrası.' },

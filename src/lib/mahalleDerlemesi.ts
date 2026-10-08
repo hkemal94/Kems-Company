@@ -61,7 +61,7 @@ Fener 1970'lerde otomatiğe geçti; bekçi evi sahil güvenliğin kullanımına 
 
 1954'te devlet misafirhanesi olarak açılan yapı, 1960'larda İstanbul merkezli bir şirkete geçerek otel oldu. Otelle adada yaz turizmi başladı; İskele'ye otelciler ve varlıklı yazlıkçılar yerleşti, mübadele aileleri evlerini satıp Merkez'e geçti. Halk 1954 sonrasında buraya "mahalle" dedi; resmî mahalle olması belediyeyle (1980 sonrası) oldu.
 
-1970'lerden itibaren barlar açıldı; Kemsköy Caddesi zamanla dükkânlı bir yazlık caddesine döndü. Eski zeytinyağı fabrikasının taş binası 1980–1990'larda meyhane oldu (Sade Meze). Aynı yıllarda feribot ve balık hali yeni limana taşındı; İskele otelin, eğlence mekânlarının ve küçük teknelerin yeri olarak kaldı.`
+1970'lerden itibaren barlar açıldı; Kemsköy Caddesi zamanla dükkânlı bir yazlık caddesine döndü. Eski zeytinyağı fabrikasının taş binası 1980–1990'larda meyhane oldu: Sade Meyhane. Aynı yıllarda feribot ve balık hali yeni limana taşındı; İskele otelin, eğlence mekânlarının ve küçük teknelerin yeri olarak kaldı.`
       }
     ]
   },

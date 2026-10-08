@@ -1989,3 +1989,13 @@ hâli koy" ile yazılır, metinler "öneri" olarak kalır.
   (Küçükçetmi "Kurucu: Eskibey Ailesi") eski hatalı değer sanıp silmeye
   çalışıyordu. Artık yalnız eski hatalı / "bilinmiyor" değerleri düzeltir.
 - Açık soru: maddenin adı "Sade Meyhane", kanonda "Sade Meze".
+
+## 8 Ekim — boşluk soru turu (4 tur; uygulamada kart)
+
+Cevaplar `docs/soru-cevap/madde-2.md`, kanon `03-duzada-kunyesi.md` →
+"Boşluk soru turu". Durum → Eksikler → **Soru turu** kartı yeniden çıkar:
+Güney Burnu açılır; sezon, sahibi, yıllar, mahalle ve köken boşlukları
+dolar; "Sade Meze" → "Sade Meyhane" (kayıtlar, harita, kanon); bütün boş
+bölüm başlıkları silinir. Yeni maddelerde boş başlık açılmaz (7. gecedeki
+"bölüm başlıkları" soru turu cevabının yerini aldı). Kart aynı maddeye düşen
+birden çok düzeltmeyi sırayla uygular.

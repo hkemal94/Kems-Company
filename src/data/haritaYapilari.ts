@@ -112,7 +112,7 @@ export const HARITA_YAPILARI: HaritaYapisi[] =
   {
     "id": "bina_meyhane",
     "wikiId": "viki_mekan_meyhane",
-    "ad": "Sade Meze",
+    "ad": "Sade Meyhane",
     "tur": "meyhane",
     "mahalle": "yer_iskele",
     "kat": 2,
