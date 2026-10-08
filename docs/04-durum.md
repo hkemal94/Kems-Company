@@ -2123,3 +2123,18 @@ Cevaplar `docs/soru-cevap/logolar.md` (ikinci tur).
 - **2D'de zeytinlik, tarla, bağ.** Haritanın zeytinlik, tarla ve bağları
   Kurucu'da kesik çizgili sınırla görünür (tıklanmaz, yalnız görmek için).
   Kemal'in Doğa aracıyla çizdikleri açık renkli dış konturla belirginleşti.
+
+## 8 Ekim — H-d 2: 2D stat, otelin kum cebi ve tahta iskele, İskele plajı (uygulamada; kart yok)
+
+- **2D'de stat.** Kurucu stat sahasını, stat çevresini, meydanları ve
+  terasları göstermiyordu (yalnız tribün çizgileri). Artık saha yeşil, taş
+  zemin bej, düz dolgu (tıklanmaz).
+- **Otelin dibi** (Kemal'in görseli: Galeri → The Imperial Kemskoy): 58 m'lik
+  beton T iskele yerine Sahil Merdiveni'nin ayağında 26 m'lik dar tahta
+  iskele (alçak, ahşap renkli) ve merdivenin dibinde yarım ay biçimli bir
+  kum cebi (`zemin_otel_kum`). İskelenin kimliği ve vikide bağı aynı.
+- **İskele plajı** (Kemal: "evler direkt plaj kenarı olabilir, evleri
+  kaldırmak zorunda değilsin"): kasabanın önünde kıyı boyunca ~20 m'lik kum
+  şeridi. Hiçbir ev kalkmadı, kimlikler aynı; yalnız bahçe ve duvarların
+  denize en yakın kısmı kuma bırakıldı (`gen/duzada.py` PLAJ_BANDI,
+  `gen/ada_fiziki.py`). Liman'a dokunulmadı.

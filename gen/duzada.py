@@ -1370,26 +1370,34 @@ def _iskele_noktasi(disari, yan):
             MERDIVEN_AYAGI[1] + _ny * disari + _ty * yan)
 
 
-ISKELE_BOY = 58.0       # gövdenin denize uzanma mesafesi
-ISKELE_BAS = 36.0       # T'nin başı, kıyıya paralel
+# Tahta iskele ve kum cebi (8 Ekim, Kemal'in görseli: Galeri → The Imperial
+# Kemskoy): merdivenin dibinde küçük bir kum cebi, oradan denize uzanan dar
+# tahta iskele. Eskiden 58 m'lik beton T iskeleydi.
+ISKELE_BOY = 26.0       # denize uzanma mesafesi
+ISKELE_EN = 3.2
+ISKELE_YAN = 9.0        # merdiven ayağından kıyı boyunca kayma (merdivenle çakışmasın)
 
 _iskele_aci = math.degrees(math.atan2(_ny, _nx))
-_govde_merkez = _iskele_noktasi(ISKELE_BOY / 2 - 6.0, 0.0)
-_bas_merkez = _iskele_noktasi(ISKELE_BOY - 3.0, 0.0)
-_iskele = unary_union([
-    dikdortgen(_govde_merkez[0], _govde_merkez[1], ISKELE_BOY + 12.0, 7.0,
-               _iskele_aci),
-    dikdortgen(_bas_merkez[0], _bas_merkez[1], 9.0, ISKELE_BAS, _iskele_aci),
-])
-if isinstance(_iskele, MultiPolygon):
-    raise SystemExit("HATA: iskele tek parça olmadı")
+_govde_merkez = _iskele_noktasi(ISKELE_BOY / 2 - 4.0, ISKELE_YAN)
+_iskele = dikdortgen(_govde_merkez[0], _govde_merkez[1], ISKELE_BOY + 8.0, ISKELE_EN,
+                     _iskele_aci)
 
 binalar.append({
     "id": "bina_otel_iskele", "ad": "Otel İskelesi",
     "geom": _iskele,
-    "yukseklik": 3, "tur": "iskele", "mahalle": "yer_iskele",
+    "yukseklik": 1.0, "tur": "iskele", "mahalle": "yer_iskele",
     "wikiId": "kemskoy_hotel", "kat": None, "taban": 0.0,
 })
+
+# Kum cebi: merdiven ayağında kıyıya yaslanan yarım ay; uçurumun dibi
+_KUM_YARI = 34.0        # kıyı boyunca yarı genişlik
+_KUM_DERIN = 14.0       # karaya doğru derinlik
+_kum = Polygon([_iskele_noktasi(-_KUM_DERIN * math.sqrt(max(0.0, 1 - (y / _KUM_YARI) ** 2)) * 0.98, y)
+                for y in [(-1 + 2 * i / 24) * _KUM_YARI for i in range(25)]]
+               + [_iskele_noktasi(4.0, _KUM_YARI), _iskele_noktasi(4.0, -_KUM_YARI)])
+_kum = _kum.buffer(0).intersection(ada.buffer(2.0))
+if not _kum.is_empty:
+    zemin.append({"id": "zemin_otel_kum", "ad": "", "tur": "kumsal", "geom": _kum})
 
 # Merdiven: teras ucundan uçurum yüzünde zikzak inip iskelenin başına varır.
 _mer_bas = yerleske(TERAS_ON - 2, 10)
@@ -1408,7 +1416,7 @@ _merdiven_boy = sum(
     for i in range(len(merdiven_noktalari) - 1))
 print(f"  Merdiven         : {_merdiven_boy:.0f} m yolla {_otel_kot:.0f} m iniş "
       f"(~%{_otel_kot / _merdiven_boy * 100:.0f})")
-print(f"  İskele           : kıyıya dik, T başı {ISKELE_BAS:.0f} m")
+print(f"  İskele           : tahta, {ISKELE_BOY:.0f} m; kum cebi {_kum.area:.0f} m²")
 
 # Deniz feneri — adanın kuzeybatı ucunda, Liman'ı yukarıdan görür
 fx, fy = kara(141, 0.985)
@@ -3209,6 +3217,27 @@ etiketler.append({"id": "etk_liman_koy", "ad": "Liman Körfezi", "tur": "su",
 etiketler.append({"id": "etk_iskele_koy", "ad": "İskele Koyu", "tur": "su",
                   "xy": kara(206, 1.24), "oncelik": 3})
 print(f"Etiket         : {len(etiketler)}")
+
+# Plaj kasabaya uzanır (8 Ekim, Kemal: "plajların yaşam alanlarına, özellikle
+# İskele Mahallesi'ne uzamasını sağla"; "evler direkt plaj kenarı olabilir,
+# evleri kaldırmak zorunda değilsin"). İskele'de bahçe ve duvarların kıyıya
+# PLAJ_BANDI metreden yakın kısmı kum şeridine bırakılır; evler yerinde kalır.
+# Kum rengi `gen/ada_fiziki.py`'de aynı şeritte.
+PLAJ_BANDI = 20.0
+_plaj = ada.exterior.buffer(PLAJ_BANDI)
+_plaj_kalan = []
+for z in zemin:
+    if "yer_iskele" in z["id"] and z["tur"] == "bahçe" and z["geom"].intersects(_plaj):
+        _k = z["geom"].difference(_plaj)
+        _k = max(_parcala(_k), key=lambda p: p.area, default=None) if not _k.is_empty else None
+        if _k is None or _k.area < 8:
+            continue
+        z = {**z, "geom": _k}
+    _plaj_kalan.append(z)
+_plaj_silinen = len(zemin) - len(_plaj_kalan)
+zemin[:] = _plaj_kalan
+duvarlar[:] = [(_i, (_g.difference(_plaj) if "yer_iskele" in _i else _g), _e) for _i, _g, _e in duvarlar]
+print(f"Plaj (İskele)  : {PLAJ_BANDI:.0f} m kum şeridi, {_plaj_silinen} bahçe tümden kum oldu")
 
 # ---------------------------------------------------------------- GeoJSON
 def feature(geom_json, props):
