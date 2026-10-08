@@ -2057,3 +2057,34 @@ Kemal'in toplu harita listesinden ikinci paket (H-b).
   Gece ve kış görünümü bunlara da uygulanıyor.
 - Üretim: `python gen/cevre.py ne_10m_land.geojson` →
   `src/data/cevreCografyasi.ts` (Natural Earth dosyası depoya girmez).
+
+## 8 Ekim öğlen — K: hatalar (uygulamada; üç kart)
+
+Kemal'in 13 maddelik listesinden ilk paket. Sıra (Kemal seçti): hatalar →
+logolar (M) → harita (H-d); bağ ağı, Atölye girişi ve büyük denetim sonra.
+Hepsi yol haritasında.
+
+- **Sahil Yolu kayboldu.** Kayda yazılan her yol `lib/hatSadelestir.ts`'den
+  geçiyor; başı sonuna eşit kapalı halkada uzaklık hep 0 çıkıyor, yol iki
+  noktaya iniyordu. Kemal Kurucu'da Sahil Yolu'na dokununca kayıtta 0 metre
+  kaldı. Araç düzeldi. Kart: Eksikler → **Haritadan kaybolan yol** → Geri
+  getir (bozuk düzen silinir; yolda yapılan düzenleme geri gelmez).
+- **Viki kaydetmiyor.** Bir kaydın sınırı 1 MB. Dondurmacı Kızlar 935 KB'tı
+  (içinde 882 KB'lık PNG; Galeri'deki "1000166131" aynı görsel). Galeri
+  saydam görselleri PNG olarak neredeyse küçültmeden saklıyordu. Artık WebP
+  (saydamlık kalır), görsel başına en çok 350 KB. Kayıt 1 MB'ı aşacaksa
+  yazmadan önce açık uyarı çıkar. Kart: **Büyük kayıtlar** → Küçült
+  (600 KB üstü kayıtların görselleri; önizlemede 913 → 103 KB, 882 → 72 KB).
+- **Soru turu kartı hiç bitmiyordu.** Kart "Stadyum Plajı"nı arıyordu; Kemal
+  adını Kuzey Plajı yapınca bulamayıp eski adla yeniden açtı (12:23'te bir
+  boş kopya). Tohum Kuzey Plajı oldu; kart bir madde yazılamazsa durmaz,
+  yazılamayanı söyler.
+- **Ad değişikliği her yere.** Bir maddenin adı değişince eski ad
+  `eskiAdlar`a (madde eski adıyla da bulunur) ve `adYayilacak`a girer. Kart:
+  **Ad değişikliği her yere** → Her yerde değiştir (öbür maddelerde metin,
+  künye, bölüm; eski adla açılmış boş kopya silinir). Tarihî eski adlar
+  (İskele'nin "Kemsköy"ü) yayılmaz. Kanon: Stadyum Plajı → Kuzey Plajı.
+- Logo paketinin yarısı (depodaki 12 logo, kartın arka planı) bu PR'da
+  ama ekranda bir şey yapmıyor; kart M paketinde.
+- Açık: Markalar'da Kemal'in açtığı "Düzada Ziraat İşletmeleri Kurumu"
+  (kanonda "Kemsköy …"); M paketinde sorulacak.

@@ -1,3 +1,4 @@
+import { kayitBoyutu } from './lib/buyukKayitlar';
 import React, { useState, useEffect, useRef, useMemo, useCallback, lazy, Suspense } from 'react';
 import { sablonuOku, sablonuUygula } from './lib/alanSablonu';
 import { isaretle } from './lib/olcumler';
@@ -417,7 +418,9 @@ export default function App() {
     const metin = e instanceof Error ? e.message : String(e);
     setKayitHatasi(/quota|resource.?exhausted/i.test(metin)
       ? 'Kaydedilemedi: veritabanının günlük yazma sınırı doldu. Değişiklik bu ekranda duruyor ama sayfayı yenilersen kaybolur. Sınır her gün Türkiye saatiyle 10:00\'da sıfırlanır.'
-      : 'Kaydedilemedi: sunucu yazmayı kabul etmedi. Değişiklik bu ekranda duruyor ama sayfayı yenilersen kaybolur.');
+      : /maximum allowed size|exceeds the maximum|too large|1 ?MB|1048576|cok-buyuk/i.test(metin)
+        ? 'Kaydedilemedi: bu madde 1 MB sınırını aşıyor (içindeki görseller büyük). Durum → Eksikler → "Büyük kayıtlar" kartıyla görselleri küçült, sonra yeniden kaydet. Değişiklik bu ekranda duruyor ama sayfayı yenilersen kaybolur.'
+        : 'Kaydedilemedi: sunucu yazmayı kabul etmedi. Değişiklik bu ekranda duruyor ama sayfayı yenilersen kaybolur.');
   };
 
   const handleAddItem = async (itemData: Omit<Item, 'id' | 'createdAt' | 'updatedAt' | 'userId'> & { id?: string }) => {
@@ -455,8 +458,32 @@ export default function App() {
     }
   };
 
-  const handleUpdateItem = async (updatedItem: Item) => {
+  const handleUpdateItem = async (updatedItemHam: Item) => {
     if (!user) return;
+    // Ad değişince eski ad maddenin eski adları arasına girer (8 Ekim, Kemal:
+    // "Stadyum Plajı'nı Kuzey Plajı yaptım, her yerden değişmeli"): madde
+    // eski adıyla da bulunur, soru turu onu yeniden açmaz, Eksikler'deki
+    // "Ad değişikliği" kartı eski adı öbür maddelerde yenisiyle değiştirir.
+    const onceki = items.find(i => i.id === updatedItemHam.id);
+    const eskiAd = onceki?.title?.trim() || '';
+    const yeniAd = updatedItemHam.title?.trim() || '';
+    const eskiAdlar = Array.isArray(updatedItemHam.metadata?.eskiAdlar) ? (updatedItemHam.metadata!.eskiAdlar as string[]) : [];
+    // `adYayilacak`: yalnız bu yoldan gelen değişiklikler yayılır; tarihî eski
+    // adlar (İskele'nin "Kemsköy"ü gibi) eskiAdlar'da durur, metinde kalır.
+    const yayilacak = Array.isArray(updatedItemHam.metadata?.adYayilacak) ? (updatedItemHam.metadata!.adYayilacak as string[]) : [];
+    const updatedItem: Item = eskiAd && yeniAd && eskiAd !== yeniAd
+      ? { ...updatedItemHam, metadata: {
+          ...(updatedItemHam.metadata || {}),
+          eskiAdlar: [...eskiAdlar.filter(a => a !== yeniAd && a !== eskiAd), eskiAd],
+          adYayilacak: [...yayilacak.filter(a => a !== yeniAd && a !== eskiAd), eskiAd]
+        } }
+      : updatedItemHam;
+    // 1 MB'ı aşan kayıt sunucuda reddedilir; önceden açık uyarı (8 Ekim)
+    if (kayitBoyutu(updatedItem) > 1_040_000) {
+      const e = new Error('cok-buyuk');
+      kayitHatasiGoster(e);
+      throw e;
+    }
     // İyimser anlık güncelleme
     setItems(prev => prev.map(i => i.id === updatedItem.id ? { ...updatedItem, updatedAt: Date.now() } : i));
     setLastSyncTime(new Date());

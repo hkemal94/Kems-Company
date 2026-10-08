@@ -96,7 +96,13 @@ export function compressPngKeepAlpha(
       if (!ctx) { resolve(base64Str); return; }
       // zemin boyanmıyor: saydamlık korunsun
       ctx.drawImage(img, 0, 0, width, height);
-      resolve(canvas.toDataURL('image/png'));
+      // WebP saydamlığı korur ve PNG'nin 5–10'da biri kadar tutar (8 Ekim:
+      // PNG olarak saklanan bir logo 882 KB'a çıkıp maddeyi 1 MB sınırına
+      // dayamıştı, madde kaydedilemiyordu). WebP yazamayan tarayıcı PNG verir;
+      // hangisi küçükse o.
+      const webp = canvas.toDataURL('image/webp', 0.88);
+      const png = webp.startsWith('data:image/webp') ? '' : canvas.toDataURL('image/png');
+      resolve(png && png.length < webp.length ? png : webp);
     };
     img.onerror = () => resolve(base64Str);
     img.src = base64Str;

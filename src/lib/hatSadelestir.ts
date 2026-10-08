@@ -16,10 +16,15 @@ export function hattiSadelestir(n: number[], pay = 0.3): number[] {
   const yigin: Array<[number, number]> = [[0, adet - 1]];
   while (yigin.length) {
     const [a, b] = yigin.pop()!;
-    const dx = x(b) - x(a), dy = y(b) - y(a), l = Math.hypot(dx, dy) || 1e-9;
+    const dx = x(b) - x(a), dy = y(b) - y(a), l = Math.hypot(dx, dy);
     let en = -1, enD = pay;
     for (let i = a + 1; i < b; i++) {
-      const d = Math.abs(dy * (x(i) - x(a)) - dx * (y(i) - y(a))) / l;
+      // Başı sonuna eşit (kapalı halka, ör. Sahil Yolu): doğruya değil
+      // noktaya uzaklık. Eskiden uzaklık hep 0 çıkıyor, halka iki noktaya
+      // iniyordu (8 Ekim: Sahil Yolu haritadan kayboldu).
+      const d = l < 1e-6
+        ? Math.hypot(x(i) - x(a), y(i) - y(a))
+        : Math.abs(dy * (x(i) - x(a)) - dx * (y(i) - y(a))) / l;
       if (d > enD) { enD = d; en = i; }
     }
     if (en >= 0) { tut[en] = true; yigin.push([a, en], [en, b]); }
