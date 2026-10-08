@@ -86,8 +86,13 @@ const egri = (k: Nokta[]) => catmullRom(k, false, 6);
 const ARAZI_RENGI: Record<string, { renk: string; kenar: string }> = {
   zeytinlik: { renk: '#8FA25E', kenar: '#4F6334' },
   tarla: { renk: '#E3D3A0', kenar: '#8C7748' },
-  'bağ': { renk: '#B8C27A', kenar: '#66702F' }
+  'bağ': { renk: '#B8C27A', kenar: '#66702F' },
+  saha: { renk: '#6E9A4E', kenar: '#FAF8F5' },
+  teras: { renk: '#E9E1D0', kenar: '#9C8768' },
+  meydan: { renk: '#E9E1D0', kenar: '#9C8768' }
 };
+/** Düz dolgu, kesik çizgi yok: yapılaşmış zemin */
+const DUZ_ZEMIN = new Set(['saha', 'teras', 'meydan']);
 const yolYolu = (m: Nokta[]) =>
   m.length ? 'M' + m.map(p => `${p[0].toFixed(1)},${p[1].toFixed(1)}`).join('L') : '';
 /** Parçası silinmiş yol birden çok çizgidir */
@@ -1454,8 +1459,8 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
             const r = ARAZI_RENGI[a.tur] ?? ARAZI_RENGI.tarla;
             return (
               <g key={a.id} style={{ pointerEvents: 'none' }}>
-                <path d={halkaYolu([a.halka])} fill={r.renk} fillOpacity={0.45} stroke={r.kenar} strokeWidth={px(1.4)}
-                  strokeDasharray={`${px(5)} ${px(3)}`} strokeLinejoin="round" />
+                <path d={halkaYolu([a.halka])} fill={r.renk} fillOpacity={DUZ_ZEMIN.has(a.tur) ? 0.9 : 0.45} stroke={r.kenar} strokeWidth={px(1.4)}
+                  strokeDasharray={DUZ_ZEMIN.has(a.tur) ? undefined : `${px(5)} ${px(3)}`} strokeLinejoin="round" />
                 {a.tur === 'zeytinlik' && <path d={halkaYolu([a.halka])} fill="url(#zeytin-deseni)" />}
               </g>
             );

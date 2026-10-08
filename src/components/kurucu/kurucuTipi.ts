@@ -259,13 +259,14 @@ export interface Zemin {
   binalar: Array<{ id: string; ad: string; halka: Nokta[]; wikiId?: string; kat?: number; tur?: string }>;
   /** Evlerin arsaları (8 Ekim): metre, `ev` arsanın bağlı olduğu ev */
   arsalar: Array<{ id: string; ev: string; halka: Nokta[] }>;
-  /** Haritanın zeytinlik, tarla ve bağları (8 Ekim, Kemal: "2D'de gözükmüyor"): metre */
+  /** Haritanın zeytinlik, tarla, bağ, saha, meydan ve terasları (8 Ekim, Kemal: "2D'de gözükmüyor"): metre */
   araziler: Array<{ id: string; tur: string; halka: Nokta[] }>;
   etiketler: Array<{ ad: string; m: Nokta; tur: string }>;
   yollar: Array<{ id: string; ad: string; tur: string; noktalar: Nokta[] }>;
 }
 
-const ARAZI_TURLERI = new Set(['zeytinlik', 'tarla', 'bağ']);
+// Stat sahası, meydan ve teraslar da (8 Ekim, Kemal: "2D stad görünmüyor")
+const ARAZI_TURLERI = new Set(['zeytinlik', 'tarla', 'bağ', 'saha', 'teras', 'meydan']);
 
 /** Harita verisinden (düzen uygulanmış) Kurucu'nun zemini */
 export function zeminCikar(geo: FeatureCollection): Zemin {

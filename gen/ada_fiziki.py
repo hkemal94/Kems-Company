@@ -44,6 +44,26 @@ land=lerp(land,c('#57764A'),(tt-330)/160)                   # çam ormanı
 land=lerp(land,c('#A39982'),(tt-560)/120)                   # kaya
 land=lerp(land,c('#D9D1BF'),(tt-680)/80)                    # zirve
 kum=((t<7)|((t<25)&kiyi))
+# Plajlar yaşam alanlarına uzar (8 Ekim, Kemal: "özellikle İskele
+# Mahallesi'ne"): İskele kıyısında, dik olmayan yerde ~22 m'lik kum
+# şeridi; yükseltiden bağımsız (gen/duzada.py PLAJ_BANDI ile aynı yer). Mahalle sınırı haritanın kendi verisinden.
+import json as _json
+from scipy.ndimage import distance_transform_edt
+from PIL import ImageDraw
+_g=open('src/data/duzadaGeo.ts').read()
+_i=_g.index('JSON.parse("')+12; _j=_g.index('")',_i)
+_geo=_json.loads(_json.loads('"'+_g[_i:_j]+'"'))
+_d=open('src/data/duzadaDem.ts').read()
+_k=_d.index('DEM_SINIR'); _sinir=[float(v) for v in re.findall(r'-?\d+\.?\d*', _d[_d.index('= [',_k):_d.index('];',_k)])]
+_w0,_s0,_e0,_n0=_sinir
+_maske=Image.new('L',(W,H),0); _ciz=ImageDraw.Draw(_maske)
+for _f in _geo['features']:
+    _p=_f['properties']
+    if _p.get('katman')=='mahalle' and _p.get('id') in ('yer_iskele',) and _f['geometry']['type']=='Polygon':
+        _ciz.polygon([((x-_w0)/(_e0-_w0)*W,(_n0-y)/(_n0-_s0)*H) for x,y in _f['geometry']['coordinates'][0]], fill=255)
+_yasam=np.array(_maske.filter(ImageFilter.MaxFilter(9)))>0
+_kiyidan=distance_transform_edt(kara0)*(20.0/KAT)          # metre
+kum=kum|(_yasam&kara0&(_kiyidan<22)&(slope<0.55))
 land=np.where(kum[...,None], c('#EFDFAE'), land)
 shade=0.5+0.68*hs
 rgb=np.where((z>0)[...,None], land*shade[...,None], deniz)
