@@ -210,13 +210,17 @@ Aralıklar kanon; kesin yıl yoksa uydurulmaz. Ayrıntı `docs/soru-cevap/w3.md`
   kimliği (futbol ana branş). Rakibi anakaradan, Küçükkuyu tarafından bir
   kulüp (adı yok). Su sporları için İskele koyunda yalnız bir iskele.
   Forma sonra.
-- **Kooperatif** — Çiftlik'teki zeytinyağı fabrikasının sahibi **Kemsköy
-  Ziraat İşletmeleri Kurumu**. Canva etiketlerindeki "Kuruluş 2025"
-  düzelecek (kanon 1950–1970'ler). "Birlik Zeytin" merch örneği; gerçek
-  marka da olabilir (açık).
-- **Canva'daki diğer etiketler** — Birlik Birası ve Kems Coffee Co. Kems
-  Company ürünü (evrende üretim / kafe yok). Tabakhane ve "Zeytin
-  Selelerini Yaşatma Derneği" tasarım şakası, evrende yok.
+- **Kooperatif** — Çiftlik'teki zeytinyağı fabrikasının sahibi **Düzada
+  Ziraat İşletmeleri Kurumu** (Kemal 8 Ekim; eski kanonda "Kemsköy Ziraat
+  İşletmeleri Kurumu"). Kuruluş 1950–1970'ler. Etiketlerdeki "1994" Birlik
+  markasının çıktığı yıl. Ürünleri **Birlik Zeytin** ve **Birlik Birası**
+  (evrende üretilir; Kemal 8 Ekim). Markalar'da kurum.
+- **Canva'daki diğer etiketler** — Kems Coffee Co. Kems Company ürünü
+  (evrende kafe yok). Tabakhane ve "Zeytin Selelerini Yaşatma Derneği"
+  tasarım şakası, evrende yok.
+- **Logolar** (8 Ekim, `docs/soru-cevap/logolar.md`) — Kems Company: ana
+  logo (kutu) · bayrak · harf (KC). Küçükçetmi Sürek Kulübü: Kangal (resmî
+  amblem) · yazı · KÇ monogram. Dondurmacı Kızlar: külahlı · yazı.
 - **Dondurmacı Kızlar** — logo renkleri mor ve sarı (tonlar taslak).
 - **Merkez pazarı** — cumartesi (Claude'un önerisi): cuma adalıların bir
   kısmı Küçükkuyu pazarına gider, cumartesi anakaralı pazarcılar sabah

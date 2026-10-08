@@ -67,7 +67,7 @@ export const MARKA_KUNYELERI: MarkaKunyesi[] = [
       'KEMS blok + el yazısı "Company" (kiremit, krem konturlu)',
       'KC el yazısı monogram — flama biçiminde, kiremit zemin',
       'KEMS APPAREL + OBJECTS — düz siyah, sıkışık blok',
-      'Kurum arması ailesi: "Kemsköy Ziraat İşletmeleri Kurumu" etiketleri'
+      'Kurum arması ailesi: "Düzada Ziraat İşletmeleri Kurumu" etiketleri'
     ],
     kit: {
       // Görsel alanlar boş: logoyu Kemal yüklüyor, metin buraya girmez

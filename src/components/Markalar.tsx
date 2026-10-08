@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { LogoKutusu } from './LogoKutusu';
 import {
   Shield,
   Plus,
@@ -873,20 +874,22 @@ export default function Markalar({
                                 düğmeleri kayda yazar.
                               */}
                               {(() => {
-                                const gecerli = (l: unknown): l is string => typeof l === 'string' && (l.startsWith('data:') || l.startsWith('http'));
+                                // Depodaki logolar da geçerli (8 Ekim: "/galeri/logolar/…")
+                                const gecerli = (l: unknown): l is string => typeof l === 'string' && (l.startsWith('data:') || l.startsWith('http') || l.startsWith('/'));
                                 const fikirler = (bk.ideaLogos || []) as string[];
                                 const birincil = maddeGorseli(activeBrand, items) || '';
                                 const ikincilSira = typeof bk.ikincilLogoSira === 'number' && gecerli(fikirler[bk.ikincilLogoSira]) ? bk.ikincilLogoSira : -1;
                                 const ikincil = ikincilSira >= 0 ? fikirler[ikincilSira] : '';
-                                const denemeler = fikirler.map((l, i) => ({ l, i })).filter(x => gecerli(x.l) && x.i !== ikincilSira && x.l !== birincil);
+                                // Alternatif (8 Ekim, Kemal: "birincil, ikincil ve alternatif")
+                                const alternatifSira = typeof bk.alternatifLogoSira === 'number' && bk.alternatifLogoSira !== ikincilSira && gecerli(fikirler[bk.alternatifLogoSira]) ? bk.alternatifLogoSira : -1;
+                                const alternatif = alternatifSira >= 0 ? fikirler[alternatifSira] : '';
+                                const denemeler = fikirler.map((l, i) => ({ l, i })).filter(x => gecerli(x.l) && x.i !== ikincilSira && x.i !== alternatifSira && x.l !== birincil);
                                 const gosterilen = buyukLogo && (buyukLogo === birincil || fikirler.includes(buyukLogo)) ? buyukLogo : birincil;
-                                const rol = gosterilen === birincil ? 'Birincil' : gosterilen === ikincil ? 'İkincil' : 'Deneme';
+                                const rol = gosterilen === birincil ? 'Birincil' : gosterilen === ikincil ? 'İkincil' : gosterilen === alternatif ? 'Alternatif' : 'Deneme';
                                 const kucuk = (src: string, etiket: string, anahtar: string) => (
                                   <button key={anahtar} type="button" onClick={() => setBuyukLogo(src)} title={`${etiket} · büyük göster`}
                                     className={`w-16 shrink-0 text-center cursor-pointer group/kucuk`}>
-                                    <span className={`w-16 h-16 rounded-lg bg-white dark:bg-[#0B132B] flex items-center justify-center overflow-hidden border-2 ${gosterilen === src ? 'border-[#0E1C4F] dark:border-[#F3EFE8]' : 'border-transparent group-hover/kucuk:border-[#F26B6F]'}`}>
-                                      <img src={src} alt={etiket} className="max-w-full max-h-full object-contain" referrerPolicy="no-referrer" />
-                                    </span>
+                                    <LogoKutusu src={src} alt={etiket} className={`w-16 h-16 rounded-lg flex items-center justify-center overflow-hidden border-2 ${gosterilen === src ? 'border-[#F26B6F]' : 'border-transparent group-hover/kucuk:border-[#F26B6F]'}`} />
                                     <span className="block mt-1 text-[11px] text-stone-500 dark:text-stone-400">{etiket}</span>
                                   </button>
                                 );
@@ -895,9 +898,7 @@ export default function Markalar({
                                   <>
                                     <div className="p-4 bg-stone-50 dark:bg-[#112440]/30 rounded-xl flex flex-col items-center justify-center min-h-[180px] relative">
                                       {gosterilen ? (
-                                        <div className="max-w-[160px] max-h-[160px] flex items-center justify-center">
-                                          <img src={gosterilen} alt={`${rol} logo`} className="max-w-full max-h-full object-contain pointer-events-none select-none" referrerPolicy="no-referrer" />
-                                        </div>
+                                        <LogoKutusu src={gosterilen} alt={`${rol} logo`} zemin="" className="p-3 rounded-xl max-w-[184px] max-h-[184px] flex items-center justify-center" imgClassName="max-w-[160px] max-h-[160px] object-contain pointer-events-none select-none" />
                                       ) : (
                                         <div className="text-center space-y-1.5 text-stone-500 dark:text-stone-400">
                                           <Upload className="w-8 h-8 mx-auto stroke-1" />
@@ -905,10 +906,11 @@ export default function Markalar({
                                         </div>
                                       )}
                                       <span className="absolute bottom-2 left-2 text-[11px] font-mono text-stone-500 dark:text-stone-400 uppercase tracking-widest bg-white dark:bg-stone-900 px-1.5 py-0.5 rounded">{rol}</span>
-                                      {rol === 'Deneme' && (
+                                      {(rol === 'Deneme' || rol === 'Alternatif' || rol === 'İkincil') && (
                                         <span className="absolute bottom-2 right-2 flex gap-1.5">
                                           <button type="button" onClick={() => { if (window.confirm('Bu logo birincil logo olsun mu?')) void yaz({ logoBase64: gosterilen }); }} className="text-[12px] px-2.5 py-1.5 rounded bg-[#0E1C4F] dark:bg-[#2C3C72] text-[#F3EFE8] cursor-pointer">Birincil yap</button>
-                                          <button type="button" onClick={() => void yaz({ ikincilLogoSira: fikirler.indexOf(gosterilen) })} className="text-[12px] px-2.5 py-1.5 rounded border border-stone-300 dark:border-[#2C3C72] bg-white dark:bg-stone-900 cursor-pointer">İkincil yap</button>
+                                          {rol !== 'İkincil' && <button type="button" onClick={() => void yaz({ ikincilLogoSira: fikirler.indexOf(gosterilen) })} className="text-[12px] px-2.5 py-1.5 rounded border border-stone-300 dark:border-[#2C3C72] bg-white dark:bg-stone-900 cursor-pointer">İkincil yap</button>}
+                                          {rol !== 'Alternatif' && <button type="button" onClick={() => void yaz({ alternatifLogoSira: fikirler.indexOf(gosterilen) })} className="text-[12px] px-2.5 py-1.5 rounded border border-stone-300 dark:border-[#2C3C72] bg-white dark:bg-stone-900 cursor-pointer">Alternatif yap</button>}
                                         </span>
                                       )}
                                     </div>
@@ -917,6 +919,7 @@ export default function Markalar({
                                       {ikincil ? kucuk(ikincil, 'İkincil', 'ikincil') : (
                                         <span className="w-16 shrink-0 text-center text-[11px] text-stone-500 dark:text-stone-400 pt-4">İkincil seçilmedi</span>
                                       )}
+                                      {alternatif && kucuk(alternatif, 'Alternatif', 'alternatif')}
                                       {denemelerAcik && denemeler.map(x => kucuk(x.l, 'Deneme', `d${x.i}`))}
                                     </div>
                                     {denemeler.length > 0 && (

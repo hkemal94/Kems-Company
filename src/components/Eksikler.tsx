@@ -8,6 +8,7 @@ import { KanonKarti } from './KanonKarti';
 import { HaritaGocuKarti, HaritaOnarimKarti } from './HaritaGocuKarti';
 import { AdDegisikligiKarti } from './AdDegisikligiKarti';
 import { BuyukKayitKarti } from './BuyukKayitKarti';
+import { LogoKarti } from './LogoKarti';
 import { YerKartlariKarti, MahalleDerlemeKarti, MaddeSoruTuruKarti, ClaudeDerlemeKarti } from './YerKartlari';
 import { boslukDoldurma } from '../lib/boslukDoldurma';
 import { haritadaAra, maddeTohumu } from '../lib/haritaMaddesi';
@@ -82,6 +83,10 @@ export const Eksikler: React.FC<EksiklerProps> = ({
       <HaritaGocuKarti />
       <HaritaOnarimKarti />
       {onUpdateItem && <BuyukKayitKarti items={items} onUpdateItem={onUpdateItem} />}
+      {onUpdateItem && onAddItem && (
+        <LogoKarti items={items} onUpdateItem={onUpdateItem}
+          onAddItem={onAddItem as (i: Omit<Item, 'id' | 'createdAt' | 'updatedAt' | 'userId'> & { id?: string }) => Promise<void>} />
+      )}
       {onUpdateItem && <AdDegisikligiKarti items={items} onUpdateItem={onUpdateItem} onDeleteItem={onDeleteItem} />}
 
       {/* Yer kartları ve mahalle derlemesi (8 Ekim) */}

@@ -66,6 +66,8 @@ export interface BrandKit {
   ideaLogos: string[];  // variants
   /** İkincil logo: ideaLogos içindeki sırası (1 Ekim; Kemal seçer, denemeler gizli) */
   ikincilLogoSira?: number;
+  /** Alternatif logo: ideaLogos içindeki sırası (8 Ekim, Kemal: "birincil, ikincil ve alternatif") */
+  alternatifLogoSira?: number;
   colorPalette: string[]; // hex codes
   exemplaryWorks: string[]; // references
   selectedFont?: string;
