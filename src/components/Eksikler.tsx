@@ -6,6 +6,7 @@ import { OrtakAlanKarti } from './OrtakAlanKarti';
 import { GaleriYedegiKarti } from './GaleriYedegiKarti';
 import { KanonKarti } from './KanonKarti';
 import { AdDegisikligiKarti } from './AdDegisikligiKarti';
+import { MukerrerKarti, UymayanBagKarti } from './MukerrerKarti';
 import { BuyukKayitKarti } from './BuyukKayitKarti';
 import { YerKartlariKarti, MahalleDerlemeKarti, MaddeSoruTuruKarti, ClaudeDerlemeKarti } from './YerKartlari';
 import { boslukDoldurma } from '../lib/boslukDoldurma';
@@ -79,6 +80,9 @@ export const Eksikler: React.FC<EksiklerProps> = ({
 
       {onUpdateItem && <BuyukKayitKarti items={items} onUpdateItem={onUpdateItem} />}
       {onUpdateItem && <AdDegisikligiKarti items={items} onUpdateItem={onUpdateItem} onDeleteItem={onDeleteItem} />}
+      {/* Mükerrer maddeler ve uymayan bağlar (8 Ekim) */}
+      {onUpdateItem && onDeleteItem && <MukerrerKarti items={items} onUpdateItem={onUpdateItem} onDeleteItem={onDeleteItem} />}
+      <UymayanBagKarti items={items} onMaddeAc={id => onSelectArea('duzada', id)} />
 
       {/* Yer kartları ve mahalle derlemesi (8 Ekim) */}
       {onUpdateItem && (

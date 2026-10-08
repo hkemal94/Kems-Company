@@ -91,6 +91,7 @@ export const YOL_HARITASI: YolIsi[] = [
   { id: 'stat-2d', paket: 'H', kimde: 'claude', nereden: '8 Ekim', bitti: true, ad: '2D\'de stat görünsün (3D\'deki gibi)' },
   { id: 'logo-sirasi', paket: 'M', kimde: 'claude', nereden: '8 Ekim', bitti: true, ad: 'Markalarda logo sırası: birincil, ikincil, alternatif' },
   { id: 'bag-yakin', paket: 'K', kimde: 'claude', nereden: '8 Ekim', bitti: true, ad: 'Bağ ağında bağsız maddeler daha yakın' },
+  { id: 'bag-kurali', paket: 'K', kimde: 'claude', nereden: '8 Ekim', bitti: true, ad: 'Bağ türleri madde türüne özel; mükerrer maddeler birleşir (Küçükçetmi Çiftliği)' },
   { id: 'toplu-bag', paket: 'K', kimde: 'claude', nereden: '8 Ekim', bitti: true, ad: 'Bağ ağında toplu seçim: birçok maddeyi tek seferde bir maddeye (mahalleye) bağla' },
   { id: 'atolye-giris', paket: 'K', kimde: 'claude', nereden: '8 Ekim', bitti: true, ad: 'Atölye\'de önce başlangıç ekranı, harita sonra' },
   { id: 'denetim', paket: 'K', kimde: 'claude', nereden: '8 Ekim', bitti: true, ad: 'Büyük entegrasyon ve hız denetimi' },

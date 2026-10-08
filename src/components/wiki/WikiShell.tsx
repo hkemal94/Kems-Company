@@ -319,6 +319,11 @@ export const WikiShell: React.FC<WikiShellProps> = ({
             onSubmit={async e => {
               e.preventDefault();
               if (!yeniAd.trim()) return;
+              // Aynı adla madde varsa önce sorulur (8 Ekim: Küçükçetmi Çiftliği iki kez açılmıştı)
+              const ayni = wikiItems.find(i => !i.archived && i.title.trim().toLocaleLowerCase('tr') === yeniAd.trim().toLocaleLowerCase('tr'));
+              if (ayni && !window.confirm(`"${ayni.title}" adlı bir madde zaten var (${TYPE_LABELS[ayni.type] || ayni.type}). Yine de yeni madde açılsın mı?\n\nİptal: var olan madde açılır.`)) {
+                setYeniAd(''); setYeniAcik(false); navigate(ayni.id); return;
+              }
               // Ad Kemal'in; kayıt yalnız bu düğmeyle oluşur
               const id = `madde_${Date.now()}`;
               await onAddItem({

@@ -2185,3 +2185,29 @@ yavaş. Sayfalar 0,4–0,7 sn'de açılıyor, hiçbir sayfada hata yok.
   (yalnız iş varken görünürler).
 - Açık kalan: görseller kayıtların içinde (3,7 MB'ın yarısı Galeri). Kayıt
   dışına taşımak ayrı, büyük iş; şimdilik önerilmedi.
+
+## 8 Ekim akşam — K: bağ kuralı ve mükerrer maddeler (uygulamada; bir kart)
+
+Kemal (telefondan): "Küçükçetmi Çiftliği mükerrer"; "bağ kurarken madde ve
+bağların özel olması gerekir, bir insan mekân ile evli olamaz".
+
+- **Bağ türleri madde türüne özel** (`lib/bagKurallari.ts`, tabloyu Kemal
+  onayladı): eşi, ebeveyni, kardeşi, akrabası, arkadaşı, rakibi, tanıdığı,
+  patronu, iş ortağı yalnız kişi ↔ kişi · çalışır: kişi → mekân/kurum ·
+  üyesi: kişi → kurum/aile · sahibi: sahip (kişi/aile/kurum) ile mal
+  (mekân/ürün) arasında, iki yönde (Kemal'in verisinde "kişi → sahibi →
+  mekân" yazılmış) · bulunduğu yer: → mahalle/cadde/meydan/yer adı/ada/mekân
+  · ait olduğu kurum: mekân/ürün/drop → kurum · ilgili olay: → olay · genel
+  bağ: serbest. Harita iğnesi, sosyal kanal gibi viki dışı kayıtlar serbest.
+- Düzenleyicide tür listesi yalnız bu maddeye uyanları, hedef listesi yalnız
+  seçilen türe uyan maddeleri gösterir; var olan uymayan bağ "uymuyor" yazar.
+  Bağ ağında tekli ve toplu bağ da aynı kuralla. Künye bağ alanları zaten
+  türe göre süzülüyordu.
+- **Eksikler → Uymayan bağlar** (yalnız liste, yazmaz). 12:35 yedeğinde 0.
+- **Eksikler → Mükerrer maddeler → Birleştir** (`lib/mukerrerler.ts`): aynı
+  türde aynı adlı maddeler en eskisinde birleşir (dolu alanlar yalnız boş
+  alanlara; görsel, etiket, bağ, bölüm birleşir; başka kayıtlardaki kimlik
+  kalan maddeye döner), kopya silinir. Yedek isteğe bağlı. 12:35 yedeğinde
+  1 grup: Küçükçetmi Çiftliği.
+- Viki → "+ yeni madde": aynı adla madde varsa önce sorulur; "İptal" var
+  olanı açar.

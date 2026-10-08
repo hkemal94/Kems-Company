@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { BoxSelect, Link2, LocateFixed, Minus, Plus, RotateCcw, Save, X } from 'lucide-react';
 import type { Item, ItemType } from '../../types';
 import { BAG_TURLERI, type BagTuru } from '../../utils/relations';
+import { kaynakTurleri, uygunTurler } from '../../lib/bagKurallari';
 import { TYPE_LABELS, schemaKeyFor, getKunyeFields } from '../wiki/wikiSchema';
 import { TUR_RENGI, TUR_NOKTASI } from './turRenkleri';
 import {
@@ -88,6 +89,21 @@ export const BagAgi: React.FC<Props> = ({ items, onUpdateItem, onAddItem, onMadd
     for (const e of gorunenKenarlar) { if (e.a === secili) s.add(e.b); if (e.b === secili) s.add(e.a); }
     return s;
   }, [secili, gorunenKenarlar]);
+  // Bağ türü madde türüne özel (8 Ekim, `lib/bagKurallari.ts`): listede yalnız
+  // uyan türler; seçili tür uymuyorsa ilk uyan geçerli olur
+  const turu = (id: string | null) => (id ? items.find(i => i.id === id)?.type : undefined);
+  const tekTurler = useMemo<BagTuru[]>(() => {
+    const k = turu(secili), h = turu(hedef);
+    return k ? (h ? uygunTurler(k, h) : kaynakTurleri(k)) : [];
+  }, [secili, hedef, items]); // eslint-disable-line react-hooks/exhaustive-deps
+  const etkinTur: BagTuru = tekTurler.includes(yeniTur) ? yeniTur : (tekTurler[0] ?? 'genel bağlantı');
+  const topluTurler = useMemo<BagTuru[]>(() => {
+    const h = turu(topluHedef);
+    const kaynaklar = [...coklu].map(turu).filter(Boolean) as Item['type'][];
+    if (!kaynaklar.length) return [];
+    return BAG_TURLERI.map(b => b.id).filter(t => kaynaklar.every(k => (h ? uygunTurler(k, h) : kaynakTurleri(k)).includes(t)));
+  }, [coklu, topluHedef, items]); // eslint-disable-line react-hooks/exhaustive-deps
+  const etkinTopluTur: BagTuru = topluTurler.includes(topluTur) ? topluTur : (topluTurler[0] ?? 'genel bağlantı');
   const seciliBaglar = useMemo(() => (secili ? ag.kenarlar.filter(e => e.a === secili || e.b === secili) : []), [secili, ag]);
   const adi = (id: string) => ag.dugumler.find(d => d.id === id)?.ad || '';
   const baglantiSayisi = useMemo(() => {
@@ -215,7 +231,7 @@ export const BagAgi: React.FC<Props> = ({ items, onUpdateItem, onAddItem, onMadd
     if (!secili || !hedef) return;
     const kaynak = items.find(i => i.id === secili);
     if (!kaynak) return;
-    const yeni = bagEkle(kaynak, hedef, yeniTur);
+    const yeni = bagEkle(kaynak, hedef, etkinTur);
     if (!yeni) { setMesaj('Bu bağ zaten var.'); return; }
     setYaziliyor(true); setMesaj('');
     try { await onUpdateItem(yeni); setBagModu(false); setHedef(null); setMesaj('Bağ kuruldu.'); }
@@ -230,7 +246,7 @@ export const BagAgi: React.FC<Props> = ({ items, onUpdateItem, onAddItem, onMadd
     for (const id of coklu) {
       if (id === topluHedef) continue;
       const kaynak = items.find(i => i.id === id);
-      const yeni = kaynak ? bagEkle(kaynak, topluHedef, topluTur) : null;
+      const yeni = kaynak ? bagEkle(kaynak, topluHedef, etkinTopluTur) : null;
       if (!yeni) { vardi++; continue; }
       try { await onUpdateItem(yeni); kuruldu++; } catch { hata++; }
     }
@@ -381,15 +397,15 @@ export const BagAgi: React.FC<Props> = ({ items, onUpdateItem, onAddItem, onMadd
                       .sort((a, b) => Number(b.tur === 'yer') - Number(a.tur === 'yer') || a.ad.localeCompare(b.ad, 'tr'))
                       .map(d => <option key={d.id} value={d.id}>{d.ad}{d.tur === 'yer' ? ' (mahalle)' : ''}</option>)}
                   </select>
-                  <select value={topluTur} onChange={e => setTopluTur(e.target.value as BagTuru)} aria-label="Bağ türü"
+                  <select value={etkinTopluTur} onChange={e => setTopluTur(e.target.value as BagTuru)} aria-label="Bağ türü"
                     className="w-full text-[12px] bg-white dark:bg-[#0E1733] border border-[#CFC5B4] dark:border-[#2C3C72] rounded px-2 py-1.5">
-                    {BAG_TURLERI.map(b => <option key={b.id} value={b.id}>{b.ad}</option>)}
+                    {BAG_TURLERI.filter(b => topluTurler.includes(b.id)).map(b => <option key={b.id} value={b.id}>{b.ad}</option>)}
                   </select>
                   <div className="flex gap-1.5">
                     <button type="button" onClick={() => void topluBagla()} disabled={!topluHedef || yaziliyor} className={DOLU}>{yaziliyor ? 'Yazılıyor…' : `${coklu.size} maddeyi bağla`}</button>
                     <button type="button" onClick={() => setCoklu(new Set())} className={DUGME}>Seçimi temizle</button>
                   </div>
-                  <p className="text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9]">Bağ her maddenin kendi kaydına yazılır; düzenleyicide de görünür.</p>
+                  <p className="text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9]">Bağ her maddenin kendi kaydına yazılır; düzenleyicide de görünür. Listede yalnız seçilen bütün maddelere uyan bağ türleri çıkar.</p>
                 </div>
               </>
             )}
@@ -433,9 +449,9 @@ export const BagAgi: React.FC<Props> = ({ items, onUpdateItem, onAddItem, onMadd
                   <option value="">Madde seç…</option>
                   {ag.dugumler.filter(d => d.id !== secili).map(d => <option key={d.id} value={d.id}>{d.ad}</option>)}
                 </select>
-                <select value={yeniTur} onChange={e => setYeniTur(e.target.value as BagTuru)} aria-label="Bağ türü"
+                <select value={etkinTur} onChange={e => setYeniTur(e.target.value as BagTuru)} aria-label="Bağ türü"
                   className="w-full text-[12px] bg-white dark:bg-[#0E1733] border border-[#CFC5B4] dark:border-[#2C3C72] rounded px-2 py-1.5">
-                  {BAG_TURLERI.map(b => <option key={b.id} value={b.id}>{b.ad}</option>)}
+                  {BAG_TURLERI.filter(b => tekTurler.includes(b.id)).map(b => <option key={b.id} value={b.id}>{b.ad}</option>)}
                 </select>
                 <div className="flex gap-1.5">
                   <button type="button" onClick={() => void bagla()} disabled={!hedef || yaziliyor} className={DOLU}>Bağla</button>
