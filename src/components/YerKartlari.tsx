@@ -7,6 +7,7 @@ import {
 } from '../lib/yerTurleri';
 import { useStudyo } from './studyo/StudyoBaglami';
 import { acilacaklar, duzeltmeler } from '../lib/maddeSoruTuru';
+import { derlemeyiUygula, derlenecekler, ekDuzeltmeler } from '../lib/mahalleDerlemesi';
 
 /**
  * Yer kartları (8 Ekim). İki kart, ikisi de yalnız iş varken görünür:
@@ -194,6 +195,88 @@ export const MaddeSoruTuruKarti: React.FC<{
           {duzelt.map(x => <li key={x.item.id}>✎ {x.item.title} <span className="text-[#6A5E4C] dark:text-[#A6B0C9]">· {x.neler.join(' · ')}</span></li>)}
         </ul>
       )}
+    </div>
+  );
+};
+
+/**
+ * Claude'un mahalle derlemesi (8 Ekim; `lib/mahalleDerlemesi.ts`). Stüdyo
+ * çalışmadığı için derleme elle yapıldı; kart eski ve yeni hâli gösterir,
+ * Kemal basınca yazılır. İş bitince kendini gizler.
+ */
+export const ClaudeDerlemeKarti: React.FC<{ items: Item[]; onUpdateItem: (item: Item) => Promise<void> }> = ({ items, onUpdateItem }) => {
+  const liste = useMemo(() => derlenecekler(items), [items]);
+  const ekler = useMemo(() => ekDuzeltmeler(items), [items]);
+  const [acik, setAcik] = useState<string | null>(null);
+  const [calisiyor, setCalisiyor] = useState(false);
+  const [rapor, setRapor] = useState<string | null>(null);
+
+  if (rapor) return <p className="mb-2.5 px-4 py-3 rounded-xl bg-[#FAF8F5] dark:bg-[#13204A] text-[13px] text-[#336659] dark:text-[#8FC4A8]">{rapor}</p>;
+  if (!liste.length && !ekler.length) return null;
+
+  const isle = async () => {
+    if (calisiyor) return;
+    setCalisiyor(true);
+    let n = 0;
+    try {
+      for (const x of liste) {
+        const g = derlemeyiUygula(items, x.item, x.bolumler);
+        if (g) { await onUpdateItem(g); n++; }
+      }
+      for (const e of ekler) { await onUpdateItem(e.item); n++; }
+      setRapor(`${n} madde güncellendi. Derlenen metinler "öneri" olarak duruyor; okuyup düzeltebilirsin.`);
+    } catch (e) {
+      setRapor(`${n} madde güncellendi, sonra hata: ${e instanceof Error ? e.message : 'bilinmeyen'}`);
+    } finally { setCalisiyor(false); }
+  };
+
+  const kutu = 'rounded-lg border border-[#CFC5B4] dark:border-[#2C3C72] bg-white dark:bg-[#17345A] p-2.5 text-[12px] leading-relaxed text-[#0E1C4F] dark:text-[#F3EFE8] max-h-72 overflow-y-auto';
+  return (
+    <div className={KUTU}>
+      <div className="flex items-start gap-3">
+        <Sparkles className="w-4 h-4 mt-0.5 shrink-0 text-[#D6484C] dark:text-[#F26B6F]" />
+        <div className="flex-1 min-w-0">
+          <p className={BASLIK}>Mahalle derlemesi hazır: {liste.length} mahalle{ekler.length ? ` + ${ekler.length} küçük düzeltme` : ''}</p>
+          <p className={ACIKLAMA}>
+            Stüdyo çalışmadığı için derlemeyi Claude yaptı (8 Ekim yedeğinden). Tekrar eden öneri bölümleri tek düzenli hâle geldi; yeni bilgi yok,
+            kanonla çelişen cümleler düzeltildi, resmî bölümlere dokunulmadı. Eski ve yeni hâline bak; "Derlenmiş hâli koy" deyince yazılır.
+          </p>
+        </div>
+        <button type="button" disabled={calisiyor} onClick={() => void isle()} className={DUGME}>
+          {calisiyor ? 'Yazılıyor…' : 'Derlenmiş hâli koy'}
+        </button>
+      </div>
+      <ul className="mt-2.5 divide-y divide-[#CFC5B4]/50 dark:divide-[#2C3C72]/60">
+        {liste.map(x => {
+          const eski = ((x.item.metadata?.wikiSections as Array<{ title: string; status: string; content: string }> | undefined) || [])
+            .filter(b => b.status === 'öneri' && String(b.content || '').trim());
+          const buAcik = acik === x.item.id;
+          return (
+            <li key={x.item.id} className="py-2">
+              <button type="button" onClick={() => setAcik(buAcik ? null : x.item.id)} className="w-full flex items-center gap-2 text-left cursor-pointer">
+                <span className="flex-1 text-[13px] font-semibold text-[#0E1C4F] dark:text-[#F3EFE8]">{x.item.title}</span>
+                <span className="text-[11px] text-[#6A5E4C] dark:text-[#A6B0C9]">{eski.length} öneri bölümü → {x.bolumler.length}</span>
+                <span className="text-[11px] text-[#D6484C] dark:text-[#F26B6F]">{buAcik ? 'gizle' : 'eski / yeni'}</span>
+              </button>
+              {buAcik && (
+                <div className="mt-2 grid gap-2 md:grid-cols-2">
+                  <div className={kutu}>
+                    <div className="mb-1 text-[10px] font-mono uppercase tracking-wider text-[#6A5E4C] dark:text-[#A6B0C9]">Eski (gidecek)</div>
+                    {eski.map((b, n) => <p key={n} className="mb-2 whitespace-pre-line"><b>{b.title}</b>{'\n'}{b.content}</p>)}
+                  </div>
+                  <div className={kutu}>
+                    <div className="mb-1 text-[10px] font-mono uppercase tracking-wider text-[#D6484C] dark:text-[#F26B6F]">Yeni (derlenmiş)</div>
+                    {x.bolumler.map((b, n) => <p key={n} className="mb-2 whitespace-pre-line"><b>{b.title}</b>{'\n'}{b.content}</p>)}
+                  </div>
+                </div>
+              )}
+            </li>
+          );
+        })}
+        {ekler.map(e => (
+          <li key={e.item.id} className="py-2 text-[12px] text-[#0E1C4F] dark:text-[#F3EFE8]">✎ {e.item.title} <span className="text-[#6A5E4C] dark:text-[#A6B0C9]">· {e.ne}</span></li>
+        ))}
+      </ul>
     </div>
   );
 };

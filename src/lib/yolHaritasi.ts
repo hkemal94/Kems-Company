@@ -77,8 +77,8 @@ export const YOL_HARITASI: YolIsi[] = [
     ad: 'Madde soru turu: kanondaki 25 yerin maddesi, eski alanların düzeltilmesi (Eksikler → Soru turu kartı)' },
   { id: 'otel-merdiven', paket: 'H', kimde: 'claude', nereden: '8 Ekim',
     ad: 'Otel: Sahil Merdiveni, kum cebi ve tahta iskele haritada (görsel: Galeri → The Imperial Kemskoy)' },
-  { id: 'mahalle-derleme-elle', paket: 'W', kimde: 'kemal', nereden: '8 Ekim',
-    ad: 'Mahalle derlemesi: güncel yedeği sohbete ekle, derlemeyi Claude hazırlar', not: 'Stüdyoda derleme çalışmadı.' },
+  { id: 'mahalle-derleme-elle', paket: 'W', kimde: 'claude', nereden: '8 Ekim', bitti: true,
+    ad: 'Mahalle derlemesi (Claude, 8 Ekim yedeğinden): Merkez, Liman, İskele, Çiftlik — Eksikler kartı' },
   // sırası belli değil
   { id: 'teknik-foy', paket: 'M', ad: 'Ürünlere teknik föy (tech pack): ölçü tablosu, malzeme, renk, etiket', nereden: '1 Ekim', kimde: 'kemal', not: 'Kemal isterse; 3B stüdyo kaldırıldı (1 Ekim gece).' },
   { id: 'yardimci', paket: 'K', ad: 'Yardımcı erişimi: düzenler ama silemez', nereden: 'yapisal-2, 26', kimde: 'claude', not: 'İhtiyaç olunca.' },
