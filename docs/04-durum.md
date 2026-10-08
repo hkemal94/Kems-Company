@@ -2037,3 +2037,23 @@ haritasında: uzak görünüm ve deniz (H-b), plajlar ve otelin sahili (H-c).
   belediye, okul ve pazarın eski köydeki konum ayarı; eski köyün yerinde
   çizilmiş yol ve yapılar. Kayıt `surum: 2` olur, kart bir daha çıkmaz.
   Kurucu açıksa önce kapatılmalı.
+
+## 8 Ekim — H: uzak görünüm, komşu kıyılar, deniz (uygulamada)
+
+Kemal'in toplu harita listesinden ikinci paket (H-b).
+
+- **Kamera daha uzağa:** en uzak bakış 9,5 → 8,4. Kamera çevrenin dışına
+  kaçmaz (sınır: 24,4–27,6 D, 38,6–40,75 K).
+- **Komşu kıyılar gerçek çizgisiyle:** eski köşeli anakara şeridi kalktı.
+  Biga yarımadası, Babakale, Edremit Körfezi kıyısı, Bozcaada, Gökçeada,
+  Midilli, Limni, Gelibolu, Ayistrati Natural Earth 1:10m Land'den (kamu malı)
+  çiziliyor. Kıyılarında içeri 350 m açık renkli kumsal şeridi ve ince kıyı
+  çizgisi var. Uzakken gerçek yer adları görünür (Bozcaada, Gökçeada,
+  Midilli, Limni, Babakale, Biga Yarımadası, Edremit Körfezi); yakınlaşınca
+  kalkar.
+- **Deniz:** komşu kıyıların önünde açıktan koyuya üç sığlık bandı (0,5 /
+  1,8 / 4,5 km; gerçek derinlik değil, kıyıya uzaklık). Düzada'nın sığ suyu
+  fiziki görselde, eskisi gibi. Bütün denizde ince dalga dokusu var.
+  Gece ve kış görünümü bunlara da uygulanıyor.
+- Üretim: `python gen/cevre.py ne_10m_land.geojson` →
+  `src/data/cevreCografyasi.ts` (Natural Earth dosyası depoya girmez).
