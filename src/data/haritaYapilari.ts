@@ -68,48 +68,6 @@ export const HARITA_YAPILARI: HaritaYapisi[] =
     }
   },
   {
-    "id": "bina_belediye",
-    "wikiId": "viki_mekan_belediye",
-    "ad": "Belediye Binası",
-    "tur": "yapı",
-    "mahalle": "yer_merkez",
-    "kat": 3,
-    "yukseklik": 12,
-    "taban": 271.8,
-    "merkez": {
-      "x": 25.858349600000004,
-      "y": 39.598081199999996
-    }
-  },
-  {
-    "id": "bina_okul",
-    "wikiId": "mekan_okul",
-    "ad": "Düzada İlkokulu",
-    "tur": "yapı",
-    "mahalle": "yer_merkez",
-    "kat": 2,
-    "yukseklik": 9,
-    "taban": 352.4,
-    "merkez": {
-      "x": 25.8620706,
-      "y": 39.5956532
-    }
-  },
-  {
-    "id": "bina_pazar",
-    "wikiId": "mekan_pazar",
-    "ad": "Merkez Pazarı",
-    "tur": "yapı",
-    "mahalle": "yer_merkez",
-    "kat": 1,
-    "yukseklik": 7,
-    "taban": 324.9,
-    "merkez": {
-      "x": 25.856495000000002,
-      "y": 39.5948378
-    }
-  },
-  {
     "id": "bina_meyhane",
     "wikiId": "viki_mekan_meyhane",
     "ad": "Sade Meyhane",
@@ -149,6 +107,48 @@ export const HARITA_YAPILARI: HaritaYapisi[] =
     "merkez": {
       "x": 25.788491599999997,
       "y": 39.62451020000001
+    }
+  },
+  {
+    "id": "bina_belediye",
+    "wikiId": "viki_mekan_belediye",
+    "ad": "Belediye Binası",
+    "tur": "yapı",
+    "mahalle": "yer_merkez",
+    "kat": 3,
+    "yukseklik": 12,
+    "taban": 169.8,
+    "merkez": {
+      "x": 25.866492800000003,
+      "y": 39.609396
+    }
+  },
+  {
+    "id": "bina_pazar",
+    "wikiId": "mekan_pazar",
+    "ad": "Merkez Pazarı",
+    "tur": "yapı",
+    "mahalle": "yer_merkez",
+    "kat": 1,
+    "yukseklik": 7,
+    "taban": 173.8,
+    "merkez": {
+      "x": 25.866886,
+      "y": 39.608808599999996
+    }
+  },
+  {
+    "id": "bina_okul",
+    "wikiId": "mekan_okul",
+    "ad": "Düzada İlkokulu",
+    "tur": "yapı",
+    "mahalle": "yer_merkez",
+    "kat": 2,
+    "yukseklik": 9,
+    "taban": 174.6,
+    "merkez": {
+      "x": 25.8682386,
+      "y": 39.610108600000004
     }
   }
 ];

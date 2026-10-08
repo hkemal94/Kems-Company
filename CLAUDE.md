@@ -31,7 +31,7 @@ terimsiz olur. Kodu değil, **ekranda ne değiştiğini** anlat.
 - **GitHub deposu tek doğru kaynak.** AI Studio yalnızca önizleme penceresi.
 - Harita verisi (`src/data/duzadaGeo.ts`) üretilir, elle düzenlenmez:
   `python gen/duzada.py` (shapely, numpy, scipy, matplotlib gerekir). Ev ve
-  sokak dokusu orada (`_ege_dokusu`, evler, Çiftlik arazileri).
+  sokak dokusu orada (`_ege_dokusu`, Merkez için `_merkez_dokusu`, evler ve arsaları, Çiftlik arazileri).
 - Tasarım jetonları `src/index.css` içindeki `@theme` bloğunda. Bütün font
   rolleri (sans, serif, mono, blok…) Poppins; rol adları bilerek duruyor.
   Tek satır değişince ~1000 yer değişir — jetona dokunmadan önce sor.

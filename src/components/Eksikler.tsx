@@ -5,6 +5,7 @@ import { TemizlikKarti, EskiAlanKarti } from './TemizlikKarti';
 import { OrtakAlanKarti } from './OrtakAlanKarti';
 import { GaleriYedegiKarti } from './GaleriYedegiKarti';
 import { KanonKarti } from './KanonKarti';
+import { HaritaGocuKarti } from './HaritaGocuKarti';
 import { YerKartlariKarti, MahalleDerlemeKarti, MaddeSoruTuruKarti, ClaudeDerlemeKarti } from './YerKartlari';
 import { boslukDoldurma } from '../lib/boslukDoldurma';
 import { haritadaAra, maddeTohumu } from '../lib/haritaMaddesi';
@@ -74,6 +75,9 @@ export const Eksikler: React.FC<EksiklerProps> = ({
 
       {/* Galeri (29 Eylül): kullanılan görseller galeriye */}
       {onAddItem && <GaleriYedegiKarti items={items} onAddItem={onAddItem} />}
+
+      {/* Harita yenilendi (8 Ekim): eski Merkez'den kalan Kurucu kayıtları */}
+      <HaritaGocuKarti />
 
       {/* Yer kartları ve mahalle derlemesi (8 Ekim) */}
       {onUpdateItem && (

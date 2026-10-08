@@ -1,7 +1,7 @@
 import type { Feature } from 'geojson';
 import { catmullRom, type Nokta } from '../harita/sinirBolgeleri';
 import type { KurucuBelge } from '../harita/duzenTipi';
-import { belgedenTaslak, metreye, derceye, kaydirDondur, type YolTuru } from './kurucuTipi';
+import { belgedenTaslak, metreye, derceye, kaydirDondur, merkezi, etrafindaTasi, type YolTuru } from './kurucuTipi';
 import { binaBilgisi, binaKoseleri, type BinaTuru } from './kurucuSablonlari';
 
 /**
@@ -30,12 +30,39 @@ export function kurucuKatmani(features: Feature[], belge: KurucuBelge): Feature[
   const t = belgedenTaslak(belge);
   const gizli = new Set(t.gizlenen);
 
+  // Ev ve arsası tek yapı (8 Ekim): taşınan evin merkezi ve hareketi; arsası
+  // ve duvarı (`ev` alanı) aynı hareketle gider, ev kaldırılınca onlar da
+  const evHareketi = new Map<string, { c: Nokta; dx: number; dy: number; aci: number }>();
+  for (const f of features) {
+    const p = (f.properties ?? {}) as Record<string, unknown>;
+    if (p.katman !== 'bina' || f.geometry.type !== 'Polygon') continue;
+    const d = t.binaDuzeni[String(p.id ?? '')];
+    if (!d || !(d.dx || d.dy || d.aci)) continue;
+    const halka = (f.geometry.coordinates[0] as Nokta[]).slice(0, -1).map(metreye);
+    evHareketi.set(String(p.id), { c: merkezi(halka), dx: d.dx, dy: d.dy, aci: d.aci });
+  }
+  const evleTasi = (k: Nokta[], h: { c: Nokta; dx: number; dy: number; aci: number }) =>
+    etrafindaTasi(k.map(metreye), h.c, h.dx, h.dy, h.aci).map(derceye);
+
   const cikti: Feature[] = [];
   for (const f of features) {
     const p = (f.properties ?? {}) as Record<string, unknown>;
     const id = String(p.id ?? '');
     const katman = String(p.katman ?? '');
     if ((katman === 'yol' || katman === 'bina' || katman === 'zemin') && gizli.has(id)) continue;
+    if (p.ev && (katman === 'zemin' || katman === 'duvar')) {
+      const ev = String(p.ev);
+      if (gizli.has(ev)) continue;
+      const h = evHareketi.get(ev);
+      if (h && f.geometry.type === 'Polygon') {
+        cikti.push({ ...f, geometry: { type: 'Polygon', coordinates: f.geometry.coordinates.map(r => evleTasi(r as Nokta[], h)) } });
+        continue;
+      }
+      if (h && f.geometry.type === 'MultiLineString') {
+        cikti.push({ ...f, geometry: { type: 'MultiLineString', coordinates: f.geometry.coordinates.map(c => evleTasi(c as Nokta[], h)) } });
+        continue;
+      }
+    }
     if (katman === 'etiket' && id.startsWith('etk_') && gizli.has(id.slice(4))) continue;
     // Taşınan yapının adı da onunla gider (30 Eylül)
     const bd = katman === 'etiket' && id.startsWith('etk_') ? t.binaDuzeni[id.slice(4)] : undefined;

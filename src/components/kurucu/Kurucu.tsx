@@ -17,7 +17,7 @@ import { KATMANLAR_ACIK, notKaydi, notGuncelle, maddeIsareti, type KatmanAyari, 
 import {
   YOL_TURLERI, turBilgisi, bosTaslak, belgedenTaslak, taslaktanBelge, taslakBosMu,
   zeminCikar, yollariKur, yapistir, yeniYolId, derceye, metreye, uzunluk, karadaMi, DOGA_TURLERI, sadelestir,
-  binalariKur, binaKonabilirMi, hattaUzaklik, parcaCikar,
+  binalariKur, binaKonabilirMi, hattaUzaklik, parcaCikar, merkezi, etrafindaTasi,
   type KurucuTaslak, type KurucuYol, type KurucuBina, type Yapisma, type YolTuru, type Cati, type DogaTuru, type BinaDuzeltme
 } from './kurucuTipi';
 import {
@@ -118,6 +118,22 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
 
   const yollar = useMemo(() => yollariKur(zemin, taslak, egri), [zemin, taslak]);
   const binalar = useMemo(() => binalariKur(zemin, taslak, binaKoseleri), [zemin, taslak]);
+  // Evlerin arsaları (8 Ekim, Kemal: "2D'de bahçelerin görüntüsü bulunmuyor"):
+  // ev taşınınca, dönünce, kaldırılınca arsası da onunla
+  const evMerkezleri = useMemo(() => new Map(zemin.binalar.map(b => {
+    const h = b.halka.length > 1 && b.halka[0][0] === b.halka[b.halka.length - 1][0]
+      && b.halka[0][1] === b.halka[b.halka.length - 1][1] ? b.halka.slice(0, -1) : b.halka;
+    return [b.id, merkezi(h)] as const;
+  })), [zemin]);
+  const arsalar = useMemo(() => {
+    const ev = new Map<string, KurucuBina>(binalar.map(b => [b.id, b]));
+    return zemin.arsalar.flatMap(a => {
+      const b = ev.get(a.ev);
+      if (!b) return [];
+      const d = b.duzeltme, c = evMerkezleri.get(a.ev);
+      return [{ id: a.id, ev: a.ev, gizli: b.gizli, k: d && c ? etrafindaTasi(a.halka, c, d.dx, d.dy, d.aci) : a.halka }];
+    });
+  }, [zemin, binalar, evMerkezleri]);
 
   /**
    * Tek parça yapılar (30 Eylül, Kemal: "otel binasının kulelerini otele
@@ -1424,6 +1440,17 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
                 <path d={halkaYolu([d.m])} fill={bi.renk} fillOpacity={0.55} stroke={sec ? '#F26B6F' : bi.kenar} strokeWidth={px(sec ? 2.5 : 1)} />
                 {d.tur !== 'kumsal' && <path d={halkaYolu([d.m])} fill={`url(#${d.tur === 'orman' ? 'agac' : 'zeytin'}-deseni)`} style={{ pointerEvents: 'none' }} />}
               </g>
+            );
+          })}
+
+          {/* Evlerin arsaları: evin parçası; tıklayınca ev seçilir */}
+          {(katman.binalar ? arsalar : []).map(a => {
+            if (a.gizli) return null;
+            const kay = surukBina && lider(a.ev) === surukBina.id ? `translate(${surukBina.m[0] - surukBina.bas[0]} ${surukBina.m[1] - surukBina.bas[1]})` : undefined;
+            return (
+              <path key={a.id} data-bina={a.ev} transform={kay} d={halkaYolu([a.k])}
+                fill={lider(a.ev) === secili ? '#E4EFC9' : '#CFE0B4'} fillOpacity={0.9}
+                stroke="#B49A78" strokeWidth={px(0.7)} />
             );
           })}
 

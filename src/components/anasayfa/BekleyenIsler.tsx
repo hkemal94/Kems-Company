@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { Check, Loader2, Play } from 'lucide-react';
 import type { Item } from '../../types';
 import { useHaritaDuzeni, haritaKaydiDurumu } from '../../lib/haritaDuzeni';
+import { haritaGocu, haritaGocuGerekli } from '../../lib/merkezGocu';
 import { silinecekler, eskiAlanlar, silmeOzeti } from '../../lib/temizlik';
 import { mahalleAdDuzeltmeleri } from '../../lib/vikiTemizligi';
 import { boslukDoldurma } from '../../lib/boslukDoldurma';
@@ -45,7 +46,20 @@ export const BekleyenIsler: React.FC<Props> = ({ items, onUpdateItem, onAddItem,
   const [bitenler, setBitenler] = useState<Set<string>>(new Set());
 
   const isler: Is[] = [];
-  if (harita.ilkYukleme && harita.duzen && (durum.sisik || durum.islenmemis)) {
+  // Harita yenilendi (8 Ekim): önce bu; ardından taslak işlenirse temiz hâli gider
+  if (harita.ilkYukleme && haritaGocuGerekli(harita.duzen)) {
+    isler.push({
+      id: 'harita-gocu',
+      ad: 'Kurucu kaydını yeni haritaya uyarla',
+      aciklama: 'Merkez dört yol ağzında yeniden kuruldu, evler arsalarıyla yeniden dizildi. Eski Merkez\'in evlerine ve sokaklarına, eski ev dizilişine ait taşıma ve kaldırmalar silinir. Ayrıntısı Durum → Eksikler\'de.',
+      calistir: async () => {
+        const oldu = await harita.kaydet(haritaGocu(harita.duzen!));
+        if (!oldu) throw new Error('sunucuya yazılamadı (bu tarayıcıda duruyor, sonra yine dene)');
+        return 'Kurucu kaydı yeni haritaya uyarlandı.';
+      }
+    });
+  }
+  if (harita.ilkYukleme && harita.duzen && !haritaGocuGerekli(harita.duzen) && (durum.sisik || durum.islenmemis)) {
     isler.push({
       id: 'harita',
       ad: durum.islenmemis ? 'Kurucu taslağını haritaya işle' : 'Harita kaydını küçült',
