@@ -2,6 +2,7 @@ import * as maplibregl from 'maplibre-gl';
 import type { Map as MLMap } from 'maplibre-gl';
 import type { Feature, FeatureCollection, Point } from 'geojson';
 import { GOK, YAPI, YOL } from './haritaStili';
+import { CEVRE_COGRAFYASI } from '../../data/cevreCografyasi';
 
 /**
  * Haritanın atmosferi (30 Eylül, Kemal'in kararları: docs/soru-cevap/
@@ -14,8 +15,11 @@ import { GOK, YAPI, YOL } from './haritaStili';
  *   - Trafik: araçlar (en çok sahil yolunda), kıyı açıklarında tekneler,
  *     limanda bekleyen feribot. Saati gelince yenisi gelir, bu kalkar.
  *     Yoğunluk saate, mevsime ve yere göre.
- *   - Her zaman: uzakta anakara silueti ve Küçükkuyu Limanı'na feribot
- *     hattı.
+ *   - Her zaman: çevre (8 Ekim, H-b): gerçek kıyılarıyla Biga yarımadası,
+ *     Babakale, Edremit Körfezi, Bozcaada, Gökçeada, Midilli, Limni;
+ *     kıyılarında kumsal şeridi ve sığlık bantları, bütün denizde ince dalga
+ *     dokusu, uzakken yer adları (`gen/cevre.py`). Küçükkuyu Limanı'na
+ *     feribot hattı.
  *
  * Sitede üçü de hep açık; KKM'de düğmeyle açılıp kapanır.
  * Yalnız görüntüdür: hiçbir kayda yazmaz.
@@ -58,17 +62,28 @@ const FERIBOT_ROTASI: Nokta[] = [
   [26.45, 39.497], KUCUKKUYU
 ];
 
-/**
- * Anakara silueti: Biga yarımadasının batı kıyısı ve Edremit Körfezi'nin
- * kuzeyi (kabaca). Yalnız ufukta bir kara şeridi olarak görünür.
- */
-const ANAKARA: Nokta[] = [
-  [26.19, 40.1], [26.16, 39.9], [26.2, 39.81], [26.16, 39.7], [26.15, 39.6],
-  [26.12, 39.53], [26.07, 39.478], [26.2, 39.468], [26.34, 39.487],
-  [26.45, 39.51], [26.607, 39.556], [26.74, 39.575], [26.9, 39.585],
-  [27.0, 39.56], [26.95, 39.45], [26.8, 39.4], [26.69, 39.32], [26.7, 39.1],
-  [27.6, 39.1], [27.6, 40.1], [26.19, 40.1]
-];
+/** Çevre adları yalnız uzakken görünür (yakında adanın kendi etiketleri var) */
+const CEVRE_ETIKET_ZOOM = 11.2;
+
+/** Dalga dokusu: kısa, kırık açık çizgiler (her açılışta aynı) */
+function dalgaDokusu(): ImageData {
+  const N = 128, t = document.createElement('canvas');
+  t.width = N; t.height = N;
+  const c = t.getContext('2d')!;
+  let k = 11;
+  const r = () => { k = (k * 16807) % 2147483647; return k / 2147483647; };
+  c.lineCap = 'round';
+  for (let i = 0; i < 46; i++) {
+    const x = r() * N, y = r() * N, w = 5 + r() * 11;
+    c.strokeStyle = `rgba(235,244,250,${0.18 + r() * 0.22})`;
+    c.lineWidth = 0.8 + r() * 0.7;
+    c.beginPath();
+    c.moveTo(x, y);
+    c.quadraticCurveTo(x + w / 2, y - 1.6 - r() * 1.4, x + w, y);
+    c.stroke();
+  }
+  return c.getImageData(0, 0, N, N);
+}
 
 // ---- zaman ------------------------------------------------------------------
 
@@ -259,6 +274,7 @@ export class Atmosfer {
   private gunduzBinaRengi: unknown;
   private yildiz: HTMLDivElement;
   private etiket: maplibregl.Marker;
+  private cevreEtiketleri: maplibregl.Marker[] = [];
   private dongu = 0;
   private sonKare = 0;
   private sonDurum = 0;
@@ -278,6 +294,19 @@ export class Atmosfer {
     el.textContent = 'Küçükkuyu Limanı';
     el.style.cssText = 'font:italic 500 11px Poppins,sans-serif;letter-spacing:.08em;color:#F3EFE8;text-shadow:0 1px 2px rgba(14,28,79,.8);pointer-events:none;white-space:nowrap';
     this.etiket = new maplibregl.Marker({ element: el, anchor: 'left', offset: [6, 0] }).setLngLat(KUCUKKUYU).addTo(map);
+    // Çevrenin gerçek yer adları: ada adları geniş aralıklı, kıyı ve su eğik
+    for (const f of CEVRE_COGRAFYASI.features) {
+      const p = f.properties as Record<string, string> | null;
+      if (p?.katman !== 'etiket' || f.geometry.type !== 'Point') continue;
+      const e = document.createElement('div');
+      e.textContent = p.ad;
+      e.style.cssText = p.tur === 'ada'
+        ? 'font:600 11px Poppins,sans-serif;letter-spacing:.22em;text-transform:uppercase;color:#F3EFE8;text-shadow:0 1px 3px rgba(14,28,79,.85);pointer-events:none;white-space:nowrap'
+        : p.tur === 'su'
+          ? 'font:italic 400 12px Poppins,sans-serif;letter-spacing:.3em;color:rgba(235,244,250,.75);pointer-events:none;white-space:nowrap'
+          : 'font:italic 500 11px Poppins,sans-serif;letter-spacing:.08em;color:#F3EFE8;text-shadow:0 1px 2px rgba(14,28,79,.8);pointer-events:none;white-space:nowrap';
+      this.cevreEtiketleri.push(new maplibregl.Marker({ element: e }).setLngLat(f.geometry.coordinates as Nokta).addTo(map));
+    }
     map.on('move', this.ufukGuncelle);
     this.ufukGuncelle();
     this.durumUygula(true);
@@ -327,9 +356,26 @@ export class Atmosfer {
     for (const [ad, uret] of Object.entries(SIMGELER)) if (!m.hasImage(ad)) m.addImage(ad, uret(), { sdf: true });
     const bos: FeatureCollection = { type: 'FeatureCollection', features: [] };
 
-    // Anakara ve feribot hattı: denizin hemen üstünde, adanın altında
-    m.addSource('anakara', { type: 'geojson', data: { type: 'Feature', properties: {}, geometry: { type: 'Polygon', coordinates: [ANAKARA] } } });
-    m.addLayer({ id: 'anakara', type: 'fill', source: 'anakara', paint: { 'fill-color': '#8A9882', 'fill-opacity': 0.88 } }, 'ada-fiziki');
+    // Çevre (8 Ekim, H-b): sığlıklar, komşu karalar, kumsal şeridi, kıyı
+    // çizgisi; hepsi denizin hemen üstünde, adanın altında. Düzada'nın kendi
+    // sığ suyu fiziki görselde.
+    m.addSource('cevre', { type: 'geojson', data: CEVRE_COGRAFYASI });
+    m.addLayer({
+      id: 'cevre-sig', type: 'fill', source: 'cevre', filter: ['==', ['get', 'katman'], 'sig'],
+      paint: { 'fill-color': ['match', ['get', 'bant'], 1, '#3F8DBF', 2, '#2C6FA8', '#235E9B'], 'fill-antialias': false }
+    }, 'ada-fiziki');
+    m.addLayer({ id: 'anakara', type: 'fill', source: 'cevre', filter: ['==', ['get', 'katman'], 'kara'], paint: { 'fill-color': '#93A07C' } }, 'ada-fiziki');
+    m.addLayer({ id: 'cevre-kiyi', type: 'fill', source: 'cevre', filter: ['==', ['get', 'katman'], 'kiyi'], paint: { 'fill-color': '#CFC59A', 'fill-opacity': 0.85 } }, 'ada-fiziki');
+    m.addLayer({
+      id: 'cevre-kiyi-cizgi', type: 'line', source: 'cevre', filter: ['==', ['get', 'katman'], 'kara'],
+      paint: { 'line-color': '#F3EFE8', 'line-opacity': 0.55, 'line-width': ['interpolate', ['linear'], ['zoom'], 8, 0.5, 12, 1.4] }
+    }, 'ada-fiziki');
+    // Dalga dokusu: bütün denizde, Düzada'nın görselindeki suyun da üstünde
+    if (!m.hasImage('dalga-doku')) m.addImage('dalga-doku', dalgaDokusu());
+    m.addLayer({
+      id: 'deniz-doku', type: 'fill', source: 'cevre', filter: ['==', ['get', 'katman'], 'deniz'],
+      paint: { 'fill-pattern': 'dalga-doku', 'fill-opacity': ['interpolate', ['linear'], ['zoom'], 8, 0.35, 12, 0.55, 15, 0.25] }
+    }, m.getLayer('zemin-doku') ? 'zemin-doku' : undefined);
     m.addSource('feribot-hatti', { type: 'geojson', data: { type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: FERIBOT_ROTASI } } });
     m.addLayer({
       id: 'feribot-hatti', type: 'line', source: 'feribot-hatti',
@@ -390,6 +436,8 @@ export class Atmosfer {
     const yariFov = 18.43;                       // MapLibre dikey görüş açısının yarısı
     const y = aci >= yariFov ? 0 : h / 2 - (h / 2) * (Math.tan((aci * Math.PI) / 180) / Math.tan((yariFov * Math.PI) / 180));
     this.yildiz.style.height = `${Math.max(0, y)}px`;
+    const uzak = m.getZoom() < CEVRE_ETIKET_ZOOM;
+    for (const e of this.cevreEtiketleri) e.getElement().style.display = uzak ? '' : 'none';
   };
 
   ayarla(ayar: AtmosferAyari) {
@@ -411,7 +459,13 @@ export class Atmosfer {
     m.setPaintProperty('ada-fiziki', 'raster-brightness-max', parlaklik);
     m.setPaintProperty('ada-fiziki', 'raster-saturation', doygunluk);
     m.setPaintProperty('deniz', 'background-color', rasterGibi('#1C4E8C', parlaklik, doygunluk));
-    m.setPaintProperty('anakara', 'fill-color', karistir(karistir('#8A9882', '#8F948C', kis), '#1B2436', gece));
+    m.setPaintProperty('anakara', 'fill-color', karistir(karistir('#93A07C', '#8F948C', kis), '#1B2436', gece));
+    m.setPaintProperty('cevre-kiyi', 'fill-color', karistir(karistir('#CFC59A', '#B9B6A6', kis), '#262C3E', gece));
+    m.setPaintProperty('cevre-kiyi-cizgi', 'line-opacity', 0.55 * (1 - 0.7 * gece));
+    m.setPaintProperty('cevre-sig', 'fill-color', ['match', ['get', 'bant'],
+      1, rasterGibi('#3F8DBF', parlaklik, doygunluk), 2, rasterGibi('#2C6FA8', parlaklik, doygunluk), rasterGibi('#235E9B', parlaklik, doygunluk)]);
+    m.setPaintProperty('deniz-doku', 'fill-opacity', ['interpolate', ['linear'], ['zoom'],
+      8, 0.35 * (1 - 0.75 * gece), 12, 0.55 * (1 - 0.75 * gece), 15, 0.25 * (1 - 0.75 * gece)]);
     m.setPaintProperty('yol-dolgu', 'line-color', karistir(YOL.dolgu, '#6F6A5E', gece * 0.7));
     m.setSky({
       'sky-color': karistir(karistir(GOK.ust, '#AEBBC6', kis * 0.6), '#0B1430', gece),
@@ -549,5 +603,6 @@ export class Atmosfer {
     this.map.off('move', this.ufukGuncelle);
     this.yildiz.remove();
     this.etiket.remove();
+    for (const e of this.cevreEtiketleri) e.remove();
   }
 }

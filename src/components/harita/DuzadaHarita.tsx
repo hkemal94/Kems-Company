@@ -37,6 +37,12 @@ import { KATMANLAR_ACIK, type KatmanAyari, type HaritaIsareti } from '../../lib/
  */
 
 /** Adayı kareye oturtan başlangıç görünümü */
+/**
+ * En uzak bakış (8 Ekim, Kemal: "kameranın biraz daha uzaklaşmasına izin
+ * ver"): eskiden 9,5 — ada ve hemen çevresi. Şimdi Bozcaada, Babakale,
+ * Edremit Körfezi ve Midilli de görünür.
+ */
+const EN_UZAK = 8.4;
 const BASLANGIC = { zoom: 11.35, pitch: 46, bearing: -17 } as const;
 
 /**
@@ -181,11 +187,13 @@ export const DuzadaHarita: React.FC<DuzadaHaritaProps> = ({ onSelect, className,
         layers: [{ id: 'deniz', type: 'background', paint: { 'background-color': '#1C4E8C' } }]
       },
       center: ilkBakis.current?.merkez ?? DUZADA_MERKEZ,
-      zoom: vitrin ? Math.max(9.5, vitrinZoom) : Math.max(9.5, ilkBakis.current?.zoom ?? BASLANGIC.zoom),
+      zoom: vitrin ? Math.max(EN_UZAK, vitrinZoom) : Math.max(EN_UZAK, ilkBakis.current?.zoom ?? BASLANGIC.zoom),
       pitch: vitrin ? 52 : BASLANGIC.pitch,
       interactive: !vitrin,
       bearing: BASLANGIC.bearing,
-      minZoom: 9.5,
+      minZoom: EN_UZAK,
+      // Kamera çevrenin dışına kaçmasın (kıyılar gen/cevre.py çerçevesinde)
+      maxBounds: [[24.4, 38.6], [27.6, 40.75]],
       maxZoom: 19,
       maxPitch: 72,
       attributionControl: false
