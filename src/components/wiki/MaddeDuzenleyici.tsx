@@ -7,6 +7,7 @@ import { useKaydedilmemis } from '../../lib/kaydedilmemis';
 import { BAG_GRUPLARI, BAG_GRUP_SIRASI, bagAdaylari, etkinSablon, ozelAlanKimligi, semaAlanlari, takmaAdlar, type BagGrubu, type SablonAlani, type SemaAlani, type VikiSablonu } from '../../lib/alanSablonu';
 import { TYPE_LABELS, WIKI_TYPES, schemaKeyFor, getKunyeFields } from './wikiSchema';
 import { BAG_TURLERI, type BagTuru } from '../../utils/relations';
+import { bagUygun, kaynakTurleri, uygunTurler } from '../../lib/bagKurallari';
 
 /**
  * Madde düzenleyici (yapisal-4, 25–28). Vikinin yönetim yüzünde "düzenle"ye
@@ -89,6 +90,9 @@ export const MaddeDuzenleyici: React.FC<Props> = ({ item, allItems, onKaydet, on
   const kurumTikiVar = item.type !== 'marka' && item.type !== 'kulüp';
   const [kurum, setKurum] = useState<boolean>(item.metadata?.[KURUM_TIKI] === true);
   const [yeniHedef, setYeniHedef] = useState('');
+  // Bağ türü madde türüne özel (8 Ekim, `lib/bagKurallari.ts`): bu maddenin
+  // kurabileceği türler; hedef listesi seçilen türe uyan maddeler
+  const izinliTurler = useMemo(() => kaynakTurleri(item.type), [item.type]);
   const [yeniTur, setYeniTur] = useState<BagTuru>('genel bağlantı');
   const [yaziliyor, setYaziliyor] = useState(false);
 
@@ -272,9 +276,12 @@ export const MaddeDuzenleyici: React.FC<Props> = ({ item, allItems, onKaydet, on
             return (
               <li key={`${b.targetId}-${n}`} className="flex flex-wrap items-center gap-2 text-[13px]">
                 <select value={b.type} onChange={e => setBaglar(bs => bs.map((x, k) => (k === n ? { ...x, type: e.target.value as BagTuru } : x)))} className={secim}>
-                  {BAG_TURLERI.map(t => <option key={t.id} value={t.id}>{t.ad}</option>)}
+                  {/* Yalnız uyan türler; var olan uymayan tür seçili kalır, "uymuyor" yazar */}
+                  {BAG_TURLERI.filter(t => t.id === b.type || !h || uygunTurler(item.type, h.type).includes(t.id)).map(t => <option key={t.id} value={t.id}>{t.ad}</option>)}
                 </select>
-                <span className="flex-1 min-w-0 truncate">{h?.title || 'silinmiş madde'}{b.isProposal ? ' · öneri' : ''}</span>
+                <span className="flex-1 min-w-0 truncate">{h?.title || 'silinmiş madde'}{b.isProposal ? ' · öneri' : ''}
+                  {h && !bagUygun(b.type, item.type, h.type) && <span className="ml-1.5 text-[11px] text-kiremit" title="Bu bağ türü bu iki madde arasında olmaz; türü değiştir ya da bağı kaldır">· uymuyor</span>}
+                </span>
                 <input value={b.yil ?? bagYili(b)} onChange={e => setBaglar(bs => bs.map((x, k) => (k === n ? { ...x, yil: e.target.value } : x)))}
                   placeholder="yıllar" aria-label="Bağın yılları" title="İsteğe bağlı: 1950–1975 ya da 1950– (sürüyor)"
                   className={`${secim} w-28 ${b.yil && b.yil.trim() && yilOku(b.yil).bas === undefined ? 'border-kiremit' : ''}`} />
@@ -284,12 +291,12 @@ export const MaddeDuzenleyici: React.FC<Props> = ({ item, allItems, onKaydet, on
           })}
         </ul>
         <div className="flex flex-wrap items-center gap-2">
-          <select value={yeniTur} onChange={e => setYeniTur(e.target.value as BagTuru)} className={secim}>
-            {BAG_TURLERI.map(t => <option key={t.id} value={t.id}>{t.ad}</option>)}
+          <select value={yeniTur} onChange={e => { setYeniTur(e.target.value as BagTuru); setYeniHedef(''); }} className={secim}>
+            {BAG_TURLERI.filter(t => izinliTurler.includes(t.id)).map(t => <option key={t.id} value={t.id}>{t.ad}</option>)}
           </select>
           <select value={yeniHedef} onChange={e => setYeniHedef(e.target.value)} className={`${secim} flex-1 min-w-[160px]`}>
             <option value="">Madde seç…</option>
-            {hedefler.map(h => <option key={h.id} value={h.id}>{h.title} · {TYPE_LABELS[h.type] || h.type}</option>)}
+            {hedefler.filter(h => bagUygun(yeniTur, item.type, h.type)).map(h => <option key={h.id} value={h.id}>{h.title} · {TYPE_LABELS[h.type] || h.type}</option>)}
           </select>
           <button type="button" disabled={!yeniHedef} onClick={() => { setBaglar(bs => [...bs, { targetId: yeniHedef, type: yeniTur }]); setYeniHedef(''); }}
             className="inline-flex items-center gap-1 text-[12px] font-mono px-2.5 py-1.5 rounded border border-bej/70 hover:border-kiremit disabled:opacity-40">
