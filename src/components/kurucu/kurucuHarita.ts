@@ -1,7 +1,7 @@
 import type { Feature } from 'geojson';
 import { catmullRom, type Nokta } from '../harita/sinirBolgeleri';
 import type { KurucuBelge } from '../harita/duzenTipi';
-import { belgedenTaslak, metreye, derceye, kaydirDondur, merkezi, etrafindaTasi, type YolTuru } from './kurucuTipi';
+import { belgedenTaslak, metreye, derceye, kaydirDondur, merkezi, etrafindaTasi, yeniEvArsalari, type YolTuru } from './kurucuTipi';
 import { binaBilgisi, binaKoseleri, type BinaTuru } from './kurucuSablonlari';
 
 /**
@@ -145,6 +145,24 @@ export function kurucuKatmani(features: Feature[], belge: KurucuBelge): Feature[
           },
           geometry: { type: 'Polygon', coordinates: [kapali] }
         });
+  }
+  // Kurucu'da konan evlerin arsası ve duvarı (8 Ekim): haritanın evleri gibi
+  const hatlar = cikti.flatMap(f => (f.properties?.katman === 'yol' && f.geometry.type === 'LineString')
+    ? [(f.geometry.coordinates as Nokta[]).map(metreye)] : []);
+  const evler = Object.entries(t.yeniBinalar).filter(([id]) => !gizli.has(id))
+    .map(([id, b]) => ({ id, tur: b.tur, m: metreye(b.merkez), en: b.en, boy: b.boy, aci: b.aci }));
+  for (const a of yeniEvArsalari(evler, hatlar)) {
+    const k = a.halka.map(derceye);
+    cikti.push({
+      type: 'Feature',
+      properties: { katman: 'zemin', id: a.id, ad: '', tur: 'bahçe', ev: a.ev, kurucu: true },
+      geometry: { type: 'Polygon', coordinates: [[...k, k[0]]] }
+    });
+    cikti.push({
+      type: 'Feature',
+      properties: { katman: 'duvar', id: `duvar_${a.ev}`, ev: a.ev, kurucu: true },
+      geometry: { type: 'MultiLineString', coordinates: [a.duvar.map(derceye)] }
+    });
   }
   // Özel yapılar: kat sayısına göre yükselen prizma (kat başına 3,2 m)
   for (const [id, o] of Object.entries(t.ozelYapilar)) {

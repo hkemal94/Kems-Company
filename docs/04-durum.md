@@ -2108,3 +2108,18 @@ Cevaplar `docs/soru-cevap/logolar.md` (ikinci tur).
 - **Markalar → logolar:** birincil / ikincil yanında **alternatif** yuvası
   ve "Alternatif yap" düğmesi. Beyaz logo (KC harf) lacivert, siyah logo
   krem zeminde gösterilir; düz beyaz kutuda kayboluyordu.
+
+## 8 Ekim — H-d 1: yollar, şablon evleri, 2D araziler (uygulamada; kart yok)
+
+- **Kurucu'da çizerken üst üste binen yol.** Yeni yolun iki noktası da var
+  olan bir yola yapışınca aradaki parça o yolun kopyası oluyordu. Artık o
+  parça eklenmez, yol oradan bölünür ve var olan yola birleşir (ekranda kısa
+  uyarı). Eski kayıtta böyle 4 yer var (Stadyum 55. ve 57. Sokak, Çiftlik
+  Bağlantısı, sırt yollarının birleştiği yer); onlara dokunulmadı.
+- **Şablon ve Doldur evleri.** Kurucu'da konan müstakil ev, dükkânlı ev,
+  yazlık ve çiftlik evi haritanın kendi evleri gibi arsalı: ev yola bakar,
+  arkasında bahçe, çevresinde alçak duvar, bahçede ara ara ağaç. Arsa komşu
+  eve ve arkadaki yola taşmaz. Kayda yazılmaz, her çizimde hesaplanır.
+- **2D'de zeytinlik, tarla, bağ.** Haritanın zeytinlik, tarla ve bağları
+  Kurucu'da kesik çizgili sınırla görünür (tıklanmaz, yalnız görmek için).
+  Kemal'in Doğa aracıyla çizdikleri açık renkli dış konturla belirginleşti.

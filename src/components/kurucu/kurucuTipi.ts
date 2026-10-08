@@ -259,13 +259,17 @@ export interface Zemin {
   binalar: Array<{ id: string; ad: string; halka: Nokta[]; wikiId?: string; kat?: number; tur?: string }>;
   /** Evlerin arsaları (8 Ekim): metre, `ev` arsanın bağlı olduğu ev */
   arsalar: Array<{ id: string; ev: string; halka: Nokta[] }>;
+  /** Haritanın zeytinlik, tarla ve bağları (8 Ekim, Kemal: "2D'de gözükmüyor"): metre */
+  araziler: Array<{ id: string; tur: string; halka: Nokta[] }>;
   etiketler: Array<{ ad: string; m: Nokta; tur: string }>;
   yollar: Array<{ id: string; ad: string; tur: string; noktalar: Nokta[] }>;
 }
 
+const ARAZI_TURLERI = new Set(['zeytinlik', 'tarla', 'bağ']);
+
 /** Harita verisinden (düzen uygulanmış) Kurucu'nun zemini */
 export function zeminCikar(geo: FeatureCollection): Zemin {
-  const z: Zemin = { ada: [], mahalleler: [], binalar: [], arsalar: [], etiketler: [], yollar: [] };
+  const z: Zemin = { ada: [], mahalleler: [], binalar: [], arsalar: [], araziler: [], etiketler: [], yollar: [] };
   for (const f of geo.features) {
     const p = (f.properties ?? {}) as Record<string, unknown>;
     const g = f.geometry;
@@ -284,6 +288,8 @@ export function zeminCikar(geo: FeatureCollection): Zemin {
       });
     } else if (katman === 'zemin' && p.ev && g.type === 'Polygon') {
       z.arsalar.push({ id: String(p.id), ev: String(p.ev), halka: (g.coordinates as Nokta[][])[0].map(metreye) });
+    } else if (katman === 'zemin' && ARAZI_TURLERI.has(String(p.tur)) && g.type === 'Polygon') {
+      z.araziler.push({ id: String(p.id), tur: String(p.tur), halka: (g.coordinates as Nokta[][])[0].map(metreye) });
     } else if (katman === 'etiket' && g.type === 'Point' && (p.tur === 'mahalle' || p.tur === 'zirve')) {
       z.etiketler.push({ ad: String(p.ad ?? ''), m: metreye(g.coordinates as Nokta), tur: String(p.tur) });
     } else if (katman === 'yol' && g.type === 'LineString') {
@@ -492,6 +498,135 @@ export function hattaUzaklik(m: Nokta, hat: Nokta[]): { d: number; aci: number; 
     if (d < en.d) en = { d, aci: Math.atan2(dy, dx), q };
   }
   return en;
+}
+
+/**
+ * Çizilen yolun var olan bir yolun üstünden giden parçalarını ayıklar
+ * (8 Ekim, Kemal: "Kurucu'da çizerken üst üste biniyor"). İki nokta da aynı
+ * yola yapışınca aradaki parça o yolun kopyası oluyordu. Böyle parçalar
+ * atılır, yol oradan bölünür; kalan her parça (en az iki nokta) ayrı yoldur.
+ * `esik` metre: parçanın bütün örnekleri bir yola bu kadar yakınsa kopyadır.
+ */
+export function cakisanParcalariAyir(c: Nokta[], yollar: KurucuYol[], esik = 4): Nokta[][] {
+  const hatlar = yollar.filter(y => !y.gizli).flatMap(y => y.parcalar).filter(h => h.length >= 2);
+  const kopyaMi = (a: Nokta, b: Nokta) => {
+    if (Math.hypot(b[0] - a[0], b[1] - a[1]) < 2) return false;
+    const ornek = [0.15, 0.35, 0.5, 0.65, 0.85].map(t => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t] as Nokta);
+    return hatlar.some(h => ornek.every(o => hattaUzaklik(o, h).d < esik));
+  };
+  const parcalar: Nokta[][] = [];
+  let simdiki: Nokta[] = [c[0]];
+  for (let i = 1; i < c.length; i++) {
+    if (kopyaMi(c[i - 1], c[i])) {
+      if (simdiki.length >= 2) parcalar.push(simdiki);
+      simdiki = [c[i]];
+    } else simdiki.push(c[i]);
+  }
+  if (simdiki.length >= 2) parcalar.push(simdiki);
+  return parcalar;
+}
+
+/**
+ * Kurucu'da konan evlerin arsası (8 Ekim, Kemal: "şablonlardaki evler
+ * güncellenmemiş, 3D'de makul değil"). Haritanın kendi evleri gibi: ev
+ * yola bakar, arkasında bahçe, iki yanında dar şerit, çevresinde alçak duvar.
+ * Komşu evin arsasına ve arkadaki yola taşmaz. Kayda yazılmaz; ev her
+ * çizildiğinde yeniden hesaplanır (ev taşınınca arsası da gider).
+ * Arsa evin altını kapsamaz (U biçimi): bahçe ağaçları evin içine düşmesin.
+ */
+const ARSA_AYARI: Partial<Record<BinaTuru, { on: number; arka: number; yan: number }>> = {
+  ev: { on: 3, arka: 10, yan: 3 },
+  dukkanli: { on: 0.5, arka: 6, yan: 1.5 },
+  yazlik: { on: 5, arka: 14, yan: 6 },
+  ciftlik: { on: 4, arka: 12, yan: 6 }
+};
+
+export interface YeniArsa { id: string; ev: string; halka: Nokta[]; duvar: Nokta[] }
+
+export function yeniEvArsalari(
+  evler: Array<{ id: string; tur: BinaTuru | null; m: Nokta; en?: number; boy?: number; aci?: number }>,
+  hatlar: Nokta[][]
+): YeniArsa[] {
+  const uygun = evler.filter(b => b.tur && ARSA_AYARI[b.tur] && b.en && b.boy);
+  if (!uygun.length) return [];
+  // Yol parçaları 60 m'lik ızgarada: yakın yol hızlı bulunur
+  const H = 60;
+  const izgara = new Map<string, Array<[Nokta, Nokta]>>();
+  for (const h of hatlar) for (let i = 1; i < h.length; i++) {
+    const a = h[i - 1], b = h[i];
+    const x0 = Math.floor(Math.min(a[0], b[0]) / H), x1 = Math.floor(Math.max(a[0], b[0]) / H);
+    const y0 = Math.floor(Math.min(a[1], b[1]) / H), y1 = Math.floor(Math.max(a[1], b[1]) / H);
+    if ((x1 - x0) * (y1 - y0) > 400) continue;
+    for (let x = x0; x <= x1; x++) for (let y = y0; y <= y1; y++) {
+      const k = `${x},${y}`;
+      (izgara.get(k) ?? izgara.set(k, []).get(k)!).push([a, b]);
+    }
+  }
+  const enYakinYol = (p: Nokta): { d: number; q: Nokta } => {
+    let en = { d: Infinity, q: p };
+    const cx = Math.floor(p[0] / H), cy = Math.floor(p[1] / H);
+    for (let x = cx - 1; x <= cx + 1; x++) for (let y = cy - 1; y <= cy + 1; y++) {
+      for (const [a, b] of izgara.get(`${x},${y}`) ?? []) {
+        const dx = b[0] - a[0], dy = b[1] - a[1], l2 = dx * dx + dy * dy;
+        const t = l2 ? Math.max(0, Math.min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / l2)) : 0;
+        const q: Nokta = [a[0] + dx * t, a[1] + dy * t];
+        const d = Math.hypot(q[0] - p[0], q[1] - p[1]);
+        if (d < en.d) en = { d, q };
+      }
+    }
+    return en;
+  };
+  // Bir evin bir yöndeki yarı genişliği (döndürülmüş dikdörtgen)
+  const yariGenislik = (b: typeof uygun[number], e: Nokta) => {
+    const c = Math.cos(b.aci ?? 0), s = Math.sin(b.aci ?? 0);
+    return Math.abs((b.en! / 2) * (c * e[0] + s * e[1])) + Math.abs((b.boy! / 2) * (-s * e[0] + c * e[1]));
+  };
+
+  const cikti: YeniArsa[] = [];
+  for (const b of uygun) {
+    const A = ARSA_AYARI[b.tur!]!;
+    const c = Math.cos(b.aci ?? 0), s = Math.sin(b.aci ?? 0);
+    const eksenler: Array<{ e: Nokta; yari: number; yan: number }> = [
+      { e: [c, s], yari: b.en! / 2, yan: b.boy! / 2 }, { e: [-c, -s], yari: b.en! / 2, yan: b.boy! / 2 },
+      { e: [-s, c], yari: b.boy! / 2, yan: b.en! / 2 }, { e: [s, -c], yari: b.boy! / 2, yan: b.en! / 2 }
+    ];
+    // Ön yüz: en yakın yola bakan eksen; yol yoksa evin boy ekseni
+    const yol = enYakinYol(b.m);
+    let F = eksenler[3];
+    let on = 0;
+    if (yol.d < 45) {
+      const f: Nokta = [(yol.q[0] - b.m[0]) / (yol.d || 1), (yol.q[1] - b.m[1]) / (yol.d || 1)];
+      F = eksenler.reduce((en, x) => (x.e[0] * f[0] + x.e[1] * f[1] > en.e[0] * f[0] + en.e[1] * f[1] ? x : en));
+      on = Math.max(0, Math.min(A.on, yol.d - F.yari - 3.5));
+    }
+    const S: Nokta = [-F.e[1], F.e[0]];
+    const hf = F.yari, hs = F.yan;
+    let arka = A.arka, sag = A.yan, sol = A.yan;
+    // Komşu evler: yandakiyle arası, arkadakiyle arası ortadan bölünür
+    for (const n of uygun) {
+      if (n === b) continue;
+      const d: Nokta = [n.m[0] - b.m[0], n.m[1] - b.m[1]];
+      if (Math.abs(d[0]) > 60 || Math.abs(d[1]) > 60) continue;
+      const ds = d[0] * S[0] + d[1] * S[1], df = d[0] * F.e[0] + d[1] * F.e[1];
+      const nS = yariGenislik(n, S), nF = yariGenislik(n, F.e);
+      if (Math.abs(df) < hf + nF + 2) {
+        const bosluk = Math.max(0, (Math.abs(ds) - hs - nS) / 2);
+        if (ds > 0) sag = Math.min(sag, bosluk); else sol = Math.min(sol, bosluk);
+      } else if (df < 0 && Math.abs(ds) < hs + nS) {
+        arka = Math.min(arka, Math.max(1, (-df - hf - nF) / 2));
+      }
+    }
+    const nokta = (x: number, y: number): Nokta => [b.m[0] + S[0] * x + F.e[0] * y, b.m[1] + S[1] * x + F.e[1] * y];
+    // Arkadaki yola taşmasın: arka köşeler yoldan 4 m uzakta kalana dek kısalır
+    while (arka > 1 && [nokta(-hs - sol, -hf - arka), nokta(hs + sag, -hf - arka), nokta(0, -hf - arka)].some(p => enYakinYol(p).d < 4)) arka -= 1;
+    const L = hs + sol, R = hs + sag, O = hf + on, B = -hf - arka;
+    const halka: Nokta[] = [
+      [-L, O], [-L, B], [R, B], [R, O], [hs, O], [hs, -hf], [-hs, -hf], [-hs, O]
+    ].map(([x, y]) => nokta(x, y));
+    const duvar: Nokta[] = [[-hs, O], [-L, O], [-L, B], [R, B], [R, O], [hs, O]].map(([x, y]) => nokta(x, y));
+    cikti.push({ id: `arsa_${b.id}`, ev: b.id, halka, duvar });
+  }
+  return cikti;
 }
 
 /**
