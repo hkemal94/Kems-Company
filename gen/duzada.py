@@ -1545,7 +1545,7 @@ for i in range(7):
 # Yerleşkenin karaya bakan ucunda, bahçenin gerisinde ayrı bir kütle.
 # Kemal (28 Eylül): bina, İskele tarafındaki eski zeytinyağı fabrikası
 # (19. yy sonu – 1920'ler; 1950–70'lerde kapandı). Taş, uzun bir kütle.
-bina("bina_meyhane", "Sade Meze",
+bina("bina_meyhane", "Sade Meyhane",
      yerlesim_dikdortgen(-150, 96, 34, 17, 18.0), 9, "meyhane", "yer_iskele",
      wiki_id="viki_mekan_meyhane", kat=2)
 
@@ -2910,7 +2910,7 @@ for b in binalar:
         etiketler.append({"id": f"etk_{b['id']}", "ad": b["ad"], "tur": "yapi",
                           "xy": (c.x, c.y), "wikiId": b["wikiId"], "oncelik": 2})
     elif b["wikiId"]:
-        # Maddesi olan ama simge yapı olmayanlar: Sade Meze, Dondurmacı
+        # Maddesi olan ama simge yapı olmayanlar: Sade Meyhane, Dondurmacı
         # Kızlar, Belediye, Okul, Pazar. Adları haritada görünmüyordu, o
         # yüzden Kemal koyduğu adları haritada bulamıyordu. "mekan" türü
         # yaklaşınca açılır — kalabalık yapmaz.

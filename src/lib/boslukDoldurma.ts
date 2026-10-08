@@ -75,7 +75,7 @@ const CEVAPLAR: Array<[RegExp, Cevaplar]> = [
     sakinler: 'Eski köylü aileler, kamu çalışanları, esnaf, emekliler'
   }],
   [/^iskele mahalles/i, {
-    landmarks: 'The Imperial Kemsköy, Kemsköy Caddesi, eski kilise, Sade Meze',
+    landmarks: 'The Imperial Kemsköy, Kemsköy Caddesi, eski kilise, Sade Meyhane',
     sakinler: 'Ekonomik olarak üst seviyedeki aileler'
   }],
   [/^stadyum mahalles/i, {

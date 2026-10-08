@@ -247,7 +247,7 @@ export interface KunyeBagi {
 }
 
 /**
- * Bu maddeyi künyesindeki bir bağ alanında anan maddeler ("Sade Meze"
+ * Bu maddeyi künyesindeki bir bağ alanında anan maddeler ("Sade Meyhane"
  * sayfasında: Çalıştığı yer ← Ali). `degerOku` künye değerini verir
  * (şema alanı ya da notlardaki künye satırı).
  */

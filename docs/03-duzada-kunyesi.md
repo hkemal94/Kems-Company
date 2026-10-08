@@ -73,7 +73,7 @@ Aralıklar kanon; kesin yıl yoksa uydurulmaz. Ayrıntı `docs/soru-cevap/w3.md`
 - **Stadyum Mahallesi** — statın çevresinde büyüdü; kulüp çevresi ve adaya
   sonradan yerleşen aileler.
 - **Zeytinyağı** — eski fabrika İskele tarafında (19. yy sonu – 1920'ler
-  kuruldu, 1950–1970'lerde kapandı); taş binası bugün Sade Meze. Aynı
+  kuruldu, 1950–1970'lerde kapandı); taş binası bugün Sade Meyhane. Aynı
   dönemde Tariş benzeri bir kooperatif Çiftlik'e modern, küçük bir fabrika
   kurdu (adsız).
 - **Çiftlik Mahallesi** — hep dağınık küçük çiftliklerin bölgesi.
@@ -107,7 +107,7 @@ Aralıklar kanon; kesin yıl yoksa uydurulmaz. Ayrıntı `docs/soru-cevap/w3.md`
 - **Şenlikler** — zeytin hasadı, bağ bozumu, deniz şenliği, sürek geleneği
   (irili ufaklı).
 - **Dirlik** — ~~profesyonel alt lige birkaç kez inip çıktı~~ (W3 52. turda kalktı: kulüp hep amatör).
-- **Mekânlar** — Sade Meze: fabrika kapandıktan sonra bir süre boş kaldı,
+- **Mekânlar** — Sade Meyhane: fabrika kapandıktan sonra bir süre boş kaldı,
   1980–1990'larda meyhane oldu. Dondurmacı Kızlar: 2000 sonrası; Liman'da, iskelenin
   yakınında; kışın tatlıcı / kafe olur. Liman'daki kafe ayrı bir yer: 2010
   sonrası açılmış yeni bir kafe (adsız; W3 60–61. tur).
@@ -146,8 +146,8 @@ Aralıklar kanon; kesin yıl yoksa uydurulmaz. Ayrıntı `docs/soru-cevap/w3.md`
   ya da tekneyle.
 - **Kış** — poyraz kışın sert (feribot iptalleri çoğunlukla kışın), bahar
   sabahları sis, sonbaharda lodos.
-- **Sade Meze ve Dondurmacı Kızlar** — ikisinin de sahibi aynı kadın: ailesi
-  adalı, anakaradan geldi; Sade Meze ailesinden kalma. Adı yok.
+- **Sade Meyhane ve Dondurmacı Kızlar** — ikisinin de sahibi aynı kadın: ailesi
+  adalı, anakaradan geldi; Sade Meyhane ailesinden kalma. Adı yok.
 
 ## Ada hayatı · 3 (28 Eylül 2026, W3 28–35. turlar)
 
@@ -157,7 +157,7 @@ Aralıklar kanon; kesin yıl yoksa uydurulmaz. Ayrıntı `docs/soru-cevap/w3.md`
 - **Ada Tepesi** — antik yerleşim duvarları ve yangın gözetleme kulesi;
   toprak yol, son kısım patika.
 - **İskele** — cadde otelden bu yana yavaş yavaş dükkânlı yazlık caddesine
-  döndü; barlar 1970'lerden. Gece hayatı yıl boyu, kışın sakin; Sade Meze
+  döndü; barlar 1970'lerden. Gece hayatı yıl boyu, kışın sakin; Sade Meyhane
   yıl boyu açık.
 - **Kems Company** — adını Kemsköy'den alır (kurgu içinde). Caddedeki
   dükkânı yeni yapılmış bir binada; yıl yazılmaz (30 Eylül: marka
@@ -292,7 +292,7 @@ Ayrıntı: `docs/soru-cevap/madde-1.md`.
   döneminden; **eczane** 1980 sonrası.
 - **Okul** — maddesi "Düzada İlkokulu" (ilk ve ortaokul), 1920–1940'lar.
 - **Eski Kilise** — maddenin adı; gerçek adı bilinmiyor.
-- **Kemsköy Caddesi** — Kems Company dükkânı, Sade Meze, Eski Kilise,
+- **Kemsköy Caddesi** — Kems Company dükkânı, Sade Meyhane, Eski Kilise,
   barlar ve meyhaneler bu caddede.
 - **Otel** — Sahil Merdiveni otelden uçurum boyunca inen taş merdiven;
   dipte otelin kum cebi ve tahta iskele; Otel Yolu otele çıkar. Yanındaki
@@ -300,6 +300,26 @@ Ayrıntı: `docs/soru-cevap/madde-1.md`.
 - **Adların kökeni** — Çetmi Sırtı ← Küçükçetmi; Fener Burnu ← Deniz
   Feneri; Kuzey Sırtı ← yön.
 - **Sahil Yolu** — adayı dolanan halka (vikide maddesi bu adla).
+
+## Boşluk soru turu (8 Ekim 2026)
+
+Ayrıntı: `docs/soru-cevap/madde-2.md`.
+
+- **Sade Meyhane** — meyhanenin adı (Kemal, 8 Ekim). Eski metinlerdeki
+  "Sade Meze" adı değişti; eski ad maddenin takma adı.
+- **Güney Burnu** — kanon ad (96 m, İskele; adı yönünden).
+- **Zirvelerin mahallesi** (haritadaki sınır): Ada Tepesi, Kuzey Sırtı ve
+  Çetmi Sırtı Merkez; Fener Burnu Liman; Güney Burnu İskele.
+- **Sezon** — Merkez'in kamu yapıları ve esnafı yıl boyu; Liman Balık Hali
+  ve Balık Lokantası yıl boyu; Taraftar Birahanesi yıl boyu, maç günleri dolu.
+- **Merkez Camii** — Devlet (Diyanet); köy döneminden, 1980 sonrası yenilendi.
+- **Liman Balık Hali** — balıkçı kooperatifinin; Liman'da 1980–1990'lardan.
+- **Esnaf** (kahvehane, eczane, balık lokantası, taraftar birahanesi) —
+  aile işletmeleri (adları yok). Balık lokantası limanla (1980–1990'lar),
+  birahane statla (1980'ler).
+- **Küçükçetmi Çiftliği** — 20. yüzyıl başından; yıl boyu.
+- **Sahil Yolu** — beş mahalleden geçer; üstünde Deniz Feneri, Liman İdare
+  Binası, Taraftar Birahanesi, Stadyum Plajı.
 
 ## The Imperial Kemsköy
 
@@ -319,7 +339,7 @@ değildir** — onlara uydurma isim verilmez.
 Bunlar kanon, kullanılabilir:
 
 - **Ada Tepesi** — zirve
-- **Sade Meze** — meyhane, İskele Mahallesi
+- **Sade Meyhane** — meyhane, İskele Mahallesi
 - **Dondurmacı Kızlar** — dondurmacı, Liman Mahallesi (iskelenin yakını)
 - **Deniz Feneri** — Liman Mahallesi
 - **Dirlik Stadı**, **Dirlik Spor Kulübü** — Stadyum Mahallesi

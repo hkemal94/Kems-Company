@@ -61,7 +61,7 @@ export const MAHALLE_ISKELETI: MahalleBolumu[] = [
     iskelet: [
       'Düzada Köyü\'nün iskelesi ve birkaç balıkçı evi, köyün dışında kalan Kemsköy; 18. yüzyıl kilisesi ve yanında eski Rum mezarlığı. 1923 mübadelesi: kilisenin Rum cemaati gitti, gelen aileler boşalan evlere yerleşti; kilise o zamandan beri boş (belediye bakar, kapalı).',
       'Otel (1954): devlet misafirhanesi olarak yapıldı, 1960\'larda İstanbul merkezli büyük bir şirkete geçip otel oldu (şirketin adı yazılmaz); adada yaz turizmi başladı; otelciler ve varlıklı yazlıkçılar yerleşti, mübadele aileleri evlerini satıp Merkez\'e geçti; halk 1954 sonrası "mahalle" dedi, resmî mahalle olması belediyeyle.',
-      '1970\'lerden barlar; Kemsköy Caddesi yavaş yavaş dükkânlı yazlık caddesine döndü; eski zeytinyağı fabrikasının taş binası Sade Meze oldu; 1980–1990\'larda feribot ve balık hali Liman\'a taşındı, İskele otel, eğlence ve küçük teknelerin yeri olarak kaldı.'
+      '1970\'lerden barlar; Kemsköy Caddesi yavaş yavaş dükkânlı yazlık caddesine döndü; eski zeytinyağı fabrikasının taş binası Sade Meyhane oldu; 1980–1990\'larda feribot ve balık hali Liman\'a taşındı, İskele otel, eğlence ve küçük teknelerin yeri olarak kaldı.'
     ]
   },
   {

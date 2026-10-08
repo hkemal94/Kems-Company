@@ -1,4 +1,3 @@
-import { BOLUM_BASLIKLARI, eksikBolumler } from '../../lib/yerTurleri';
 import React, { useMemo, useState } from 'react';
 import { BookOpen, ChevronLeft, Eye, FileText, MapPin, Pin, Search, Settings2, Unlink } from 'lucide-react';
 import { Item, ItemType } from '../../types';
@@ -325,8 +324,7 @@ export const WikiShell: React.FC<WikiShellProps> = ({
               await onAddItem({
                 id, title: yeniAd.trim(), area: 'duzada', type: yeniTur, status: 'Fikir', priority: 'orta',
                 tags: [], links: [], notes: '', images: [], isProposal: false, archived: false,
-                // Kartın bölüm başlıkları boş açılır (8 Ekim soru turu)
-                metadata: { ...(BOLUM_BASLIKLARI[yeniTur] ? { wikiSections: eksikBolumler(yeniTur, [], id) } : {}) }
+                metadata: {}
               });
               setYeniAd(''); setYeniAcik(false); navigate(id);
             }}
