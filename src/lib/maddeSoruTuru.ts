@@ -53,13 +53,14 @@ export const TOHUMLAR: Tohum[] = [
   { ad: 'Fener Burnu', tur: 'yer_adi', bolge: 'liman', profil: { yerTuru: 'Burun · 118 m', adinKokeni: "Deniz Feneri'nden: fenerin durduğu burun" } },
   { ad: 'Güney Burnu', tur: 'yer_adi', bolge: 'iskele', profil: { yerTuru: 'Burun · 96 m', adinKokeni: 'Yönünden: adanın güneyindeki burun' } },
   { ad: 'İskele Koyu', tur: 'yer_adi', bolge: 'iskele', profil: { yerTuru: 'Koy, plaj' } },
-  { ad: 'Stadyum Plajı', tur: 'yer_adi', bolge: 'stadyum', profil: { yerTuru: 'Plaj (kumlu-çakıllı)' } },
+  // Kemal 8 Ekim'de adını Kuzey Plajı yaptı (eski adı Stadyum Plajı)
+  { ad: 'Kuzey Plajı', tur: 'yer_adi', bolge: 'stadyum', profil: { yerTuru: 'Plaj (kumlu-çakıllı)' } },
   { ad: 'Amfora Alanı', tur: 'yer_adi', bolge: 'liman', profil: { yerTuru: "Sualtı antik amfora alanı (Liman'ın açığında)" } },
   // Yollar (Sahil Yolu: çevre yolu maddesinin adı değişir, aşağıda)
   { ad: 'Kemsköy Caddesi', tur: 'cadde', bolge: 'İskele Mahallesi', profil: { uzerindekiler: 'Kems Company dükkânı, Sade Meyhane, Eski Kilise, barlar ve meyhaneler' } },
   { ad: 'Sahil Merdiveni', tur: 'cadde', bolge: 'İskele Mahallesi', profil: { uzerindekiler: 'The Imperial Kemsköy' } },
   { ad: 'Otel Yolu', tur: 'cadde', bolge: 'İskele Mahallesi', profil: { uzerindekiler: 'The Imperial Kemsköy' } },
-  { ad: 'Sahil Yolu', tur: 'cadde', bolge: 'Merkez Mahallesi, Liman Mahallesi, İskele Mahallesi, Stadyum Mahallesi, Çiftlik Mahallesi', profil: { uzerindekiler: 'Deniz Feneri, Liman İdare Binası, Taraftar Birahanesi, Stadyum Plajı' } },
+  { ad: 'Sahil Yolu', tur: 'cadde', bolge: 'Merkez Mahallesi, Liman Mahallesi, İskele Mahallesi, Stadyum Mahallesi, Çiftlik Mahallesi', profil: { uzerindekiler: 'Deniz Feneri, Liman İdare Binası, Taraftar Birahanesi, Kuzey Plajı' } },
   // Aile ve çiftlik
   { ad: 'Eskibey Ailesi', tur: 'aile', bolge: 'ciftlik', profil: { ugras: 'Zeytincilik', mekanlar: 'Küçükçetmi Çiftliği', gelis: "20. yüzyıl başı, Küçükkuyu'nun Küçükçetmi köyünden" } },
   MEKAN('Küçükçetmi Çiftliği', 'ciftlik', 'Çiftlik (Küçükçetmi Sürek Kulübü\'nün evi)', { manager: 'Eskibey Ailesi', season: 'Yıl boyu' }, '20. yüzyıl başı–')

@@ -162,12 +162,14 @@ export const MaddeSoruTuruKarti: React.FC<{
     if (calisiyor) return;
     setCalisiyor(true);
     let a = 0, d = 0;
+    // Biri yazılamazsa (ör. kayıt 1 MB sınırını aşıyor) öbürleri yine yazılır;
+    // yazılamayanlar söylenir (8 Ekim: kart her basışta yeniden çıkıyordu)
+    const olmayan: string[] = [];
     try {
-      for (const y of yeniler) { await onAddItem(y); a++; }
-      for (const x of duzelt) { await onUpdateItem(x.item); d++; }
-      setRapor(`${a} madde açıldı, ${d} madde düzeltildi. Metinleri boş; sen yazarsın.`);
-    } catch (e) {
-      setRapor(`${a} madde açıldı, ${d} düzeltildi; sonra hata: ${e instanceof Error ? e.message : 'bilinmeyen'}`);
+      for (const y of yeniler) { try { await onAddItem(y); a++; } catch { olmayan.push(y.title); } }
+      for (const x of duzelt) { try { await onUpdateItem(x.item); d++; } catch { olmayan.push(x.item.title); } }
+      setRapor(`${a} madde açıldı, ${d} madde düzeltildi. Metinleri boş; sen yazarsın.`
+        + (olmayan.length ? ` Yazılamayan: ${olmayan.join(', ')}.` : ''));
     } finally { setCalisiyor(false); }
   };
 

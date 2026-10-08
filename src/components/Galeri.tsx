@@ -39,7 +39,8 @@ const RAY_BOLUMLERI: RayBolumu[] = [
 ];
 
 /** Firestore'un 1 MB'lık belge sınırına yaklaşmayalım */
-const AZAMI_BAYT = 700_000;
+// 8 Ekim: 700 KB'lık görsel maddeyi 1 MB sınırına dayıyordu; görsel başına en çok 350 KB
+const AZAMI_BAYT = 350_000;
 
 export type GorselTuru = 'logo' | 'urun' | 'mekan' | 'ilham' | 'diger';
 

@@ -142,7 +142,7 @@ Aralıklar kanon; kesin yıl yoksa uydurulmaz. Ayrıntı `docs/soru-cevap/w3.md`
   yamaçlarında.
 - **Merkez** — meydanda eski taş çeşme ve yaşlı bir çınar; haftada bir
   pazar. Eski köylü aileler, kamu çalışanları, esnaf, emekliler; orta direk.
-- **Kıyılar** — Stadyum kıyısında kumlu-çakıllı plaj; gizli koylara patika
+- **Kıyılar** — Stadyum kıyısında kumlu-çakıllı plaj (**Kuzey Plajı**; eski geçici adı Stadyum Plajı, Kemal 8 Ekim); gizli koylara patika
   ya da tekneyle.
 - **Kış** — poyraz kışın sert (feribot iptalleri çoğunlukla kışın), bahar
   sabahları sis, sonbaharda lodos.
@@ -319,7 +319,7 @@ Ayrıntı: `docs/soru-cevap/madde-2.md`.
   birahane statla (1980'ler).
 - **Küçükçetmi Çiftliği** — 20. yüzyıl başından; yıl boyu.
 - **Sahil Yolu** — beş mahalleden geçer; üstünde Deniz Feneri, Liman İdare
-  Binası, Taraftar Birahanesi, Stadyum Plajı.
+  Binası, Taraftar Birahanesi, Kuzey Plajı.
 
 ## The Imperial Kemsköy
 
