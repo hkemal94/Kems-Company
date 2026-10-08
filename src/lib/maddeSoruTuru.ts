@@ -107,9 +107,12 @@ export function duzeltmeler(items: Item[]): Array<{ item: Item; neler: string[] 
   if (stad) {
     const p = profil(stad);
     const n: string[] = [];
-    if (p.shopType) n.push('künyedeki "Tür" yazısı silindi');
-    if (p.style) n.push('künyedeki "Mimari" yazısı silindi');
-    ekle(stad, n, i => ({ ...i, metadata: { ...i.metadata, profile: { ...profil(i), shopType: '', style: '' } } }));
+    // Yalnız eski uzun cümleler silinir; Kemal'in sonradan yazdığına dokunulmaz
+    const eskiTur = /^Spor kulübü kültürüyle/.test(p.shopType || '');
+    const eskiMimari = /^1950'li yılların toprak saha/.test(p.style || '');
+    if (eskiTur) n.push('künyedeki "Tür" yazısı silindi');
+    if (eskiMimari) n.push('künyedeki "Mimari" yazısı silindi');
+    ekle(stad, n, i => ({ ...i, metadata: { ...i.metadata, profile: { ...profil(i), ...(eskiTur ? { shopType: '' } : {}), ...(eskiMimari ? { style: '' } : {}) } } }));
   }
 
   const surek = bul(items, 'Küçükçetmi Sürek Kulübü');
@@ -118,20 +121,34 @@ export function duzeltmeler(items: Item[]): Array<{ item: Item; neler: string[] 
     const kurulus = '1950–1980 arası';
     const faaliyet = "Kuruluştan 1990–2000'lere: sürek avı; cemiyet ve hayırseverler kulübü. Av bırakıldıktan sonra: nişancılık, doğa yürüyüşleri, Kangal yetiştiriciliği, buluşma yeri.";
     const n: string[] = [];
-    if (p.founded !== kurulus) n.push(`kuruluş: ${kurulus}`);
-    if (p.field !== faaliyet) n.push('faaliyet dönemlere göre yazıldı');
-    if (p.leader) n.push('"Baş Sürekçi" silindi');
-    if (p.secrecy) n.push('"Üyelik: 40" silindi');
-    ekle(surek, n, i => ({ ...i, metadata: { ...i.metadata, profile: { ...profil(i), founded: kurulus, field: faaliyet, leader: '', secrecy: '' } } }));
+    // Yalnız eski değerler değişir (8 Ekim düzeltmesi: Kemal sonradan "Kurucu:
+    // Eskibey Ailesi" yazdı; kart onu "Baş Sürekçi" sanıp siliyordu)
+    const kurulusEski = !String(p.founded || '').trim() || /net olarak bilinmiyor/i.test(p.founded || '');
+    const faaliyetEski = !String(p.field || '').trim() || /^Cemiyet ve sosyal birliktelik/.test(p.field || '');
+    const liderEski = (p.leader || '').trim() === 'Baş Sürekçi';
+    const uyelikEski = (p.secrecy || '').trim() === '40';
+    if (kurulusEski) n.push(`kuruluş: ${kurulus}`);
+    if (faaliyetEski) n.push('faaliyet dönemlere göre yazıldı');
+    if (liderEski) n.push('"Baş Sürekçi" silindi');
+    if (uyelikEski) n.push('"Üyelik: 40" silindi');
+    ekle(surek, n, i => ({ ...i, metadata: { ...i.metadata, profile: {
+      ...profil(i),
+      ...(kurulusEski ? { founded: kurulus } : {}),
+      ...(faaliyetEski ? { field: faaliyet } : {}),
+      ...(liderEski ? { leader: '' } : {}),
+      ...(uyelikEski ? { secrecy: '' } : {})
+    } } }));
   }
 
-  const yil = (ad: string, deger: string) => {
+  // Yalnız boş ya da eski (hatalı / "bilinmiyor") değerde yazılır
+  const yil = (ad: string, deger: string, eski: RegExp) => {
     const i = bul(items, ad);
-    if (i && i.metadata?.faaliyet !== deger) ekle(i, [`faaliyet: ${deger}`], x => ({ ...x, metadata: { ...x.metadata, faaliyet: deger } }));
+    const f = String(i?.metadata?.faaliyet || '').trim();
+    if (i && f !== deger && (!f || eski.test(f))) ekle(i, [`faaliyet: ${deger}`], x => ({ ...x, metadata: { ...x.metadata, faaliyet: deger } }));
   };
-  yil('Dirlik Stadı', "1980'ler–");
-  yil('Düzada İlkokulu', "1920–1940'lar–");
-  yil('Merkez Pazarı', 'Köy döneminden–');
+  yil('Dirlik Stadı', "1980'ler–", /akfit|aktif|top sahası/i);
+  yil('Düzada İlkokulu', "1920–1940'lar–", /net olarak bilinmiyor/i);
+  yil('Merkez Pazarı', 'Köy döneminden–', /net olarak bilinmiyor/i);
 
   // Zaten var olan maddeler (ör. taşıma kartıyla Cadde'ye geçen Kemsköy
   // Caddesi): yalnız boş künye alanları dolar, dolu alana dokunulmaz

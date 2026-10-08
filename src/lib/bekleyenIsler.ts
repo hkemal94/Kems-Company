@@ -4,6 +4,7 @@ import { silinecekler } from './temizlik';
 import { mahalleAdDuzeltmeleri } from './vikiTemizligi';
 import { galeridenEksikler } from '../components/GaleriYedegiKarti';
 import { maddeSoruTuruIsVar } from './maddeSoruTuru';
+import { derlenecekler, ekDuzeltmeler } from './mahalleDerlemesi';
 import { adaMaddesiEksik, cevreYoluVar, mahalleTekrarlari, tasinacaklar } from './yerTurleri';
 
 /**
@@ -28,5 +29,6 @@ export function bekleyenDugmeler(items: Item[], haritaEskiKoordinatta = false): 
   if (tasinacaklar(items).length || adaMaddesiEksik(items) || !cevreYoluVar(items)) is.push('yer kartları');
   if (mahalleTekrarlari(items).length) is.push('mahalle derlemesi');
   if (maddeSoruTuruIsVar(items)) is.push('soru turu maddeleri');
+  if (derlenecekler(items).length || ekDuzeltmeler(items).length) is.push('mahalle derlemesi (Claude)');
   return is;
 }

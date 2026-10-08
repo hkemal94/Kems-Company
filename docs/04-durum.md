@@ -1965,3 +1965,27 @@ turu** kartı (`src/lib/maddeSoruTuru.ts`): kanonda olup maddesi olmayan
 yanlış alanlar düzeltilir; var olan aynı adlı maddede yalnız boş alan dolar.
 Çevre yolu maddesinin adı Sahil Yolu olur (kanondaki ad). Açık: otel
 merdiveni ve iskelesi haritada (H); mahalle derlemesi Kemal'in yedeğiyle.
+
+## 8 Ekim — mahalle derlemesi Claude'dan (uygulamada kart)
+
+Kemal'in yapay zekâ hakkı doldu; stüdyodaki derleme yalnız Stadyum'da
+çalışmıştı. Kemal Drive → KKM yedekleri'ne 8 Ekim yedeğini koydu, Claude
+okudu ve Merkez, Liman, İskele, Çiftlik'in tekrar eden öneri bölümlerini
+derledi (`src/lib/mahalleDerlemesi.ts`). Durum → Eksikler → **Mahalle
+derlemesi hazır** kartı eski ve yeni hâli yan yana gösterir; "Derlenmiş
+hâli koy" ile yazılır, metinler "öneri" olarak kalır.
+
+- Yeni bilgi yok; künyede ya da resmî bölümde yazan tekrar edilmedi.
+- Kanonla çelişen cümleler düzeltildi: okul ve kahvehane o yıllarda
+  "açıldı" (kapanmadı); jandarma köy döneminden (yapay zekâ "1980'de
+  kuruldu" yazmıştı); Çiftlik'te yerleşim 20. yy başında başlamadı (o
+  yıllarda gelen yalnız Eskibey Ailesi); Yağ Fabrikası 1950–1970 arasında
+  "kuruldu".
+- Merkez'in çarşı eki resmî "Çarşı ve işletmeler"in altında bekler
+  (Yerine koy / Altına ekle / At).
+- Ek: Düzada'da boş ikinci "Ulaşım" bölümü kalkar; Ada Tepesi künyesi
+  kanondan (Tepe · 742 m, Merkez).
+- **Düzeltme:** soru turu kartı, Kemal'in sonradan yazdığı değerleri
+  (Küçükçetmi "Kurucu: Eskibey Ailesi") eski hatalı değer sanıp silmeye
+  çalışıyordu. Artık yalnız eski hatalı / "bilinmiyor" değerleri düzeltir.
+- Açık soru: maddenin adı "Sade Meyhane", kanonda "Sade Meze".
