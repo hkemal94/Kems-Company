@@ -81,19 +81,29 @@ function sabitSayi(s: string, tuz: number): number {
  * Kuvvetle dizme: bağlı maddeler birbirini çeker, hepsi birbirini iter,
  * hafif bir çekim merkeze toplar. `sabit` konumlar yerinden oynamaz
  * (Kemal'in kaydettiği yerleşim).
+ *
+ * Bağsız maddeler (8 Ekim, Kemal: "bağ ağında bağsız maddeler daha yakın
+ * olsun") kuvvete girmez: herkes onları itip ağın en dışına savuruyordu.
+ * Ağın hemen sağına, türe göre sıralı bir blok hâlinde dizilirler.
+ * Kayıtlı yerleşimde ağdan çok uzağa savrulmuş bağsız madde de bloğa gelir;
+ * ağa yakın duranın (Kemal'in elle koyduğu) yeri korunur.
  */
 export function diz(dugumler: AgDugumu[], kenarlar: AgKenari[], sabit: Map<string, Konum> = new Map(), tur = 320): Map<string, Konum> {
-  const n = dugumler.length;
   const k = 70;
+  const bagli = new Set<string>();
+  for (const e of kenarlar) { bagli.add(e.a); bagli.add(e.b); }
+  const agdakiler = dugumler.filter(d => bagli.has(d.id));
+  const bagsizlar = dugumler.filter(d => !bagli.has(d.id));
+  const n = agdakiler.length;
   const p = new Map<string, Konum>();
-  dugumler.forEach(d => {
+  agdakiler.forEach(d => {
     const s = sabit.get(d.id);
     if (s) { p.set(d.id, { ...s }); return; }
     const aci = sabitSayi(d.id, 1) * Math.PI * 2;
     const r = 60 + sabitSayi(d.id, 2) * Math.sqrt(n) * 45;
     p.set(d.id, { x: Math.cos(aci) * r, y: Math.sin(aci) * r });
   });
-  const ids = dugumler.map(d => d.id);
+  const ids = agdakiler.map(d => d.id);
   let sicaklik = 40;
   for (let t = 0; t < tur; t++) {
     const kayma = new Map<string, Konum>(ids.map(id => [id, { x: 0, y: 0 }]));
@@ -123,7 +133,6 @@ export function diz(dugumler: AgDugumu[], kenarlar: AgKenari[], sabit: Map<strin
     for (const id of ids) {
       if (sabit.has(id)) continue;
       const q = p.get(id)!, m = kayma.get(id)!;
-      // Merkeze hafif çekim: bağsız maddeler uzağa savrulmasın
       m.x -= q.x * 0.02; m.y -= q.y * 0.02;
       const uz = Math.sqrt(m.x * m.x + m.y * m.y) || 1;
       const adim = Math.min(uz, sicaklik);
@@ -131,6 +140,32 @@ export function diz(dugumler: AgDugumu[], kenarlar: AgKenari[], sabit: Map<strin
     }
     sicaklik = Math.max(1, sicaklik * 0.985);
   }
+
+  // ---- bağsızlar: ağın hemen yanında
+  const ks = [...p.values()];
+  const c: Konum = ks.length
+    ? { x: ks.reduce((t, q) => t + q.x, 0) / ks.length, y: ks.reduce((t, q) => t + q.y, 0) / ks.length }
+    : { x: 0, y: 0 };
+  // Ağın yarıçapı: uçtaki birkaç madde değil, %90'ı
+  const uzaklik = ks.map(q => Math.hypot(q.x - c.x, q.y - c.y)).sort((a, b) => a - b);
+  const R = uzaklik.length ? uzaklik[Math.floor(uzaklik.length * 0.9)] : 0;
+  const ARA = 46;  // ağa yakınlık payı
+  const dizilecek: AgDugumu[] = [];
+  for (const d of bagsizlar) {
+    const s = sabit.get(d.id);
+    if (s && Math.hypot(s.x - c.x, s.y - c.y) <= R + 4 * ARA) p.set(d.id, { ...s });
+    else dizilecek.push(d);
+  }
+  dizilecek.sort((a, b) => a.tur.localeCompare(b.tur, 'tr') || a.ad.localeCompare(b.ad, 'tr'));
+  // Ağın sağında, türe göre sıralı derli toplu bir blok: yazılar okunur kalsın
+  const SUTUN = 150, SATIR = 38;
+  const satirSayisi = Math.max(1, Math.ceil(Math.sqrt(dizilecek.length * 2.5)));
+  // Sağ kenar: ağın %90'ı (uçta tek tük savrulmuş madde bloğu uzaklaştırmasın)
+  const sagX = ks.length ? [...ks.map(q => q.x)].sort((a, b) => a - b)[Math.floor(ks.length * 0.95)] : 0;
+  const x0 = sagX + 90, y0 = c.y - ((Math.min(satirSayisi, dizilecek.length) - 1) * SATIR) / 2;
+  dizilecek.forEach((d, i) => {
+    p.set(d.id, { x: x0 + Math.floor(i / satirSayisi) * SUTUN, y: y0 + (i % satirSayisi) * SATIR });
+  });
   return p;
 }
 

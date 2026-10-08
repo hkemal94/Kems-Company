@@ -89,7 +89,7 @@ import type { DurumSekmesi } from './components/Durum';
 import type { SeritHedefi } from './components/anasayfa/YuzdeSeridi';
 const Duzada = lazyYukle(() => import('./components/Duzada'));
 import type { DuzadaSekmesi } from './components/Duzada';
-import type { AtolyeSekmesi } from './components/Atolye';
+import type { AtolyeHedefi } from './components/Atolye';
 const Merch = lazyYukle(() => import('./components/Merch'));
 const Atolye = lazyYukle(() => import('./components/Atolye'));
 const YaziAtolyesi = lazyYukle(() => import('./components/YaziAtolyesi'));
@@ -142,7 +142,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<Sayfa>('komuta');
   /** Paket 4: alt sekmeye doğrudan gitme istekleri (telefonda Harita, Kurucu, Kitap) */
   const [duzadaIstek, setDuzadaIstek] = useState<{ sekme: DuzadaSekmesi; n: number } | null>(null);
-  const [atolyeIstek, setAtolyeIstek] = useState<{ sekme: AtolyeSekmesi; n: number; aile?: string; madde?: string } | null>(null);
+  const [atolyeIstek, setAtolyeIstek] = useState<{ sekme: AtolyeHedefi; n: number; aile?: string; madde?: string } | null>(null);
   const [yaziIstek, setYaziIstek] = useState<{ sekme: 'blog' | 'kitap' | 'fanzin'; n: number } | null>(null);
   /** Neyin Eksik sayfası açılırken açık gelecek başlık */
   const [eksikAcik, setEksikAcik] = useState<string | null>(null);
@@ -704,7 +704,9 @@ export default function App() {
     if (!hedef.startsWith('durum-')) setDurumListe(null);
     switch (hedef) {
       // 4. gece: Harita ve Kurucu Atölye'de
-      case 'harita': case 'kurucu': case 'atolye': setAtolyeIstek({ sekme: 'harita', n }); setActiveTab('atolye'); break;
+      case 'harita': case 'kurucu': setAtolyeIstek({ sekme: 'harita', n }); setActiveTab('atolye'); break;
+      // Atölye'nin kendisi önce başlangıç ekranını açar (8 Ekim)
+      case 'atolye': setAtolyeIstek({ sekme: 'giris', n }); setActiveTab('atolye'); break;
       case 'bagagi': setAtolyeIstek({ sekme: 'ag', n }); setActiveTab('atolye'); break;
       case 'zaman': setAtolyeIstek({ sekme: 'zaman', n }); setActiveTab('atolye'); break;
       case 'tuval': setAtolyeIstek({ sekme: 'tuval', n, ...(ayrinti ? { madde: ayrinti } : {}) }); setActiveTab('atolye'); break;
