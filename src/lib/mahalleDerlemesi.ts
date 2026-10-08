@@ -74,7 +74,7 @@ Fener 1970'lerde otomatiğe geçti; bekçi evi sahil güvenliğin kullanımına 
 
 20. yüzyıl başında Küçükkuyu'nun Küçükçetmi köyünden gelen Eskibey Ailesi'nin Küçükçetmi Çiftliği burada. Köyün eski sürek avı geleneği, ailenin 1950–1980 arasında kurduğu Küçükçetmi Sürek Kulübü'yle sürdü; çiftlik evi kulübün evi oldu. Av 1990–2000'lerde bırakıldı.
 
-1950–1970 arasında kooperatif (Kemsköy Ziraat İşletmeleri Kurumu) mahallede modern, küçük bir zeytinyağı fabrikası kurdu. Bağcılık adada 2000 sonrası başladı; küçük aile şaraphaneleri bu dönemde açıldı.`
+1950–1970 arasında kooperatif (Düzada Ziraat İşletmeleri Kurumu) mahallede modern, küçük bir zeytinyağı fabrikası kurdu. Bağcılık adada 2000 sonrası başladı; küçük aile şaraphaneleri bu dönemde açıldı.`
       }
     ]
   }

@@ -2088,3 +2088,23 @@ Hepsi yol haritasında.
   ama ekranda bir şey yapmıyor; kart M paketinde.
 - Açık: Markalar'da Kemal'in açtığı "Düzada Ziraat İşletmeleri Kurumu"
   (kanonda "Kemsköy …"); M paketinde sorulacak.
+
+## 8 Ekim — M: logolar (uygulamada; bir kart)
+
+Kemal'in Drive'a koyduğu 12 şeffaf logo (`public/galeri/logolar/`).
+Cevaplar `docs/soru-cevap/logolar.md` (ikinci tur).
+
+- **Kart: Eksikler → Logolar → Yerleştir.** Sıra Kemal'in:
+  Kems Company = Ana (birincil) · Bayrak (ikincil) · KC harf (alternatif);
+  Küçükçetmi Sürek Kulübü = Maskot · Yazı · Harf; Dirlik ve The Imperial
+  Kemsköy birer birincil; Dondurmacı Kızlar = külahlı birincil, yazı ikincil.
+  Eski logolar silinmez, "Deneme" olarak arkada kalır. Galeri'deki küçük
+  kopyalar büyükleriyle değişir, 2 yeni logo eklenir.
+- **Kurum adı:** Düzada Ziraat İşletmeleri Kurumu (eski "Kemsköy Ziraat …"
+  ad değişikliği kartına eklendi). Birlik Zeytin ve Birlik Birası onun
+  ürünleri: kart iki boş ürün maddesi açar (metin Kemal'in). Kurumun
+  künyesindeki boş alanlar kanondan dolar (kuruluş, faaliyet, yeri); dolu
+  alana dokunulmaz.
+- **Markalar → logolar:** birincil / ikincil yanında **alternatif** yuvası
+  ve "Alternatif yap" düğmesi. Beyaz logo (KC harf) lacivert, siyah logo
+  krem zeminde gösterilir; düz beyaz kutuda kayboluyordu.

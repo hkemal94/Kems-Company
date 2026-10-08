@@ -17,7 +17,9 @@ import type { Item } from '../types';
 
 /** Uygulamadaki ad saklama gelmeden önce yapılmış değişiklikler */
 const BILINEN: Array<{ eski: string; yeni: string }> = [
-  { eski: 'Stadyum Plajı', yeni: 'Kuzey Plajı' }
+  { eski: 'Stadyum Plajı', yeni: 'Kuzey Plajı' },
+  // Kemal 8 Ekim: kooperatifin adı etiketlerdeki gibi (kanon "Kemsköy …" idi)
+  { eski: 'Kemsköy Ziraat İşletmeleri Kurumu', yeni: 'Düzada Ziraat İşletmeleri Kurumu' }
 ];
 
 const kucuk = (s: string) => s.trim().replace(/I/g, 'ı').replace(/İ/g, 'i').toLocaleLowerCase('tr');

@@ -15,3 +15,15 @@ Birlik Birası, çizgi köpek figürü, 12. sayfa (önizlemesi açılmadı).
 
 Açık: etiketlerde kurumun adı "Düzada …" diye yazıyor; kanondaki ad "Kemsköy …".
 Logoyu eklerken Kemal'e gösterilecek.
+
+## İkinci tur (8 Ekim öğlen)
+
+| Soru | Cevap |
+|---|---|
+| Kurumun adı: "Düzada …" (Kemal'in açtığı kayıt, etiketler) mi, kanondaki "Kemsköy …" mü | **Düzada Ziraat İşletmeleri Kurumu.** Kanon ve metinler değişir (Ad değişikliği kartı). |
+| Birlik Birası: kanonda "Kems Company ürünü, evrende üretim yok" yazıyordu | **Bira da kooperatifin**; evrende üretilir. |
+| Kooperatif hangi türde | **Kurum** (Markalar'da da). Kemal'in açtığı kayıt kullanılır. |
+| Kems Company logo sırası | **Ana (kutu) · Bayrak · Harf** |
+| Küçükçetmi logo sırası | **Maskot (Kangal) · Yazı · Harf (KÇ)** |
+| Dondurmacı Kızlar | **Külahlı birincil**, yazı ikincil |
+| Revize logolar | Drive'da aynı dosyalar: değişen yalnız Kems Company ana logosu ve külahlı Dondurmacı Kızlar (küçültülmüş). |
