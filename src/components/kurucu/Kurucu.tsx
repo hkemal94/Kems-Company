@@ -16,7 +16,7 @@ import type { KayitDurumu } from '../../lib/haritaDuzeni';
 import { KATMANLAR_ACIK, notKaydi, notGuncelle, maddeIsareti, type KatmanAyari, type HaritaIsareti } from '../../lib/haritaIsaretleri';
 import {
   YOL_TURLERI, turBilgisi, bosTaslak, belgedenTaslak, taslaktanBelge, taslakBosMu,
-  zeminCikar, yollariKur, yapistir, yeniYolId, derceye, metreye, uzunluk, karadaMi, DOGA_TURLERI, sadelestir,
+  zeminCikar, yollariKur, yapistir, cakisanParcalariAyir, yeniEvArsalari, yeniYolId, derceye, metreye, uzunluk, karadaMi, DOGA_TURLERI, sadelestir,
   binalariKur, binaKonabilirMi, hattaUzaklik, parcaCikar, merkezi, etrafindaTasi,
   type KurucuTaslak, type KurucuYol, type KurucuBina, type Yapisma, type YolTuru, type Cati, type DogaTuru, type BinaDuzeltme
 } from './kurucuTipi';
@@ -81,6 +81,13 @@ interface Gorunum { x: number; y: number; w: number }
 const EKVATOR_MPP = 78271.517;
 
 const egri = (k: Nokta[]) => catmullRom(k, false, 6);
+
+/** Haritadan gelen arazilerin 2D rengi (8 Ekim) */
+const ARAZI_RENGI: Record<string, { renk: string; kenar: string }> = {
+  zeytinlik: { renk: '#8FA25E', kenar: '#4F6334' },
+  tarla: { renk: '#E3D3A0', kenar: '#8C7748' },
+  'bağ': { renk: '#B8C27A', kenar: '#66702F' }
+};
 const yolYolu = (m: Nokta[]) =>
   m.length ? 'M' + m.map(p => `${p[0].toFixed(1)},${p[1].toFixed(1)}`).join('L') : '';
 /** Parçası silinmiş yol birden çok çizgidir */
@@ -132,8 +139,12 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
       if (!b) return [];
       const d = b.duzeltme, c = evMerkezleri.get(a.ev);
       return [{ id: a.id, ev: a.ev, gizli: b.gizli, k: d && c ? etrafindaTasi(a.halka, c, d.dx, d.dy, d.aci) : a.halka }];
-    });
-  }, [zemin, binalar, evMerkezleri]);
+    }).concat(
+      // Kurucu'da konan evlerin arsası (8 Ekim): haritadaki gibi bahçeli
+      yeniEvArsalari(binalar.filter(b => b.yeni && !b.gizli), yollar.filter(y => !y.gizli).flatMap(y => y.parcalar))
+        .map(a => ({ id: a.id, ev: a.ev, gizli: false, k: a.halka }))
+    );
+  }, [zemin, binalar, evMerkezleri, yollar]);
 
   /**
    * Tek parça yapılar (30 Eylül, Kemal: "otel binasının kulelerini otele
@@ -514,16 +525,23 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
   const bitir = useCallback((ekle?: Nokta) => {
     const c = ekle ? [...cizilen, ekle] : cizilen;
     if (c.length >= 2) {
-      degistir(t => {
-        const id = yeniYolId(t.yeniYollar);
-        let y: KurucuTaslak = { ...t, yeniYollar: { ...t.yeniYollar, [id]: { tur: cizTur, noktalar: c.map(derceye) } } };
-        for (const k of kavsakAdaylari) if (c.some(p => p === k.q)) y = kavsakEkle(y, k.yolId, k.q);
+      // Var olan yolun üstünden giden parça atılır, yol oradan bölünür (8 Ekim)
+      const parcalar = cakisanParcalariAyir(c, yollar);
+      if (!parcalar.length) setUyari('Bu yol zaten var — üstüne çizilen parça eklenmedi.');
+      else if (parcalar.flat().length < c.length || parcalar.length > 1) setUyari('Var olan yolun üstünden giden parça eklenmedi; yol oradan birleşir.');
+      if (parcalar.length) degistir(t => {
+        let y: KurucuTaslak = t;
+        for (const parca of parcalar) {
+          const id = yeniYolId(y.yeniYollar);
+          y = { ...y, yeniYollar: { ...y.yeniYollar, [id]: { tur: cizTur, noktalar: parca.map(derceye) } } };
+        }
+        for (const k of kavsakAdaylari) if (parcalar.some(pr => pr.some(p => p === k.q))) y = kavsakEkle(y, k.yolId, k.q);
         return y;
       });
     }
     setCizilen([]);
     setKavsakAdaylari([]);
-  }, [cizilen, cizTur, degistir, kavsakAdaylari]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [cizilen, cizTur, degistir, kavsakAdaylari, yollar]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ---- bina ve şablon yerleştirme ---------------------------------------------
   const gorunurYolHatlari = useMemo(() => yollar.filter(y => !y.gizli).flatMap(y => y.parcalar), [yollar]);
@@ -1431,13 +1449,27 @@ export function Kurucu({ duzen, kaydet, durum, arsivle, className, items = [], o
           <image href={`${import.meta.env.BASE_URL || '/'}ada-fiziki.webp`} x={fiziki.x} y={fiziki.y}
             width={fiziki.w} height={fiziki.h} preserveAspectRatio="none" style={{ pointerEvents: 'none' }} />
 
+          {/* Haritanın zeytinlik, tarla ve bağları (8 Ekim): düzenlerken görünsün diye kesik çizgili sınır */}
+          {(katman.doga ? zemin.araziler : []).map(a => {
+            const r = ARAZI_RENGI[a.tur] ?? ARAZI_RENGI.tarla;
+            return (
+              <g key={a.id} style={{ pointerEvents: 'none' }}>
+                <path d={halkaYolu([a.halka])} fill={r.renk} fillOpacity={0.45} stroke={r.kenar} strokeWidth={px(1.4)}
+                  strokeDasharray={`${px(5)} ${px(3)}`} strokeLinejoin="round" />
+                {a.tur === 'zeytinlik' && <path d={halkaYolu([a.halka])} fill="url(#zeytin-deseni)" />}
+              </g>
+            );
+          })}
+
           {/* Doğa alanları */}
           {(katman.doga ? dogaAlanlari : []).map(d => {
             const bi = DOGA_TURLERI.find(x => x.id === d.tur)!;
             const sec = d.id === secili;
             return (
               <g key={d.id} data-doga={d.id}>
-                <path d={halkaYolu([d.m])} fill={bi.renk} fillOpacity={0.55} stroke={sec ? '#F26B6F' : bi.kenar} strokeWidth={px(sec ? 2.5 : 1)} />
+                {/* Açık renkli dış kontur: yeşil zeminde kaybolmasın (8 Ekim) */}
+                <path d={halkaYolu([d.m])} fill="none" stroke="#FAF8F5" strokeOpacity={0.85} strokeWidth={px(sec ? 4.5 : 3.2)} strokeLinejoin="round" style={{ pointerEvents: 'none' }} />
+                <path d={halkaYolu([d.m])} fill={bi.renk} fillOpacity={0.55} stroke={sec ? '#F26B6F' : bi.kenar} strokeWidth={px(sec ? 2.5 : 1.6)} strokeLinejoin="round" />
                 {d.tur !== 'kumsal' && <path d={halkaYolu([d.m])} fill={`url(#${d.tur === 'orman' ? 'agac' : 'zeytin'}-deseni)`} style={{ pointerEvents: 'none' }} />}
               </g>
             );
